@@ -10,7 +10,7 @@ All notable changes to pnCore are documented in this file.
 
 - **pnCore** public repository: MCP server (`packages/pn-core-mcp/`), Cursor plugin (`plugins/pnCore/`), and canonical content under `packages/pn-core-mcp/content/`.
 - 166 skills, 17 workflow types, 24 MCP tools, 9 public agents + 6 internal orchestration agents, and `pn-core://` resources.
-- Install paths: MCP one-click deeplink, `npx github:perniemann/pnCore install`, and local `npm run setup` / `npm run mcp-config`.
+- Install paths: MCP one-click deeplink, `npx github:perniemann/pnCore plugin-install`, and local `npm run setup` / `npm run mcp-config`.
 
 ### Changed
 

@@ -10,7 +10,6 @@
     "pn-core-install": "scripts/install-to-project.mjs"
   },
   "scripts": {
-    "install": "node scripts/install-to-project.mjs",
     "validate": "npm run format:check && node scripts/validate-parallel.mjs && node scripts/validate-workflow-contract.mjs && node scripts/validate-skill-schema.mjs && node scripts/validate-skeptic-gates.mjs",
     "validate:skill-security": "node scripts/validate-skill-security.mjs",
     "report:gates": "node scripts/report-gates.mjs",
@@ -28,7 +27,8 @@
     "sync:version": "node scripts/sync-version.mjs",
     "postversion": "npm run sync:version",
     "setup": "npm install && npm run build:mcp && node scripts/setup-hooks.mjs",
-    "prepare": "node scripts/sync-version.mjs && npm run build:mcp",
+    "plugin-install": "node scripts/install-to-project.mjs",
+    "prepare": "node scripts/prepare-root.mjs",
     "mcp-config": "node scripts/mcp-config-write.mjs",
     "mcp-pin": "npm run build:mcp && npm run mcp-config",
     "check:mcp": "node scripts/check-mcp-config.mjs",

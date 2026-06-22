@@ -1,2 +1,2 @@
 node_modules/
-dist/
+# dist/ is committed for npx git installs (see root .gitignore)

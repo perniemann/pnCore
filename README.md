@@ -9,7 +9,7 @@
 One product, two surfaces:
 
 - **MCP server** (`packages/pn-core-mcp/`) — executable logic: workflows, tools, resources (`pn-core://`), gates, and state. Runs in any MCP client.
-- **Cursor plugin** (`plugins/pnCore/`) — native Cursor UX: slash commands, file-glob rules, agent selector, hooks. Installed into your project with `npx github:perniemann/pnCore install`.
+- **Cursor plugin** (`plugins/pnCore/`) — native Cursor UX: slash commands, file-glob rules, agent selector, hooks. Installed into your project with `npx github:perniemann/pnCore plugin-install`.
 
 Canonical content lives in `packages/pn-core-mcp/content/` and syncs into the plugin via `npm run sync:content`. Edit canonical files only; never hand-edit the plugin copy.
 
@@ -27,7 +27,7 @@ Canonical content lives in `packages/pn-core-mcp/content/` and syncs into the pl
 
 ### Cursor — MCP (one-click)
 
-[![Install MCP](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=pn-core&config=eyJjb21tYW5kIjoiY21kIiwiYXJncyI6WyIvYyIsIm5weCIsIi15IiwiLS1wYWNrYWdlPWdpdCtodHRwczovL2dpdGh1Yi5jb20vcGVybmllbWFubi9wbkNvcmUuZ2l0I21haW4iLCItLSIsIm5vZGUiLCJwYWNrYWdlcy9wbi1jb3JlLW1jcC9kaXN0L2luZGV4LmpzIl19)
+[![Install MCP](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=pn-core&config=eyJjb21tYW5kIjoiY21kIiwiYXJncyI6WyIvYyIsIm5weCIsIi15IiwiLS1wYWNrYWdlPWdpdCtodHRwczovL2dpdGh1Yi5jb20vcGVybmllbWFubi9wbkNvcmUuZ2l0I21haW4iLCJwbi1jb3JlLW1jcCJdfQ==)
 
 Or add manually to `~/.cursor/mcp.json`:
 
@@ -36,7 +36,7 @@ Or add manually to `~/.cursor/mcp.json`:
   "mcpServers": {
     "pn-core": {
       "command": "cmd",
-      "args": ["/c", "npx", "-y", "--package=git+https://github.com/perniemann/pnCore.git#main", "--", "node", "packages/pn-core-mcp/dist/index.js"]
+      "args": ["/c", "npx", "-y", "--package=git+https://github.com/perniemann/pnCore.git#main", "pn-core-mcp"]
     }
   }
 }
@@ -49,7 +49,7 @@ Or add manually to `~/.cursor/mcp.json`:
 From your **target project** directory:
 
 ```bash
-npx github:perniemann/pnCore install
+npx github:perniemann/pnCore plugin-install
 ```
 
 Copies commands, rules, skills, agents, config, and hooks into `.cursor/` and `.cursor-plugin/`. Reload Cursor, then run `/pn-new`.

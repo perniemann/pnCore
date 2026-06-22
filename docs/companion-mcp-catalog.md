@@ -40,7 +40,7 @@ For a full pnCore-oriented setup:
 
 Run one of:
 
-- From a project (without cloning): `npx github:perniemann/pnCore install -- --with-shadcn`
+- From a project (without cloning): `npx github:perniemann/pnCore plugin-install -- --with-shadcn`
 - From repo root (cloned): `node scripts/install-to-project.mjs --with-shadcn`
 
 ---

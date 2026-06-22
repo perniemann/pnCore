@@ -5,6 +5,7 @@ node_modules/
 *.tsbuildinfo
 coverage/
 dist/
+!packages/pn-core-mcp/dist/
 
 # Environment
 .env

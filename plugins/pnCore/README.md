@@ -6,7 +6,7 @@ Cursor plugin for **pnCore 0.14.6**: rules, skills, agents, and commands for Nod
 
 **Add pnCore to any project (full plugin):** From that project's directory, run:
 ```bash
-npx github:perniemann/pnCore install
+npx github:perniemann/pnCore plugin-install
 ```
 Or clone this repo and run:
 ```bash
