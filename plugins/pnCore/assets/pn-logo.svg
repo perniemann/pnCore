@@ -1,0 +1,313 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="pnCore logo">
+  <title>pnCore logo</title>
+  <defs>
+    <style>
+      @font-face {
+        font-family: 'Press Start 2P';
+        src: url(https://fonts.gstatic.com/s/pressstart2p/v15/e3t4euO8T-267oIAQAu6jDQyK0nR.woff2) format('woff2');
+      }
+    </style>
+    <radialGradient id="bg" cx="50%" cy="48%" r="68%">
+      <stop offset="0%" stop-color="#1a1a1a"/>
+      <stop offset="100%" stop-color="#0a0a0a"/>
+    </radialGradient>
+    <linearGradient id="tg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e8e8e8">
+        <animate attributeName="stop-color" values="#e8e8e8;#ffffff;#e8e8e8" dur="6s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" stop-color="#b8b8b8">
+        <animate attributeName="stop-color" values="#b8b8b8;#e0e0e0;#b8b8b8" dur="6s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+    <linearGradient id="ag" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#b0b0b0"/>
+      <stop offset="100%" stop-color="#686868"/>
+    </linearGradient>
+    <linearGradient id="cg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#888888"/>
+      <stop offset="50%" stop-color="#a0a0a0"/>
+      <stop offset="100%" stop-color="#606060"/>
+    </linearGradient>
+    <radialGradient id="vg" cx="50%" cy="50%" r="50%">
+      <stop offset="60%" stop-color="transparent"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0.5"/>
+    </radialGradient>
+    <radialGradient id="crtTube" cx="50%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="transparent"/>
+      <stop offset="85%" stop-color="transparent"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0.4"/>
+    </radialGradient>
+    <filter id="gl" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2.5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="ng" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="bg2" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="8"/>
+    </filter>
+    <filter id="ph" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3.5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="cp">
+      <rect width="128" height="128" rx="24"/>
+    </clipPath>
+    <pattern id="dg" width="10" height="10" patternUnits="userSpaceOnUse">
+      <circle cx="5" cy="5" r="0.4" fill="#555"/>
+    </pattern>
+    <pattern id="sl" x="0" y="0" width="128" height="4" patternUnits="userSpaceOnUse">
+      <rect width="128" height="2" fill="#000" opacity="0.15"/>
+      <animate attributeName="y" values="0;4" dur="0.08s" repeatCount="indefinite"/>
+    </pattern>
+    <pattern id="slFine" x="0" y="0" width="128" height="2" patternUnits="userSpaceOnUse">
+      <rect width="128" height="0.5" fill="#000" opacity="0.08"/>
+      <animate attributeName="y" values="0;2" dur="0.04s" repeatCount="indefinite"/>
+    </pattern>
+    <path id="o1" d="M42,64 A22,22 0 1,1 86,64 A22,22 0 1,1 42,64"/>
+    <path id="o2" d="M31,64 A33,33 0 1,1 97,64 A33,33 0 1,1 31,64"/>
+    <path id="o3" d="M20,64 A44,44 0 1,1 108,64 A44,44 0 1,1 20,64"/>
+    <path id="o4" d="M10,64 A54,54 0 1,1 118,64 A54,54 0 1,1 10,64"/>
+
+    <!-- Glassmorphism gradients -->
+    <linearGradient id="glass" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fff" stop-opacity="0.35"/>
+      <stop offset="20%" stop-color="#fff" stop-opacity="0.12"/>
+      <stop offset="50%" stop-color="#fff" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#fff" stop-opacity="0.02"/>
+    </linearGradient>
+    <linearGradient id="glassEdge" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fff" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#fff" stop-opacity="0.08"/>
+    </linearGradient>
+    <linearGradient id="glassHighlight" x1="0%" y1="0%" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fff" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="glassBlur" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.15 0" result="blurAlpha"/>
+      <feMerge><feMergeNode in="blurAlpha"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <g clip-path="url(#cp)">
+    <rect width="128" height="128" fill="url(#bg)"/>
+    <rect width="128" height="128" fill="url(#dg)" opacity="0.04"/>
+    <rect x="1" y="1" width="126" height="126" rx="23" fill="none" stroke="#888" stroke-width="0.5" opacity="0.08"/>
+
+    <circle cx="64" cy="64" r="32" fill="#808080" filter="url(#bg2)" opacity="0.05">
+      <animate attributeName="opacity" values="0.03;0.08;0.03" dur="4s" repeatCount="indefinite"/>
+      <animate attributeName="r" values="28;36;28" dur="4s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="88" cy="40" r="25" fill="#666" filter="url(#bg2)" opacity="0.025"/>
+
+    <path d="M64,64 L64,19 A45,45 0 0,1 103,41.5 Z" fill="#777" opacity="0.02">
+      <animateTransform attributeName="transform" type="rotate" from="0 64 64" to="360 64 64" dur="10s" repeatCount="indefinite"/>
+    </path>
+
+    <circle cx="64" cy="64" r="18" fill="none" stroke="#aaa" stroke-width="0.8">
+      <animate attributeName="r" values="18;58" dur="4.5s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.15;0" dur="4.5s" repeatCount="indefinite"/>
+      <animate attributeName="stroke-width" values="0.8;0.1" dur="4.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="64" cy="64" r="18" fill="none" stroke="#888" stroke-width="0.5">
+      <animate attributeName="r" values="18;58" dur="4.5s" repeatCount="indefinite" begin="-2.25s"/>
+      <animate attributeName="opacity" values="0.1;0" dur="4.5s" repeatCount="indefinite" begin="-2.25s"/>
+      <animate attributeName="stroke-width" values="0.5;0.05" dur="4.5s" repeatCount="indefinite" begin="-2.25s"/>
+    </circle>
+
+    <g opacity="0.03" stroke="#aaa" stroke-width="0.3">
+      <line x1="64" y1="8" x2="64" y2="120"/>
+      <line x1="8" y1="64" x2="120" y2="64"/>
+      <line x1="24" y1="24" x2="104" y2="104"/>
+      <line x1="104" y1="24" x2="24" y2="104"/>
+    </g>
+
+    <circle cx="64" cy="64" r="22" fill="none" stroke="#bbb" stroke-width="0.35" opacity="0.12" stroke-dasharray="2.5 4"/>
+    <circle cx="64" cy="64" r="33" fill="none" stroke="#999" stroke-width="0.3" opacity="0.10" stroke-dasharray="3 5"/>
+    <circle cx="64" cy="64" r="44" fill="none" stroke="#777" stroke-width="0.25" opacity="0.08" stroke-dasharray="4 6"/>
+    <circle cx="64" cy="64" r="54" fill="none" stroke="#666" stroke-width="0.2" opacity="0.05" stroke-dasharray="2 3.5"/>
+
+    <polygon points="96,64 80,36.3 48,36.3 32,64 48,91.7 80,91.7" fill="none" stroke="url(#cg)" stroke-width="0.4" opacity="0.08">
+      <animate attributeName="opacity" values="0.05;0.1;0.05" dur="6s" repeatCount="indefinite"/>
+    </polygon>
+    <polygon points="92,64 78,39.8 50,39.8 36,64 50,88.2 78,88.2" fill="none" stroke="url(#ag)" stroke-width="0.5" opacity="0.14">
+      <animate attributeName="opacity" values="0.1;0.18;0.1" dur="6s" repeatCount="indefinite"/>
+    </polygon>
+
+    <g fill="#b0b0b0">
+      <circle cx="92" cy="64" r="1.2"><animate attributeName="opacity" values="0.1;0.4;0.1" dur="3s" repeatCount="indefinite"/></circle>
+      <circle cx="78" cy="39.8" r="1.2"><animate attributeName="opacity" values="0.1;0.4;0.1" dur="3s" repeatCount="indefinite" begin="-0.5s"/></circle>
+      <circle cx="50" cy="39.8" r="1.2"><animate attributeName="opacity" values="0.1;0.4;0.1" dur="3s" repeatCount="indefinite" begin="-1s"/></circle>
+      <circle cx="36" cy="64" r="1.2"><animate attributeName="opacity" values="0.1;0.4;0.1" dur="3s" repeatCount="indefinite" begin="-1.5s"/></circle>
+      <circle cx="50" cy="88.2" r="1.2"><animate attributeName="opacity" values="0.1;0.4;0.1" dur="3s" repeatCount="indefinite" begin="-2s"/></circle>
+      <circle cx="78" cy="88.2" r="1.2"><animate attributeName="opacity" values="0.1;0.4;0.1" dur="3s" repeatCount="indefinite" begin="-2.5s"/></circle>
+    </g>
+
+    <g fill="none" stroke="url(#ag)" stroke-width="0.5" stroke-linecap="round" opacity="0.12">
+      <path d="M78,39.8 L78,30 L94,30 L94,20" stroke-dasharray="34" stroke-dashoffset="34">
+        <animate attributeName="stroke-dashoffset" values="34;0;0;34" dur="4s" repeatCount="indefinite"/>
+      </path>
+      <path d="M92,64 L102,64 L102,50 L112,50" stroke-dasharray="30" stroke-dashoffset="30">
+        <animate attributeName="stroke-dashoffset" values="30;0;0;30" dur="4s" repeatCount="indefinite" begin="-1s"/>
+      </path>
+      <path d="M78,88.2 L78,100 L64,100 L64,112" stroke-dasharray="38" stroke-dashoffset="38">
+        <animate attributeName="stroke-dashoffset" values="38;0;0;38" dur="4s" repeatCount="indefinite" begin="-2s"/>
+      </path>
+      <path d="M36,64 L26,64 L26,78 L16,78" stroke-dasharray="30" stroke-dashoffset="30">
+        <animate attributeName="stroke-dashoffset" values="30;0;0;30" dur="4s" repeatCount="indefinite" begin="-3s"/>
+      </path>
+      <path d="M50,39.8 L40,30 L24,30" stroke-dasharray="24" stroke-dashoffset="24">
+        <animate attributeName="stroke-dashoffset" values="24;0;0;24" dur="4s" repeatCount="indefinite" begin="-0.5s"/>
+      </path>
+      <path d="M50,88.2 L40,98 L24,98" stroke-dasharray="24" stroke-dashoffset="24">
+        <animate attributeName="stroke-dashoffset" values="24;0;0;24" dur="4s" repeatCount="indefinite" begin="-2.5s"/>
+      </path>
+    </g>
+
+    <g>
+      <circle cx="94" cy="20" r="1.5" fill="#ccc" filter="url(#ng)" opacity="0">
+        <animate attributeName="opacity" values="0;0.5;0.5;0" dur="4s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="112" cy="50" r="1.5" fill="#ccc" filter="url(#ng)" opacity="0">
+        <animate attributeName="opacity" values="0;0.5;0.5;0" dur="4s" repeatCount="indefinite" begin="-1s"/>
+      </circle>
+      <circle cx="64" cy="112" r="1.5" fill="#ccc" filter="url(#ng)" opacity="0">
+        <animate attributeName="opacity" values="0;0.5;0.5;0" dur="4s" repeatCount="indefinite" begin="-2s"/>
+      </circle>
+      <circle cx="16" cy="78" r="1.5" fill="#ccc" filter="url(#ng)" opacity="0">
+        <animate attributeName="opacity" values="0;0.5;0.5;0" dur="4s" repeatCount="indefinite" begin="-3s"/>
+      </circle>
+      <circle cx="24" cy="30" r="1.2" fill="#aaa" filter="url(#ng)" opacity="0">
+        <animate attributeName="opacity" values="0;0.4;0.4;0" dur="4s" repeatCount="indefinite" begin="-0.5s"/>
+      </circle>
+      <circle cx="24" cy="98" r="1.2" fill="#aaa" filter="url(#ng)" opacity="0">
+        <animate attributeName="opacity" values="0;0.4;0.4;0" dur="4s" repeatCount="indefinite" begin="-2.5s"/>
+      </circle>
+    </g>
+
+    <circle r="1.8" fill="#d0d0d0" filter="url(#ng)">
+      <animateMotion dur="8s" repeatCount="indefinite"><mpath href="#o1"/></animateMotion>
+      <animate attributeName="opacity" values="0.5;1;0.5" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="1.2" fill="#b0b0b0" filter="url(#ng)" opacity="0.65">
+      <animateMotion dur="8s" repeatCount="indefinite" begin="-4s"><mpath href="#o1"/></animateMotion>
+    </circle>
+
+    <circle r="1.5" fill="#999" filter="url(#ng)">
+      <animateMotion dur="13s" repeatCount="indefinite"><mpath href="#o2"/></animateMotion>
+      <animate attributeName="opacity" values="0.4;0.9;0.4" dur="4s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="1.1" fill="#888" filter="url(#ng)" opacity="0.55">
+      <animateMotion dur="13s" repeatCount="indefinite" begin="-4.33s"><mpath href="#o2"/></animateMotion>
+    </circle>
+    <circle r="0.85" fill="#bbb" filter="url(#ng)" opacity="0.45">
+      <animateMotion dur="13s" repeatCount="indefinite" begin="-8.66s"><mpath href="#o2"/></animateMotion>
+    </circle>
+
+    <circle r="1.5" fill="#999" filter="url(#ng)">
+      <animateMotion dur="19s" repeatCount="indefinite"><mpath href="#o3"/></animateMotion>
+      <animate attributeName="opacity" values="0.35;0.9;0.35" dur="5s" repeatCount="indefinite"/>
+    </circle>
+    <circle r="1.1" fill="#888" filter="url(#ng)" opacity="0.5">
+      <animateMotion dur="19s" repeatCount="indefinite" begin="-4.75s"><mpath href="#o3"/></animateMotion>
+    </circle>
+    <circle r="0.9" fill="#aaa" filter="url(#ng)" opacity="0.4">
+      <animateMotion dur="19s" repeatCount="indefinite" begin="-9.5s"><mpath href="#o3"/></animateMotion>
+    </circle>
+    <circle r="0.7" fill="#999" filter="url(#ng)" opacity="0.35">
+      <animateMotion dur="19s" repeatCount="indefinite" begin="-14.25s"><mpath href="#o3"/></animateMotion>
+    </circle>
+
+    <circle r="1.2" fill="#888" filter="url(#ng)" opacity="0.5">
+      <animateMotion dur="25s" repeatCount="indefinite"><mpath href="#o4"/></animateMotion>
+    </circle>
+    <circle r="0.9" fill="#777" filter="url(#ng)" opacity="0.35">
+      <animateMotion dur="25s" repeatCount="indefinite" begin="-8.33s"><mpath href="#o4"/></animateMotion>
+    </circle>
+    <circle r="0.7" fill="#999" filter="url(#ng)" opacity="0.3">
+      <animateMotion dur="25s" repeatCount="indefinite" begin="-16.66s"><mpath href="#o4"/></animateMotion>
+    </circle>
+
+    <!-- Red triangle accent (behind text, 50% larger) -->
+    <polygon points="40,84 88,84 64,36" fill="none" stroke="#dc2626" stroke-width="0.5"/>
+
+    <!-- Retro terminal monogram: _pn + blinking cursor -->
+    <g fill="#808080" filter="url(#bg2)">
+      <rect x="34" y="75" width="10" height="2.5" rx="0.5"/>
+      <text x="66" y="76" text-anchor="middle" font-family="'Press Start 2P', monospace" font-weight="700" font-size="36">pn</text>
+      <animate attributeName="opacity" values="0.3;0.5;0.3" dur="3s" repeatCount="indefinite"/>
+    </g>
+    <g fill="url(#tg)" filter="url(#ph)">
+      <rect x="34" y="75" width="10" height="2.5" rx="0.5"/>
+      <text x="66" y="76" text-anchor="middle" font-family="'Press Start 2P', monospace" font-weight="700" font-size="36">pn</text>
+      <animate attributeName="opacity" values="0.92;1;0.96;1;0.90;1;0.94;1" dur="0.15s" repeatCount="indefinite"/>
+    </g>
+
+    <!-- Blinking block cursor -->
+    <rect x="89" y="58" width="10" height="18" rx="1" fill="#e0e0e0" filter="url(#ng)">
+      <animate attributeName="opacity" values="0;0;0.85;0.85" dur="1.06s" repeatCount="indefinite"/>
+    </rect>
+
+    <g fill="none" stroke="url(#ag)" stroke-width="0.7" stroke-linecap="round">
+      <path d="M16,28 L16,20 Q16,16 20,16 L28,16" opacity="0">
+        <animate attributeName="opacity" values="0;0.25;0" dur="5s" repeatCount="indefinite"/>
+      </path>
+      <path d="M100,16 L108,16 Q112,16 112,20 L112,28" opacity="0">
+        <animate attributeName="opacity" values="0;0.25;0" dur="5s" repeatCount="indefinite" begin="-1.25s"/>
+      </path>
+      <path d="M112,100 L112,108 Q112,112 108,112 L100,112" opacity="0">
+        <animate attributeName="opacity" values="0;0.25;0" dur="5s" repeatCount="indefinite" begin="-2.5s"/>
+      </path>
+      <path d="M28,112 L20,112 Q16,112 16,108 L16,100" opacity="0">
+        <animate attributeName="opacity" values="0;0.25;0" dur="5s" repeatCount="indefinite" begin="-3.75s"/>
+      </path>
+    </g>
+
+    <circle cx="28" cy="26" r="0.6" fill="#e0e0e0">
+      <animate attributeName="opacity" values="0;0.8;0" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="102" cy="36" r="0.5" fill="#c0c0c0">
+      <animate attributeName="opacity" values="0;0.6;0" dur="4s" repeatCount="indefinite" begin="-1s"/>
+    </circle>
+    <circle cx="40" cy="102" r="0.55" fill="#aaa">
+      <animate attributeName="opacity" values="0;0.5;0" dur="3.5s" repeatCount="indefinite" begin="-2s"/>
+    </circle>
+    <circle cx="100" cy="94" r="0.4" fill="#999">
+      <animate attributeName="opacity" values="0;0.8;0" dur="2.5s" repeatCount="indefinite" begin="-0.5s"/>
+    </circle>
+    <circle cx="18" cy="70" r="0.5" fill="#c0c0c0">
+      <animate attributeName="opacity" values="0;0.6;0" dur="4.5s" repeatCount="indefinite" begin="-3s"/>
+    </circle>
+    <circle cx="82" cy="18" r="0.4" fill="#bbb">
+      <animate attributeName="opacity" values="0;0.7;0" dur="3s" repeatCount="indefinite" begin="-1.5s"/>
+    </circle>
+    <circle cx="108" cy="64" r="0.45" fill="#aaa">
+      <animate attributeName="opacity" values="0;0.5;0" dur="3.8s" repeatCount="indefinite" begin="-2.5s"/>
+    </circle>
+    <circle cx="36" cy="16" r="0.35" fill="#bbb">
+      <animate attributeName="opacity" values="0;0.6;0" dur="4.2s" repeatCount="indefinite" begin="-1.8s"/>
+    </circle>
+
+    <!-- CRT screen effects (underneath glass) -->
+    <rect x="8" y="8" width="112" height="112" rx="18" fill="none" stroke="#0a0a0a" stroke-width="2" opacity="0.8"/>
+    <rect width="128" height="128" fill="url(#sl)"/>
+    <rect width="128" height="128" fill="url(#slFine)"/>
+    <rect width="128" height="128" fill="url(#crtTube)"/>
+    <rect width="128" height="128" fill="url(#vg)"/>
+    <rect x="8" y="8" width="112" height="112" rx="18" fill="none" stroke="#333" stroke-width="0.5" opacity="0.3"/>
+
+    <!-- Glass overlay (on top of CRT) -->
+    <g>
+      <rect x="0" y="0" width="128" height="128" rx="24" fill="url(#glass)" stroke="url(#glassEdge)" stroke-width="1" opacity="0.75"/>
+      <rect x="2" y="2" width="124" height="124" rx="22" fill="none" stroke="#fff" stroke-width="0.5" opacity="0.25"/>
+      <rect x="4" y="4" width="12" height="16" rx="2" fill="url(#glassHighlight)"/>
+      <rect x="112" y="4" width="12" height="16" rx="2" fill="url(#glassHighlight)" opacity="0.5"/>
+      <rect x="2" y="2" width="124" height="4" rx="2" fill="#fff" opacity="0.12"/>
+      <ellipse cx="64" cy="30" rx="20" ry="8" fill="#fff" opacity="0.06"/>
+    </g>
+  </g>
+</svg>

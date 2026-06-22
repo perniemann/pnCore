@@ -1,0 +1,19 @@
+{
+  "name": "pnCore",
+  "owner": {
+    "name": "perniemann",
+    "email": "io@perniemann.com"
+  },
+  "metadata": {
+    "description": "pnCore: rules, skills, and agents for frontend (React, Astro, Next, vanilla) and 3D (Three.js, shaders, R3F). Includes CI, n8n, web3, Blender, Unreal.",
+    "version": "0.14.6",
+    "pluginRoot": "plugins"
+  },
+  "plugins": [
+    {
+      "name": "pn-core",
+      "source": "./plugins/pnCore",
+      "description": "Rules, skills, and agents for frontend (React, Astro, Next, vanilla) and 3D (Three.js, shaders, R3F). Includes CI, n8n, web3, Blender, Unreal. Built for team workflows with a minimal, consistent structure."
+    }
+  ]
+}

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strategy Brief — {{idea_title}}</title>
+<style>
+  /* Design tokens — override from .pncore-design.md when present */
+  :root {
+    --bg:          #0f0f11;
+    --surface:     #17171a;
+    --surface-2:   #1e1e23;
+    --border:      #2a2a32;
+    --accent:      #e8c84a;
+    --accent-dim:  #9e8a2e;
+    --text:        #e4e4e8;
+    --text-muted:  #7a7a88;
+    --text-faint:  #4a4a58;
+    --strong-up:   #4eca8b;
+    --weak-amber:  #e8a83c;
+    --pivot-red:   #e85050;
+    --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+    --font-body:    'IBM Plex Mono', 'Fira Code', 'Courier New', monospace;
+    --font-ui:      'Inter', system-ui, sans-serif;
+    --radius:       6px;
+    --max-w:        860px;
+  }
+
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  .page {
+    max-width: var(--max-w);
+    margin: 0 auto;
+    padding: 48px 24px 96px;
+  }
+
+  /* ── Verdict badge ─────────────────────────────────────────────────── */
+  .verdict-banner {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 24px;
+    border-radius: var(--radius);
+    margin-bottom: 36px;
+    border: 1px solid var(--border);
+  }
+  .verdict-banner.strong { border-color: var(--strong-up); background: color-mix(in srgb, var(--strong-up) 8%, var(--surface)); }
+  .verdict-banner.weak   { border-color: var(--weak-amber); background: color-mix(in srgb, var(--weak-amber) 8%, var(--surface)); }
+  .verdict-banner.pivot  { border-color: var(--pivot-red);  background: color-mix(in srgb, var(--pivot-red) 8%, var(--surface)); }
+
+  .verdict-badge {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    flex-shrink: 0;
+  }
+  .verdict-banner.strong .verdict-badge { color: var(--strong-up); }
+  .verdict-banner.weak   .verdict-badge { color: var(--weak-amber); }
+  .verdict-banner.pivot  .verdict-badge { color: var(--pivot-red); }
+
+  .verdict-meta {
+    font-family: var(--font-ui);
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+  .verdict-meta strong { color: var(--text); font-weight: 600; }
+
+  /* ── Section headings ──────────────────────────────────────────────── */
+  h1 {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 900;
+    letter-spacing: -1px;
+    color: var(--text);
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+  .subtitle {
+    font-family: var(--font-ui);
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 48px;
+  }
+
+  h2 {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-top: 48px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  h2:first-of-type { margin-top: 0; }
+
+  h3 {
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-top: 20px;
+    margin-bottom: 8px;
+  }
+
+  p { margin-bottom: 12px; color: var(--text); }
+  p:last-child { margin-bottom: 0; }
+
+  /* ── Scorecard ─────────────────────────────────────────────────────── */
+  .scorecard {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 8px;
+  }
+  @media (max-width: 600px) {
+    .scorecard { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .score-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+  }
+  .score-label {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+  .score-value {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 700;
+  }
+  .score-value.high   { color: var(--strong-up); }
+  .score-value.medium { color: var(--weak-amber); }
+  .score-value.low    { color: var(--pivot-red); }
+  .score-evidence {
+    font-size: 11px;
+    color: var(--text-faint);
+    margin-top: 4px;
+    font-family: var(--font-ui);
+  }
+
+  /* ── Content blocks ────────────────────────────────────────────────── */
+  .block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 12px;
+  }
+
+  .tag {
+    display: inline-block;
+    font-family: var(--font-ui);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 3px;
+    margin-right: 6px;
+    margin-bottom: 8px;
+  }
+  .tag-fatal  { background: color-mix(in srgb, var(--pivot-red) 15%, transparent); color: var(--pivot-red); border: 1px solid var(--pivot-red); }
+  .tag-kill   { background: color-mix(in srgb, var(--weak-amber) 12%, transparent); color: var(--weak-amber); border: 1px solid var(--weak-amber); }
+  .tag-open   { background: color-mix(in srgb, var(--text-faint) 20%, transparent); color: var(--text-muted); border: 1px solid var(--border); }
+
+  /* ── Customer list ─────────────────────────────────────────────────── */
+  ol, ul { padding-left: 20px; }
+  li { margin-bottom: 6px; color: var(--text); }
+  li::marker { color: var(--accent-dim); }
+
+  /* ── Collapsible sections ──────────────────────────────────────────── */
+  details {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    background: var(--surface);
+  }
+  summary {
+    font-family: var(--font-ui);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    padding: 14px 20px;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  summary::before {
+    content: '▶';
+    font-size: 9px;
+    color: var(--accent-dim);
+    transition: transform 0.15s;
+    flex-shrink: 0;
+  }
+  details[open] summary::before { transform: rotate(90deg); }
+  .details-body { padding: 0 20px 16px; }
+
+  /* ── Evidence entry ────────────────────────────────────────────────── */
+  .evidence-entry {
+    border-top: 1px solid var(--border);
+    padding: 14px 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 12px;
+    align-items: start;
+  }
+  .evidence-entry:first-child { border-top: none; }
+  .evidence-index {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    color: var(--text-faint);
+    padding-top: 2px;
+    min-width: 24px;
+    text-align: right;
+  }
+  .evidence-claim { font-weight: 500; margin-bottom: 4px; color: var(--text); }
+  .evidence-quote {
+    font-style: italic;
+    color: var(--text-muted);
+    margin: 6px 0;
+    padding-left: 12px;
+    border-left: 2px solid var(--accent-dim);
+    font-size: 13px;
+  }
+  .evidence-meta {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    color: var(--text-faint);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .evidence-meta a { color: var(--accent-dim); text-decoration: none; }
+  .evidence-meta a:hover { color: var(--accent); }
+
+  /* ── Footer ────────────────────────────────────────────────────────── */
+  .footer {
+    margin-top: 64px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-family: var(--font-ui);
+    font-size: 11px;
+    color: var(--text-faint);
+    line-height: 1.6;
+  }
+  .footer code {
+    background: var(--surface-2);
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: var(--text-muted);
+  }
+
+  /* ── Divider ───────────────────────────────────────────────────────── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 40px 0;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Verdict badge -->
+  <div class="verdict-banner {{verdict_lower}}">
+    <div class="verdict-badge">{{verdict}}</div>
+    <div class="verdict-meta">
+      <strong>{{idea_title}}</strong><br>
+      Mode: {{mode}}{{#if selected_angle}} · Angle: {{selected_angle}}{{/if}}<br>
+      {{created_at}} · run_id: <code>{{run_id}}</code>
+    </div>
+  </div>
+
+  <!-- Idea summary -->
+  <h1>{{idea_title}}</h1>
+  <p class="subtitle">{{framing.problem}}</p>
+
+  <h2>Mode &amp; inputs</h2>
+  <div class="block">
+    <p><strong>Mode:</strong> {{mode}}{{#if repoPath}} &nbsp;·&nbsp; <strong>Repo:</strong> <code>{{repoPath}}</code>{{/if}}</p>
+    <p><strong>Audience:</strong> {{framing.audience}}</p>
+    <p><strong>Hypotheses:</strong></p>
+    <ul>
+      {{#each framing.hypotheses}}<li>{{this}}</li>{{/each}}
+    </ul>
+  </div>
+
+  <!-- Scorecard -->
+  <h2>Scorecard</h2>
+  <div class="scorecard">
+    <div class="score-card">
+      <div class="score-label">Pain intensity</div>
+      <div class="score-value {{scorecard.pain.tier}}">{{scorecard.pain.score}}</div>
+      <div class="score-evidence">{{scorecard.pain.evidence_count}} citations</div>
+    </div>
+    <div class="score-card">
+      <div class="score-label">Buyer clarity</div>
+      <div class="score-value {{scorecard.buyer.tier}}">{{scorecard.buyer.score}}</div>
+      <div class="score-evidence">{{scorecard.buyer.evidence_count}} citations</div>
+    </div>
+    <div class="score-card">
+      <div class="score-label">Urgency</div>
+      <div class="score-value {{scorecard.urgency.tier}}">{{scorecard.urgency.score}}</div>
+      <div class="score-evidence">{{scorecard.urgency.evidence_count}} citations</div>
+    </div>
+    <div class="score-card">
+      <div class="score-label">Differentiation</div>
+      <div class="score-value {{scorecard.differentiation.tier}}">{{scorecard.differentiation.score}}</div>
+      <div class="score-evidence">{{scorecard.differentiation.evidence_count}} citations</div>
+    </div>
+    <div class="score-card">
+      <div class="score-label">Speed to validate</div>
+      <div class="score-value {{scorecard.speed.tier}}">{{scorecard.speed.score}}</div>
+      <div class="score-evidence">{{scorecard.speed.evidence_count}} citations</div>
+    </div>
+    <div class="score-card">
+      <div class="score-label">Founder advantage</div>
+      <div class="score-value {{scorecard.founder.tier}}">{{scorecard.founder.score}}</div>
+      <div class="score-evidence">{{scorecard.founder.evidence_count}} citations</div>
+    </div>
+  </div>
+
+  <!-- Fatal flaws -->
+  <h2>Fatal flaws</h2>
+  {{#each fatal_flaws}}
+  <div class="block">
+    <span class="tag tag-fatal">Flaw {{@index_plus_1}}</span>
+    <p>{{this}}</p>
+  </div>
+  {{/each}}
+
+  <!-- Competition -->
+  <h2>Competition — as today's behavior</h2>
+  <div class="block">
+    <p>{{competition}}</p>
+  </div>
+
+  <!-- First 10 customers -->
+  <h2>First 10 customers</h2>
+  <div class="block">
+    <p>{{first_ten_customers}}</p>
+  </div>
+
+  <!-- MVP wedge -->
+  <h2>MVP wedge</h2>
+  <div class="block">
+    <p>{{mvp_wedge}}</p>
+  </div>
+
+  <!-- Kill criteria -->
+  <h2>Kill criteria</h2>
+  {{#each kill_criteria}}
+  <div class="block">
+    <span class="tag tag-kill">Kill</span>
+    <p>{{this}}</p>
+  </div>
+  {{/each}}
+
+  <!-- Open assumptions -->
+  <h2>Open assumptions</h2>
+  {{#each open_assumptions}}
+  <div class="block">
+    <span class="tag tag-open">Assumption</span>
+    <p>{{this}}</p>
+  </div>
+  {{/each}}
+
+  <hr class="divider">
+
+  <!-- Evidence log (collapsible) -->
+  <details>
+    <summary>Evidence log — {{evidence_count}} entries · {{companion_summary}}</summary>
+    <div class="details-body">
+      {{#each evidence_entries}}
+      <div class="evidence-entry">
+        <div class="evidence-index">{{@index_plus_1}}</div>
+        <div>
+          <div class="evidence-claim">{{this.scorecard_row}} · {{this.claim}}</div>
+          {{#if this.quote}}<div class="evidence-quote">"{{this.quote}}"</div>{{/if}}
+          <div class="evidence-meta">
+            <a href="{{this.source_url}}" target="_blank" rel="noopener">{{this.source_url}}</a>
+            <span>{{this.retrieved_at}}</span>
+            <span>conf: {{this.confidence_0_1}}</span>
+            <span>{{this.source_kind}} via {{this.companion}}</span>
+          </div>
+        </div>
+      </div>
+      {{/each}}
+    </div>
+  </details>
+
+  <!-- Decision log (collapsible) -->
+  <details>
+    <summary>Decision log — {{decision_log_count}} entries</summary>
+    <div class="details-body">
+      {{#each decision_log_entries}}
+      <div class="evidence-entry">
+        <div class="evidence-index">{{@index_plus_1}}</div>
+        <div>
+          <div class="evidence-claim">Step {{this.step}}: {{this.summary}}</div>
+          <div class="evidence-meta"><span>{{this.timestamp}}</span></div>
+        </div>
+      </div>
+      {{/each}}
+    </div>
+  </details>
+
+  <div class="footer">
+    <p>Generated by pnCore <code>business_strategy</code> workflow &nbsp;·&nbsp; run_id: <code>{{run_id}}</code></p>
+    <p>This workflow guarantees <strong>auditable evidence</strong>, not absolute truth — citation truthfulness is human-guaranteed via audit gate at step 7.</p>
+    <p>Canonical data source: <code>docs/strategy/{{slug}}-strategy-brief.md</code></p>
+  </div>
+
+</div>
+</body>
+</html>

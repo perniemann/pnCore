@@ -1,0 +1,3 @@
+#!/bin/sh
+# Strips Cursor-injected commit trailers. Enable: git config core.hooksPath .githooks
+exec node "$(dirname "$0")/../scripts/strip-commit-trailers.mjs" "$1"

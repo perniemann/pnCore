@@ -1,0 +1,47 @@
+{
+  "name": "pn-core",
+  "displayName": "pnCore",
+  "version": "0.14.6",
+  "description": "Rules, skills, and agents for frontend (React, Astro, Next, vanilla) and 3D (Three.js, shaders, R3F). Includes CI, n8n, web3, Blender, Unreal. Built for team workflows with a minimal, consistent structure.",
+  "author": {
+    "name": "perniemann",
+    "email": "io@perniemann.com"
+  },
+  "license": "MIT",
+  "repository": "https://github.com/perniemann/pnCore.git",
+  "logo": "assets/pn-logo.svg",
+  "keywords": [
+    "react",
+    "three.js",
+    "frontend",
+    "3d",
+    "shader",
+    "astro",
+    "next.js",
+    "vanilla",
+    "r3f",
+    "node",
+    "ci",
+    "n8n",
+    "web3",
+    "figma",
+    "blender",
+    "unreal",
+    "fullstack",
+    "orchestrator"
+  ],
+  "category": "developer-tools",
+  "tags": [
+    "rules",
+    "skills",
+    "agents",
+    "commands",
+    "quality",
+    "review-loop"
+  ],
+  "skills": "./skills/",
+  "agents": "./agents/",
+  "rules": "./rules/",
+  "commands": "./.cursor/commands/",
+  "hooks": "./hooks/hooks.json"
+}

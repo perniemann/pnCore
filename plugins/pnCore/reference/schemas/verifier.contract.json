@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pn-core://reference/schemas/verifier.contract.json",
+  "title": "Verifier Contract",
+  "description": "Output contract for the pn-verify-acceptance agent",
+  "type": "object",
+  "required": ["acceptance_results", "test_results", "ci_impact", "final_recommendation"],
+  "additionalProperties": false,
+  "properties": {
+    "acceptance_results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "status", "evidence"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "status": { "type": "string", "enum": ["pass", "fail", "partial", "skip"] },
+          "evidence": { "type": "string" }
+        }
+      }
+    },
+    "test_results": {
+      "type": "object",
+      "required": ["status", "notes"],
+      "additionalProperties": false,
+      "properties": {
+        "status": { "type": "string", "enum": ["pass", "fail", "partial", "unknown"] },
+        "notes": { "type": "string" }
+      }
+    },
+    "ci_impact": {
+      "type": "object",
+      "required": ["risk", "notes"],
+      "additionalProperties": false,
+      "properties": {
+        "risk": { "type": "string", "enum": ["none", "low", "medium", "high"] },
+        "notes": { "type": "string" }
+      }
+    },
+    "final_recommendation": {
+      "type": "string",
+      "enum": ["ship", "ship_with_notes", "hold_for_fixes", "reject"]
+    }
+  },
+  "$examples": [
+    {
+      "acceptance_results": [{ "id": "AC-001", "status": "pass", "evidence": "Verified in browser" }],
+      "test_results": { "status": "pass", "notes": "All unit tests pass" },
+      "ci_impact": { "risk": "low", "notes": "No CI changes" },
+      "final_recommendation": "ship"
+    }
+  ]
+}

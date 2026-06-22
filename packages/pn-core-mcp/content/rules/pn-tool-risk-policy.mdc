@@ -1,0 +1,22 @@
+---
+description: MCP tool risk tiers, HITL gates, and when to use approval_checkpoint and gate_log_append. Use for safety reviews and workflow audits.
+alwaysApply: true
+---
+
+# Tool risk policy (pn-core MCP)
+
+| Tier | Tools | Expectation |
+|------|-------|-------------|
+| Read-only | `list_*`, `get_*`, `health`, `list_workflow_types`, `workflow_step`, `workflow_confirm`, `workflow_usage_totals`, `workflow_handoff_read`, `workflow_state_load` | No workspace writes; safe to call freely. |
+| Append-only JSONL | `report_usage`, `gate_log_append`, `workflow_handoff_append`, `workflow_state_save` | Writes under cwd only via path rules; prefer `.pncore/` paths. Idempotent or append-only semantics. |
+| Gate / secret | `approval_checkpoint` | Requires `PNCORE_APPROVAL_TOKEN` on server; optional `workflow_type` + `workflow_step` + `run_id` for human-gate tickets. |
+| External side effects | `paperclip_issue_*` | Requires Paperclip env; treat as production API calls. |
+
+## Workflow human gates
+
+- Optional **mandatory** human gates: `PNCORE_REQUIRE_APPROVAL_FOR_WORKFLOWS` — each human `workflow_step` needs a fresh `approval_checkpoint` ticket.
+- Echo **`run_id`** from `workflow_step` in state for every call; pass the same `run_id` to `approval_checkpoint` when issuing tickets so tickets bind to the run.
+
+## Audit
+
+- After gate outcomes, call **`gate_log_append`** with optional **`run_id`** for correlation with `.pncore/workflow-runs.jsonl`.

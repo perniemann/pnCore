@@ -1,0 +1,12 @@
+# Same as .gitignore for predictable pack when installed from git; silences npm warn gitignore-fallback
+node_modules/
+*.tsbuildinfo
+coverage/
+.env
+.env.local
+.env.*.local
+*.log
+.DS_Store
+Thumbs.db
+.cursor/settings.json
+.test-project/

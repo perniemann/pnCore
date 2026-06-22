@@ -1,0 +1,48 @@
+---
+description: When MCP is available, use pn-core tools proactively when tasks match pn skills or agents; use Octocode for code research when available
+alwaysApply: true
+---
+
+# pn-core MCP: Proactive Skill Use
+
+When **pn-core MCP is available** and the user's task clearly matches a pn skill or agent, use the MCP tools to load and follow that content.
+
+**Discovery:** Use `list_skills` or `list_agents` when unsure which id applies. Use `get_skill`, `get_agent`, `get_command`, or `get_rule` to load full content. Call `list_workflow_types` when the user asks "what workflows are available?"
+
+**Quick map** (common intents):
+
+| User intent | pn-core id |
+|-------------|--------------|
+| Today's date (changelog, "as of", copyright) | `health` → use `calendarDateUtc` / `timestampUtc` |
+| New project or feature, kickoff | `get_command("pn-new")` |
+| Configure / onboard existing project | `get_command("pn-setup")` |
+| Full dev loop, multi-step feature | `workflow_step("full_dev", 0, {})` |
+| New project or feature, discovery | `pn-discovery-questionnaire` |
+| Review code quality | `get_command("pn-review")` or `get_skill("pn-review-optimize-loop")` |
+| Plan before coding | `pn-writing-plans` |
+| Stress-test a plan | `get_command("pn-grill")` |
+| Pressure-test a startup idea | `get_command("pn-pressure-test")` or `get_skill("pn-pressure-test")` |
+| Strict verification + delivery pack | `get_command("pn-deliver")` |
+| Create image or SVG | `get_command("pn-assets")` |
+| Targeted visual change (one area, not full redesign) | `get_command("pn-visual-tweak")` or `workflow_step("visual_tweak", …)` |
+| Distinctive UI baseline (always-apply rule + checklist) | `get_rule("pn-aesthetics-baseline")` or `pn-core://reference/aesthetics-baseline.md` |
+| Static HTML preview (save + open browser) | `get_skill("pn-html-preview")` |
+| ComfyUI, T2I/T2V pipelines, cinematic prompting, lighting | `get_agent("pn-generative-media-director")` — or narrow: `pn-comfyui-workflows`, `pn-generative-video-pipelines`, `pn-cinematography-lighting` |
+| Prior art / existing solutions | `pn-prior-art-research` |
+| Code trace, find definition, who calls X | Octocode tools when available |
+| UE MCP server selection (which server to use) | `get_skill("pn-unreal-mcp")` |
+| Unreal Engine development (C++, BP, assets, Python) | `get_skill("pn-unreal-dev")` |
+| Unreal editor automation (spawn actors, compile BP, edit materials) | `unreal-mcp` tools when available |
+| Blender scripting, add-ons, export pipelines, Geometry Nodes | `get_skill("pn-blender-scripting")` |
+| Blender live session control (mesh ops, scene analysis, rename data-blocks) | `blender` MCP tools when available |
+| Godot MCP server selection (which server to use) | `get_skill("pn-godot-mcp")` |
+| Godot Engine development (GDScript, GDExtension, shaders, multiplayer) | `get_skill("pn-godot-dev")` |
+| Godot live editor / project automation (run, scene edit, capture errors) | `godot` MCP tools when available |
+
+**Full routing table** (all skills, agents, workflows, companion MCPs): `pn-core://reference/RUNBOOK.md`
+
+When the user names a skill (e.g. "use pn-discovery-questionnaire"), call `get_skill` immediately. For design with philosophy alignment, prefer `get_command("pn-design")`.
+
+**Octocode:** Preferred for prior-art and code archaeology. Use its tools for code search, LSP navigation, and GitHub research when available.
+
+**Companion MCPs:** When present, combine with pn skills — Stripe MCP + `pn-payment-integration`; n8n MCP + `pn-n8n-patterns`; shadcn MCP for component install; Playwright MCP + `pn-smoke-tests`; unreal-mcp + `pn-unreal-dev`; blender MCP + `pn-blender-scripting`; godot MCP + `pn-godot-dev`.

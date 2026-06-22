@@ -1,0 +1,15 @@
+---
+description: Astro conventions: islands, SSG, client directives. Use when editing .astro files. For React components used as Astro islands, pn-react also applies.
+alwaysApply: false
+globs: ["**/*.astro"]
+---
+
+# Astro rules
+
+- Prefer islands for interactivity; keep as much as possible static/SSG.
+- Use `client:*` directives only where necessary. Prefer the lightest directive that matches the UX (e.g. `client:visible` for below-fold).
+- One component per file; PascalCase for components. Use semantic HTML with explicit a11y: one `<h1>` per page, descriptive `alt` text, keyboard focus on interactive elements.
+- In React islands: follow pn-react conventions for the React portion.
+- **Content Collections (Astro 2+):** Use `defineCollection` with Zod schemas for typed content; prefer `getCollection()` over manual file reads.
+- **View Transitions (Astro 3+):** Use `<ViewTransitions />` for page transitions; respect `prefers-reduced-motion` and provide `transition:animate="none"` fallback.
+- **Server Actions / On-demand rendering:** Use `output: 'hybrid'` or `output: 'server'` with `export const prerender = false` for dynamic routes; avoid client-side fetching when server rendering is available.

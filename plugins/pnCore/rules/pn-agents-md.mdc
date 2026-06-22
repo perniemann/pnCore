@@ -1,0 +1,20 @@
+---
+description: Use AGENTS.md for preferences and workspace facts; verify with live reads before consequential actions
+alwaysApply: true
+---
+
+# AGENTS.md: Retrieval and Verification Policy
+
+When `AGENTS.md` exists in the workspace, use it for learned user preferences and durable workspace facts.
+
+**Use AGENTS.md when:**
+- Applying coding style, workflow preferences, or communication tone
+- Recalling project structure, canonical paths, or tooling setup
+- Following user-stated constraints (e.g. no Co-authored-by, terminate servers first)
+
+**Verification before consequential actions:**
+- For writes, commits, deployments, or any action that changes external state, verify with live tool reads when possible. Do not rely solely on AGENTS.md.
+- Example: before committing, read the actual diff; before deploying, confirm the target env. AGENTS.md guides; tools verify.
+
+**Hard constraints:**
+- Non-negotiable rules (e.g. "never do X") belong in **Cursor User Rules** (Settings → Rules) or **.cursor/rules/** (project rules). AGENTS.md holds learned, inferred preferences that can evolve. For strict enforcement, use explicit rules.

@@ -1,0 +1,13 @@
+---
+description: Shader authoring conventions: explicit precision, documented uniforms, no magic numbers, consistent naming. Use when editing GLSL, WGSL, or shader-related code.
+alwaysApply: false
+globs: ["**/*.glsl", "**/*.frag", "**/*.vert", "**/*.wgsl", "**/*shader*", "**/*Shader*"]
+---
+
+# Shader rules
+
+- Use explicit precision qualifiers (`highp`, `mediump`, `lowp`) in fragment shaders; avoid relying on default.
+- Document uniforms with comments (purpose, units, valid range) at declaration.
+- Avoid magic numbers; use named constants for literals: `#define` in GLSL/HLSL; `const` in WGSL (which does not support `#define`).
+- Use consistent naming: `u` prefix for uniforms, `v` for varyings, `a` for attributes; camelCase for custom names.
+- Keep shader logic focused; split complex effects into multiple passes when it improves readability or performance.

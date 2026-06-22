@@ -1,0 +1,46 @@
+---
+description: Go backend style, env, and error handling. Use for API and server code (Gin, Fiber, Echo).
+alwaysApply: false
+globs: ["**/*.go", "**/go.mod"]
+---
+
+# Go / backend rules
+
+## Error handling
+- Check every returned error. Never discard with `_` unless you have an explicit written reason.
+- Wrap errors with context using `fmt.Errorf("operation failed: %w", err)`. Use `errors.Is` and `errors.As` for comparison — never string-match error messages.
+- Define sentinel errors for expected failures: `var ErrNotFound = errors.New("not found")`. Return these for known operational states.
+- Use `log/slog` (Go 1.21+) for structured logging. Log errors at the level where recovery is decided, not at every call site.
+
+## Context
+- Pass `context.Context` as the first parameter in all I/O functions: `func FetchUser(ctx context.Context, id int64) (*User, error)`.
+- Respect context cancellation: check `ctx.Err()` in loops and before expensive operations.
+- Never store context in structs. Never use `context.Background()` inside a request handler — propagate the request context.
+
+## Naming and style
+- Use short variable names in small scopes (`i`, `v`, `err`) but descriptive names for exported types and functions.
+- Exported names are PascalCase; unexported are camelCase. Acronyms follow Go convention: `userID`, `httpClient`, `parseURL`.
+- Interfaces belong in the package that uses them, not the package that implements them.
+- Avoid `init()` for side effects. Initialize dependencies explicitly in `main` or constructors.
+
+## Secrets and config
+- All config and secrets from environment variables (`os.Getenv`). Never hardcode secrets in source.
+- Use `os.LookupEnv` when a missing variable must be detected: `val, ok := os.LookupEnv("DB_URL"); if !ok { log.Fatal("DB_URL required") }`.
+- Consider `envconfig` or `viper` for structured config with validation at startup.
+
+## Goroutines and concurrency
+- Every goroutine must have an owner responsible for its lifetime. Use `sync.WaitGroup`, `errgroup`, or channel signaling.
+- Avoid goroutine leaks: goroutines that block on channels or I/O indefinitely. Use `context.WithTimeout` for all external calls.
+- Prefer `errgroup.Group` over raw goroutines for parallel work that must be joined and checked for errors.
+
+## Security
+- Use parameterized queries with `database/sql`: `db.QueryContext(ctx, "SELECT * FROM users WHERE id = $1", id)`. Never `fmt.Sprintf` SQL.
+- Validate all input at handler boundaries. Use struct tags (`validate:"required,email"`) with `go-playground/validator`.
+- Use `crypto/rand` for random values. Never `math/rand` for security-sensitive generation.
+
+## Anti-patterns to avoid
+- **Panic in request handlers**: `panic` terminates the goroutine. Recover at the middleware level, never in business logic.
+- **Ignored errors**: `db.Exec(...)` with no error check — silent failures in production.
+- **Context-free I/O**: functions that accept no context cannot be cancelled, time-limited, or traced.
+- **Interface bloat**: large interfaces with 10+ methods. Prefer small, composable interfaces (`io.Reader`, `io.Writer`).
+- **Naked returns**: named return values with bare `return` obscure what is returned in complex functions.

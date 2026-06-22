@@ -1,0 +1,16 @@
+---
+description: n8n workflow safety and patterns. No secrets in workflow JSON; use credentials and env. Use when editing n8n workflows or workflow JSON.
+alwaysApply: false
+globs: ["**/*n8n*", "**/workflows/**/*.json"]
+---
+
+# n8n rules
+
+- Never store secrets (API keys, passwords, webhook secrets) in workflow JSON. Use n8n credentials or environment variables and reference them in nodes.
+- For webhooks: use HTTPS; validate payloads where possible; avoid exposing internal URLs or tokens in client-facing config.
+- Prefer the most specific node (HTTP Request, Webhook, Schedule) over generic Execute Command or Run Script when a built-in node exists.
+- Use Error Trigger or error outputs to handle failures; avoid logging sensitive data in error messages.
+- Enable Retry On Fail with delay for external calls; use idempotency keys for write operations to avoid duplicate side effects on retry.
+- Store workflows in version control (Git); use versioned names for production (e.g. production-workflow-v1).
+- Prefer clear node names and notes so workflows are understandable without opening every node.
+- Keep workflows readable: group related nodes, use subflows or Execute Sub-workflow for complex logic rather than one giant graph.

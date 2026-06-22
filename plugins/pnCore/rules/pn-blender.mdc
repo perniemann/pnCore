@@ -1,0 +1,15 @@
+---
+description: Blender scripting conventions: Python style for bpy, no absolute paths, consistent naming, Geometry Nodes scripting, extension manifest. Use when editing Blender Python scripts, add-ons, or Geometry Nodes setups.
+alwaysApply: false
+globs: ["**/*.blend.py", "**/blender/**/*.py", "**/blender_*", "**/*addon*", "**/blender_manifest.toml"]
+---
+
+# Blender rules
+
+- Use Python style consistent with Blender (PEP 8); follow bpy API conventions.
+- Never use absolute paths; use relative paths or config/env for project roots.
+- Use consistent naming for objects, collections, materials, and meshes (e.g. prefixes: SM_, SK_, M_).
+- **Blender 4.2+ extension system:** For Blender 4.2 and later, create extensions (not add-ons) using the new `bl_info`-free manifest format (`blender_manifest.toml`). For older Blender (<4.2), use add-on registration (`register()`/`unregister()` in correct order; unregister in reverse). Annotate which version you are targeting.
+- **Geometry Nodes:** Use `bpy.data.node_groups.new(name, 'GeometryNodeTree')` and `obj.modifiers.new(type='NODES')` for procedural meshes. Apply or add a Realize Instances node before export. Prefer Geometry Nodes over particle systems for static distribution in Blender 4.x.
+- Document export options and target engine when writing export scripts.
+- Test scripts in Blender after generating; do not assume they run without verification.

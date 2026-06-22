@@ -1,0 +1,15 @@
+---
+description: Unreal Editor Python scripting: Editor Script Plugin, unreal module, headless commandlet. Use when editing Unreal Python scripts for automation, pipelines, or Editor Utility Widgets.
+alwaysApply: false
+globs: ["**/Content/Python/**/*.py", "**/Scripts/**/*.py", "**/Plugins/**/Content/Python/**/*.py"]
+---
+
+# Unreal Python rules
+
+> **Rule co-activation:** `pn-unreal` also fires on these Python file globs and provides broader Unreal conventions. `pn-unreal-python` takes precedence for Python API specifics when both are active — they are complementary, not conflicting.
+
+- Enable Python Editor Script Plugin and Editor Scripting Utilities per project (Edit > Plugins > Scripting).
+- Use `unreal` module for Editor API access. Python runs editor-only; no gameplay at runtime.
+- For headless/CI: use `-run=pythonscript -script="path"` commandlet; load level first if script needs content.
+- No absolute paths; use project-relative paths or Editor Scripting Utilities for asset operations.
+- Test scripts in Unreal after generating; verify they run in target engine version.

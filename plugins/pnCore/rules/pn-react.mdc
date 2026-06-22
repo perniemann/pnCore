@@ -1,0 +1,70 @@
+---
+description: Core React conventions: function components, hooks, semantic HTML, naming, styling, performance, and component architecture. Use when editing .tsx or .jsx files. For Next.js app/ or pages/, pn-nextjs also applies.
+alwaysApply: false
+globs: ["**/*.tsx", "**/*.jsx"]
+---
+
+# React rules
+
+## Component Architecture
+
+- Prefer function components and hooks. Use `const` for component names.
+- Keep components focused: one main responsibility. Extract sub-components when a file grows past ~150 lines or a component has more than one conceptual job.
+- Co-locate related files: `MyComponent.tsx`, `MyComponent.test.tsx`, `MyComponent.module.css` in the same folder.
+- Prop types: use TypeScript interfaces; prefer explicit over wide (`string` not `any`).
+- Avoid prop drilling beyond 2 levels — use context, zustand, or composition instead.
+
+## Naming
+
+- **Components:** PascalCase (`UserCard`, not `userCard` or `user-card`)
+- **Props and handlers:** camelCase (`onClick`, `isLoading`, `userProfile`)
+- **CSS classes:** kebab-case for BEM; or rely on Tailwind/CSS Modules
+- **Files:** kebab-case for pages and utilities (`user-profile.ts`); PascalCase for components (`UserProfile.tsx`)
+- **Boolean props:** prefix with `is`, `has`, `can`, `should` (`isOpen`, `hasError`, `canEdit`)
+
+## Hooks
+
+- Follow Rules of Hooks: only call hooks at the top level, never inside conditions or loops.
+- Extract repeated hook logic into custom hooks (`useWindowSize`, `useDebounce`).
+- `useEffect` cleanup: always return a cleanup function for subscriptions, event listeners, and timers.
+- Avoid `useEffect` for derived state — compute it during render instead.
+- `useMemo` and `useCallback`: use when the computation is expensive or when referential equality matters for child props. Do NOT memo everything by default — it adds complexity without benefit in most cases.
+
+## Accessibility
+
+- Use semantic HTML: `<button>` for actions, `<a>` for navigation, `<input>` with `<label>`, `<h1>`–`<h6>` in logical order.
+- Every `<img>` needs `alt`. Decorative images use `alt=""`.
+- Icon-only buttons require `aria-label` or `aria-labelledby`.
+- Interactive elements must be keyboard accessible (focusable, operable with Enter/Space).
+- Never remove focus styles without an accessible replacement.
+- Dynamic content changes: move focus to newly revealed content (modal, error message) when appropriate.
+
+## Responsive and Touch
+
+- Min 44×48px touch targets. Use padding, not just the element's natural size.
+- No hover-only for critical actions — always a click/tap alternative.
+- Use `@media (pointer: coarse)` to add extra padding on touch screens.
+- Never disable zoom (`user-scalable=no`).
+
+## Performance
+
+- Avoid creating new object or array literals as props on every render — this breaks `React.memo` and causes unnecessary child re-renders.
+- Avoid anonymous functions in JSX when they prevent memoization of expensive children.
+- Use `key` correctly in lists: stable, unique identifier (not array index when items reorder).
+- Never use array index as key for dynamic lists — causes incorrect reconciliation on reorder/filter.
+- Lazy-load heavy components: `const HeavyChart = lazy(() => import('./HeavyChart'))`.
+- Avoid large context values that cause many consumers to re-render; split contexts by update frequency.
+
+## Styling
+
+- Avoid inline styles for layout and theme values — use CSS classes, tokens, or utility classes.
+- Never animate `width`, `height`, `padding`, or `margin` — animate `transform` and `opacity` only.
+- Keep component-specific styles co-located (CSS Modules or scoped utilities); avoid global style side effects.
+
+## Common Anti-Patterns
+
+- **`useEffect` for data that can be derived:** Compute in render, not in effects.
+- **Deeply nested JSX in one file:** Extract sub-components.
+- **Boolean trap props:** `<Modal open={true} />` → prefer `<Modal isOpen />` with named meaning.
+- **Spreading unknown props on DOM elements:** Always filter component props before `{...rest}` on a DOM element.
+- **Async event handlers without cleanup:** Cancel async operations on unmount to avoid state updates on unmounted components.

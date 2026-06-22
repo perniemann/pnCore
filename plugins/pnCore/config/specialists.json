@@ -1,0 +1,45 @@
+{
+  "description": "Canonical list of specialist agents and scaffold skills. Single source of truth — when adding or changing specialists, edit only this file. Agents listed in `optInOnly` are not auto-included by orchestrators (e.g. `full_dev` requires `state.includeGenerativeMedia === true` to include `pn-generative-media-director`); they remain enumerable in `specialists[]` for UI and tooling.",
+  "specialists": [
+    "pn-scaffolder",
+    "pn-assets-manager",
+    "pn-generative-media-director",
+    "pn-frontend-developer",
+    "pn-backend-developer",
+    "pn-testing-specialist",
+    "pn-game-developer"
+  ],
+  "optInOnly": {
+    "pn-generative-media-director": "Include only when state.includeGenerativeMedia === true (captured at the full_dev discovery step). When included, full_dev step 4 MUST call workflow_step('media_director', 0, {}) for the gated interactive flow."
+  },
+  "onDemandAgents": {
+    "pn-mobile-builder": "Invoke manually for iOS/Android/React Native/Flutter work; not auto-routed by orchestrator.",
+    "pn-visionos-engineer": "Invoke manually for Apple Vision Pro (visionOS) development; not auto-routed.",
+    "pn-webxr-developer": "Invoke manually for browser-based WebXR/AR/VR; not auto-routed.",
+    "pn-cultural-researcher": "Invoke manually for art history, movements, museum citations, period-accurate visual or copy grounding; not auto-routed.",
+    "pn-security-auditor": "Invoke manually for dedicated security audit passes; not auto-routed (pn-reviewer calls pn-security-audit skill conditionally)."
+  },
+  "parallelGroups": {
+    "pn-scaffolder": 0,
+    "pn-assets-manager": 1,
+    "pn-generative-media-director": 1,
+    "pn-frontend-developer": 1,
+    "pn-backend-developer": 1,
+    "pn-testing-specialist": 0,
+    "pn-game-developer": 0
+  },
+  "scaffolds": {
+    "plugin": "pn-create-plugin-scaffold",
+    "react": "pn-frontend-scaffolding",
+    "next": "pn-frontend-scaffolding",
+    "astro": "pn-frontend-scaffolding",
+    "vanilla": "pn-frontend-scaffolding",
+    "node": "pn-backend-scaffolding",
+    "python": "pn-python-scaffolding",
+    "go": "pn-go-scaffolding",
+    "rust": "pn-rust-scaffolding",
+    "ruby": "pn-ruby-scaffolding",
+    "php": "pn-php-scaffolding",
+    "babylon": "pn-babylon-scaffolding"
+  }
+}

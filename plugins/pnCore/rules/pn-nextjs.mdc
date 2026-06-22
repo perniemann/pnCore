@@ -1,0 +1,65 @@
+---
+description: Next.js best practices. Data loading, server/client boundaries, streaming, mutations, and performance. For Next app/ or pages/, pn-react also applies (core React patterns); content is complementary.
+alwaysApply: false
+globs: ["**/app/**", "**/pages/**"]
+---
+
+# Next.js best practices
+
+## Server vs Client Components
+
+- **Server components by default.** Every component in the `app/` directory is a Server Component unless it has `"use client"` at the top.
+- **`"use client"` only when needed:** interactivity (`useState`, `useEffect`), browser APIs (`window`, `document`), event listeners, or third-party client-side libraries.
+- **Keep `"use client"` as deep in the tree as possible** — push it to leaf components. A parent Server Component can pass Server data as props to a Client Component child.
+- **Never import a Server Component into a Client Component.** Pass Server-rendered content as `children` or other props instead.
+
+## Data Loading
+
+- **No request waterfalls:** Parallel-fetch independent data with `Promise.all()` in server components. Don't await one then the other if they're independent.
+- **Colocate data fetching:** Fetch data in the Server Component that needs it — don't fetch in a parent and prop-drill, because Server Components don't cause re-renders.
+- **`cache()` for deduplication:** In Server Components, `cache()` deduplicates identical requests within a single render pass.
+- **Streaming with Suspense:** Wrap slow-loading sections in `<Suspense fallback={<Skeleton />}>` to stream content progressively rather than blocking the whole page.
+
+## Loading, Error, and Not-Found States
+
+- **Colocate `loading.tsx`** with every async route segment — it creates an automatic Suspense boundary and shows a skeleton during navigation.
+- **Colocate `error.tsx`** with routes that may throw — it must be a Client Component (`"use client"`); use it to show a recovery UI.
+- **`not-found.tsx`** for 404 states; call `notFound()` from server components when a resource doesn't exist.
+- Never leave an async route without a `loading.tsx` — users see a blank screen on navigation otherwise.
+
+## Server Actions and Mutations
+
+- After a Server Action mutation, call `revalidatePath('/path')` or `revalidateTag('tag')` so cached data is updated and the UI reflects the change.
+- Use `useActionState` (React 19 / Next 15) to track loading and error state for Server Actions.
+- Validate inputs server-side in every Server Action — never trust client data.
+- Return structured errors from Server Actions instead of throwing, so the UI can display them inline.
+
+## Routing and Navigation
+
+- Prefer `<Link>` for navigation over `router.push()` — `<Link>` prefetches on hover/focus.
+- Use `router.push()` for programmatic navigation after form submission or async operations.
+- `useSearchParams()` must be wrapped in Suspense when used in a Client Component (it suspends on the server).
+- Dynamic route segments `[id]`: use `generateStaticParams()` for static generation where content is known at build time.
+
+## Performance
+
+- **Bundle size:** Server Components add zero JS to the client bundle. Keep heavy libraries (e.g., date-fns, charts) in Server Components where possible.
+- **Dynamic imports for Client Components:** `const Chart = dynamic(() => import('./Chart'), { ssr: false })` for large client-only libraries.
+- **Images:** Always use `<Image>` from `next/image` — automatic WebP, lazy loading, size optimization, and LCP priority prop.
+- **Fonts:** Use `next/font` — zero layout shift, self-hosted, automatic fallback metrics.
+- **INP ≤200ms:** Break up tasks >50ms with `requestIdleCallback` or `setTimeout(fn, 0)`. Defer non-critical JS with dynamic import.
+- **Re-renders in Client Components:** Avoid new object/array literals as stable prop values — use `useMemo` or define outside component.
+
+## Metadata
+
+- Define metadata per route using the `metadata` export (static) or `generateMetadata()` (dynamic).
+- Always set `title`, `description`, and `openGraph` at minimum for public pages.
+- Use `viewport` metadata for mobile rather than a manual `<meta>` tag.
+
+## Common Anti-Patterns
+
+- **Marking whole pages `"use client"`:** Loses all Server Component benefits — push the boundary down.
+- **`useEffect` for data fetching in Client Components:** Use `useSWR`, `React Query`, or Server Components instead.
+- **Forgetting `revalidatePath` after mutations:** Stale data persists in the cache.
+- **Sequential `await` for independent data:** Use `Promise.all()`.
+- **`params` and `searchParams` used synchronously in Next 15+:** They are now promises — `await params`, `await searchParams`.

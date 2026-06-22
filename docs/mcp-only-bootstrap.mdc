@@ -1,0 +1,21 @@
+---
+description: MCP-only bootstrap — load pn-core build gate and proactive rules via MCP so flows work without installing the plugin. Copy this file into the workspace you have open in Cursor (your project's .cursor/rules/), not into the pnCore repo.
+alwaysApply: true
+---
+
+# pn-core MCP-only bootstrap
+
+**Start every new chat with:** **[pn-default] ▲** (context tag + Unicode U+25B2). Do this before any other output or tool call.
+
+**Requires pn-core MCP.** If build/design flows do not trigger, pn-core may not be configured. Add to `~/.cursor/mcp.json` (user) or `.cursor/mcp.json` (project). From pnCore repo: `npm run mcp-config`. See `docs/mcp-usage-guide.md`.
+
+When **pn-core MCP is available**, load and follow the canonical pn rules so build/design and skill use behave like the full plugin.
+
+**First action in the session (or when the user gives a build/design/fix request):**
+
+1. Call `get_rule("pn-build-gate")` and follow it (use `workflow_step` or `get_command` for build/design; use skills directly for fix/tweak).
+2. Call `get_rule("pn-mcp-proactive")` and follow it (use `list_skills` / `get_skill`, `list_agents` / `get_agent`, `list_commands` / `get_command` when the task matches a pn id).
+
+You do not have the plugin's file-based rules in this workspace, so you must load these two rules via MCP and apply them. After that, proceed as the rules specify.
+
+**Continual learning:** The skill `pn-continual-learning` is available via `get_skill("pn-continual-learning")`. When the user asks to "update AGENTS.md from transcripts" or "run continual learning", load that skill and follow its workflow (read transcripts, extract preferences/facts, merge into AGENTS.md). Automatic run-on-stop requires the plugin's hook and script; MCP-only, run the skill when the user asks.

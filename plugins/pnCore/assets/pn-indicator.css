@@ -1,0 +1,18 @@
+/**
+ * pnCore indicator styling by context.
+ * Use when the client can inject CSS or wrap the first message line with data-pn-context.
+ * Red = main (default). Commands = blue. Agents = green. Skills = amber. Plan = purple.
+ */
+
+[data-pn-context="default"] { color: #c41e3a; }   /* red – main */
+[data-pn-context="command"] { color: #0969da; }   /* blue */
+[data-pn-context="agent"]   { color: #1a7f37; }   /* green */
+[data-pn-context="skill"]  { color: #9a6700; }   /* amber */
+[data-pn-context="plan"]   { color: #8250df; }   /* purple */
+
+/* Optional: style only the triangle character (e.g. when wrapped in .pn-triangle) */
+.pn-triangle[data-pn-context="default"] { color: #c41e3a; }
+.pn-triangle[data-pn-context="command"] { color: #0969da; }
+.pn-triangle[data-pn-context="agent"]   { color: #1a7f37; }
+.pn-triangle[data-pn-context="skill"]  { color: #9a6700; }
+.pn-triangle[data-pn-context="plan"]   { color: #8250df; }

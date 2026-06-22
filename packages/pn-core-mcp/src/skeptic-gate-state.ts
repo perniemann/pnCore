@@ -1,0 +1,51 @@
+import { strictSkepticGatesEnabled } from "./features.js";
+
+export type SkepticGateRecord = {
+  verdict: string;
+  go_no_go?: string;
+  gate_id: string;
+  confirmed_at: string;
+};
+
+export function isSkepticGateRecord(value: unknown): value is SkepticGateRecord {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const o = value as Record<string, unknown>;
+  return (
+    typeof o.verdict === "string" &&
+    typeof o.gate_id === "string" &&
+    typeof o.confirmed_at === "string"
+  );
+}
+
+export function applySkepticGateStateChecks(
+  step: number,
+  state: Record<string, unknown>,
+  requiredFromState: string[]
+): { error?: string; warning?: string } | undefined {
+  if (!strictSkepticGatesEnabled()) return undefined;
+
+  for (const key of ["skepticPassed", "skepticOutputPassed"] as const) {
+    if (!requiredFromState.includes(key)) continue;
+    const val = state[key];
+    if (val === undefined || val === null) continue;
+
+    if (val === true) {
+      return {
+        warning: `[strictSkepticGates] ${key} is bare true; after the user confirms, set ${key} to { verdict, go_no_go, gate_id, confirmed_at } from workflow_confirm.`,
+      };
+    }
+
+    if (isSkepticGateRecord(val)) {
+      if (val.go_no_go === "no_go" && state.iterationCapApproved !== true) {
+        const ticket = state.pncoreHumanGateTicket;
+        if (typeof ticket !== "string" || ticket.trim() === "") {
+          return {
+            error: `Step ${step} blocked: ${key}.go_no_go is "no_go". Address must_fix items, iterate, or call approval_checkpoint before advancing.`,
+          };
+        }
+      }
+    }
+  }
+
+  return undefined;
+}

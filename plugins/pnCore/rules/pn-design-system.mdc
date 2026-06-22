@@ -1,0 +1,68 @@
+---
+description: Design system rule: enforces token usage when editing CSS, SCSS, or styled components. Use tokens for color, spacing, typography; avoid one-off values. For establishing or auditing a design system, use the pn-design-system skill.
+alwaysApply: false
+globs: ["**/*.css", "**/*.scss", "**/*.sass", "**/*.styled.*", "**/tokens/**", "**/themes/**"]
+---
+
+# Design system rules
+
+## Token Usage
+
+- Use design tokens (CSS variables or theme objects) over raw values for color, spacing, typography, radius, and shadows.
+- No one-off hex colors, raw px values, or literal font families in components — use tokens.
+- Semantic token names in components (`--color-primary`, `--space-4`). Reserve primitive tokens (`--blue-500`) for token definition files only.
+- Keep theme overrides (light/dark) in a single location. Components reference tokens that switch by theme — they don't know about themes directly.
+- When adding new values that may be reused: add as a token first. Document intentional one-offs.
+
+## Color Tokens (OKLCH)
+
+- Use OKLCH for new color systems — perceptually uniform, better dark mode scaling than HSL.
+- Tint neutrals with the brand hue at chroma 0.005–0.01 for subconscious cohesion. Never pure gray.
+- Never use `#000` or `#fff` — always tint. Pure black/white don't exist in nature.
+- Two-layer token hierarchy:
+  - **Primitive:** `--blue-500: oklch(60% 0.15 250)` — never used directly in components
+  - **Semantic:** `--color-primary: var(--blue-500)` — what components reference
+
+```css
+/* Light theme */
+:root {
+  --color-primary: oklch(60% 0.15 250);
+  --color-text:    oklch(15% 0.01 250);
+  --color-surface: oklch(98% 0.005 250);
+  --color-border:  oklch(88% 0.01 250);
+}
+
+/* Dark theme — redefine semantics only */
+[data-theme="dark"] {
+  --color-primary: oklch(68% 0.13 250);
+  --color-text:    oklch(92% 0.01 250);
+  --color-surface: oklch(14% 0.01 250);
+  --color-border:  oklch(28% 0.02 250);
+}
+```
+
+## Dark Mode Architecture
+
+- Dark mode is not inverted light mode — define independent semantic colors per theme.
+- Dark mode depth uses lighter surfaces, not shadows: `--surface-1` through `--surface-3` with increasing lightness.
+- Desaturate accent slightly in dark mode (reduce chroma by ~0.02).
+- Reduce text contrast slightly in dark mode — pure white on pure black strains eyes.
+
+## Spacing Tokens
+
+- Use a base-4 or base-8 scale (`--space-1: 0.25rem` through `--space-32: 8rem`).
+- Spacing MUST create rhythm: tight spacing (--space-1 to --space-3) within components, generous spacing (--space-12 to --space-24) between sections.
+- Never `padding: 24px` everywhere — different contexts need different densities.
+
+## Tailwind Projects
+
+- Define tokens in `tailwind.config.js` under `theme.extend` (Tailwind v3) or `@theme` (Tailwind v4).
+- Reference them via CSS variables (`--color-primary`, `--spacing-4`) rather than hardcoded utilities where semantic meaning matters.
+- Avoid `text-[14px]`, `bg-[#3b82f6]` — use token-backed utilities instead.
+
+## Anti-Patterns
+
+- **Gray text on colored surfaces:** Use a dark shade of the surface hue — not a gray from the neutral scale.
+- **Alpha everywhere:** Heavy rgba/hsla usage is a palette design smell. Define explicit surface colors per elevation.
+- **Platform-specific color values in tokens:** `light-dark()` and `@media (prefers-color-scheme)` belong at the token level, not scattered in components.
+- **Same spacing token on everything:** Token system is not "use --space-4 everywhere" — it's a vocabulary for creating rhythm.

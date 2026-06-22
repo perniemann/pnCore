@@ -1,0 +1,15 @@
+---
+description: Vanilla HTML/CSS/JS conventions: semantic HTML, progressive enhancement, a11y. Use when editing .html or .htm files.
+alwaysApply: false
+globs: ["**/*.html", "**/*.htm"]
+---
+
+# Vanilla web rules
+
+- Use semantic HTML: `<header>`, `<main>`, `<nav>`, `<footer>`, `<article>`, `<section>`, `<aside>`.
+- Prefer progressive enhancement: content works without JavaScript; JS adds interactivity.
+- Use consistent class naming: BEM or kebab-case. Avoid inline styles for layout; use CSS classes.
+- CSS variables for theming (colors, spacing, typography); reference pn-design-system for token structure.
+- A11y: one `<h1>` per page, labels for form controls, logical heading order, focus order.
+- Responsive and touch: mobile-first; min 44×48px touch targets; no hover-only for critical actions; never disable zoom.
+- Keep JS minimal; no unnecessary libraries unless required by the feature.

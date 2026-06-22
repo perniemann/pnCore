@@ -1,0 +1,15 @@
+---
+description: Web3 security conventions: no private keys, env for RPC, explicit visibility, events for state changes. Use when editing Solidity or Web3 integration code.
+alwaysApply: false
+globs: ["**/*.sol", "**/contracts/**", "**/hardhat*", "**/foundry*", "**/scripts/**deploy*"]
+---
+
+# Web3 security rules
+
+- Never hardcode private keys, mnemonics, or API keys. Use environment variables or secure vaults.
+- Use environment variables for RPC URLs and chain IDs in config and scripts.
+- Use explicit visibility (`public`, `external`, `internal`, `private`) for all functions and state variables.
+- Emit events for state-changing operations; use indexed parameters for filterable fields.
+- Prefer `msg.sender` over `tx.origin` for authorization. Never use `tx.origin` for access control.
+- Document security assumptions and access control in NatSpec for sensitive functions.
+- Follow the checks-effects-interactions pattern to prevent reentrancy: check conditions first, then update state, then call external contracts. Use OpenZeppelin's `ReentrancyGuard` (or `nonReentrant`) on functions that transfer value or call external contracts.

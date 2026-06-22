@@ -1,0 +1,50 @@
+---
+description: PHP backend style, env, and error handling. Use for API and server code (Laravel, Slim).
+alwaysApply: false
+globs: ["**/*.php", "**/composer.json"]
+---
+
+# PHP / backend rules
+
+## Style and typing
+- Use `declare(strict_types=1)` at the top of every file.
+- Type declarations for all function parameters and return types. Use union types (`string|int`) and nullable types (`?string`) where needed. Avoid `mixed` except at true boundaries.
+- Follow PSR-12 coding style. Use a formatter (PHP CS Fixer or Pint for Laravel) — style should be automated, not debated.
+- Named arguments for clarity in calls with 3+ parameters or boolean flags: `createUser(name: 'Alice', role: 'admin', sendEmail: true)`.
+
+## Laravel conventions
+- Use Eloquent scopes, resource controllers, and form request classes. Business logic belongs in service classes, not controllers.
+- Form Request classes (`App\Http\Requests\`) for all input validation — not inline `$request->validate()` in controllers.
+- Use Eloquent relationships correctly: `->with(['orders'])` for eager loading; never load relationships inside loops.
+- Events and Listeners for decoupled side effects (sending emails, updating search index) rather than fat service methods.
+- Use `php artisan make:model -mfsc` (migration, factory, seeder, controller) — follow the resource pattern.
+
+## Secrets and config
+- All secrets and config from environment variables: `env('VAR')` (Laravel) or `getenv('VAR')`. Never hardcode keys or passwords.
+- Use `vlucas/phpdotenv` in non-Laravel projects. Never commit `.env` to git. Keep `.env.example` with placeholders.
+- Reference config via `config('services.stripe.key')` (Laravel) — never `env()` directly in business logic (config is cached; `env()` does not work after `php artisan config:cache`).
+
+## Error handling
+- Catch specific exception classes in try/catch, not bare `catch (\Exception $e)` for everything.
+- In Laravel: extend `App\Exceptions\Handler` to centralize error formatting. Return consistent JSON shapes for API responses.
+- Return consistent error shapes: `{ "error": { "code": string, "message": string, "requestId": string } }`.
+- Use Laravel's `Log::warning()`, `Log::error()` with context arrays — not `echo` or `var_dump`.
+
+## Database and security
+- Parameterized queries always. Laravel's Eloquent and Query Builder are parameterized by default. Never `DB::statement("SELECT * FROM users WHERE id = $id")`.
+- Hash passwords with `Hash::make()` (bcrypt by default). Never `md5()` or `sha1()` for passwords.
+- Validate and sanitize all user input. Use Form Requests or `$request->validate()` with strict rules.
+- Use CSRF protection for web forms (Laravel includes this via middleware). For API-only routes: use token auth (Sanctum, Passport) and skip CSRF.
+- Set secure, HttpOnly, SameSite session cookies. Use HTTPS-only in production (`SESSION_SECURE_COOKIE=true`).
+
+## Composer hygiene
+- Lock exact dependency versions via `composer.lock`. Commit the lock file.
+- Run `composer audit` in CI to check for known vulnerabilities in dependencies.
+- Use autoloading (PSR-4) for all classes; never `require` or `include` class files manually.
+
+## Anti-patterns to avoid
+- **`env()` in production config-cached app**: returns `null` after `config:cache`. Always wrap in config files.
+- **Business logic in controllers**: controllers route requests; services contain domain logic. Fat controllers become untestable.
+- **N+1 with Eloquent**: `foreach ($users as $user) { $user->orders }` without eager loading. Use `User::with('orders')`.
+- **`@` error suppression operator**: `@file_get_contents(...)` hides errors that should be handled. Catch exceptions instead.
+- **Dynamic SQL with interpolation**: `"WHERE id = $id"` in raw queries — SQL injection. Use `?` or named bindings.

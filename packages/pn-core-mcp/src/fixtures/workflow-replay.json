@@ -1,0 +1,33 @@
+[
+  {
+    "workflowType": "full_dev",
+    "step": 5,
+    "state": {
+      "specialistList": ["pn-frontend-developer", "pn-backend-developer"],
+      "routeConfirmed": true,
+      "plan": "p",
+      "skepticPassed": true,
+      "taskResults": {
+        "pn-frontend-developer": "done",
+        "pn-backend-developer": "done"
+      }
+    },
+    "expectWorkflowPhase": "merge"
+  },
+  {
+    "workflowType": "full_dev",
+    "step": 5,
+    "state": {
+      "specialistList": ["pn-frontend-developer", "pn-backend-developer"],
+      "routeConfirmed": true,
+      "plan": "p",
+      "skepticPassed": true,
+      "taskResults": {
+        "pn-frontend-developer": "done",
+        "pn-backend-developer": "done"
+      },
+      "mergeComplete": true
+    },
+    "expectInstructionContains": "pn-review"
+  }
+]

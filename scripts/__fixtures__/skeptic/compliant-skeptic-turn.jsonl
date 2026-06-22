@@ -1,0 +1,2 @@
+{"role":"assistant","message":{"content":[{"type":"text","text":"## Skeptic verdict\n\n**Revise plan** — drop redundant tool.\n\nIndustry alignment: ok."}]}}
+{"role":"assistant","message":{"content":[{"type":"tool_use","name":"AskQuestion","input":{"title":"Skeptic verdict","questions":[{"id":"v","prompt":"Apply revisions?","options":[{"id":"apply","label":"apply_revisions"},{"id":"push","label":"push_back"}]}]}}]}}

@@ -1,0 +1,43 @@
+---
+description: Python backend style, env/secrets, and error handling. Use for API and server code (FastAPI, Flask).
+alwaysApply: false
+globs: ["**/*.py", "**/requirements*.txt", "**/pyproject.toml"]
+---
+
+# Python / backend rules
+
+## Style and typing
+- Type hints on all public functions and class methods — parameters and return type. Use built-in generics (`list[str]`, `dict[str, int]`, `X | None`) not `typing.List`, `typing.Optional` (Python 3.10+).
+- Use `pydantic` models for all request/response shapes in FastAPI; use dataclasses or pydantic for structured config.
+- Prefer small functions with single responsibility. Classes for stateful services; functions for pure transformations.
+- Use `pathlib.Path` for file paths. Never string-concatenate paths.
+- Follow PEP 8: snake_case for functions/variables, PascalCase for classes, UPPER_SNAKE for module-level constants.
+
+## Async
+- FastAPI routes should be `async def` when they perform I/O (DB, HTTP, Redis). Use `sync` only for CPU-bound work.
+- Use `asyncio`-native libraries in async routes (`asyncpg`, `httpx`, `motor`). Never call blocking I/O (stdlib `requests`, `psycopg2` sync) from an async route handler — it blocks the event loop.
+- For background jobs: use `BackgroundTasks` (FastAPI) or a task queue (Celery, ARQ, dramatiq); do not fire-and-forget with `asyncio.create_task` in request scope without error handling.
+
+## Secrets and config
+- All config and secrets from environment variables (`os.getenv`, `os.environ`). Never hardcode keys or passwords in source.
+- Use `pydantic-settings` (`BaseSettings`) for typed, validated config at startup. Validate required vars at import, not lazily.
+- Keep a `.env.example`; never commit `.env` to git. Use `python-dotenv` only in development.
+
+## Error handling
+- Catch specific exceptions, not bare `except:` or broad `except Exception:`.
+- In FastAPI: raise `HTTPException` for operational errors; use exception handlers (`@app.exception_handler`) for centralized formatting.
+- Return consistent JSON error shapes: `{ "error": { "code": str, "message": str, "requestId": str } }`.
+- Use structured logging (`structlog` or `logging` with JSON formatter). Include `request_id`, `user_id` in log context.
+
+## Security
+- Use parameterized queries (`%s` with psycopg2, `?` with SQLite, named params with SQLAlchemy). Never f-string or format SQL.
+- Validate all input with Pydantic validators. Constrain string lengths, enum values, numeric ranges.
+- Hash passwords with `bcrypt` or `argon2-cffi`. Never use `hashlib.md5` or `sha1` for passwords.
+- Use `python-jose` or `authlib` for JWT; pin the algorithm explicitly — never accept `"alg": "none"`.
+
+## Anti-patterns to avoid
+- **Mutable default arguments**: `def f(items=[])` — the list is shared across all calls. Use `None` default and initialize in body.
+- **Blocking in async context**: `requests.get(...)` inside an `async def` route stalls all concurrent requests.
+- **Bare except**: hides exceptions including `KeyboardInterrupt` and `SystemExit`; always catch specific types.
+- **ORM lazy loading in async**: SQLAlchemy lazy relationships in async context raise `MissingGreenlet`. Use `selectinload` or `joinedload` explicitly.
+- **Printing logs**: `print(f"Error: {e}")` in production — use structured logging with levels.

@@ -1,0 +1,49 @@
+---
+description: Rust backend style, env, and error handling. Use for API and server code (Actix-web, Axum).
+alwaysApply: false
+globs: ["**/*.rs", "**/Cargo.toml"]
+---
+
+# Rust / backend rules
+
+## Error handling
+- Use `Result<T, E>` for all fallible operations. Never `.unwrap()` or `.expect()` in production code paths — use `?` to propagate or handle explicitly.
+- Define a crate-level error enum using `thiserror`. Use `anyhow` in binary crates (applications); use `thiserror` in library crates.
+- Prefer `?` over `match` for error propagation in linear flows. Use `match` when branches have different recovery strategies.
+- Provide context when wrapping errors: `.map_err(|e| AppError::Db(e.to_string()))` with enough detail to debug without a stack trace.
+
+## Async
+- Use `tokio` as the async runtime. All I/O-bound operations must be `async` — never block the executor with synchronous I/O (`std::fs`, `std::thread::sleep`).
+- For CPU-heavy work inside async code: use `tokio::task::spawn_blocking`.
+- Use `tokio::timeout` or `tower::timeout` to bound all external calls (DB, HTTP). Unbounded I/O awaits cause silent hangs.
+- Share state across handlers via `Arc<AppState>` passed through Axum's `State` extractor or Actix's `web::Data`.
+
+## Ownership and types
+- Prefer references over cloning for large data. Profile before adding `.clone()` to work around borrow checker pushback.
+- Use `Arc<T>` for shared ownership in async code; `Rc<T>` is not `Send`. Use `Mutex`/`RwLock` only when mutation is needed.
+- Use newtype wrappers to distinguish semantically different values of the same primitive: `struct UserId(i64)` prevents confusing `user_id` with `order_id`.
+- Use `Option<T>` for values that may legitimately be absent. Avoid sentinel values (`-1`, `""`) to represent absence.
+
+## Secrets and config
+- All config and secrets from environment variables. Use `std::env::var("VAR").expect("VAR required")` at startup — fail fast on missing config.
+- Use `dotenvy` in development; never commit `.env` to git.
+- Consider `config` crate or `envy` for typed, validated config structs derived from environment.
+
+## Web framework patterns (Axum / Actix)
+- Extract shared dependencies (DB pool, config, HTTP client) into `AppState`. Inject via `State<Arc<AppState>>` (Axum) or `Data<AppState>` (Actix).
+- Implement `IntoResponse` (Axum) or `ResponseError` (Actix) on error types for centralized response formatting.
+- Use typed extractors for request parsing (`Json<CreateUserRequest>`) — validators run before the handler body.
+- Apply middleware at the router level (logging, auth, rate limiting) rather than in individual handlers.
+
+## Security
+- Use parameterized queries exclusively — `sqlx::query!` macro or `sqlx::query_as` with `$1` placeholders. Never format SQL strings.
+- Use `argon2` or `bcrypt` crate for password hashing. Never use `sha256` for passwords.
+- Validate all user input at the boundary. Use `validator` crate on request structs.
+- Use `jsonwebtoken` crate; pin the algorithm explicitly: `Validation::new(Algorithm::HS256)`.
+
+## Anti-patterns to avoid
+- **`.unwrap()` in handlers**: panics kill the current task or crash the server (depending on runtime configuration). Use `?` or explicit error handling.
+- **Blocking in async**: `std::thread::sleep`, synchronous DB drivers, or `std::fs` inside `async fn` starves the executor.
+- **Cloning to silence the borrow checker**: `.clone()` on large `Vec` or `String` in hot paths. Understand the lifetime before cloning.
+- **Missing timeouts**: `sqlx::query` or `reqwest::get` without a timeout causes hangs that exhaust the connection pool silently.
+- **Public fields on error types**: exposing DB error details in response types. Keep internal context private; serialize only safe fields.

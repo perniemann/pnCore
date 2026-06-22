@@ -1,0 +1,14 @@
+---
+description: Do not add Cursor IDE lines to git commit messages (Made-with, Co-authored-by).
+alwaysApply: true
+---
+
+# No Cursor commit trailers
+
+When you create commits, edit messages, or suggest `git commit` text (including multi-line bodies):
+
+- Do **not** include `Made-with: Cursor` or any line starting with `Made-with:`.
+- Do **not** add `Co-authored-by: Cursor <cursoragent@cursor.com>` or similar IDE-generated `Co-authored-by` trailers.
+- If the tool or environment inserts those lines, **remove them** before the commit is finalized.
+
+Prefer this repo’s `prepare-commit-msg` hook (`git config core.hooksPath .githooks`). See `docs/commits.md` for CI and contributor notes.

@@ -1,0 +1,14 @@
+---
+description: Figma design-to-code conventions: token extraction, component mapping, naming alignment. Use when implementing designs from Figma or maintaining design-code sync.
+alwaysApply: false
+globs: ["**/design-tokens/**", "**/tokens/**", "**/*figma*", "**/*design-spec*", "**/styles/tokens*"]
+---
+
+# Figma rules
+
+- Extract design tokens (colors, spacing, typography) from Figma before implementing; use tokens in code, not raw values from the design.
+- Map Figma components/frames to React/Astro components with consistent naming; sanitize layer names (PascalCase for components, kebab-case for CSS).
+- Use Figma auto-layout semantics when implementing: flex/grid with gap for spacing; preserve direction and alignment.
+- Document intentional deviations from design; when specs are ambiguous, use design-system conventions and note assumptions.
+- Keep token definitions in sync with Figma styles when design is the source of truth; update tokens before components when designs change.
+- Use Figma MCP when available for direct token extraction and component inspection; fall back to manual export when MCP is unavailable.

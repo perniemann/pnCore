@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Build / tooling
+*.tsbuildinfo
+coverage/
+dist/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Workspace-specific (do not commit)
+.cursor/settings.json
+docs/research/claude-code-2026-pncore-synthesis.md
+.cursor/hooks/state/
+# Local-only files under .pncore/ (see .pncore/README.md)
+.pncore/*
+!.pncore/README.md
+# CWD may be the MCP package during tests; same local state as root .pncore
+packages/pn-core-mcp/.pncore/
+
+# Test install target (do not commit)
+.test-project/
+
+# pn-session-retro v2 state (reserved; harmless if absent)
+.cursor/hooks/state/retro-index.json
+.cursor/hooks/state/retro-patterns.json
+
+# Local HTML preview outputs (pn-html-preview)
+html_outputs/

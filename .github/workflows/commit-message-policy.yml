@@ -1,0 +1,26 @@
+# Rejects commits that include Cursor-injected message trailers (Made-with / Co-authored-by).
+name: Commit message policy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  no-ide-trailers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          fetch-depth: 0
+
+      # Short-circuit so pull_request.* is not evaluated on push (undefined there).
+      - name: Block IDE commit trailers
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.event.after }}
+          PR_BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || '' }}
+          PR_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || '' }}
+        run: node scripts/check-commit-no-ide-trailers.mjs

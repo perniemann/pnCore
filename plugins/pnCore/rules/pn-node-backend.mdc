@@ -1,0 +1,43 @@
+---
+description: Node.js and backend style, safety, and env/secrets. Use for API and server code.
+alwaysApply: false
+globs: ["**/server/**", "**/api/**", "**/services/**", "**/middleware/**", "**/routes/**", "**/backend/**"]
+---
+
+# Node / backend rules
+
+## Variables and style
+- Prefer `const` over `let`; use `let` only when reassignment is needed. Never use `var`.
+- Use async/await over raw promise chains. Never mix callbacks with promises in the same flow.
+- TypeScript types or JSDoc at all public API boundaries; avoid `any`. Use `unknown` + type narrowing for external input.
+- Small functions, single responsibility. Handlers delegate to services — route files stay thin.
+
+## Secrets and config
+- All config and secrets come from environment variables (`process.env.VAR`). Never hardcode keys, passwords, or connection strings in source.
+- Validate required env vars at startup, not lazily at use-time: `if (!process.env.DB_URL) throw new Error("DB_URL is required")`.
+- Keep a `.env.example` with placeholder names; document every required variable in README. Never commit `.env` to git.
+
+## Error handling
+- Catch errors at boundaries (route handlers, service entry points); propagate with `throw` internally. Never swallow errors silently.
+- Use a centralized Express error middleware — route handlers `throw` or call `next(err)`; the middleware formats and sends the response.
+- Return consistent error shapes: `{ error: { code: string, message: string, requestId: string } }`.
+- Map errors to correct HTTP status codes: 400 bad input, 401 unauthenticated, 403 forbidden, 404 not found, 422 validation failed, 429 rate limited, 500 unexpected.
+- Use structured logging (pino, winston). Include `requestId`, `userId`, and relevant IDs in every log line. Never log secrets or PII.
+
+## Security
+- Parameterized queries always — never interpolate user input into SQL or commands.
+- Validate and parse all request input before use. Use `zod` or similar at route boundaries.
+- Scope data queries to the authenticated user's ID. Never trust a client-supplied `userId`.
+- Apply `helmet` for security headers. Configure CORS with an explicit origin allowlist, not `*`.
+- Rate-limit auth routes (`/login`, `/register`) more aggressively than general API routes.
+
+## Module structure
+- One module per domain (`services/auth.ts`, `routes/orders.ts`). Export named functions; avoid default exports for service modules.
+- DB access belongs in service/repository layer, not in route handlers.
+- Use connection pooling for DB. Never create a new connection per request.
+
+## Anti-patterns to avoid
+- **Swallowed catch**: `catch { /* nothing */ }` silently hides failures — always log at minimum.
+- **Async void leak**: `router.get("/", async (req, res) => { ... })` without try/catch — unhandled rejections crash the process. Wrap with an `asyncHandler` utility.
+- **God route handler**: 200-line route handler mixing validation, business logic, and DB access — extract into services.
+- **process.env mid-call**: reading env vars deep inside service logic at runtime rather than validated config at startup — inconsistent, untestable.

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pn-core://reference/schemas/delivery_pack.contract.json",
+  "title": "Delivery Pack Contract",
+  "description": "Output contract for the pn-package-delivery agent",
+  "type": "object",
+  "required": ["summary", "changed_files", "how_to_test", "validation_checklist", "residual_risks", "followups"],
+  "additionalProperties": false,
+  "properties": {
+    "summary": { "type": "string" },
+    "changed_files": { "type": "array", "items": { "type": "string" } },
+    "how_to_test": { "type": "array", "items": { "type": "string" } },
+    "validation_checklist": { "type": "array", "items": { "type": "string" } },
+    "residual_risks": { "type": "array", "items": { "type": "string" } },
+    "followups": { "type": "array", "items": { "type": "string" } }
+  },
+  "$examples": [
+    {
+      "summary": "Implemented feature X",
+      "changed_files": ["src/feature.ts", "src/feature.test.ts"],
+      "how_to_test": ["Run npm test", "Open browser and verify X"],
+      "validation_checklist": ["Unit tests pass", "E2E test passes"],
+      "residual_risks": [],
+      "followups": []
+    }
+  ]
+}

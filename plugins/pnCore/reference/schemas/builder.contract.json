@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pn-core://reference/schemas/builder.contract.json",
+  "title": "Builder Contract",
+  "description": "Output contract for the pn-builder agent implementation deliverable",
+  "type": "object",
+  "required": ["implementation", "tests", "notes"],
+  "additionalProperties": false,
+  "properties": {
+    "implementation": {
+      "type": "object",
+      "required": ["strategy", "impacted_files", "patches", "dependency_changes"],
+      "additionalProperties": false,
+      "properties": {
+        "strategy": { "type": "string" },
+        "impacted_files": { "type": "array", "items": { "type": "string" } },
+        "patches": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["path", "type", "diff_unified", "content_full"],
+            "additionalProperties": false,
+            "properties": {
+              "path": { "type": "string" },
+              "type": { "type": "string", "enum": ["create", "modify", "delete"] },
+              "diff_unified": { "type": "string" },
+              "content_full": { "type": "string" }
+            }
+          }
+        },
+        "dependency_changes": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "tests": {
+      "type": "object",
+      "required": ["added_or_updated", "how_to_run"],
+      "additionalProperties": false,
+      "properties": {
+        "added_or_updated": { "type": "array", "items": { "type": "string" } },
+        "how_to_run": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "notes": {
+      "type": "object",
+      "required": ["assumptions", "known_limits", "perf_considerations", "a11y_considerations", "security_considerations", "observability_notes", "i18n_notes", "bundle_notes"],
+      "additionalProperties": false,
+      "properties": {
+        "assumptions": { "type": "array", "items": { "type": "string" } },
+        "known_limits": { "type": "array", "items": { "type": "string" } },
+        "perf_considerations": { "type": "array", "items": { "type": "string" } },
+        "a11y_considerations": { "type": "array", "items": { "type": "string" } },
+        "security_considerations": { "type": "array", "items": { "type": "string" } },
+        "observability_notes": { "type": "array", "items": { "type": "string" } },
+        "i18n_notes": { "type": "array", "items": { "type": "string" } },
+        "bundle_notes": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  },
+  "$examples": [
+    {
+      "implementation": {
+        "strategy": "minimal->tests->hardening",
+        "impacted_files": ["src/feature.ts"],
+        "patches": [{ "path": "src/feature.ts", "type": "modify", "diff_unified": "@@ -1 +1 @@\n-old\n+new", "content_full": "new content" }],
+        "dependency_changes": []
+      },
+      "tests": { "added_or_updated": ["src/feature.test.ts"], "how_to_run": ["npm test"] },
+      "notes": {
+        "assumptions": [],
+        "known_limits": [],
+        "perf_considerations": [],
+        "a11y_considerations": [],
+        "security_considerations": [],
+        "observability_notes": [],
+        "i18n_notes": [],
+        "bundle_notes": []
+      }
+    }
+  ]
+}

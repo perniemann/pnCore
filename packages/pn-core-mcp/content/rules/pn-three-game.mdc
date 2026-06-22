@@ -1,0 +1,16 @@
+---
+description: Three.js and 2D game conventions: scene structure, performance, postprocess order, R3F/Drei, physics. Use when editing Three.js or game-related code.
+alwaysApply: false
+globs: ["**/*three*", "**/*Three*", "**/game/**", "**/scene/**", "**/*postprocess*", "**/*.glsl", "**/*.frag", "**/*.vert", "**/*r3f*", "**/*drei*", "**/*rapier*"]
+---
+
+# Three.js / 2D game rules
+
+- Prefer a clear scene hierarchy and naming (e.g. groups for logical parts) so objects can be found and disposed correctly.
+- Dispose of geometries, materials, and textures when no longer needed to avoid memory leaks.
+- For postprocessing: keep pass order explicit and document (e.g. comment or constant) so changes don't break expected visual order.
+- In 2D game code: keep game logic (state, rules, scoring) separate from render/input where possible for testability and clarity.
+- Avoid unnecessary draw calls and heavy per-frame allocations; reuse objects and buffers where it helps performance.
+- **R3F/Drei patterns:** When using React Three Fiber, use `useLoader` (cached) instead of manual loaders; use `<Suspense>` for async assets; keep scene graph components pure and side-effect-free.
+- **Rapier physics:** Set fixed timestep via `<Physics timeStep="vary">` for determinism; pair `RigidBody` with a matching collider; clean up with `useEffect` return in R3F.
+- **WebGPU/TSL (Three.js r167+):** Use `WebGPURenderer` with TSL node materials when targeting WebGPU; provide a WebGL fallback via `WebGLRenderer` for unsupported browsers.

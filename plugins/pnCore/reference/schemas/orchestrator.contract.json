@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pn-core://reference/schemas/orchestrator.contract.json",
+  "title": "Orchestrator Contract",
+  "description": "Output contract for the pn-project-builder orchestrator agent",
+  "type": "object",
+  "required": ["tool_routing", "task_normalization", "evidence_plan", "acceptance_criteria", "change_plan", "handoff", "skeptic"],
+  "additionalProperties": false,
+  "properties": {
+    "tool_routing": {
+      "type": "object",
+      "required": ["available_tools", "planned_usage", "fallbacks"],
+      "additionalProperties": false,
+      "properties": {
+        "available_tools": { "type": "array", "items": { "type": "string" } },
+        "planned_usage": { "type": "array", "items": { "type": "string" } },
+        "fallbacks": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "task_normalization": {
+      "type": "object",
+      "required": ["mode", "domains", "risk_level"],
+      "additionalProperties": false,
+      "properties": {
+        "mode": { "type": "string", "enum": ["discovery", "direct"] },
+        "domains": { "type": "array", "items": { "type": "string" } },
+        "risk_level": { "type": "string", "enum": ["low", "medium", "high"] }
+      }
+    },
+    "evidence_plan": {
+      "type": "object",
+      "required": ["files_to_inspect", "questions_max", "questions"],
+      "additionalProperties": false,
+      "properties": {
+        "files_to_inspect": { "type": "array", "items": { "type": "string" } },
+        "questions_max": { "type": "integer", "minimum": 0 },
+        "questions": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "acceptance_criteria": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "change_plan": {
+      "type": "object",
+      "required": ["phases", "impacted_files", "dependency_changes", "migration_plan", "rollout_plan", "rollback_plan", "risks"],
+      "additionalProperties": false,
+      "properties": {
+        "phases": { "type": "array", "items": { "type": "string" } },
+        "impacted_files": { "type": "array", "items": { "type": "string" } },
+        "dependency_changes": { "type": "array", "items": { "type": "string" } },
+        "migration_plan": { "type": ["string", "null"] },
+        "rollout_plan": { "type": ["string", "null"] },
+        "rollback_plan": { "type": ["string", "null"] },
+        "risks": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "handoff": {
+      "type": "object",
+      "required": ["next_agent", "inputs"],
+      "additionalProperties": false,
+      "properties": {
+        "next_agent": { "type": "string" },
+        "inputs": {
+          "type": "object",
+          "required": ["constraints", "style_guides", "approved_deps"],
+          "additionalProperties": false,
+          "properties": {
+            "constraints": { "type": "array", "items": { "type": "string" } },
+            "style_guides": { "type": "array", "items": { "type": "string" } },
+            "approved_deps": { "type": "array", "items": { "type": "string" } }
+          }
+        }
+      }
+    },
+    "skeptic": {
+      "type": "object",
+      "required": ["intensity", "run_on_plan", "run_on_diff"],
+      "additionalProperties": false,
+      "properties": {
+        "intensity": { "type": "string", "enum": ["light", "standard", "strict"] },
+        "run_on_plan": { "type": "boolean" },
+        "run_on_diff": { "type": "boolean" }
+      }
+    }
+  },
+  "$examples": [
+    {
+      "tool_routing": { "available_tools": ["get_skill", "workflow_step"], "planned_usage": ["get_skill"], "fallbacks": [] },
+      "task_normalization": { "mode": "discovery", "domains": ["frontend"], "risk_level": "medium" },
+      "evidence_plan": { "files_to_inspect": ["src/app.ts"], "questions_max": 3, "questions": [] },
+      "acceptance_criteria": ["Feature works end-to-end"],
+      "change_plan": { "phases": ["implement", "test"], "impacted_files": ["src/app.ts"], "dependency_changes": [], "migration_plan": null, "rollout_plan": null, "rollback_plan": null, "risks": [] },
+      "handoff": { "next_agent": "builder", "inputs": { "constraints": [], "style_guides": [], "approved_deps": [] } },
+      "skeptic": { "intensity": "standard", "run_on_plan": true, "run_on_diff": true }
+    }
+  ]
+}

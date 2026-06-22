@@ -1,0 +1,95 @@
+{
+  "description": "Supported stacks and their rules, scaffolds, and agents. Foundation for extensibility — discovery and scaffolding can reference this. To add a stack: add entry, create rule, scaffold skill, update discovery questionnaire.",
+  "stacks": [
+    {
+      "id": "plugin",
+      "rule": null,
+      "scaffold": "pn-create-plugin-scaffold",
+      "agent": "pn-scaffolder"
+    },
+    {
+      "id": "three",
+      "rule": "pn-three-game",
+      "scaffold": null,
+      "agent": "pn-game-developer"
+    },
+    {
+      "id": "godot",
+      "rule": null,
+      "scaffold": null,
+      "agent": "pn-game-developer"
+    },
+    {
+      "id": "unity",
+      "rule": null,
+      "scaffold": null,
+      "agent": "pn-game-developer"
+    },
+    {
+      "id": "react",
+      "rule": "pn-react",
+      "scaffold": "pn-frontend-scaffolding",
+      "agent": "pn-frontend-developer"
+    },
+    {
+      "id": "next",
+      "rule": "pn-nextjs",
+      "scaffold": "pn-frontend-scaffolding",
+      "agent": "pn-frontend-developer"
+    },
+    {
+      "id": "astro",
+      "rule": "pn-astro",
+      "scaffold": "pn-frontend-scaffolding",
+      "agent": "pn-frontend-developer"
+    },
+    {
+      "id": "vanilla",
+      "rule": "pn-vanilla-web",
+      "scaffold": "pn-frontend-scaffolding",
+      "agent": "pn-frontend-developer"
+    },
+    {
+      "id": "node",
+      "rule": "pn-node-backend",
+      "scaffold": "pn-backend-scaffolding",
+      "agent": "pn-backend-developer"
+    },
+    {
+      "id": "python",
+      "rule": "pn-python-backend",
+      "scaffold": "pn-python-scaffolding",
+      "agent": "pn-backend-developer"
+    },
+    {
+      "id": "go",
+      "rule": "pn-go-backend",
+      "scaffold": "pn-go-scaffolding",
+      "agent": "pn-backend-developer"
+    },
+    {
+      "id": "rust",
+      "rule": "pn-rust-backend",
+      "scaffold": "pn-rust-scaffolding",
+      "agent": "pn-backend-developer"
+    },
+    {
+      "id": "ruby",
+      "rule": "pn-ruby-backend",
+      "scaffold": "pn-ruby-scaffolding",
+      "agent": "pn-backend-developer"
+    },
+    {
+      "id": "php",
+      "rule": "pn-php-backend",
+      "scaffold": "pn-php-scaffolding",
+      "agent": "pn-backend-developer"
+    },
+    {
+      "id": "babylon",
+      "rule": "pn-babylon",
+      "scaffold": "pn-babylon-scaffolding",
+      "agent": "pn-game-developer"
+    }
+  ]
+}

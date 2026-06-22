@@ -1,0 +1,63 @@
+---
+description: Godot 4.x coding conventions: GDScript typing, signal patterns, scene composition, shader style, naming, Resource patterns, multiplayer RPC safety, GDExtension registration. Use when editing .gd, .tscn, .tres, .gdshader, or project.godot files.
+alwaysApply: false
+globs: ["**/*.gd", "**/*.tscn", "**/*.tres", "**/*.res", "**/*.gdshader", "**/*.gdshaderinc", "**/project.godot", "**/export_presets.cfg", "**/.gdextension"]
+---
+
+# Godot 4.x rules
+
+## GDScript
+
+- **Always use type hints.** Every variable, parameter, and return type must be annotated: `var health: int`, `func take_damage(amount: int) -> void`. Enables static analysis and editor autocomplete.
+- **`@onready` for node references.** Use `@onready var label: Label = $UI/Label` — never `get_node()` inside `_ready()`. Null-check when the node may be absent.
+- **Signals with types.** Declare `signal health_changed(new_value: int)` — always typed. Connect via `signal.connect(callable)` in code (not `connect("signal", target, "method")` — that is Godot 3 style).
+- **No magic strings for node paths.** Assign node references via `@export` or `@onready`; never hardcode long `$Path/To/Node` strings in logic.
+- **Prefer `_physics_process` for movement.** Use `_process` for visuals/UI; `_physics_process` for `move_and_slide`, physics queries, and RigidBody interaction.
+
+## Scene composition
+
+- **One responsibility per scene.** Extract logical sub-trees into `.tscn` files. Instance scenes rather than duplicating node trees.
+- **Autoloads for globals only.** Register autoloads for services/event buses/global state. Do not put per-scene state in autoloads.
+- **Signal over direct call.** Nodes below should not call nodes above in the tree directly. Emit a signal up; the parent or autoload routes it. Direct calls are acceptable downward (parent → child).
+- **Groups for broadcast.** Use `add_to_group()` for queries across unrelated branches (e.g. "enemies"). Do not use groups as a substitute for signals when you need a response.
+
+## Naming conventions
+
+- **Files:** `snake_case.gd`, `snake_case.tscn`, `snake_case.tres`. No spaces.
+- **Nodes:** PascalCase (`PlayerController`, `HealthBar`). Scene roots match the file name.
+- **Variables/functions:** `snake_case`. Constants: `ALL_CAPS`. Enums: `PascalCase`, values `ALL_CAPS`.
+- **Signals:** past-tense or noun phrase: `health_changed`, `enemy_died`, `level_completed`.
+- **Prefixes:** `_` for private helpers; no prefix for public API. Avoid `on_` prefix on signal declarations (reserve `_on_` for handler methods: `_on_button_pressed`).
+
+## Resources
+
+- Extend `Resource` for typed data objects; use `@export` properties and `class_name`.
+- Save user data to `user://`; project assets to `res://`. Never write to `res://` at runtime (read-only in exports).
+- Always `duplicate()` a Resource before mutating if other nodes share it, unless intentionally sharing a global config.
+
+## Shaders
+
+- Declare `shader_type` at the top of every `.gdshader` file (`spatial`, `canvas_item`, `particles`, `sky`).
+- Use `uniform` for all Inspector-exposed parameters; add `hint_range` / `source_color` hints for editor UX.
+- Avoid branching (`if`) in fragment/vertex shaders; prefer `step()`, `mix()`, `smoothstep()`.
+- Set `render_mode unshaded` for stylised/flat materials to skip PBR lighting overhead.
+
+## Multiplayer
+
+- Validate all RPC inputs server-side. Never trust peer-supplied data.
+- Mark RPCs with the narrowest authority annotation: `@rpc("authority")` where only the server should call; `@rpc("any_peer")` only when clients must invoke.
+- Use `MultiplayerSynchronizer` and `MultiplayerSpawner` for property sync and node lifecycle — avoid hand-rolled sync RPCs for common patterns.
+
+## GDExtension
+
+- Register all methods, properties, and signals in `static void _bind_methods()`.
+- Use `godot::Ref<T>` for reference-counted types; never raw-delete Godot Object-derived nodes — use `queue_free()`.
+- Keep `.gdextension` file `compatibility_minimum` accurate to your `godot-cpp` checkout.
+- Expose only a thin GDScript API from extensions; implement game logic in GDScript.
+
+## Godot 4.x migration notes (from Godot 3)
+
+- `Spatial` → `Node3D`; `KinematicBody3D` → `CharacterBody3D`; `Area` → `Area3D`; `RayCast` → `RayCast3D`.
+- `yield()` → `await`; `connect("signal", obj, "method")` → `signal.connect(callable)`.
+- `OS.get_ticks_msec()` still works; prefer `Time.get_ticks_msec()` for clarity.
+- `TileMap` (deprecated 4.3+) → `TileMapLayer`.

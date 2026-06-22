@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/perniemann/pnCore/docs/refs/context-index.schema.json",
+  "title": "pnCore context index",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "last_reviewed", "pointers"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Semver for index contract changes",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "last_reviewed": {
+      "type": "string",
+      "description": "ISO 8601 date (YYYY-MM-DD)",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "git_sha": {
+      "type": "string",
+      "description": "Optional commit at last refresh"
+    },
+    "intent_source": {
+      "type": "string",
+      "description": "When discovery vs PRD conflict was resolved",
+      "enum": ["prd", "discovery", "chat"]
+    },
+    "pointers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["workspace"],
+      "properties": {
+        "prd": {
+          "type": ["string", "null"],
+          "description": "Product requirements doc path, repo-relative"
+        },
+        "discovery": {
+          "type": ["string", "null"],
+          "description": "Latest signed discovery spec path"
+        },
+        "workspace": {
+          "type": "string",
+          "description": "Workspace bootstrap (e.g. AGENTS.md or project-context)"
+        },
+        "product": {
+          "type": ["string", "null"],
+          "description": "Product/architecture narrative when no PRD"
+        },
+        "workflow_state_schema": {
+          "type": ["string", "null"],
+          "description": "Normative workflow state schema path"
+        }
+      }
+    },
+    "owned_paths": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "acceptance_criteria_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^AC-[0-9]+$"
+      }
+    },
+    "verify": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["command", "expect"],
+        "properties": {
+          "command": { "type": "string", "minLength": 1 },
+          "expect": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

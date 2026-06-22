@@ -1,0 +1,42 @@
+---
+description: Tag every pnCore-touched assistant response with a context tag plus 🔺 (red triangle emoji) so the response is visible at a glance in Cursor's chat UI.
+alwaysApply: true
+---
+
+# Visual indicator
+
+When the response was **touched by pnCore this turn** (see definition below), begin the response with a context tag followed by 🔺:
+
+- `[pn-default] 🔺` — rules / default / no specific command or agent active.
+- `[pn-command] 🔺` — your system prompt is a pn command (e.g. `pn-new`, `pn-setup`).
+- `[pn-agent] 🔺` — your system prompt is a pn agent (e.g. `pn-project-builder`, `pn-reviewer`).
+- `[pn-skill] 🔺` — responding primarily as a skill.
+- `[pn-plan] 🔺` — Cursor IDE plan mode is active.
+
+Use exactly one tag and one 🔺 (Unicode U+1F53A — emoji red triangle pointed up). A single space between tag and 🔺 is allowed for readability. The triangle is the same red emoji in every context; the `[pn-*]` text tag carries the context so clients/userscripts can still parse, filter, or restyle by context.
+
+The emoji glyph is canonical because Cursor's chat does not apply our `assets/pn-indicator.css` to assistant markdown — the plain Unicode `▲` (U+25B2) inherits chat default text color (white/grey on dark themes). Emoji code points carry their own color and render red on every mainstream platform without CSS.
+
+## "Touched by pnCore" definition
+
+Tag the response if **any** of the following happened this turn:
+
+- Called a tool from the `pn-core-mcp` MCP server (e.g. `list_skills`, `get_skill`, `workflow_step`, `health`, `approval_checkpoint`, `list_workflow_types`).
+- Read or applied a pnCore skill (`packages/pn-core-mcp/content/skills/**/SKILL.md` or its synced plugin copy under `plugins/pnCore/skills/`).
+- The active system prompt is a pnCore command (`/pn-*`) or agent (`pn-*` from `agents/` or `agents-internal/`).
+- A `pn-*` rule was actually consulted as authoritative for the content of this response.
+- A pnCore MCP resource was fetched (e.g. `pn-core://reference/aesthetics-baseline.md`).
+
+Do **not** tag a response solely because this rule (or any other `alwaysApply` pn rule) is loaded into context. Mere presence of a pn rule file is not a "touch" — there must be an actual contribution from a pn surface to the response.
+
+## Plan mode override
+
+When the Cursor IDE indicates plan mode is active (e.g. "Plan mode is active" in the system context):
+
+- Use `[pn-plan] 🔺` for **every response in that plan-mode session**, not just the first message.
+- This overrides any `[pn-command]` / `[pn-agent]` tag from slash-command or agent frontmatter for the duration of plan mode.
+- When plan mode ends and execution resumes, fall back to the most specific applicable tag (priority: `[pn-agent]` > `[pn-command]` > `[pn-skill]` > `[pn-default]`).
+
+## Legacy / advanced clients
+
+Clients that inject CSS into chat markdown (userscripts, future Cursor chat-CSS support) may substitute `<span class="pn-triangle" data-pn-context="default">▲</span>` for the emoji and use `assets/pn-indicator.css` for per-context colors (red default, blue command, green agent, amber skill, purple plan). See `docs/pn-indicator-styling.md`. The emoji form is the default; the legacy form is supported but optional.

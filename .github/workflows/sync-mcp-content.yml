@@ -1,0 +1,88 @@
+# Ensure plugin (plugins/pnCore) is in sync with canonical MCP content (packages/pn-core-mcp/content/).
+# Canonical source: packages/pn-core-mcp/content/. Run npm run sync:content to update plugin.
+#
+# This job runs only when a push touches one of the paths below (not on every commit).
+# To run it anytime: GitHub → Actions → "Sync MCP content" → "Run workflow".
+name: Sync MCP content
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/sync-mcp-content.yml'
+      - '.github/workflows/commit-message-policy.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'eslint.config.js'
+      - '.prettierrc'
+      - 'packages/pn-core-mcp/**'
+      - 'scripts/sync-content-to-plugin.mjs'
+      - 'scripts/validate-assets.mjs'
+      - 'scripts/validate-template.mjs'
+      - 'scripts/validate-plugin-lib.mjs'
+      - 'scripts/validate-helpers.mjs'
+      - 'scripts/validate-stacks.mjs'
+      - 'docs/refs/**'
+      - 'docs/acceptance-criteria-convention.md'
+      - 'scripts/check-context-index.mjs'
+      - 'scripts/check-ac-traceability.mjs'
+      - 'scripts/check-commit-no-ide-trailers.mjs'
+      - 'scripts/check-content-plugin-sync.mjs'
+      - 'scripts/validate-skill-security.mjs'
+      - 'scripts/strip-commit-trailers.mjs'
+      - 'docs/commits.md'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/sync-mcp-content.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'eslint.config.js'
+      - '.prettierrc'
+      - 'packages/pn-core-mcp/**'
+      - 'plugins/pnCore/**'
+      - 'scripts/sync-content-to-plugin.mjs'
+      - 'scripts/validate-assets.mjs'
+      - 'scripts/validate-template.mjs'
+      - 'scripts/validate-plugin-lib.mjs'
+      - 'scripts/validate-helpers.mjs'
+      - 'scripts/validate-stacks.mjs'
+      - 'docs/refs/**'
+      - 'docs/acceptance-criteria-convention.md'
+      - 'scripts/check-context-index.mjs'
+      - 'scripts/check-ac-traceability.mjs'
+      - 'scripts/check-commit-no-ide-trailers.mjs'
+      - 'scripts/check-content-plugin-sync.mjs'
+      - 'scripts/strip-commit-trailers.mjs'
+      - 'docs/commits.md'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: ["22", "24"]
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e  # v6.4.0
+        with:
+          node-version: ${{ matrix.node }}
+          cache: "npm"
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit dependencies
+        run: npm audit --audit-level=high
+
+      - name: Full check (sync, build, test, lint, validate)
+        run: npm run test:full
+
+      - name: Fail if plugin is out of sync
+        run: |
+          git diff --exit-code plugins/pnCore || (
+            echo "::error::plugins/pnCore/ is out of sync with packages/pn-core-mcp/content/. Run: npm run sync:content && commit the changes."
+            exit 1
+          )

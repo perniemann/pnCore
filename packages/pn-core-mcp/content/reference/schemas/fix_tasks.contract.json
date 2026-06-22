@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pn-core://reference/schemas/fix_tasks.contract.json",
+  "title": "Fix Tasks Contract",
+  "description": "Output contract for CI/fix flows listing tasks to resolve failures",
+  "type": "object",
+  "required": ["fix_tasks"],
+  "additionalProperties": false,
+  "properties": {
+    "fix_tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "priority", "description", "files", "acceptance_hint"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "priority": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+          "description": { "type": "string" },
+          "files": { "type": "array", "items": { "type": "string" } },
+          "acceptance_hint": { "type": "string" }
+        }
+      }
+    }
+  },
+  "$examples": [
+    {
+      "fix_tasks": [
+        {
+          "id": "FT-001",
+          "priority": "high",
+          "description": "Fix failing unit test in auth module",
+          "files": ["src/auth.test.ts"],
+          "acceptance_hint": "npm test passes with no failures"
+        }
+      ]
+    }
+  ]
+}

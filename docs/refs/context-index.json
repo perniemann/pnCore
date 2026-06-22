@@ -1,0 +1,30 @@
+{
+  "version": "1.1.0",
+  "last_reviewed": "2026-04-07",
+  "intent_source": "prd",
+  "pointers": {
+    "prd": null,
+    "discovery": null,
+    "workspace": "AGENTS.md",
+    "product": "docs/plugin-reference.md",
+    "workflow_state_schema": "packages/pn-core-mcp/content/reference/workflow-state-schema.md"
+  },
+  "owned_paths": [
+    "plugins/pnCore/",
+    "packages/pn-core-mcp/",
+    "scripts/",
+    "docs/",
+    ".github/"
+  ],
+  "acceptance_criteria_ids": ["AC-1"],
+  "verify": [
+    {
+      "command": "npm run validate",
+      "expect": "exit 0 — plugin and workflow validators"
+    },
+    {
+      "command": "npm run check:context-index",
+      "expect": "exit 0 — this index matches schema and pointer paths exist"
+    }
+  ]
+}

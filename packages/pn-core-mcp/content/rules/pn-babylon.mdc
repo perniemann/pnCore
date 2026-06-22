@@ -1,0 +1,17 @@
+---
+description: Babylon.js scene structure, disposal, and performance. Use when editing Babylon.js or 3D scene code.
+alwaysApply: false
+globs: ["**/*babylon*", "**/*Babylon*", "**/@babylonjs/**"]
+---
+
+# Babylon.js / 3D rules
+
+- Prefer a clear scene hierarchy and naming (e.g. groups for logical parts) so objects can be found and disposed correctly.
+- Dispose of meshes, materials, and textures when no longer needed to avoid memory leaks.
+- Use the scene's dispose or engine.dispose when switching scenes or unmounting.
+- Avoid unnecessary draw calls and heavy per-frame allocations; reuse objects and buffers where it helps performance.
+- Keep game logic (state, rules, scoring) separate from render/input where possible for testability and clarity.
+- **NodeMaterial:** Use `NodeMaterial` with the Node Editor for visual shader authoring; avoid raw GLSL when NodeMaterial covers the use case.
+- **Havok physics:** Initialize with `await HavokPhysics()` before creating `PhysicsAggregate`; reuse `HavokPlugin` instance across scenes; dispose aggregates before scene dispose.
+- **Inspector:** Enable `scene.debugLayer.show()` in development; remove or gate behind a flag before production builds.
+- **WebXR in Babylon:** Use `WebXRDefaultExperience.CreateAsync()` for VR/AR sessions; check feature support via `featuresManager.enableFeature()` before use.

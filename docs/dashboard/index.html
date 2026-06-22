@@ -1,0 +1,1148 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <title>pnCore — Metrics Snapshot</title>
+    <meta
+      name="description"
+      content="Live-static snapshot of pnCore inventory, token budget, and build baselines."
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@500;700&display=swap"
+    />
+
+    <style>
+      :root {
+        --bg: #0e0e0e;
+        --surface: #161616;
+        --border: #2a2a2a;
+        --fg-primary: #f0ede8;
+        --fg-secondary: #7a7672;
+        --accent: #e8a44a;
+        --accent-muted: #3d2e14;
+
+        --display: "Space Grotesk", sans-serif;
+        --mono: "DM Mono", monospace;
+
+        --space-1: 8px;
+        --space-2: 16px;
+        --space-3: 24px;
+        --space-4: 40px;
+        --space-5: 64px;
+        --space-6: 96px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--bg);
+        color: var(--fg-primary);
+        font-family: var(--mono);
+        font-size: 14px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+
+      a {
+        color: var(--fg-primary);
+        text-decoration: none;
+        border-bottom: 1px solid var(--border);
+      }
+      a:hover {
+        border-bottom-color: var(--accent);
+      }
+
+      ::selection {
+        background: var(--accent-muted);
+        color: var(--fg-primary);
+      }
+
+      .page {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: var(--space-4) var(--space-3) var(--space-5);
+      }
+
+      .reveal {
+        opacity: 0;
+        transform: translateY(12px);
+        animation: reveal 520ms cubic-bezier(0.2, 0.6, 0.2, 1) forwards;
+      }
+      .reveal[data-step="1"] { animation-delay: 0ms; }
+      .reveal[data-step="2"] { animation-delay: 80ms; }
+      .reveal[data-step="3"] { animation-delay: 160ms; }
+      .reveal[data-step="4"] { animation-delay: 240ms; }
+      .reveal[data-step="5"] { animation-delay: 320ms; }
+      .reveal[data-step="6"] { animation-delay: 400ms; }
+      .reveal[data-step="7"] { animation-delay: 480ms; }
+      .reveal[data-step="8"] { animation-delay: 560ms; }
+      .reveal[data-step="9"] { animation-delay: 640ms; }
+      .reveal[data-step="10"] { animation-delay: 720ms; }
+
+      @keyframes reveal {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .reveal {
+          opacity: 1;
+          transform: none;
+          animation: none;
+        }
+      }
+
+      /* ── Header ──────────────────────────────────────────── */
+      header.strip {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        justify-content: space-between;
+        column-gap: var(--space-4);
+        row-gap: 0;
+        padding: var(--space-2) 0 var(--space-3);
+        border-bottom: 2px solid var(--border);
+        margin-bottom: var(--space-5);
+        min-width: 0;
+      }
+
+      .logo {
+        display: inline-flex;
+        align-items: center;
+        gap: 14px;
+        flex: 0 1 auto;
+        min-width: 0;
+      }
+      .logo-icon {
+        display: block;
+        flex-shrink: 0;
+        width: 64px;
+        height: 64px;
+        object-fit: contain;
+      }
+      .logo-text {
+        font-family: var(--display);
+        font-weight: 700;
+        font-size: 24px;
+        line-height: 1.1;
+        letter-spacing: -0.03em;
+        color: var(--fg-primary);
+      }
+
+      .header-meta {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px 12px;
+        min-width: 0;
+        flex: 0 1 auto;
+        text-align: right;
+        color: var(--fg-secondary);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      /* Snapshot time: only visible on hover / focus of status pill (not version badge) */
+      .header-state {
+        position: relative;
+        display: inline-block;
+        outline: none;
+      }
+      .header-state:hover .header-time,
+      .header-state:focus-within .header-time {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+      }
+      .header-time {
+        position: absolute;
+        right: 0;
+        top: calc(100% + 6px);
+        z-index: 2;
+        min-width: max-content;
+        max-width: min(100vw, 220px);
+        padding: 6px 8px;
+        font-size: 10px;
+        line-height: 1.3;
+        letter-spacing: 0.08em;
+        color: var(--fg-primary);
+        font-weight: 500;
+        white-space: nowrap;
+        text-align: right;
+        text-transform: none;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 140ms ease, visibility 140ms ease;
+      }
+      .header-time:empty {
+        display: none;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .header-time {
+          opacity: 1;
+          visibility: visible;
+          pointer-events: auto;
+        }
+      }
+      .header-meta .badge,
+      .header-meta .pill {
+        box-sizing: border-box;
+        height: 30px;
+        min-height: 30px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+        border: 1px solid var(--border);
+      }
+      .badge {
+        padding: 0 11px;
+        color: var(--fg-primary);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        font-family: var(--display);
+        font-variant-numeric: tabular-nums;
+      }
+      .pill {
+        gap: 6px;
+        padding: 0 10px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--fg-secondary);
+      }
+      .pill[data-mode="live"] {
+        color: var(--accent);
+        border-color: var(--accent);
+        background: var(--accent-muted);
+      }
+      .pill[data-mode="loading"] {
+        color: var(--fg-primary);
+      }
+      .pill[data-mode="error"] {
+        color: var(--fg-secondary);
+      }
+
+      button.refresh {
+        appearance: none;
+        box-sizing: border-box;
+        width: 30px;
+        height: 30px;
+        min-width: 30px;
+        min-height: 30px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--surface);
+        color: var(--fg-primary);
+        border: 1px solid var(--border);
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: border-color 160ms ease, color 160ms ease, background 160ms ease;
+      }
+      button.refresh svg {
+        display: block;
+        flex-shrink: 0;
+        pointer-events: none;
+      }
+      button.refresh:hover:not(:disabled) {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: var(--accent-muted);
+      }
+      button.refresh:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      @media (max-width: 720px) {
+        header.strip {
+          column-gap: var(--space-2);
+          overflow-x: auto;
+        }
+        .logo-text {
+          font-size: 20px;
+        }
+      }
+      button.refresh:disabled {
+        opacity: 0.5;
+        cursor: progress;
+      }
+
+      /* ── Section primitives ─────────────────────────────── */
+      section {
+        margin-bottom: var(--space-5);
+      }
+      .eyebrow {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--fg-secondary);
+        margin: 0 0 var(--space-3);
+      }
+
+      /* ── 1. Primary inventory row ───────────────────────── */
+      .inventory {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+        gap: var(--space-4);
+        align-items: end;
+        min-width: 0;
+      }
+      .counter {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+      }
+      .counter .num {
+        font-family: var(--display);
+        font-weight: 700;
+        font-size: 64px;
+        line-height: 0.95;
+        letter-spacing: -0.02em;
+        font-variant-numeric: tabular-nums;
+      }
+      .counter.lead .num {
+        font-size: 96px;
+      }
+      .counter .label {
+        color: var(--fg-secondary);
+        font-size: 11px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+      @media (max-width: 900px) {
+        .counter .num {
+          font-size: 56px;
+        }
+        .counter.lead .num {
+          font-size: 72px;
+        }
+      }
+      @media (max-width: 520px) {
+        .inventory {
+          gap: var(--space-2);
+        }
+        .counter .num {
+          font-size: 40px;
+        }
+        .counter.lead .num {
+          font-size: 52px;
+        }
+        .counter .label {
+          font-size: 10px;
+        }
+      }
+
+      /* ── 2. Skills by category bars ─────────────────────── */
+      .bars {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+      .bar-row {
+        display: grid;
+        grid-template-columns: 140px 48px 1fr;
+        gap: var(--space-2);
+        align-items: center;
+        padding: 6px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .bar-row .name {
+        color: var(--fg-primary);
+        font-size: 13px;
+      }
+      .bar-row .count {
+        color: var(--fg-primary);
+        font-family: var(--display);
+        font-weight: 500;
+        font-size: 14px;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+      .bar-track {
+        height: 4px;
+        background: var(--accent-muted);
+        position: relative;
+      }
+      .bar-fill {
+        position: absolute;
+        inset: 0 auto 0 0;
+        background: var(--accent);
+      }
+
+      /* ── 3. Token budget panel ──────────────────────────── */
+      .tokens {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-4);
+        padding-bottom: var(--space-3);
+        border-bottom: 1px solid var(--border);
+      }
+      .token-cell .num {
+        font-family: var(--display);
+        font-weight: 700;
+        font-size: 56px;
+        line-height: 1;
+        letter-spacing: -0.02em;
+        font-variant-numeric: tabular-nums;
+      }
+      .token-cell .num .unit {
+        color: var(--fg-secondary);
+        font-size: 18px;
+        letter-spacing: 0;
+        font-weight: 500;
+        margin-left: 8px;
+      }
+      .token-cell .label {
+        color: var(--fg-primary);
+        font-size: 12px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-top: 8px;
+      }
+      .token-cell .desc {
+        color: var(--fg-secondary);
+        font-size: 12px;
+        margin-top: 4px;
+        max-width: 36ch;
+      }
+      .token-total {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        padding-top: var(--space-2);
+      }
+      .token-total .label {
+        color: var(--fg-secondary);
+        font-size: 11px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+      .token-total .num {
+        font-family: var(--display);
+        font-weight: 700;
+        font-size: 28px;
+        font-variant-numeric: tabular-nums;
+      }
+      .token-total .num .unit {
+        color: var(--fg-secondary);
+        font-size: 14px;
+        margin-left: 6px;
+        font-weight: 500;
+      }
+
+      /* ── 4. Build baseline row ──────────────────────────── */
+      .baseline {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-4);
+      }
+      .baseline-cell .num {
+        font-family: var(--display);
+        font-weight: 700;
+        font-size: 48px;
+        line-height: 1;
+        letter-spacing: -0.02em;
+        font-variant-numeric: tabular-nums;
+      }
+      .baseline-cell .num .unit {
+        color: var(--fg-secondary);
+        font-size: 16px;
+        margin-left: 6px;
+        font-weight: 500;
+      }
+      .baseline-cell .label {
+        color: var(--fg-primary);
+        font-size: 12px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-top: 8px;
+      }
+      .baseline-cell .desc {
+        color: var(--fg-secondary);
+        font-size: 12px;
+        margin-top: 4px;
+      }
+
+      /* ── 5. Optimization gates strip ───────────────────── */
+      .gates {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+        padding: var(--space-2) 0;
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+      }
+      .gate {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+      }
+      .gate .gate-id {
+        color: var(--fg-primary);
+        font-family: var(--display);
+        font-weight: 700;
+        font-size: 14px;
+        letter-spacing: 0.06em;
+      }
+      .gate .gate-status {
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        padding: 2px 8px;
+        border: 1px solid var(--border);
+        color: var(--fg-secondary);
+      }
+      .gate .gate-status.shipped {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+      .gate .gate-desc {
+        color: var(--fg-secondary);
+        font-size: 12px;
+      }
+
+      /* ── Skill size (M2 · disk) ─────────────────────────── */
+      .size-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: var(--space-2);
+        margin-bottom: var(--space-3);
+      }
+      @media (max-width: 700px) {
+        .size-stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+      .size-stat {
+        border: 1px solid var(--border);
+        padding: 10px 12px;
+      }
+      .size-stat .v {
+        font-family: var(--display);
+        font-weight: 700;
+        font-size: 20px;
+        font-variant-numeric: tabular-nums;
+        color: var(--fg-primary);
+      }
+      .size-stat .k {
+        color: var(--fg-secondary);
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        margin-top: 4px;
+      }
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      .data-table th,
+      .data-table td {
+        text-align: left;
+        border-bottom: 1px solid var(--border);
+        padding: 8px 10px;
+      }
+      .data-table th {
+        color: var(--fg-secondary);
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        font-weight: 500;
+      }
+      .data-table td.num,
+      .data-table th.num {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+      .data-table tr:last-child td {
+        border-bottom: none;
+      }
+      .size-panels {
+        display: grid;
+        grid-template-columns: 1fr 1.2fr;
+        gap: var(--space-4);
+        align-items: start;
+      }
+      @media (max-width: 900px) {
+        .size-panels {
+          grid-template-columns: 1fr;
+        }
+      }
+      .subnote {
+        color: var(--fg-secondary);
+        font-size: 12px;
+        margin: 0 0 var(--space-2);
+      }
+
+      /* ── M3 hot skills ─────────────────────────────────── */
+      .hot-strip {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        min-height: 40px;
+      }
+      .hot-chip {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 8px;
+        border: 1px solid var(--border);
+        padding: 6px 10px;
+        font-size: 12px;
+      }
+      .hot-chip .id {
+        color: var(--fg-primary);
+        font-weight: 500;
+      }
+      .hot-chip .loads {
+        color: var(--accent);
+        font-family: var(--display);
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+      }
+      .hot-empty {
+        color: var(--fg-secondary);
+        font-size: 12px;
+        line-height: 1.5;
+        max-width: 52ch;
+      }
+
+      /* ── Footer ────────────────────────────────────────── */
+      footer {
+        margin-top: var(--space-5);
+        padding-top: var(--space-3);
+        border-top: 1px solid var(--border);
+        color: var(--fg-secondary);
+        font-size: 12px;
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+      }
+      footer .right {
+        text-align: right;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header class="strip reveal" data-step="1">
+        <div class="logo">
+          <img
+            class="logo-icon"
+            src="../../plugins/pnCore/assets/pn-logo.svg"
+            width="64"
+            height="64"
+            alt=""
+            decoding="async"
+          />
+          <span class="logo-text">pnCore</span>
+        </div>
+        <div
+          class="header-meta"
+          role="group"
+          aria-label="Version, data source, and refresh"
+        >
+          <span class="badge" data-key="version">v0.11.0</span>
+          <div
+            class="header-state"
+            tabindex="0"
+            title="Hover or focus here to see snapshot time (after a live load)."
+          >
+            <span class="pill" data-key="mode-pill" data-mode="static" role="status" aria-live="polite">Static</span>
+            <span class="header-time" data-key="snapshot-label">Snapshot 2026-04-22</span>
+          </div>
+          <button class="refresh" type="button" data-action="refresh" aria-label="Refresh dashboard data">
+            <svg
+              class="refresh-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+              <path d="M21 3v5h-5" />
+              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+              <path d="M3 21v-5h5" />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <section class="reveal" data-step="2" aria-label="Inventory">
+        <p class="eyebrow">Inventory</p>
+        <div class="inventory">
+          <div class="counter lead">
+            <div class="num" data-key="skills-total">138</div>
+            <div class="label">Skills</div>
+          </div>
+          <div class="counter">
+            <div class="num" data-key="categories-total">14</div>
+            <div class="label">Categories</div>
+          </div>
+          <div class="counter">
+            <div class="num" data-key="commands-total">29</div>
+            <div class="label">Commands</div>
+          </div>
+          <div class="counter">
+            <div class="num" data-key="rules-total">31</div>
+            <div class="label">Rules</div>
+          </div>
+          <div class="counter">
+            <div class="num" data-key="agents-total">9</div>
+            <div class="label">Agents</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="reveal" data-step="3" aria-label="Skills by category">
+        <p class="eyebrow">Skills by category — top 8</p>
+        <div class="bars" data-key="skill-bars">
+          <div class="bar-row">
+            <div class="name">frontend</div>
+            <div class="count">28</div>
+            <div class="bar-track"><div class="bar-fill" style="width: 100%"></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="name">orchestration</div>
+            <div class="count">18</div>
+            <div class="bar-track"><div class="bar-fill" style="width: 64.3%"></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="name">backend</div>
+            <div class="count">17</div>
+            <div class="bar-track"><div class="bar-fill" style="width: 60.7%"></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="name">gamedev</div>
+            <div class="count">12</div>
+            <div class="bar-track"><div class="bar-fill" style="width: 42.9%"></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="name">review</div>
+            <div class="count">12</div>
+            <div class="bar-track"><div class="bar-fill" style="width: 42.9%"></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="name">ci</div>
+            <div class="count">10</div>
+            <div class="bar-track"><div class="bar-fill" style="width: 35.7%"></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="name">pm</div>
+            <div class="count">9</div>
+            <div class="bar-track"><div class="bar-fill" style="width: 32.1%"></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="name">integrations</div>
+            <div class="count">8</div>
+            <div class="bar-track"><div class="bar-fill" style="width: 28.6%"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="reveal" data-step="4" aria-label="Skill file size summary (SKILL.md)">
+        <p class="eyebrow">EST. TOKENBURN</p>
+        <div class="size-stats-grid" data-key="size-stats">
+          <div class="size-stat">
+            <div class="v" data-key="size-min">—</div>
+            <div class="k">min (tk)</div>
+          </div>
+          <div class="size-stat">
+            <div class="v" data-key="size-median">—</div>
+            <div class="k">median (tk)</div>
+          </div>
+          <div class="size-stat">
+            <div class="v" data-key="size-p95">—</div>
+            <div class="k">p95 (tk)</div>
+          </div>
+          <div class="size-stat">
+            <div class="v" data-key="size-max">—</div>
+            <div class="k">max (tk)</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="reveal" data-step="5" aria-label="Skill file size distribution and largest">
+        <div class="size-panels">
+          <div>
+            <p class="eyebrow" style="font-size: 10px; margin-bottom: 8px">Distribution</p>
+            <div class="bars" data-key="size-hist"></div>
+          </div>
+          <div>
+            <p class="eyebrow" style="font-size: 10px; margin-bottom: 8px">Largest 10</p>
+            <table class="data-table" aria-label="Largest skills by est. tokens">
+              <thead>
+                <tr>
+                  <th>Skill id</th>
+                  <th>Category</th>
+                  <th class="num">Chars</th>
+                  <th class="num">Est. tk</th>
+                </tr>
+              </thead>
+              <tbody data-key="size-top10"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="reveal" data-step="6" aria-label="M3 hot skills">
+        <p class="eyebrow">M3 — hot skills (get_skill loads)</p>
+        <p class="subnote" data-key="hot-hint">
+          Each <code>get_skill</code> appends one JSON line to <code>.pncore/skill-load-log.jsonl</code>. Run the
+          dashboard from the repo root so the server can read it.
+        </p>
+        <div class="hot-strip" data-key="hot-strip" role="list" aria-label="Top skills by load count"></div>
+        <p class="hot-empty" data-key="hot-empty">
+          No M3 data yet. Open via <code>npm run dashboard</code> to load
+          <code>.pncore/skill-load-log.jsonl</code>, or use Cursor so <code>get_skill</code> can append to that log.
+        </p>
+      </section>
+
+      <section class="reveal" data-step="7" aria-label="Token budget">
+        <p class="eyebrow">Token budget</p>
+        <div class="tokens">
+          <div class="token-cell">
+            <div class="num"><span data-key="token-bundle">3,169</span><span class="unit">tk</span></div>
+            <div class="label">alwaysApply bundle</div>
+            <div class="desc">
+              Loaded on every Cursor turn. Compounds across the session.
+            </div>
+          </div>
+          <div class="token-cell">
+            <div class="num"><span data-key="token-mcp">1,781</span><span class="unit">tk</span></div>
+            <div class="label">MCP tool descriptions</div>
+            <div class="desc">
+              Tool schemas + .describe() strings exposed to the agent at connect.
+            </div>
+          </div>
+        </div>
+        <div class="token-total">
+          <div class="label">Total context overhead</div>
+          <div class="num"><span data-key="token-total">4,950</span><span class="unit">tk</span></div>
+        </div>
+      </section>
+
+      <section class="reveal" data-step="8" aria-label="Build baseline">
+        <p class="eyebrow">Build baseline</p>
+        <div class="baseline">
+          <div class="baseline-cell">
+            <div class="num"><span data-key="bench-validate">1,714</span><span class="unit">ms</span></div>
+            <div class="label">validate wall</div>
+            <div class="desc">parallel validators end-to-end (W1)</div>
+          </div>
+          <div class="baseline-cell">
+            <div class="num"><span data-key="bench-tsc">1,521</span><span class="unit">ms</span></div>
+            <div class="label">tsc incremental</div>
+            <div class="desc">repeat build, 29% under clean (W3)</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="reveal" data-step="9" aria-label="Optimization gates">
+        <p class="eyebrow">Optimization gates</p>
+        <div class="gates">
+          <div class="gate">
+            <span class="gate-id">W1</span>
+            <span class="gate-status shipped" data-key="gate-W1">Shipped</span>
+            <span class="gate-desc">parallelize validators · −22%</span>
+          </div>
+          <div class="gate">
+            <span class="gate-id">W3</span>
+            <span class="gate-status shipped" data-key="gate-W3">Shipped</span>
+            <span class="gate-desc">tsc incremental · −29%</span>
+          </div>
+          <div class="gate">
+            <span class="gate-id">T3</span>
+            <span class="gate-status" data-key="gate-T3">Pending</span>
+            <span class="gate-desc">awaiting M3 skill-load frequency</span>
+          </div>
+        </div>
+      </section>
+
+      <footer class="reveal" data-step="10">
+        <div>
+          <span data-key="footer-snapshot">Snapshot 2026-04-22</span>
+        </div>
+        <div class="right" data-key="footer-mode">
+          Static fallback. Run <code>npm run dashboard</code> for live data.
+        </div>
+      </footer>
+    </main>
+
+    <script>
+      (function () {
+        const fmt = (n) => (n == null ? "—" : Number(n).toLocaleString("en-US"));
+        const esc = (s) =>
+          String(s)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+        const setText = (key, value) => {
+          document.querySelectorAll(`[data-key="${key}"]`).forEach((el) => {
+            el.textContent = value;
+          });
+        };
+        /**
+         * Merged: live vs static (how this page is loaded) + health.status from snapshot.
+         * Live: "LIVE · {status}"; static/error: "Static"; loading: "Loading…"
+         */
+        function setHeaderSnapshotTitle(extra) {
+          const st = document.querySelector(".header-state");
+          if (!st) return;
+          st.title = extra || "Hover or focus here to see snapshot time (after a live load).";
+        }
+
+        function setStatePill(pageMode, healthStatus) {
+          const pill = document.querySelector('[data-key="mode-pill"]');
+          if (!pill) return;
+          if (pageMode === "static" || pageMode === "error") {
+            pill.dataset.mode = pageMode === "error" ? "error" : "static";
+            pill.textContent = "Static";
+            return;
+          }
+          if (pageMode === "loading") {
+            pill.dataset.mode = "loading";
+            pill.textContent = "Loading…";
+            return;
+          }
+          if (pageMode === "live") {
+            const s = healthStatus != null && String(healthStatus).trim() !== "" ? String(healthStatus) : "ok";
+            pill.dataset.mode = "live";
+            pill.textContent = `LIVE \u00b7 ${s}`;
+          }
+        }
+
+        function renderBars(categories) {
+          const container = document.querySelector('[data-key="skill-bars"]');
+          if (!container || !categories) return;
+          const entries = Object.entries(categories)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 8);
+          const max = entries[0]?.[1] || 1;
+          container.innerHTML = entries
+            .map(([name, count]) => {
+              const pct = ((count / max) * 100).toFixed(1);
+              return `
+                <div class="bar-row">
+                  <div class="name">${name}</div>
+                  <div class="count">${count}</div>
+                  <div class="bar-track"><div class="bar-fill" style="width: ${pct}%"></div></div>
+                </div>`;
+            })
+            .join("");
+        }
+
+        function renderSkillSizes(s) {
+          if (!s) return;
+          if (!s.count) {
+            setText("size-min", "—");
+            setText("size-median", "—");
+            setText("size-p95", "—");
+            setText("size-max", "—");
+            const h = document.querySelector('[data-key="size-hist"]');
+            if (h) h.innerHTML = "";
+            const tb = document.querySelector('[data-key="size-top10"]');
+            if (tb) tb.innerHTML = "";
+            return;
+          }
+          const { minTk, medianTk, p95Tk, maxTk } = s.stats || {};
+          const approx = (n) => (n == null ? "—" : `~${fmt(n)}`);
+          setText("size-min", approx(minTk));
+          setText("size-median", medianTk == null ? "—" : `~${fmt(Math.round(medianTk))}`);
+          setText("size-p95", approx(p95Tk));
+          setText("size-max", approx(maxTk));
+          const hist = document.querySelector('[data-key="size-hist"]');
+          if (hist && s.histogram && s.histogram.length) {
+            const m = Math.max(1, ...s.histogram.map((b) => b.count));
+            hist.innerHTML = s.histogram
+              .map((b) => {
+                const pct = ((b.count / m) * 100).toFixed(1);
+                return `
+                <div class="bar-row">
+                  <div class="name">${esc(b.label)}</div>
+                  <div class="count">${b.count}</div>
+                  <div class="bar-track"><div class="bar-fill" style="width: ${pct}%"></div></div>
+                </div>`;
+              })
+              .join("");
+          }
+          const topBody = document.querySelector('[data-key="size-top10"]');
+          if (topBody && s.top10 && s.top10.length) {
+            topBody.innerHTML = s.top10
+              .map(
+                (r) => `
+                <tr>
+                  <td>${esc(r.id)}</td>
+                  <td>${esc(r.category)}</td>
+                  <td class="num">${fmt(r.chars)}</td>
+                  <td class="num">${fmt(r.estTokens)}</td>
+                </tr>`,
+              )
+              .join("");
+          }
+        }
+
+        function renderHotSkills(h) {
+          const strip = document.querySelector('[data-key="hot-strip"]');
+          const empty = document.querySelector('[data-key="hot-empty"]');
+          const hint = document.querySelector('[data-key="hot-hint"]');
+          if (!strip || !empty) return;
+          if (!h) {
+            empty.style.display = "block";
+            empty.textContent = 'Open via "npm run dashboard" to read .pncore/skill-load-log.jsonl';
+            return;
+          }
+          if (h.totalEvents > 0 && hint) {
+            hint.textContent = `${fmt(h.totalEvents)} load events in ${h.log} — ranked below (drives the T3 gate).`;
+          } else if (hint) {
+            hint.textContent =
+              "Each get_skill appends to .pncore/skill-load-log.jsonl. After enough real usage, refresh to rank hot skills.";
+          }
+          if (h.totalEvents === 0) {
+            strip.innerHTML = "";
+            empty.style.display = "block";
+            empty.textContent =
+              "No load events in .pncore/skill-load-log.jsonl yet. get_skill in Cursor will append lines here over time, then this strip ranks “hot” skills (input for the T3 split).";
+            return;
+          }
+          empty.style.display = "none";
+          strip.innerHTML = h.top
+            .map(
+              (row) => `
+            <span class="hot-chip" role="listitem">
+              <span class="id">${esc(row.id)}</span>
+              <span class="loads">${fmt(row.loads)}</span> loads
+            </span>`,
+            )
+            .join("");
+        }
+
+        function applySnapshot(snap) {
+          if (snap.health) {
+            if (snap.health.version) setText("version", `v${snap.health.version}`);
+          }
+
+          const inv = snap.inventory || {};
+          if (inv.skills != null) setText("skills-total", fmt(inv.skills));
+          if (inv.commands != null) setText("commands-total", fmt(inv.commands));
+          if (inv.rules != null) setText("rules-total", fmt(inv.rules));
+          if (inv.agents != null) setText("agents-total", fmt(inv.agents));
+          if (inv.categories) {
+            setText("categories-total", fmt(Object.keys(inv.categories).length));
+            renderBars(inv.categories);
+          }
+
+          const b = snap.bench || {};
+          if (b.alwaysApplyTokens != null) setText("token-bundle", fmt(b.alwaysApplyTokens));
+          if (b.mcpDescriptionTokens != null) setText("token-mcp", fmt(b.mcpDescriptionTokens));
+          if (b.alwaysApplyTokens != null && b.mcpDescriptionTokens != null) {
+            setText("token-total", fmt(b.alwaysApplyTokens + b.mcpDescriptionTokens));
+          }
+          if (b.validateWallMs != null) setText("bench-validate", fmt(b.validateWallMs));
+          if (b.tscIncrementalMs != null) setText("bench-tsc", fmt(b.tscIncrementalMs));
+          if (b.gates) {
+            const map = { shipped: "Shipped", pending: "Pending" };
+            for (const k of ["W1", "W3", "T3"]) {
+              if (b.gates[k]) {
+                const el = document.querySelector(`[data-key="gate-${k}"]`);
+                if (el) {
+                  el.textContent = map[b.gates[k]] || b.gates[k];
+                  el.classList.toggle("shipped", b.gates[k] === "shipped");
+                }
+              }
+            }
+          }
+
+          const captured = snap.capturedAt
+            ? new Date(snap.capturedAt).toISOString().replace("T", " ").slice(0, 16) + " UTC"
+            : null;
+          if (captured) {
+            setText("snapshot-label", captured);
+            setText("footer-snapshot", captured);
+            setHeaderSnapshotTitle("Snapshot: " + captured);
+          }
+          setText("footer-mode", "Live data from local server.");
+
+          if (snap.skillSizes) renderSkillSizes(snap.skillSizes);
+          if (snap.hotSkills != null) renderHotSkills(snap.hotSkills);
+
+          setStatePill("live", snap.health && snap.health.status);
+        }
+
+        async function refresh({ silent = false } = {}) {
+          const btn = document.querySelector('[data-action="refresh"]');
+          if (!silent) {
+            setStatePill("loading");
+            if (btn) btn.disabled = true;
+          }
+          try {
+            const res = await fetch("/api/snapshot", { cache: "no-store" });
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            const snap = await res.json();
+            applySnapshot(snap);
+          } catch (err) {
+            setStatePill("error");
+            setHeaderSnapshotTitle("");
+            if (!silent) {
+              const fm = document.querySelector('[data-key="footer-mode"]');
+              if (fm) {
+                fm.innerHTML =
+                  'Live fetch failed. Run <code>npm run dashboard</code>, then click Refresh.';
+              }
+            }
+          } finally {
+            if (btn) btn.disabled = false;
+          }
+        }
+
+        document.addEventListener("click", (e) => {
+          const el = e.target.closest('[data-action="refresh"]');
+          if (el) refresh();
+        });
+
+        // Try once on load. Silent so file:// usage doesn't show an error flash.
+        if (location.protocol === "http:" || location.protocol === "https:") {
+          refresh();
+        } else {
+          setStatePill("static");
+          setHeaderSnapshotTitle("");
+        }
+      })();
+    </script>
+  </body>
+</html>

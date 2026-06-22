@@ -1,0 +1,14 @@
+---
+description: Non-generic UI baseline for user-facing surfaces; aligns with .pncore-design.md and pn-core aesthetics reference when MCP is available
+alwaysApply: true
+---
+
+# Aesthetics baseline (always)
+
+Applies to **user-facing visuals**: marketing pages, app UI, auth screens, empty/loading/error states, embedded HTML, and static HTML demos.
+
+1. **Project truth:** Before styling, read **`.pncore-design.md`** in the project root when it exists. **House philosophy** and **Primary reference URL** there override generic habits.
+2. **Cross-project floor:** When **pn-core MCP** is available, load **`pn-core://reference/aesthetics-baseline.md`** (or `get_rule("pn-aesthetics-baseline")` for this file) and follow it together with **`get_skill("pn-frontend-design")`** for implementation detail.
+3. **No MCP:** Avoid template slop (generic fonts, purple-gradient clichés, identical card grids, center-everything). Use CSS variables, cohesive palette, distinctive typography, orchestrated load motion where appropriate, and respect **`prefers-reduced-motion`**.
+4. **Standalone HTML:** When the deliverable is a self-contained HTML file, wrap markup in a fenced **` ```html `** block, then run **`get_skill("pn-html-preview")`** (or follow that command’s save-and-open steps) so the result is checked in a browser.
+5. **Workflows:** Full UI build → **`pn-design`** or **`workflow_step("design", …)`**. Bounded visual change → **`pn-visual-tweak`**. Quality pass → **`pn-frontend-audit`**. Explore directions → **`pn-design-variants`**.

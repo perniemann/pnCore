@@ -1,0 +1,64 @@
+---
+description: For build/design/scaffold requests, load pn-build or pn-design; discovery and skeptic mandatory. For fix/tweak, use skills directly.
+alwaysApply: true
+---
+
+# Build gate
+
+Discovery and skeptic must run for build/design work. Use the full flow; do not go directly to implementation.
+
+## Plan accuracy (all workflows)
+
+Whenever a plan would contain **options or decisions that need user input**, ask before finalizing. Use `ask_question` when available; otherwise call `workflow_confirm` and **stop** until the user replies. Do not infer or assume choices. **Do not** use free-text-only gates (e.g. "Reply yes") when structured options exist — see `pn-core://reference/conventions.md` (Skeptic gate).
+
+After **pn-skeptic-challenge** or `/pn-skeptic`, the turn must end with `AskQuestion` or `workflow_confirm` (`gate_type: "skeptic"`), not plaintext confirmation.
+
+For the full command routing table (pn-new, pn-setup, workflow_step vs get_command, etc.) see `pn-core://reference/RUNBOOK.md`.
+
+## Command-contract acknowledgement (no silent re-route)
+
+When a `/pn-*` command is invoked but the user's actual request does not match that command's contract, **state the mismatch in plain prose in the first response** before doing anything else:
+
+> "You invoked `/X` but the ask is `Y`; I'll re-route to `Z` unless you'd rather I run `X` as written."
+
+Silent re-routing is a `RULE-MISS` (candidate code `COMMAND-MISMATCH` per [`pn-session-retro`](../skills/learning/pn-session-retro/SKILL.md); see § Command-contract acknowledgement above). The mandatory `[pn-command] ▲` start marker still applies — never drop it during a re-route.
+
+## Build/design intent (full flow required)
+
+When the user requests to **build**, **design**, **scaffold**, **add feature**, **new project**, or **create** (component, page, app, plugin):
+
+**Exclusion:** Image/SVG creation → `get_command("pn-assets")`. Do not route to pn-new or workflow_step for these.
+
+| Condition | Action |
+|-----------|--------|
+| User says "onboard" or "analyze codebase" | `get_command("pn-setup")` |
+| Existing project code + no `project-context.mdc` + add/refactor/extend request | Ask: "Run pn-setup to create project context first?" Yes → `get_command("pn-setup")`; No → treat as new project |
+| New project, no `docs/refs/PRD.md` (or legacy `docs/PRD.md`), no `.ref/` | Ask: "No docs found. Create project doc set first?" Yes → `workflow_step("project_kickoff", 0, {})` or `get_command("pn-new")` Involved; No → `get_command("pn-new")` |
+| `project-context.mdc` + plan exist, design-only | `workflow_step("design", 0, { request })` or `get_command("pn-design")` |
+| `project-context.mdc` + plan exist, full-stack | `workflow_step("full_dev", 0, { request, intent? })` or `get_command("pn-build")` |
+
+Do **not** implement, scaffold, or write code until you have loaded and followed the appropriate command.
+
+## 3 failed attempts rule
+
+After **3 or more failed attempts** at the same step without resolution: stop and request human input.
+
+## Fix/tweak intent (skills directly)
+
+When the user requests to **fix**, **tweak**, **change**, **update**, or **patch** (small scope): use skills and specialists directly.
+
+## Skip path
+
+If the user says "skip discovery" or "skip skeptic": honor and proceed per their instruction.
+
+## Gitignored sibling repos
+
+When a workspace Grep or Glob returns zero results for code that should exist, check whether the target path is in a gitignored directory (e.g. a sibling `*-Ops` or `*-Backend` repo at the same level):
+
+- Do **not** conclude the file is absent from just a workspace search.
+- Use `rg --no-ignore <pattern> <absolute-path>` or read with the absolute path directly.
+- Example: `BotScore-Ops/` is gitignored in its parent; standard Grep misses it. Switch to shell `rg --no-ignore` scoped to the absolute repo root.
+
+## Scope
+
+Applies to all domains: frontend, backend, plugins, 3D, full-stack.

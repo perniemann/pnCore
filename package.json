@@ -1,0 +1,64 @@
+{
+  "name": "pn-core",
+  "version": "0.14.6",
+  "description": "pnCore — MCP server, skills, agents, commands, rules",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "pn-core": "packages/pn-core-mcp/dist/index.js",
+    "pn-core-mcp": "packages/pn-core-mcp/dist/index.js",
+    "pn-core-install": "scripts/install-to-project.mjs"
+  },
+  "scripts": {
+    "install": "node scripts/install-to-project.mjs",
+    "validate": "npm run format:check && node scripts/validate-parallel.mjs && node scripts/validate-workflow-contract.mjs && node scripts/validate-skill-schema.mjs && node scripts/validate-skeptic-gates.mjs",
+    "validate:skill-security": "node scripts/validate-skill-security.mjs",
+    "report:gates": "node scripts/report-gates.mjs",
+    "check:content-sync": "node scripts/check-content-plugin-sync.mjs",
+    "check:context-index": "node scripts/check-context-index.mjs",
+    "migrate:context-index": "node scripts/migrate-context-index.mjs",
+    "check:ac-traceability": "node scripts/check-ac-traceability.mjs",
+    "check:embedded-studio-urls": "node scripts/check-embedded-studio-urls.mjs",
+    "test": "npm run test --prefix packages/pn-core-mcp",
+    "test:coverage": "npm run test:coverage --prefix packages/pn-core-mcp",
+    "test:scripts": "node --test scripts/__tests__/*.test.mjs",
+    "test:full": "npm run lint && npm run sync:content && npm run build:mcp && npm run test:coverage && npm run test:scripts && npm run validate",
+    "build:mcp": "npm install --prefix packages/pn-core-mcp --include=dev && npm run build --prefix packages/pn-core-mcp",
+    "sync:content": "node scripts/sync-content-to-plugin.mjs",
+    "sync:version": "node scripts/sync-version.mjs",
+    "postversion": "npm run sync:version",
+    "setup": "npm install && npm run build:mcp && node scripts/setup-hooks.mjs",
+    "prepare": "node scripts/sync-version.mjs && npm run build:mcp",
+    "mcp-config": "node scripts/mcp-config-write.mjs",
+    "mcp-pin": "npm run build:mcp && npm run mcp-config",
+    "check:mcp": "node scripts/check-mcp-config.mjs",
+    "dashboard": "node scripts/dashboard-server.mjs",
+    "bench": "node scripts/bench.mjs",
+    "bench:write": "node scripts/bench.mjs --write",
+    "measure-tokens": "node scripts/measure-tokens.mjs",
+    "measure-tokens:write": "node scripts/measure-tokens.mjs --write",
+    "mcp-deeplink": "node scripts/mcp-deeplink.mjs",
+    "lint": "eslint packages/pn-core-mcp/src scripts",
+    "format": "prettier --write \"packages/pn-core-mcp/src/**/*.ts\" \"scripts/**/*.mjs\"",
+    "format:check": "prettier --check \"packages/pn-core-mcp/src/**/*.ts\" \"scripts/**/*.mjs\""
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "4.4.3"
+  },
+  "overrides": {
+    "zod": "4.4.3",
+    "ip-address": "10.2.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "eslint": "^10.4.0",
+    "prettier": "^3.8.3",
+    "typescript-eslint": "^8.60.0"
+  }
+}

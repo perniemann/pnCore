@@ -1,0 +1,22 @@
+---
+description: Unreal Engine conventions: UPROPERTY/UFUNCTION usage, GC-safe patterns, asset naming, build config, materials, Niagara, PCG, MetaSounds, Motion Design. Use when editing Unreal C++, Blueprints, Python scripts, or Unreal assets.
+alwaysApply: false
+globs: ["**/*.cpp", "**/*.h", "**/*.Build.cs", "**/Source/**", "**/*.uplugin", "**/Content/Python/**/*.py", "**/Scripts/**/*.py"]
+---
+
+# Unreal rules
+
+> **Rule precedence on Python files:** Both `pn-unreal` and `pn-unreal-python` fire on `**/Content/Python/**/*.py` and `**/Scripts/**/*.py`. `pn-unreal` is the parent rule with broader Unreal conventions; `pn-unreal-python` adds Python-scripting-specific guidance. There is no conflict — treat them as complementary. If rules ever diverge on a specific point, `pn-unreal-python` takes precedence for Python API usage.
+
+- Use UPROPERTY for UObject references so the garbage collector can track them. Avoid raw pointers for UObjects.
+- Use explicit UPROPERTY specifiers (EditAnywhere, BlueprintReadOnly, Replicated, etc.) appropriate to the use case.
+- Follow Unreal naming conventions: PascalCase for types and functions, prefix for assets (SM_, BP_, SK_, M_, T_, NS_, MS_, MSP_).
+- Use correct UCLASS inheritance (UObject, AActor, UActorComponent). Avoid storing UObject pointers in non-UPROPERTY members.
+- Document module dependencies in .Build.cs; avoid circular dependencies between modules.
+- **Materials:** Use M_ prefix; node-based Material Editor; Material Functions for reusable patterns. PBR: Base Color, Metallic, Roughness, Normal.
+- **Niagara:** Use NS_ prefix; GPU simulation for large particle counts; Scalability settings for per-platform quality.
+- **PCG:** Generate → filter → spawn pipeline; Partitioned generation for large worlds; PCGPythonInterop for scripted control.
+- **MetaSounds:** Use MS_ for Sources, MSP_ for Patches; drive runtime parameters via Blueprint `SetFloatParameter`/`SetBoolParameter`/`SetTriggerParameter`.
+- **Motion Design:** Motion Design Mode (UE 5.4+); Cloner/Effector actors for MoGraph; integrates with Niagara and Sequencer.
+- **Python scripts:** Enable Python Editor Script Plugin. Use `unreal` module. Run via console `py` command, File > Execute Python Script, or headless commandlet.
+- Test in Unreal after generating; do not assume code compiles or runs without verification.

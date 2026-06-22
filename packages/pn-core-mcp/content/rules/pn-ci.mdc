@@ -1,0 +1,14 @@
+---
+description: CI/CD workflow and YAML conventions. No hardcoded secrets; use platform secrets. Use when editing GitHub Actions or GitLab CI.
+alwaysApply: false
+globs: ["**/.github/**", "**/.gitlab-ci.yml", "**/.gitlab/**"]
+---
+
+# CI rules
+
+- Never put secrets (tokens, keys, passwords) in workflow or CI config. Use the platform secret store (e.g. GitHub Secrets, GitLab CI/CD variables) and reference them as env vars.
+- Use explicit, readable job and step names so logs are easy to triage.
+- Prefer reusable workflows or includes where supported to avoid duplication.
+- Pin actions or use commit SHAs for reproducibility; avoid `@main` or floating tags in production workflows.
+- Keep workflows minimal: only the steps needed for the job. Cache dependencies where it speeds up runs.
+- **Dev/prod split:** Prefer separate workflows for dev (auto on push) and prod (manual only). Use different env vars and deploy paths. Reference pn-ci-dev-prod-split when scaffolding deploy workflows.

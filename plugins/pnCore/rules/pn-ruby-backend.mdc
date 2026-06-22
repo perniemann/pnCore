@@ -1,0 +1,49 @@
+---
+description: Ruby backend style, env, and error handling. Use for API and server code (Rails, Sinatra).
+alwaysApply: false
+globs: ["**/*.rb", "**/Gemfile"]
+---
+
+# Ruby / backend rules
+
+## Style
+- Follow Ruby style: snake_case for methods/variables, PascalCase for classes/modules, SCREAMING_SNAKE for constants.
+- Indent with 2 spaces. Use `frozen_string_literal: true` at the top of all files.
+- Prefer explicit returns only at early-exit guard clauses. Avoid implicit returns in multi-branch methods.
+- Avoid deeply nested blocks; extract to named methods when nesting exceeds 2 levels.
+
+## Rails conventions
+- Use Rails conventions before custom abstractions: RESTful resource routes, `before_action`, scopes, callbacks.
+- Controller actions stay thin: validate input, call a service or model method, render result. Business logic belongs in models or service objects, not controllers.
+- Service objects for complex operations: plain Ruby objects in `app/services/` with a single public `#call` method.
+- Avoid callbacks (`before_save`, `after_create`) for side effects that belong in service objects — they make unit testing and debugging opaque.
+
+## ActiveRecord and N+1
+- Use `includes` or `preload` for associations accessed in a loop: `User.includes(:orders)`.
+- Use `select` to limit columns fetched: `User.select(:id, :email)` — never load full rows when only a subset is needed.
+- Use `find_each` (not `all.each`) for batch processing: `User.find_each(batch_size: 500) { |u| ... }`.
+- Use the Bullet gem in development to detect and alert on N+1 queries and unused eager loads.
+
+## Secrets and config
+- All secrets and config from environment variables: `ENV["VAR"]` or Rails credentials (`Rails.application.credentials`).
+- Use `dotenv-rails` in development; never commit `.env` to git. Keep `.env.example` with placeholder values.
+- Never hardcode API keys, tokens, or DB passwords in source, initializers, or YAML config files.
+
+## Error handling
+- Use `begin/rescue` with specific exception classes. Never `rescue Exception` — it catches `SignalException` (SIGTERM) and `SystemExit`.
+- Raise custom error classes: `class PaymentFailed < StandardError; end` — allows callers to catch specifically.
+- In Rails controllers: use `rescue_from` for centralized error formatting. Return consistent JSON shapes.
+- Use structured logging (Rails logger with `semantic_logger` or `lograge`). Include request ID, user ID in log context.
+
+## Security
+- Use `strong_parameters` (`params.require(:user).permit(:name, :email)`) — never `params[:user]` directly.
+- Parameterize all DB queries. Rails scopes and ActiveRecord finders are parameterized by default; never use string interpolation in `where`.
+- Hash passwords with `bcrypt` via `has_secure_password`. Never `Digest::MD5` or `Digest::SHA1` for passwords.
+- Set `config.force_ssl = true` in production. Use `Secure`, `HttpOnly`, `SameSite=Strict` on session cookies.
+
+## Anti-patterns to avoid
+- **Fat controller**: controllers with 100+ lines of business logic — extract to service objects.
+- **N+1 in views**: loading associations inside `each` loops in ERB/Jbuilder — use `includes` in the controller query.
+- **`rescue Exception`**: swallows signals and system exits — use specific exception classes.
+- **String SQL interpolation**: `User.where("email = '#{params[:email]}'"`) — SQL injection. Use `User.where(email: params[:email])`.
+- **Callback side effects**: sending emails or creating records in `after_create` callbacks — hard to test, fires unexpectedly in factories/seeds.
