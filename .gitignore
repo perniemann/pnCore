@@ -28,6 +28,10 @@ docs/research/claude-code-2026-pncore-synthesis.md
 !.pncore/README.md
 # CWD may be the MCP package during tests; same local state as root .pncore
 packages/pn-core-mcp/.pncore/
+# Local-only MCP runtime state (.pncursor naming from pn-cursor sessions)
+.pncursor/*
+!.pncursor/README.md
+packages/pn-core-mcp/.pncursor/
 
 # Test install target (do not commit)
 .test-project/
