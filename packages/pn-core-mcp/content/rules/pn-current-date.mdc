@@ -10,4 +10,4 @@ When you write **CHANGELOG** entries, **"as of [date]"**, copyright years, or ot
 1. **If the pn-core MCP `health` tool is available:** Call it and use **`calendarDateUtc`** (YYYY-MM-DD) for the calendar day at the server, and **`timestampUtc`** when a full ISO instant is appropriate. The server clock is the single source of truth for "today" in that session.
 2. **If MCP is not connected:** Use the date the user or environment provides (e.g. Cursor **user_info** "Today's date" when present). If none is given and the task requires a date, ask once instead of guessing.
 
-Do not infer the month or year from filenames or document titles (e.g. legacy URI slugs).
+Do not infer the month or year from filenames or document titles (e.g. dated compatibility URI slugs).

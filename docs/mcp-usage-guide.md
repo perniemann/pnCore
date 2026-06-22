@@ -102,7 +102,7 @@ Resources expose config and reference content that agents and commands refer to.
 | `pn-core://reference/workflow-state-schema.md` | Workflow state schema and task contract |
 | `pn-core://reference/best-practices.md` | Best practices checklist (a11y, security, performance, design, orchestration, mobile, WebXR) |
 | `pn-core://reference/aesthetics-baseline.md` | Distinctive UI dimension checklist, inspiration presets, optional `<frontend_aesthetics>` block for CLAUDE.md |
-| `pn-core://reference/best-practice-2026-03.md` | **Legacy alias** — same resource as `best-practices.md` |
+| `pn-core://reference/best-practice-2026-03.md` | **Compatibility alias** — same resource as `best-practices.md` |
 | `pn-core://reference/delivery-tier-criteria.md` | MVP vs full delivery tier criteria; used by pn-verify-acceptance |
 | `pn-core://reference/parallel-rules.md` | File ownership and merge requirements for parallel specialist phases |
 | `pn-core://reference/human-facing-artifacts.md` | HTML vs canvas vs markdown for subset workflow deliverables; orchestration digest rule; example gallery link |

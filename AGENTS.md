@@ -26,7 +26,7 @@ Persistent memory for this workspace. Updated from transcript deltas by pn-conti
 - install-to-project.mjs: when run from repo root, writes root manifest pointing at plugins/pnCore
 - Context handoff manifest: docs/refs/context-index.json (+ schema); npm run check:context-index; npm run check:ac-traceability (in validate); see docs/refs/README.md
 - Hard HITL MCP: approval_checkpoint tool + PNCORE_APPROVAL_TOKEN in MCP server env (see packages/pn-core-mcp/README.md)
-- Current date for dated output: MCP **`health`** returns **`calendarDateUtc`** and **`timestampUtc`** (server clock, UTC). Best-practices reference: **`pn-core://reference/best-practices.md`** (legacy URI `best-practice-2026-03.md` aliases the same file). Rule **`pn-current-date`** (always apply) encodes this for the plugin
+- Current date for dated output: MCP **`health`** returns **`calendarDateUtc`** and **`timestampUtc`** (server clock, UTC). Best-practices reference: **`pn-core://reference/best-practices.md`** (compatibility URI `best-practice-2026-03.md` resolves to the same file). Rule **`pn-current-date`** (always apply) encodes this for the plugin
 - House UI context for this repo: **`.pncore-design.md`** at the workspace root; global aesthetics stance in **`CLAUDE.md`**. Aesthetics checklist resource: **`pn-core://reference/aesthetics-baseline.md`**. Rule **`pn-aesthetics-baseline`** (always apply) ships with the plugin for downstream projects
 - `engines.node >= 22` (Node 20 EOL April 2026); `.nvmrc` = 22; CI uses Node 22
 - `list_skills` without filters returns category index (total + counts + top-3 per category), not the full skill list; use `category`, `filter`, or `limit` to drill in; `limit=0` for full list

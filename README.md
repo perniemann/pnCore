@@ -77,8 +77,8 @@ Reload Cursor after `mcp-config`. After upgrades, re-run `npm run build:mcp` and
 
 1. Install MCP and/or plugin (above).
 2. Call `health` — confirms server version, UTC date, and capabilities.
-3. New project: `/pn-new` or `workflow_step("project_kickoff", 0, {})`.
-4. Build a feature: `/pn-build` or `workflow_step("full_dev", 0, {})`.
+3. **New repo or greenfield:** `/pn-new` or `workflow_step("project_kickoff", 0, {})` — discovery, refs, PRD, and design docs under `docs/refs/`; when kickoff is done, continue with step 4.
+4. **Build or extend:** `/pn-build` or `workflow_step("full_dev", 0, {})` — skips kickoff when the project already has context; use this for features in an existing codebase.
 5. Before ship: `/pn-deliver` or `/pn-frontend-audit`.
 
 Copy-paste prompts and scenario flows: [docs/how-to-use-guide.md](docs/how-to-use-guide.md).

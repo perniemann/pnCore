@@ -181,7 +181,7 @@ MCP resources expose config and reference content by URI. When your workspace do
 | `pn-core://reference/workflow-state-schema.md` | Workflow state schema and task contract for persistence/resume and parallel execution |
 | `pn-core://reference/best-practices.md` | Best practices checklist (a11y, security, performance, design, orchestration, mobile, WebXR) |
 | `pn-core://reference/aesthetics-baseline.md` | Distinctive UI checklist, inspiration presets, optional `<frontend_aesthetics>` block for CLAUDE.md |
-| `pn-core://reference/best-practice-2026-03.md` | Legacy URI — same file as `best-practices.md` |
+| `pn-core://reference/best-practice-2026-03.md` | Compatibility URI — same file as `best-practices.md` |
 | `pn-core://reference/human-facing-artifacts.md` | HTML vs canvas vs markdown for subset workflow outputs; dual digest for orchestration; example gallery link |
 | `pn-core://reference/discovery-and-plan-format.md` | Format reference for discovery specs and plans |
 | `pn-core://reference/schemas/delivery_pack.contract.json` | Delivery pack contract for pn-deliver |
