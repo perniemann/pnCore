@@ -39,7 +39,7 @@
     "ip-address": "10.2.0"
   },
   "devDependencies": {
-    "@types/node": "^25.9.1",
+    "@types/node": "^26.0.1",
     "@vitest/coverage-v8": "^4.1.9",
     "typescript": "^5.0.0",
     "vitest": "^4.1.6"
