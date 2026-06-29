@@ -1,10 +1,6 @@
 import { strictSkepticGatesEnabled } from "./features.js";
 
-const GATE_RECORD_KEYS = [
-  "skepticPassed",
-  "skepticOutputPassed",
-  "reviewComplete",
-] as const;
+const GATE_RECORD_KEYS = ["skepticPassed", "skepticOutputPassed", "reviewComplete"] as const;
 
 export type SkepticGateRecord = {
   verdict: string;
@@ -54,9 +50,12 @@ export function applySkepticGateStateChecks(
       return { warning: msg };
     }
 
-    if (key === "reviewComplete" && val !== false) {
+    if (
+      (key === "reviewComplete" || key === "skepticPassed" || key === "skepticOutputPassed") &&
+      val !== false
+    ) {
       if (!isSkepticGateRecord(val)) {
-        const msg = `[strictSkepticGates] reviewComplete must be a structured gate record from workflow_confirm, not a bare flag.`;
+        const msg = `[strictSkepticGates] ${key} must be a structured gate record from workflow_confirm, not a bare flag.`;
         return bareTrueIsError ? { error: `Step ${step} blocked: ${msg}` } : { warning: msg };
       }
     }

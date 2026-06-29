@@ -22,22 +22,18 @@ describe("applySkepticGateStateChecks", () => {
 
   it("errors on bare true when intent is involved", async () => {
     const { applySkepticGateStateChecks } = await import("./skeptic-gate-state.js");
-    const r = applySkepticGateStateChecks(
-      5,
-      { intent: "involved", reviewComplete: true },
-      ["reviewComplete"]
-    );
+    const r = applySkepticGateStateChecks(5, { intent: "involved", reviewComplete: true }, [
+      "reviewComplete",
+    ]);
     expect(r?.error).toContain("bare true");
   });
 
   it("no-op on bare true when intent is not involved and strict disabled", async () => {
     const { applySkepticGateStateChecks } = await import("./skeptic-gate-state.js");
     expect(
-      applySkepticGateStateChecks(
-        3,
-        { intent: "full_auto", skepticPassed: true },
-        ["skepticPassed"]
-      )
+      applySkepticGateStateChecks(3, { intent: "full_auto", skepticPassed: true }, [
+        "skepticPassed",
+      ])
     ).toBeUndefined();
   });
 

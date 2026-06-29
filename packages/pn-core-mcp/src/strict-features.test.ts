@@ -6,7 +6,7 @@ afterEach(() => {
 });
 
 describe("PNCORE_STRICT_SKEPTIC_GATES", () => {
-  it("full_dev step 3 prepends warning when skepticPassed is bare true", async () => {
+  it("full_dev step 3 errors when skepticPassed is bare true under strict gates", async () => {
     vi.stubEnv("PNCORE_STRICT_SKEPTIC_GATES", "true");
     const { getWorkflowStep } = await import("./workflows.js");
     const r = getWorkflowStep("full_dev", 3, {
@@ -14,8 +14,20 @@ describe("PNCORE_STRICT_SKEPTIC_GATES", () => {
       skepticPassed: true,
       priorArt: "a",
     });
-    expect(r).not.toHaveProperty("error");
-    expect(String((r as { instruction: string }).instruction)).toContain("strictSkepticGates");
+    expect(r).toHaveProperty("error");
+    expect(String((r as { error: string }).error)).toContain("bare true");
+  });
+
+  it("full_dev step 3 errors when intent is involved and skepticPassed is bare true", async () => {
+    const { getWorkflowStep } = await import("./workflows.js");
+    const r = getWorkflowStep("full_dev", 3, {
+      plan: "p",
+      skepticPassed: true,
+      priorArt: "a",
+      intent: "involved",
+    });
+    expect(r).toHaveProperty("error");
+    expect(String((r as { error: string }).error)).toContain("bare true");
   });
 });
 
@@ -37,7 +49,12 @@ describe("PNCORE_FEATURES strictPlanSummary", () => {
     const { getWorkflowStep } = await import("./workflows.js");
     const r = getWorkflowStep("full_dev", 3, {
       plan: "x",
-      skepticPassed: true,
+      skepticPassed: {
+        verdict: "proceed",
+        go_no_go: "go",
+        gate_id: "g-1",
+        confirmed_at: "2026-06-29T00:00:00.000Z",
+      },
       priorArt: "y",
       planArtifactPath: "docs/plans/p.md",
       planSummary: "exec summary",

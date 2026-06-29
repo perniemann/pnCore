@@ -87,6 +87,9 @@ function paperclipWorkflowHint(): string {
 const HANDOFF_AFTER_STEP =
   " After completing this step, call workflow_handoff_append with run_id from the latest workflow_step response, this step index, and a short bullet summary (bounded). Echo run_id on every workflow_step call.";
 
+const GATE_STATE_FROM_CONFIRM =
+  " Pass gate keys as structured records from workflow_confirm: { verdict, go_no_go, gate_id, confirmed_at } — not bare true (required when intent is involved or strictSkepticGates is enabled).";
+
 function withHandoff(steps: StepDef[]): StepDef[] {
   return steps.map((s) => ({ ...s, instruction: s.instruction + HANDOFF_AFTER_STEP }));
 }
@@ -101,7 +104,8 @@ const designSteps: StepDef[] = [
   },
   {
     instruction:
-      "Load pn-core://reference/design-intent.md. Emit Design Read one-liner and tuning dials (DESIGN_VARIANCE, MOTION_INTENSITY, VISUAL_DENSITY). From discoverySpec, produce a design plan (Design Read + dials, page mode, typography, tokens, components). Reference get_skill('pn-frontend-design-philosophy') Phase 0 then Phase 1–3. REQUIRED: run get_skill('pn-skeptic-challenge') on the plan — output both plan and skeptic verdict. After user confirms, call workflow_step(step=2) with state: { plan, skepticPassed: true, skepticVerdict }.",
+      "Load pn-core://reference/design-intent.md. Emit Design Read one-liner and tuning dials (DESIGN_VARIANCE, MOTION_INTENSITY, VISUAL_DENSITY). From discoverySpec, produce a design plan (Design Read + dials, page mode, typography, tokens, components). Reference get_skill('pn-frontend-design-philosophy') Phase 0 then Phase 1–3. REQUIRED: run get_skill('pn-skeptic-challenge') on the plan — output both plan and skeptic verdict. After user confirms, call workflow_step(step=2) with state: { plan, skepticPassed: <gate record from workflow_confirm>, skepticVerdict }." +
+      GATE_STATE_FROM_CONFIRM,
     gate: "human",
     nextStep: 2,
     requiredFromState: ["discoverySpec"],
@@ -126,7 +130,8 @@ const designSteps: StepDef[] = [
   },
   {
     instruction:
-      "REQUIRED: Run get_skill('pn-skeptic-challenge') in post-build mode. Review output against plan and philosophy. Output skeptic verdict. After user confirms, call workflow_step(step=5) with state: { skepticOutputPassed: true, skepticOutputVerdict }.",
+      "REQUIRED: Run get_skill('pn-skeptic-challenge') in post-build mode. Review output against plan and philosophy. Output skeptic verdict. After user confirms, call workflow_step(step=5) with state: { skepticOutputPassed: <gate record from workflow_confirm>, skepticOutputVerdict }." +
+      GATE_STATE_FROM_CONFIRM,
     gate: "human",
     nextStep: 5,
     requiredFromState: ["buildComplete"],
@@ -168,7 +173,9 @@ const fullDevSteps: StepDef[] = [
   },
   {
     instruction:
-      "Load get_skill('pn-writing-plans'). Create plan from discoverySpec and priorArt. Save to docs/plans/. Set state.planArtifactPath and state.planSummary (≤800 words). Update project-context.mdc if present. Run get_skill('pn-skeptic-challenge') on the plan — output both. After user confirms, call workflow_step(step=3) with state: { plan, skepticPassed: true, planArtifactPath, planSummary }. Optional: set **createGithubIssues: true** to run gated GitHub Issue slicing on step 3 (get_skill('pn-github-vertical-slices') via official GitHub MCP) before specialist routing.",
+      "Load get_skill('pn-writing-plans'). Create plan from discoverySpec and priorArt. Save to docs/plans/. Set state.planArtifactPath and state.planSummary (≤800 words). Update project-context.mdc if present. Run get_skill('pn-skeptic-challenge') on the plan — output both. After user confirms, call workflow_step(step=3) with state: { plan, skepticPassed: <gate record from workflow_confirm>, planArtifactPath, planSummary }." +
+      GATE_STATE_FROM_CONFIRM +
+      " Optional: set **createGithubIssues: true** to run gated GitHub Issue slicing on step 3 (get_skill('pn-github-vertical-slices') via official GitHub MCP) before specialist routing.",
     gate: "human",
     nextStep: 3,
     requiredFromState: ["priorArt"],
@@ -191,7 +198,8 @@ const fullDevSteps: StepDef[] = [
   },
   {
     instruction:
-      "Load get_command('pn-review'). Run review+optimize pass (quality gates, deslop, pn-reality-check). Apply best practices (pn-core://reference/best-practices.md). Fix and re-run once if issues found. Run get_skill('pn-skeptic-challenge') post-build. Run get_skill('pn-docs-sync'). Update project-context.mdc if scope changed. Output summary. After user confirms, call workflow_step(step=6) with state: { reviewComplete: true, skepticOutputPassed: true }.",
+      "Load get_command('pn-review'). Run review+optimize pass (quality gates, deslop, pn-reality-check). Apply best practices (pn-core://reference/best-practices.md). Fix and re-run once if issues found. Run get_skill('pn-skeptic-challenge') post-build. Run get_skill('pn-docs-sync'). Update project-context.mdc if scope changed. Output summary. After user confirms, call workflow_step(step=6) with state: { reviewComplete: <gate record>, skepticOutputPassed: <gate record> }." +
+      GATE_STATE_FROM_CONFIRM,
     gate: "human",
     nextStep: 6,
     requiredFromState: ["specialistsComplete"],
@@ -290,7 +298,8 @@ const promptOptimizeSteps: StepDef[] = [
   },
   {
     instruction:
-      "From promptSpec, produce draft optimized prompt (4-Block layout per pn-prompt-optimize). Output: draft, notes, usage tips. After user confirms or provides feedback, call workflow_step(step=2) with state: { draft, notes, usage, reviewComplete: true, userFeedback? }.",
+      "From promptSpec, produce draft optimized prompt (4-Block layout per pn-prompt-optimize). Output: draft, notes, usage tips. After user confirms or provides feedback, call workflow_step(step=2) with state: { draft, notes, usage, reviewComplete: <gate record from workflow_confirm>, userFeedback? }." +
+      GATE_STATE_FROM_CONFIRM,
     gate: "human",
     nextStep: 2,
     requiredFromState: ["promptSpec"],
@@ -405,7 +414,8 @@ const mediaDirectorSteps: StepDef[] = [
   },
   {
     instruction:
-      "Produce the plan + pipeline spec, then run skeptic. For stills: shot list with prompts, camera (mm lens, f-stop when relevant) and lighting specs (key-to-fill ratio, color temperature in K) per shot. For video: segment plan (fps, resolution, aspect, duration, consistency strategy — single-pass vs chunked). Pick pipeline: ComfyUI graph (load get_skill('pn-comfyui-workflows') for graph patterns) / closed API / hybrid. Pin checkpoints, VAEs, samplers, seeds, dtype (fp16/bf16), VRAM assumptions. REQUIRED: run get_skill('pn-skeptic-challenge') on the plan — output verdict. After user confirms, call workflow_step(step=4) with state: { shotPlan, pipelineSpec, skepticPassed: true }.",
+      "Produce the plan + pipeline spec, then run skeptic. For stills: shot list with prompts, camera (mm lens, f-stop when relevant) and lighting specs (key-to-fill ratio, color temperature in K) per shot. For video: segment plan (fps, resolution, aspect, duration, consistency strategy — single-pass vs chunked). Pick pipeline: ComfyUI graph (load get_skill('pn-comfyui-workflows') for graph patterns) / closed API / hybrid. Pin checkpoints, VAEs, samplers, seeds, dtype (fp16/bf16), VRAM assumptions. REQUIRED: run get_skill('pn-skeptic-challenge') on the plan — output verdict. After user confirms, call workflow_step(step=4) with state: { shotPlan, pipelineSpec, skepticPassed: <gate record from workflow_confirm> }." +
+      GATE_STATE_FROM_CONFIRM,
     gate: "human",
     nextStep: 4,
     requiredFromState: ["briefPath", "brief"],
@@ -491,7 +501,8 @@ const gameFeatureSteps: StepDef[] = [
   },
   {
     instruction:
-      "Create implementation plan (game loop fit, state changes, integration points). Run get_skill('pn-skeptic-challenge') on the plan. Output both. After user confirms, call workflow_step(step=2) with state: { plan, skepticPassed: true }.",
+      "Create implementation plan (game loop fit, state changes, integration points). Run get_skill('pn-skeptic-challenge') on the plan. Output both. After user confirms, call workflow_step(step=2) with state: { plan, skepticPassed: <gate record from workflow_confirm> }." +
+      GATE_STATE_FROM_CONFIRM,
     gate: "human",
     nextStep: 2,
     requiredFromState: ["gameSpec"],
@@ -507,7 +518,8 @@ const gameFeatureSteps: StepDef[] = [
   },
   {
     instruction:
-      "REQUIRED: Run get_skill('pn-skeptic-challenge') in post-build mode on the implemented game mechanic. Review output against plan and game logic requirements. Output skeptic verdict. After user confirms, call workflow_step(step=4) with state: { skepticOutputPassed: true, skepticOutputVerdict }.",
+      "REQUIRED: Run get_skill('pn-skeptic-challenge') in post-build mode on the implemented game mechanic. Review output against plan and game logic requirements. Output skeptic verdict. After user confirms, call workflow_step(step=4) with state: { skepticOutputPassed: <gate record from workflow_confirm>, skepticOutputVerdict }." +
+      GATE_STATE_FROM_CONFIRM,
     gate: "human",
     nextStep: 4,
     requiredFromState: ["gameFeatureComplete"],
@@ -553,7 +565,8 @@ const svgCreateSteps: StepDef[] = [
   },
   {
     instruction:
-      "REQUIRED: Run get_skill('pn-skeptic-challenge') post-build on the SVG. Output skeptic verdict. After user confirms, call workflow_step(step=4) with state: { skepticOutputPassed: true, skepticOutputVerdict }.",
+      "REQUIRED: Run get_skill('pn-skeptic-challenge') post-build on the SVG. Output skeptic verdict. After user confirms, call workflow_step(step=4) with state: { skepticOutputPassed: <gate record from workflow_confirm>, skepticOutputVerdict }." +
+      GATE_STATE_FROM_CONFIRM,
     gate: "human",
     nextStep: 4,
     requiredFromState: ["svgComplete", "svgPath"],
@@ -646,7 +659,8 @@ const unrealFeatureSteps: StepDef[] = [
   },
   {
     instruction:
-      "Run get_skill('pn-api-probe') targeting the UE version and ueMcpServer tool surface from discoverySpec (focus on unreal Python module, EditorScriptingUtilities, K2Node deprecations per the UE 5.7 probe targets section). Then produce a feature plan (implementation approach, Blueprint/actor/material scope, UE subsystems, acceptance criteria). REQUIRED: run get_skill('pn-skeptic-challenge') on the plan — output both plan and skeptic verdict. After user confirms, call workflow_step(step=2) with state: { apiProbe, plan, skepticPassed: true, skepticVerdict }.",
+      "Run get_skill('pn-api-probe') targeting the UE version and ueMcpServer tool surface from discoverySpec (focus on unreal Python module, EditorScriptingUtilities, K2Node deprecations per the UE 5.7 probe targets section). Then produce a feature plan (implementation approach, Blueprint/actor/material scope, UE subsystems, acceptance criteria). REQUIRED: run get_skill('pn-skeptic-challenge') on the plan — output both plan and skeptic verdict. After user confirms, call workflow_step(step=2) with state: { apiProbe, plan, skepticPassed: <gate record from workflow_confirm>, skepticVerdict }." +
+      GATE_STATE_FROM_CONFIRM,
     gate: "human",
     nextStep: 2,
     requiredFromState: ["discoverySpec", "ueVersion", "ueMcpServer"],
@@ -662,7 +676,8 @@ const unrealFeatureSteps: StepDef[] = [
   },
   {
     instruction:
-      "REQUIRED: Run get_skill('pn-render-verify') with the UE 5.7 appendix — capture viewport/render output and enumerate each spec item (Lumen, Nanite, Blueprint compile state, World Partition, MetaSounds, Niagara, PIE-vs-standalone traps as applicable). Then run get_skill('pn-skeptic-challenge') post-build using render-verify evidence. Output skeptic verdict. After user confirms, call workflow_step(step=4) with state: { skepticOutputPassed: true, skepticOutputVerdict }.",
+      "REQUIRED: Run get_skill('pn-render-verify') with the UE 5.7 appendix — capture viewport/render output and enumerate each spec item (Lumen, Nanite, Blueprint compile state, World Partition, MetaSounds, Niagara, PIE-vs-standalone traps as applicable). Then run get_skill('pn-skeptic-challenge') post-build using render-verify evidence. Output skeptic verdict. After user confirms, call workflow_step(step=4) with state: { skepticOutputPassed: <gate record from workflow_confirm>, skepticOutputVerdict }." +
+      GATE_STATE_FROM_CONFIRM,
     gate: "human",
     nextStep: 4,
     requiredFromState: ["buildComplete"],
@@ -692,7 +707,8 @@ const godotFeatureSteps: StepDef[] = [
   },
   {
     instruction:
-      "Run get_skill('pn-api-probe') targeting the Godot version and godotMcpServer tool surface from discoverySpec (focus on GDScript API changes, deprecated nodes, GDExtension compatibility, TileMapLayer migration per the Godot 4.x probe targets section). Then produce a feature plan (implementation approach, node/scene/script scope, Godot subsystems, acceptance criteria). REQUIRED: run get_skill('pn-skeptic-challenge') on the plan — output both plan and skeptic verdict. After user confirms, call workflow_step(step=2) with state: { apiProbe, plan, skepticPassed: true, skepticVerdict }.",
+      "Run get_skill('pn-api-probe') targeting the Godot version and godotMcpServer tool surface from discoverySpec (focus on GDScript API changes, deprecated nodes, GDExtension compatibility, TileMapLayer migration per the Godot 4.x probe targets section). Then produce a feature plan (implementation approach, node/scene/script scope, Godot subsystems, acceptance criteria). REQUIRED: run get_skill('pn-skeptic-challenge') on the plan — output both plan and skeptic verdict. After user confirms, call workflow_step(step=2) with state: { apiProbe, plan, skepticPassed: <gate record from workflow_confirm>, skepticVerdict }." +
+      GATE_STATE_FROM_CONFIRM,
     gate: "human",
     nextStep: 2,
     requiredFromState: ["discoverySpec", "godotVersion", "godotMcpServer"],
@@ -708,7 +724,8 @@ const godotFeatureSteps: StepDef[] = [
   },
   {
     instruction:
-      "REQUIRED: Run get_skill('pn-render-verify') with the Godot appendix — capture viewport screenshot or SubViewport output and enumerate each spec item (scene composition, shader output, animation state, physics correctness, UI layout, headless run exit code as applicable). Then run get_skill('pn-skeptic-challenge') post-build using render-verify evidence. Output skeptic verdict. After user confirms, call workflow_step(step=4) with state: { skepticOutputPassed: true, skepticOutputVerdict }.",
+      "REQUIRED: Run get_skill('pn-render-verify') with the Godot appendix — capture viewport screenshot or SubViewport output and enumerate each spec item (scene composition, shader output, animation state, physics correctness, UI layout, headless run exit code as applicable). Then run get_skill('pn-skeptic-challenge') post-build using render-verify evidence. Output skeptic verdict. After user confirms, call workflow_step(step=4) with state: { skepticOutputPassed: <gate record from workflow_confirm>, skepticOutputVerdict }." +
+      GATE_STATE_FROM_CONFIRM,
     gate: "human",
     nextStep: 4,
     requiredFromState: ["buildComplete"],
@@ -940,7 +957,9 @@ const featureProgramSteps: StepDef[] = [
   },
   {
     instruction:
-      "Parallel slice execution (see tasks[] from workflow_step response). Each slice runs a full_dev workflow (starting at step 3 — specialist routing) in its own git worktree. Pass the slice's plan, planArtifactPath, planSummary, and skepticPassed: true as the child state, plus discoverySpec from the program state. When all slices complete, update each slice's runId, worktreePath, branch, and status in slices[], then call workflow_step('feature_program', step=4) with state: { slices (updated), taskResults (one entry per slice id) }.",
+      "Parallel slice execution (see tasks[] from workflow_step response). Each slice runs a full_dev workflow (starting at step 3 — specialist routing) in its own git worktree. Pass the slice's plan, planArtifactPath, planSummary, and skepticPassed: <gate record from workflow_confirm> as the child state, plus discoverySpec from the program state." +
+      GATE_STATE_FROM_CONFIRM +
+      " When all slices complete, update each slice's runId, worktreePath, branch, and status in slices[], then call workflow_step('feature_program', step=4) with state: { slices (updated), taskResults (one entry per slice id) }.",
     gate: "model",
     nextStep: 4,
     requiredFromState: ["slices", "slicesPlanned"],
@@ -1206,13 +1225,16 @@ export function getWorkflowStep(
       gate = "human";
     } else if (step === 2) {
       instruction =
-        "Load get_skill('pn-writing-plans'). Create plan from discoverySpec + priorArt. Save to docs/plans/. Run get_skill('pn-skeptic-challenge') — output both. REQUIRED: wait for user confirmation. After confirmed, call workflow_step(step=3) with state: { plan, skepticPassed: true, intent: 'involved', planArtifactPath, planSummary }. Optional: **createGithubIssues: true** for gated GitHub Issue slicing on step 3 before specialists.";
+        "Load get_skill('pn-writing-plans'). Create plan from discoverySpec + priorArt. Save to docs/plans/. Run get_skill('pn-skeptic-challenge') — output both. REQUIRED: wait for user confirmation. After confirmed, call workflow_step(step=3) with state: { plan, skepticPassed: <gate record from workflow_confirm>, intent: 'involved', planArtifactPath, planSummary }." +
+        GATE_STATE_FROM_CONFIRM +
+        " Optional: **createGithubIssues: true** for gated GitHub Issue slicing on step 3 before specialists.";
     } else if (step === 3) {
       instruction =
         "Read pn-core://config/specialists.json. Select specialists (same REQUIRED inclusions as standard flow — see step 3 base instruction). Present list for confirmation. REQUIRED: wait for user confirmation. After confirmed, call workflow_step(step=4) with state: { specialistList, routeConfirmed: true, intent: 'involved' }.";
     } else if (step === 5) {
       instruction =
-        "Load get_command('pn-review'). Run review+optimize pass. Apply best practices (pn-core://reference/best-practices.md). Fix once if issues. Run get_skill('pn-skeptic-challenge') post-build. Run get_skill('pn-docs-sync'). Output summary. REQUIRED: wait for user confirmation. After confirmed, call workflow_step(step=6) with state: { reviewComplete: true, skepticOutputPassed: true, intent: 'involved' }.";
+        "Load get_command('pn-review'). Run review+optimize pass. Apply best practices (pn-core://reference/best-practices.md). Fix once if issues. Run get_skill('pn-skeptic-challenge') post-build. Run get_skill('pn-docs-sync'). Output summary. REQUIRED: wait for user confirmation. After confirmed, call workflow_step(step=6) with state: { reviewComplete: <gate record>, skepticOutputPassed: <gate record>, intent: 'involved' }." +
+        GATE_STATE_FROM_CONFIRM;
     }
   }
 
@@ -1495,7 +1517,7 @@ export function getWorkflowStep(
         agentId: sl.id,
         instruction:
           `Slice: ${sl.id}. ${sl.worktreePath ? `Work in git worktree: ${sl.worktreePath} (branch: ${sl.branch ?? sl.id}).` : `Create or use the worktree for slice '${sl.id}' per .cursor/worktrees.json.`} ` +
-          `Call workflow_step('full_dev', 3, { plan: <slice plan text>, planArtifactPath: '${sl.planArtifactPath ?? ""}', planSummary: '${sl.planSummary ?? ""}', skepticPassed: true, discoverySpec: <parent program discoverySpec from state> }) and follow each returned instruction through to full_dev completion. ` +
+          `Call workflow_step('full_dev', 3, { plan: <slice plan text>, planArtifactPath: '${sl.planArtifactPath ?? ""}', planSummary: '${sl.planSummary ?? ""}', skepticPassed: <gate record from workflow_confirm>, discoverySpec: <parent program discoverySpec from state> }) and follow each returned instruction through to full_dev completion. ` +
           `When full_dev workflow_step returns done: true, record a completion summary. ` +
           `Set taskResults['${sl.id}'] in the parent program state to that summary. ` +
           `When every slice in slices[] has a taskResults entry, call workflow_step('feature_program', step=4, fullProgramState) to advance.`,
