@@ -25,6 +25,7 @@ description: Code quality and performance review — quality gates, deslop, real
 | You want deslop, reality-check, or perf optimization | Yes |
 | You want to review a plan before building | No — use `/pn-skeptic` or `/pn-grill` |
 | You want a final delivery gate against acceptance criteria | No — use `/pn-deliver` |
+| Phase-complete gate applies (plan slice / mini-phase) | **No alone** — spawn Task checker per `pn-build-gate`; `/pn-review` in this session = `CHECKER-SAME-SESSION` |
 | The ask is meta-design, a new skill, or a workflow-loop request | **No — state the mismatch in the first response** ("You invoked `/pn-review` but the ask is `Y`; I'll re-route to Z unless you'd rather I run pn-review as written") |
 
 Run the **pn-review-optimize-loop** skill:

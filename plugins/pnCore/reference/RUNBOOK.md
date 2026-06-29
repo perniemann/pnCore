@@ -16,6 +16,7 @@ Whenever a plan needs user input, ask before locking. See `pn-build-gate` and `r
 | Full dev (discovery → prior art → plan → skeptic → specialists → review → summary) | `workflow_step("full_dev", step, state)` or `get_command("pn-build")` | Prefer workflow_step; state is validated per step. |
 | Design-only | `workflow_step("design", step, state)` or `get_command("pn-design")` | Same: prefer workflow_step. |
 | Frontend audit | `workflow_step("frontend_audit", step, state)` or `get_command("pn-frontend-audit")` | Chains 5 surgical commands: `pn-audit-typography`, `pn-audit-layout`, `pn-audit-design-tokens`, `pn-audit-a11y`, `pn-audit-performance-fe`. Each is also usable standalone. |
+| **Frontend redo (existing app, sequential UI slices)** | `get_command("pn-frontend-redo")` | Audit → plan → S1–Sn with slice-verify artifacts + Task checker. **Not** `feature_program` (no worktrees). |
 | Targeted visual tweak | `workflow_step("visual_tweak", step, state)` or `get_command("pn-visual-tweak")` | Bounded layout/color/type/motion change; not full pn-design. |
 | Static HTML preview | `get_skill("pn-html-preview")` | Extract fenced **html** code block → save under `html_outputs/` → open in browser; optional evidence. |
 | Create image or SVG | `get_command("pn-assets")` — routes to `workflow_step("svg_create", ...)` or `workflow_step("image_create", ...)` | Single entry for image and SVG creation. |

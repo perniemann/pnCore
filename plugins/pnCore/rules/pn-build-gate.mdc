@@ -54,14 +54,23 @@ When the user requests to **fix**, **tweak**, **change**, **update**, or **patch
 When a plan phase, specialist slice, or program chunk is **complete** (or you would say "Phase N done — say continue"):
 
 1. **Verify first:** Run applicable verification (`npm test`, `npm run build`, `lint` as scope requires). Read full output before claiming complete.
-2. **Spawn checker (automatic):** Use the Task tool to spawn **pn-reviewer** (`subagent_type: generalPurpose`, `readonly: true`) scoped to **this phase's diff only** (context tier 2 — not the whole repo unless that is the phase). Prompt: load `get_skill("pn-review-optimize-loop")`; for UI-heavy phases run `pn-evidence-qa` before reality-check.
+2. **Spawn checker (automatic):** Use the Task tool to spawn **pn-reviewer** (`subagent_type: generalPurpose`, `readonly: true`) scoped to **this phase's diff only** (context tier 2 — not the whole repo unless that is the phase). Prompt: load `get_skill("pn-review-optimize-loop")`; for UI-heavy phases run `pn-evidence-qa` before reality-check. Save checker output to `docs/audits/checker-YYYY-MM-DD-<slice>.md` when the program produces audit artifacts.
 3. **Builder fixes** issues the checker reports; do **not** implement the next phase in the same turn.
 4. **Block next phase** until checker pass **or** user says `skip review`. Do not declare phase complete without checker evidence or an explicit skip.
-5. **Handoff:** Call `workflow_handoff_append` with phase summary when MCP is available.
+5. **Slice verify artifact:** Write `docs/audits/<program>-<slice>-verify-YYYY-MM-DD.md` using `pn-core://reference/slice-verify-template.md` (YAML front matter + acceptance table). `/pn-deliver` may block if the plan lists slices and verify files are missing.
+6. **Handoff:** Call `workflow_handoff_append` with phase summary when MCP is available.
 
-**Visual phases (UI in scope):** Before first UI code in a phase, run `pn-polish` or `pn-evidence-qa` — not only after user complaints.
+### CHECKER-SAME-SESSION (hard rule)
 
-**Program boundary:** After the last build phase, run `/pn-build` steps 6–6.5 (review + post-build skeptic) or equivalent before `/pn-deliver`.
+When this § Phase-complete gate applies:
+
+- **`get_command("pn-review")` or `/pn-review` in the builder session does not satisfy step 2.** Same agent, same turn, or same chat without a Task subagent = **RULE-MISS** candidate `CHECKER-SAME-SESSION`.
+- Only a **Task** subagent with `readonly: true` plus a recorded `checker.task_id` or `docs/audits/checker-*.md` artifact counts.
+- **`/pn-skeptic` in the builder session** does not replace the checker for code/UI review; it is a separate gate (plan or post-build output).
+
+**Visual phases (UI in scope):** Before first UI code in a phase, run `pn-polish` or `pn-evidence-qa` — not only after user complaints. Record path or skip reason in slice verify `evidence_qa`.
+
+**Program boundary:** After the last build phase, run `/pn-build` steps 6–6.5 (review + post-build skeptic) or equivalent, then **`/pn-deliver`** (required when the plan defines FR-* or program completion criteria).
 
 ## Skip path
 

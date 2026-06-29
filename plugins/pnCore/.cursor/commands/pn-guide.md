@@ -9,7 +9,7 @@ description: Show all pnCore capabilities — commands, agents, and recommended 
 
 Show the user what pnCore can do and recommend the right starting point.
 
-> **Slash palette is intentionally short.** Up to 21 user-entry commands appear under `/pn-…`. Another 17 surgical commands (`pn-audit-*`, `pn-typeset`/`pn-colorize`/…) live canonical-only and are reachable via `get_command("<id>")` or as substeps of the visible umbrellas. See [Advanced — palette-hidden](#advanced--palette-hidden) at the bottom of this guide.
+> **Slash palette is intentionally short.** Up to 21 user-entry commands appear under `/pn-…`. Another 18 palette-hidden commands (`pn-frontend-redo`, `pn-audit-*`, `pn-typeset`/`pn-colorize`/…) live canonical-only and are reachable via `get_command("<id>")` or as substeps of the visible umbrellas. See [Advanced — palette-hidden](#advanced--palette-hidden) at the bottom of this guide.
 
 ## Step 1: Identify context
 
@@ -33,7 +33,7 @@ Use `ask_question` when available:
 | 1 — New project | Run **`pn-new`** — guides you through references, intent, and build. |
 | 2 — Existing project | Run **`pn-setup`** — creates project context, design context, and stack context so all commands work better. |
 | 3 — Build a feature | Run **`pn-build`** — full dev cycle: discovery, plan, skeptic, specialists, review. For ≥2 independent slices: **`pn-program`**. |
-| 4 — Design / redesign | Run **`pn-design`** — design-focused build with mandatory typography/color/layout substeps. For cinematic/editorial surfaces: **`pn-design-dna`**. Pre-ship marketing UI: **`pn-preflight`**. To explore alternatives: **`pn-design-variants`**. |
+| 4 — Design / redesign | Run **`pn-design`** — design-focused build with mandatory typography/color/layout substeps. For cinematic/editorial surfaces: **`pn-design-dna`**. Pre-ship marketing UI: **`pn-preflight`**. To explore alternatives: **`pn-design-variants`**. **Existing app, audit-driven UI redo:** **`pn-frontend-redo`** (sequential surfaces — not `/pn-program`). |
 | 5 — Audit quality | **Frontend:** `pn-frontend-audit` (chains 5 surgical FE audits). **Backend:** `pn-backend-audit` (chains 5 surgical BE audits). Single dimension: `get_command("pn-audit-typography")` etc. — see Advanced index. |
 | 6 — Targeted design edit | **Router:** `pn-visual-tweak` — picks the right surgical command. Pre-ship all-dimensions: `pn-polish`. Surgical ids (`pn-typeset`, `pn-colorize`, …) are palette-hidden; reach via the router or `get_command("<id>")`. |
 | 7 — Review / polish / deliver | **`pn-review`** — code + performance review. **`pn-polish`** — pre-ship design pass. **`pn-deliver`** — verify against acceptance criteria and package. |
@@ -80,6 +80,9 @@ Use `ask_question` when available:
 ### Advanced — palette-hidden
 
 These commands are deliberately **not** in the `/` slash palette to keep it short. They remain fully addressable via `get_command("<id>")` and are invoked automatically by the umbrellas above.
+
+**Frontend redo (existing app, sequential UI slices):**
+- **pn-frontend-redo** — Audit → plan → S1–Sn with slice-verify artifacts + Task checker (not `pn-program`)
 
 **Frontend audit surgical (invoked by `/pn-frontend-audit`):**
 - **pn-audit-typography** — Type scale, font choices, hierarchy, loading strategy

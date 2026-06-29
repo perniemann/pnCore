@@ -110,9 +110,9 @@ Follow the WORKFLOW roadmap format from pn-documentation. Save to `docs/WORKFLOW
 
 For each plan phase, include:
 
-| Phase | Verify | Checker (automatic) | Visual pre-gate | Skeptic intensity |
-|-------|--------|-------------------|-----------------|-------------------|
-| N | `npm test` / `build` commands | Spawn pn-reviewer Task (`readonly: true`) on phase diff | `pn-evidence-qa` before UI code when phase includes frontend | strict / standard / light per `DECISION_LOGIC.md` |
+| Phase | Verify | Checker (automatic) | Visual pre-gate | Skeptic intensity | Slice verify |
+|-------|--------|-------------------|-----------------|-------------------|--------------|
+| N | `npm test` / `build` commands | Spawn pn-reviewer Task (`readonly: true`) on phase diff | `pn-evidence-qa` before UI code when phase includes frontend | strict / standard / light per `DECISION_LOGIC.md` | `docs/audits/<program>-sN-verify-*.md` per `slice-verify-template.md` |
 
 #### Post-build program boundary
 
