@@ -30,12 +30,19 @@ jobs:
         if: steps.metadata.outputs.update-type != 'version-update:semver-major'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
           PR: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
           required_checks=("no-ide-trailers" "sync (22)" "sync (24)")
           for attempt in $(seq 1 40); do
-            mapfile -t rows < <(gh pr checks "$PR" --json name,bucket,workflow -q '.[] | [.name,.bucket,.workflow] | @tsv' || true)
+            if ! mapfile -t rows < <(
+              gh pr checks "$PR" --json name,bucket,workflow -q '.[] | [.name,.bucket,.workflow] | @tsv' 2>/dev/null
+            ); then
+              echo "gh pr checks failed (no git repo context); retrying... (${attempt}/40)"
+              sleep 30
+              continue
+            fi
             if [[ ${#rows[@]} -eq 0 ]]; then
               echo "No checks registered yet... (${attempt}/40)"
               sleep 30
@@ -81,4 +88,5 @@ jobs:
         if: steps.metadata.outputs.update-type != 'version-update:semver-major'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
         run: gh pr merge ${{ github.event.pull_request.number }} --squash --delete-branch
