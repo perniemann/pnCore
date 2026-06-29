@@ -1,4 +1,5 @@
 import { strictSkepticGatesEnabled } from "./features.js";
+const GATE_RECORD_KEYS = ["skepticPassed", "skepticOutputPassed", "reviewComplete"];
 export function isSkepticGateRecord(value) {
     if (!value || typeof value !== "object" || Array.isArray(value))
         return false;
@@ -7,19 +8,31 @@ export function isSkepticGateRecord(value) {
         typeof o.gate_id === "string" &&
         typeof o.confirmed_at === "string");
 }
+function isInvolvedIntent(state) {
+    return state.intent === "involved";
+}
+/** Strict gate records when global flag is on or workflow intent is involved. */
+export function strictGateRecordsRequired(state) {
+    return strictSkepticGatesEnabled() || isInvolvedIntent(state);
+}
 export function applySkepticGateStateChecks(step, state, requiredFromState) {
-    if (!strictSkepticGatesEnabled())
+    if (!strictGateRecordsRequired(state))
         return undefined;
-    for (const key of ["skepticPassed", "skepticOutputPassed"]) {
+    for (const key of GATE_RECORD_KEYS) {
         if (!requiredFromState.includes(key))
             continue;
         const val = state[key];
         if (val === undefined || val === null)
             continue;
         if (val === true) {
-            return {
-                warning: `[strictSkepticGates] ${key} is bare true; after the user confirms, set ${key} to { verdict, go_no_go, gate_id, confirmed_at } from workflow_confirm.`,
-            };
+            const msg = `[strictSkepticGates] ${key} is bare true; after the user confirms, set ${key} to { verdict, go_no_go, gate_id, confirmed_at } from workflow_confirm.`;
+            return { error: `Step ${step} blocked: ${msg}` };
+        }
+        if ((key === "reviewComplete" || key === "skepticPassed" || key === "skepticOutputPassed") &&
+            val !== false &&
+            !isSkepticGateRecord(val)) {
+            const msg = `[strictSkepticGates] ${key} must be a structured gate record from workflow_confirm, not a bare flag.`;
+            return { error: `Step ${step} blocked: ${msg}` };
         }
         if (isSkepticGateRecord(val)) {
             if (val.go_no_go === "no_go" && state.iterationCapApproved !== true) {

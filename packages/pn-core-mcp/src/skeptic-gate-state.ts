@@ -35,8 +35,6 @@ export function applySkepticGateStateChecks(
 ): { error?: string; warning?: string } | undefined {
   if (!strictGateRecordsRequired(state)) return undefined;
 
-  const bareTrueIsError = isInvolvedIntent(state) || strictSkepticGatesEnabled();
-
   for (const key of GATE_RECORD_KEYS) {
     if (!requiredFromState.includes(key)) continue;
     const val = state[key];
@@ -44,20 +42,16 @@ export function applySkepticGateStateChecks(
 
     if (val === true) {
       const msg = `[strictSkepticGates] ${key} is bare true; after the user confirms, set ${key} to { verdict, go_no_go, gate_id, confirmed_at } from workflow_confirm.`;
-      if (bareTrueIsError) {
-        return { error: `Step ${step} blocked: ${msg}` };
-      }
-      return { warning: msg };
+      return { error: `Step ${step} blocked: ${msg}` };
     }
 
     if (
       (key === "reviewComplete" || key === "skepticPassed" || key === "skepticOutputPassed") &&
-      val !== false
+      val !== false &&
+      !isSkepticGateRecord(val)
     ) {
-      if (!isSkepticGateRecord(val)) {
-        const msg = `[strictSkepticGates] ${key} must be a structured gate record from workflow_confirm, not a bare flag.`;
-        return bareTrueIsError ? { error: `Step ${step} blocked: ${msg}` } : { warning: msg };
-      }
+      const msg = `[strictSkepticGates] ${key} must be a structured gate record from workflow_confirm, not a bare flag.`;
+      return { error: `Step ${step} blocked: ${msg}` };
     }
 
     if (isSkepticGateRecord(val)) {

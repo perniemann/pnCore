@@ -55,6 +55,33 @@ describe("applySkepticGateStateChecks", () => {
     expect(r?.error).toContain("no_go");
   });
 
+  it("errors on invalid gate record shape when strict mode enabled", async () => {
+    vi.stubEnv("PNCORE_STRICT_SKEPTIC_GATES", "true");
+    const { applySkepticGateStateChecks } = await import("./skeptic-gate-state.js");
+    const r = applySkepticGateStateChecks(6, { reviewComplete: { verdict: "proceed" } }, [
+      "reviewComplete",
+    ]);
+    expect(r?.error).toContain("structured gate record");
+  });
+
+  it("passes with valid gate record when intent is involved", async () => {
+    const { applySkepticGateStateChecks } = await import("./skeptic-gate-state.js");
+    const r = applySkepticGateStateChecks(
+      3,
+      {
+        intent: "involved",
+        skepticPassed: {
+          verdict: "proceed",
+          go_no_go: "go",
+          gate_id: "g-1",
+          confirmed_at: "2026-06-29T00:00:00.000Z",
+        },
+      },
+      ["skepticPassed"]
+    );
+    expect(r).toBeUndefined();
+  });
+
   it("allows no_go when human gate ticket is present", async () => {
     vi.stubEnv("PNCORE_STRICT_SKEPTIC_GATES", "true");
     const { applySkepticGateStateChecks } = await import("./skeptic-gate-state.js");
@@ -72,6 +99,19 @@ describe("applySkepticGateStateChecks", () => {
       ["skepticPassed"]
     );
     expect(r).toBeUndefined();
+  });
+});
+
+describe("strictGateRecordsRequired", () => {
+  it("true when intent is involved", async () => {
+    const { strictGateRecordsRequired } = await import("./skeptic-gate-state.js");
+    expect(strictGateRecordsRequired({ intent: "involved" })).toBe(true);
+  });
+
+  it("true when PNCORE_STRICT_SKEPTIC_GATES is set", async () => {
+    vi.stubEnv("PNCORE_STRICT_SKEPTIC_GATES", "true");
+    const { strictGateRecordsRequired } = await import("./skeptic-gate-state.js");
+    expect(strictGateRecordsRequired({ intent: "full_auto" })).toBe(true);
   });
 });
 
