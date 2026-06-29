@@ -112,8 +112,7 @@ export function issueHumanGateTicket(
 }
 
 export type ConsumeResult =
-  | { ok: true }
-  | { ok: false; reason: string; code: "APPROVAL_REQUIRED" | "INVALID_STATE" };
+  { ok: true } | { ok: false; reason: string; code: "APPROVAL_REQUIRED" | "INVALID_STATE" };
 
 /** Single-use: append consumed line if ticket matches a valid unexpired issue. */
 export function validateAndConsumeHumanGateTicket(

@@ -1,3 +1,5 @@
+# Patch/minor/group PRs merge automatically when CI passes (.github/workflows/dependabot-automerge.yml).
+# Major semver bumps stay open for manual review.
 version: 2
 updates:
   # Root npm workspace

@@ -10,8 +10,7 @@ on:
   push:
     branches: [main]
     paths:
-      - '.github/workflows/sync-mcp-content.yml'
-      - '.github/workflows/commit-message-policy.yml'
+      - '.github/workflows/**'
       - 'package.json'
       - 'package-lock.json'
       - 'eslint.config.js'
@@ -32,30 +31,9 @@ on:
       - 'scripts/validate-skill-security.mjs'
       - 'scripts/strip-commit-trailers.mjs'
       - 'docs/commits.md'
+  # Every PR runs full CI so Dependabot auto-merge can gate on test:full (see dependabot-automerge.yml).
   pull_request:
     branches: [main]
-    paths:
-      - '.github/workflows/sync-mcp-content.yml'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'eslint.config.js'
-      - '.prettierrc'
-      - 'packages/pn-core-mcp/**'
-      - 'plugins/pnCore/**'
-      - 'scripts/sync-content-to-plugin.mjs'
-      - 'scripts/validate-assets.mjs'
-      - 'scripts/validate-template.mjs'
-      - 'scripts/validate-plugin-lib.mjs'
-      - 'scripts/validate-helpers.mjs'
-      - 'scripts/validate-stacks.mjs'
-      - 'docs/refs/**'
-      - 'docs/acceptance-criteria-convention.md'
-      - 'scripts/check-context-index.mjs'
-      - 'scripts/check-ac-traceability.mjs'
-      - 'scripts/check-commit-no-ide-trailers.mjs'
-      - 'scripts/check-content-plugin-sync.mjs'
-      - 'scripts/strip-commit-trailers.mjs'
-      - 'docs/commits.md'
 
 jobs:
   sync:

@@ -1,0 +1,84 @@
+# Squash-merge Dependabot patch/minor/group PRs after CI passes.
+# Private repos without branch protection: we poll checks and merge directly
+# (not gh pr merge --auto, which would merge immediately with no required checks).
+name: Dependabot auto-merge
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  automerge:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    steps:
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@08eff52bf64351f401fb50d4972fa95b9f2c2d1b # v2.4.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Skip major semver bumps
+        if: steps.metadata.outputs.update-type == 'version-update:semver-major'
+        run: echo "Major update — manual review required."
+
+      - name: Wait for CI (excluding this workflow)
+        if: steps.metadata.outputs.update-type != 'version-update:semver-major'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          required_checks=("no-ide-trailers" "sync (22)" "sync (24)")
+          for attempt in $(seq 1 40); do
+            mapfile -t rows < <(gh pr checks "$PR" --json name,bucket,workflow -q '.[] | [.name,.bucket,.workflow] | @tsv' || true)
+            if [[ ${#rows[@]} -eq 0 ]]; then
+              echo "No checks registered yet... (${attempt}/40)"
+              sleep 30
+              continue
+            fi
+            pending=0
+            failed=""
+            for row in "${rows[@]}"; do
+              IFS=$'\t' read -r name bucket workflow <<< "$row"
+              if [[ "$workflow" == *"Dependabot auto-merge"* ]]; then
+                continue
+              fi
+              case "$bucket" in
+                pending|skipping) pending=$((pending + 1)) ;;
+                fail|cancel) failed="${failed} ${name}" ;;
+              esac
+            done
+            if [[ -n "${failed// }" ]]; then
+              echo "::error::CI failed:${failed}"
+              exit 1
+            fi
+            if [[ "$pending" -eq 0 ]]; then
+              for check in "${required_checks[@]}"; do
+                bucket=$(gh pr checks "$PR" --name "$check" --json bucket -q '.[0].bucket')
+                if [[ "$bucket" != "pass" ]]; then
+                  echo "Required check not passing yet: ${check} (${bucket})"
+                  pending=1
+                  break
+                fi
+              done
+            fi
+            if [[ "$pending" -eq 0 ]]; then
+              echo "All required CI checks passed."
+              exit 0
+            fi
+            echo "Waiting for ${pending} check(s)... (${attempt}/40)"
+            sleep 30
+          done
+          echo "::error::Timed out waiting for CI"
+          exit 1
+
+      - name: Squash merge
+        if: steps.metadata.outputs.update-type != 'version-update:semver-major'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh pr merge ${{ github.event.pull_request.number }} --squash --delete-branch
