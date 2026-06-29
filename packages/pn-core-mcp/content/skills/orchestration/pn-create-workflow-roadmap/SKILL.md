@@ -104,6 +104,31 @@ Rules of thumb:
 
 Follow the WORKFLOW roadmap format from pn-documentation. Save to `docs/WORKFLOW.md`.
 
+**Required sections (in addition to format defaults):**
+
+#### Per-phase gate checklist
+
+For each plan phase, include:
+
+| Phase | Verify | Checker (automatic) | Visual pre-gate | Skeptic intensity |
+|-------|--------|-------------------|-----------------|-------------------|
+| N | `npm test` / `build` commands | Spawn pn-reviewer Task (`readonly: true`) on phase diff | `pn-evidence-qa` before UI code when phase includes frontend | strict / standard / light per `DECISION_LOGIC.md` |
+
+#### Post-build program boundary
+
+```markdown
+## Post-build (program end)
+
+1. `/pn-review` or pn-reviewer Task on full diff
+2. `/pn-skeptic` post-build on output
+3. `pn-docs-sync`
+4. `/pn-deliver`
+```
+
+#### Operating model
+
+Include the build-phase loop summary from `pn-core://reference/best-practices.md` §10.1.
+
 ## Output
 
 - `docs/WORKFLOW.md` saved

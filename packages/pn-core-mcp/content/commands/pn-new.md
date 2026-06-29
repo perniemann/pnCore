@@ -93,6 +93,7 @@ Create these two files after the relevant execution step:
 - Triangle instruction: "Begin every response in this project with the appropriate context tag and 🔺 (Unicode U+1F53A — emoji red triangle pointed up). Default: `[pn-default] 🔺`. Use `[pn-command] 🔺` / `[pn-agent] 🔺` / `[pn-skill] 🔺` / `[pn-plan] 🔺` when a pn command, agent, skill, or plan mode is active. See pnCore rule `pn-visual-indicator` for full guidance."
 - Project context: one-sentence goal, stack, scope, key constraints — from spec/plan.
 - MCP bootstrap: "When pn-core MCP is available, load `get_rule("pn-build-gate")` and `get_rule("pn-mcp-proactive")` and follow them."
+- **Phase gate:** "After each plan phase: verify → spawn pn-reviewer Task (`readonly: true`) on phase diff → fix → user `continue`. See pn-build-gate § Phase-complete gate."
 - Keep under 25 lines. Create `.cursor/rules/` if it does not exist.
 
 **Git (recommended):** add `.cursor/rules/pn-no-cursor-commit-trailers.mdc` with `alwaysApply: true` — source from `get_rule("pn-no-cursor-commit-trailers")` when MCP is available — so commit messages do not pick up Cursor IDE trailers.

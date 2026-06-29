@@ -13,11 +13,32 @@ describe("applySkepticGateStateChecks", () => {
     ).toBeUndefined();
   });
 
-  it("warns on bare true when strict mode enabled", async () => {
+  it("errors on bare true when strict mode enabled globally", async () => {
     vi.stubEnv("PNCORE_STRICT_SKEPTIC_GATES", "true");
     const { applySkepticGateStateChecks } = await import("./skeptic-gate-state.js");
     const r = applySkepticGateStateChecks(3, { skepticPassed: true }, ["skepticPassed"]);
-    expect(r?.warning).toContain("bare true");
+    expect(r?.error).toContain("bare true");
+  });
+
+  it("errors on bare true when intent is involved", async () => {
+    const { applySkepticGateStateChecks } = await import("./skeptic-gate-state.js");
+    const r = applySkepticGateStateChecks(
+      5,
+      { intent: "involved", reviewComplete: true },
+      ["reviewComplete"]
+    );
+    expect(r?.error).toContain("bare true");
+  });
+
+  it("no-op on bare true when intent is not involved and strict disabled", async () => {
+    const { applySkepticGateStateChecks } = await import("./skeptic-gate-state.js");
+    expect(
+      applySkepticGateStateChecks(
+        3,
+        { intent: "full_auto", skepticPassed: true },
+        ["skepticPassed"]
+      )
+    ).toBeUndefined();
   });
 
   it("blocks no_go without iterationCapApproved", async () => {

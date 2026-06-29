@@ -1,5 +1,11 @@
 import { strictSkepticGatesEnabled } from "./features.js";
 
+const GATE_RECORD_KEYS = [
+  "skepticPassed",
+  "skepticOutputPassed",
+  "reviewComplete",
+] as const;
+
 export type SkepticGateRecord = {
   verdict: string;
   go_no_go?: string;
@@ -17,22 +23,42 @@ export function isSkepticGateRecord(value: unknown): value is SkepticGateRecord 
   );
 }
 
+function isInvolvedIntent(state: Record<string, unknown>): boolean {
+  return state.intent === "involved";
+}
+
+/** Strict gate records when global flag is on or workflow intent is involved. */
+export function strictGateRecordsRequired(state: Record<string, unknown>): boolean {
+  return strictSkepticGatesEnabled() || isInvolvedIntent(state);
+}
+
 export function applySkepticGateStateChecks(
   step: number,
   state: Record<string, unknown>,
   requiredFromState: string[]
 ): { error?: string; warning?: string } | undefined {
-  if (!strictSkepticGatesEnabled()) return undefined;
+  if (!strictGateRecordsRequired(state)) return undefined;
 
-  for (const key of ["skepticPassed", "skepticOutputPassed"] as const) {
+  const bareTrueIsError = isInvolvedIntent(state) || strictSkepticGatesEnabled();
+
+  for (const key of GATE_RECORD_KEYS) {
     if (!requiredFromState.includes(key)) continue;
     const val = state[key];
     if (val === undefined || val === null) continue;
 
     if (val === true) {
-      return {
-        warning: `[strictSkepticGates] ${key} is bare true; after the user confirms, set ${key} to { verdict, go_no_go, gate_id, confirmed_at } from workflow_confirm.`,
-      };
+      const msg = `[strictSkepticGates] ${key} is bare true; after the user confirms, set ${key} to { verdict, go_no_go, gate_id, confirmed_at } from workflow_confirm.`;
+      if (bareTrueIsError) {
+        return { error: `Step ${step} blocked: ${msg}` };
+      }
+      return { warning: msg };
+    }
+
+    if (key === "reviewComplete" && val !== false) {
+      if (!isSkepticGateRecord(val)) {
+        const msg = `[strictSkepticGates] reviewComplete must be a structured gate record from workflow_confirm, not a bare flag.`;
+        return bareTrueIsError ? { error: `Step ${step} blocked: ${msg}` } : { warning: msg };
+      }
     }
 
     if (isSkepticGateRecord(val)) {

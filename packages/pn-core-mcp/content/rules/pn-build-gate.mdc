@@ -47,9 +47,25 @@ After **3 or more failed attempts** at the same step without resolution: stop an
 
 When the user requests to **fix**, **tweak**, **change**, **update**, or **patch** (small scope): use skills and specialists directly.
 
+**Large fix/tweak** (cross-layer, >5 files touched, data import, or site-wide UI): treat as a **mini-phase** — run verification, then spawn a separate checker (below). Do not skip review because the intent is "fix."
+
+## Phase-complete gate (maker ≠ checker)
+
+When a plan phase, specialist slice, or program chunk is **complete** (or you would say "Phase N done — say continue"):
+
+1. **Verify first:** Run applicable verification (`npm test`, `npm run build`, `lint` as scope requires). Read full output before claiming complete.
+2. **Spawn checker (automatic):** Use the Task tool to spawn **pn-reviewer** (`subagent_type: generalPurpose`, `readonly: true`) scoped to **this phase's diff only** (context tier 2 — not the whole repo unless that is the phase). Prompt: load `get_skill("pn-review-optimize-loop")`; for UI-heavy phases run `pn-evidence-qa` before reality-check.
+3. **Builder fixes** issues the checker reports; do **not** implement the next phase in the same turn.
+4. **Block next phase** until checker pass **or** user says `skip review`. Do not declare phase complete without checker evidence or an explicit skip.
+5. **Handoff:** Call `workflow_handoff_append` with phase summary when MCP is available.
+
+**Visual phases (UI in scope):** Before first UI code in a phase, run `pn-polish` or `pn-evidence-qa` — not only after user complaints.
+
+**Program boundary:** After the last build phase, run `/pn-build` steps 6–6.5 (review + post-build skeptic) or equivalent before `/pn-deliver`.
+
 ## Skip path
 
-If the user says "skip discovery" or "skip skeptic": honor and proceed per their instruction.
+If the user says "skip discovery", "skip skeptic", or **"skip review"**: honor and proceed per their instruction.
 
 ## Gitignored sibling repos
 

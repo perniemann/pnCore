@@ -105,3 +105,27 @@ The 2026 industry stance (OpenAI, Anthropic, Google) is a **stack**, not a singl
 - **Bounded loops.** Every loop has a stop condition and an iteration cap (3-failed-attempts rule; `pn-review-optimize-loop` single retry; skeptic gates).
 - **Evals before shipping prompt changes.** Both OpenAI (Promptfoo direction) and Anthropic (capability vs regression suites) treat behavioral evals as non-optional for production prompts. Skill **retrieval** evals and behavioral eval coverage remain tracked gaps — use `pn-rag-evaluation` and workflow skeptic gates before shipping prompt changes.
 - **Model-specific knobs.** Stay model-agnostic in content, but when a target model is named apply `pn-core://reference/prompt-provider-knobs.md` (reasoning effort, adaptive thinking, `thinking_level`).
+
+### 10.1 Build-phase loop (not `pn-loop`)
+
+Use this recipe when executing `docs/plans/` phase-by-phase or manual specialist slices. **Distinct from `pn-loop`** (verification-only fix-until-green) and **Cursor `/loop`** (scheduled prompt ticks).
+
+| Step | Owner | Action |
+|------|-------|--------|
+| 1. Dev | Builder | Implement phase scope; run verification (`test` / `build` / `lint` as applicable) |
+| 2. Checker | **Separate** pn-reviewer Task (`readonly: true`) | `pn-review-optimize-loop` on **phase diff only** (context tier 2) |
+| 3. Visual (when UI in phase) | Builder or checker | `pn-evidence-qa` or `pn-polish` **before** first UI code; checker runs evidence-qa on UI-heavy phases |
+| 4. Fix | Builder | Apply checker findings; one re-run of checker if needed |
+| 5. Skeptic | Risk-tiered | **Strict** after auth/RLS/security phases; **light/skip** for copy-only tweaks — see `DECISION_LOGIC.md` |
+| 6. Continue | User | `continue` or `skip review`; builder must not start next phase in the checker turn |
+| 7. Program end | Builder + gates | `/pn-build` steps 6–6.5 → `/pn-deliver` |
+
+**Loop taxonomy:**
+
+| Id | Ends when | Review? | Skeptic? |
+|----|-----------|---------|----------|
+| `pn-loop` | Verification command exits 0 | No | No |
+| `pn-review-optimize-loop` | One review + optimize pass (+ one fix re-run) | Yes | No |
+| Build-phase loop (above) | Checker pass + user continue | Yes (separate agent) | Risk-tiered |
+| `full_dev` step 5 | `reviewComplete` + `skepticOutputPassed` gate records | Yes | Yes (post-build) |
+| Cursor `/loop` | User stops scheduler | Per prompt | Per prompt |
