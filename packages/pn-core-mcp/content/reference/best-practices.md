@@ -119,6 +119,9 @@ Use this recipe when executing `docs/plans/` phase-by-phase or manual specialist
 | 5. Skeptic | Risk-tiered | **Strict** after auth/RLS/security phases; **light/skip** for copy-only tweaks — see `DECISION_LOGIC.md` |
 | 6. Continue | User | `continue` or `skip review`; builder must not start next phase in the checker turn |
 | 7. Program end | Builder + gates | `/pn-build` steps 6–6.5 → `/pn-deliver` |
+| 8. Slice close | Builder | Write slice verify per `pn-core://reference/slice-verify-template.md` |
+
+**Render-verify equivalence:** Playwright (or Vitest browser) specs that assert layout at **390 / 768 / 1440** and named plan criteria (overflow, sticky chrome, a11y) count as **`pn-render-verify` evidence** when the slice verify doc cites the spec file path in the Render verify table. The spec path is the evidence — not a separate render-verify skill output.
 
 **Loop taxonomy:**
 

@@ -11,6 +11,8 @@ description: Multi-slice hierarchical orchestration — discovery, contract lock
 
 Use `/pn-program` when the scope clearly splits into **2 or more independent vertical slices** that can be built concurrently (e.g. auth + payments + settings, or frontend + backend + infra when each has substantial independent work). For a single work stream, use `/pn-build` — it has lower overhead and delivers the same quality.
 
+**Not for sequential UI surfaces on one repo** (Home → fight → chrome): use **`/pn-frontend-redo`** instead — same-repo slice plan without worktrees or contract locking.
+
 **Hard exit:** If step 1 decomposition yields only one slice, this command instructs you to run `/pn-build` instead and stops. This is not a failure — it is the correct routing decision.
 
 ---

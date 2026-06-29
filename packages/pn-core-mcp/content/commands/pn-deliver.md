@@ -38,6 +38,26 @@ Read discovery spec. Apply tier rules:
 - **`Delivery tier: MVP`:** Asset check same as full (logo, hero, full taxonomy required); test waiver allowed with explicit note. Polish: baseline acceptable.
 - **No tier:** Treat as MVP (permissive); skip tier check.
 
+### Program and slice artifact check
+
+When any of these exist, run **before** per-criterion verification:
+
+| Signal | Required evidence |
+|--------|-------------------|
+| `docs/plans/*redo*.md`, `docs/plans/*-program*.md`, or plan with **FR-** / **slice S1–Sn** tables | Closing audit or baseline + post audit paths cited; each planned slice has a matching `docs/audits/*-sN-verify-*.md` **or** explicit waiver in builder notes |
+| `docs/WORKFLOW.md` with per-phase gate table | Same slice-verify files per phase row, or user `skip review` recorded per slice |
+| Plan § Program completion lists `/pn-preflight` | `docs/audits/preflight-*.md` with **SHIP: GO** or documented NO-GO with `ship_with_notes` rationale |
+
+**Slice verify validation** — run **`node scripts/validate-slice-verify.mjs .`** (add **`--strict-plan`** when `docs/plans/*redo*.md` or `*-program*.md` exists). Then read each `*-verify-*.md`:
+
+1. YAML front matter includes `program`, `slice`, `checker`, `verify`, `user_continue`.
+2. **`checker.kind: task`** → must include `task_id` or `checker.artifact` path; prose "review passed" alone → **fail** (`CHECKER-SAME-SESSION`).
+3. **`checker.kind: USER-SKIP-REVIEW`** → must include `skip_reason` and matching user message in notes.
+4. **`verify`** → each listed command must show `exit: 0` for `ship`; non-zero → `do_not_ship` or `ship_with_notes` with cited failure.
+5. Template: `pn-core://reference/slice-verify-template.md`.
+
+Missing slice verify for a planned slice → **`do_not_ship`** unless builder notes contain an explicit per-slice waiver ("Slice S3 verify deferred: reason").
+
 ### Verification steps
 
 1. **Per acceptance criterion:** Set status (pass | partial | fail) and cite evidence (changed files, tests, notes).

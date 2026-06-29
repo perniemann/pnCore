@@ -31,6 +31,7 @@ const PARALLEL_SCRIPTS = [
   "scripts/validate-assets.mjs",
   "scripts/validate-contracts.mjs",
   "scripts/validate-id-uniqueness.mjs",
+  "scripts/validate-slice-verify.mjs",
 ];
 
 /** Runs a single script and resolves with its result (buffered output). */
