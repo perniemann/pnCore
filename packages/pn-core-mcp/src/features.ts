@@ -55,7 +55,11 @@ const DEFAULTS: Required<PnCoreFeatures> = {
 // Module-scope cache keyed on content version — ensures flag consistency
 // within a tool call while still picking up file edits after a TTL cycle.
 let _featuresVersion: number | null = null;
-let _featuresCache: Required<PnCoreFeatures> | null = null;
+export type ResolvedPnCoreFeatures = Omit<Required<PnCoreFeatures>, "bestOfN"> & {
+  bestOfN: Required<BestOfNFeatures>;
+};
+
+let _featuresCache: ResolvedPnCoreFeatures | null = null;
 
 /** Filter an unknown object down to validated entries of Record<string, ModelTier>. */
 function sanitizeOverrides(input: unknown): Record<string, ModelTier> | undefined {
@@ -105,7 +109,7 @@ function sanitizeAliases(input: unknown): Partial<Record<ModelTier, ModelTier>> 
   return out;
 }
 
-export function loadFeatures(): Required<PnCoreFeatures> {
+export function loadFeatures(): ResolvedPnCoreFeatures {
   const version = getContentVersion();
   if (_featuresCache !== null && _featuresVersion === version) return _featuresCache;
 

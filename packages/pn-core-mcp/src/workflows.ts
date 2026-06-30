@@ -13,6 +13,7 @@ import {
   buildSuggestedTier,
   isModelTier,
   renderTierHint,
+  resolveTournamentBuilderModel,
   type ModelTier,
   type SuggestedModelTier,
 } from "./model-tiers.js";
@@ -71,7 +72,12 @@ export interface WorkflowStepResult {
   tasks?: WorkflowTask[];
   /** Present when full_dev step 5 requires merge reconciliation before review, step 3 GitHub Issues phase, or tournament phases. */
   workflowPhase?:
-    "merge" | "github_issues" | "tournament_fanout" | "tournament_gate" | "tournament_judge";
+    | "merge"
+    | "github_issues"
+    | "tournament_fanout"
+    | "tournament_gate"
+    | "tournament_judge"
+    | "tournament_handoff";
   /**
    * Suggested LLM model tier for the work this step asks of the model.
    * Always populated; mirrors the inline hint that is prepended to
@@ -949,23 +955,31 @@ function toposortSlices(
   return result.length === sliceIds.length ? result : null;
 }
 
-const TOURNAMENT_PATH_DEFS = [
+const TOURNAMENT_PATH_DEFS: Array<{
+  id: string;
+  constraint: string;
+  model: string;
+  builderTier: ModelTier;
+}> = [
   {
     id: "path-a",
     constraint: "Minimize surface area",
     model: "claude-4.6-sonnet-medium-thinking",
+    builderTier: "standard",
   },
   {
     id: "path-b",
     constraint: "Optimize happy path",
     model: "gpt-5.3-codex",
+    builderTier: "standard",
   },
   {
     id: "path-c",
     constraint: "Maximize extensibility",
     model: "gemini-3.1-pro",
+    builderTier: "standard",
   },
-] as const;
+];
 
 const implementationTournamentSteps: StepDef[] = [
   {
@@ -991,7 +1005,7 @@ const implementationTournamentSteps: StepDef[] = [
       "Hard gate: discard candidates with non-zero verify exit. If zero survivors → go_no_go: no_go. If one survivor → set selectedCandidate to that id, judgeComplete: true, skip LLM judge. If ≥2 survivors → call workflow_step(step=3) with objectiveGateResults and candidates for survivors only.",
     gate: "model",
     nextStep: 3,
-    requiredFromState: ["candidates", "objectiveGateResults"],
+    requiredFromState: ["objectiveGateResults"],
     modelTier: "fast",
     tierRationale: "Mechanical elimination from verify exit codes.",
   },
@@ -1007,7 +1021,7 @@ const implementationTournamentSteps: StepDef[] = [
   },
   {
     instruction:
-      "Merge or copy winner worktree changes to main. Re-run verifyCommands from step 0. Run pn-build-gate phase-complete on merged diff. Discard loser worktrees under .worktrees/. Log report_usage per fan-out/judge/merge when MCP available. When merge and verify pass, call workflow_step('implementation_tournament', step=5) with state: { mergeComplete: true, selectedCandidate, auditPath, taskResults: { implementation_tournament: '<merge summary>' }, plan, skepticPassed, planArtifactPath, planSummary, discoverySpec } (pass through plan fields from parent full_dev when available).",
+      "Merge or copy winner worktree changes to main. Re-run verifyCommands from step 0. Run pn-build-gate phase-complete on merged diff. Discard loser worktrees under .worktrees/. Log report_usage per fan-out/judge/merge when MCP available. When merge and verify pass, call workflow_step('implementation_tournament', step=5) with state: { mergeComplete: true, selectedCandidate, auditPath, specSummary, taskResults: { implementation_tournament: '<merge summary>' }, plan, skepticPassed, planArtifactPath, planSummary, discoverySpec } (pass plan fields when parent full_dev supplied them; standalone tournaments must include specSummary).",
     gate: "model",
     nextStep: 5,
     requiredFromState: ["selectedCandidate", "judgeComplete"],
@@ -1016,7 +1030,7 @@ const implementationTournamentSteps: StepDef[] = [
   },
   {
     instruction:
-      "TOURNAMENT HANDOFF — continue delivery on main via full_dev review phase (specialists skipped; implementation came from tournament). Call workflow_step('full_dev', 5, { tournamentHandoff: true, plan, skepticPassed, specialistList: ['implementation_tournament'], taskResults: { implementation_tournament: <same merge summary> }, mergeComplete: true, selectedCandidate, auditPath, discoverySpec }). Follow returned full_dev instructions through step 6. Implementation tournament workflow complete after full_dev step 6." +
+      "TOURNAMENT HANDOFF — continue delivery on main via full_dev review phase (specialists skipped; implementation came from tournament). Call workflow_step('full_dev', 5, { tournamentHandoff: true, specSummary, specialistList: ['implementation_tournament'], taskResults: { implementation_tournament: <same merge summary> }, mergeComplete: true, selectedCandidate, auditPath, plan, skepticPassed, discoverySpec }). When no parent full_dev plan exists (standalone tournament), omit plan/skepticPassed — full_dev accepts specSummary-only handoff. Follow returned full_dev instructions through step 6. Implementation tournament workflow complete after full_dev step 6." +
       paperclipWorkflowHint(),
     gate: "model",
     nextStep: 5,
@@ -1249,6 +1263,14 @@ export function getWorkflowStep(
         return {
           error:
             "Step 5 tournamentHandoff requires taskResults.implementation_tournament with a non-empty merge summary from implementation_tournament step 5.",
+        };
+      }
+      const hasPlan = typeof state.plan === "string" && state.plan.trim() !== "";
+      const hasSpec = typeof state.specSummary === "string" && state.specSummary.trim() !== "";
+      if (!hasPlan && !hasSpec) {
+        return {
+          error:
+            "Step 5 tournamentHandoff requires plan or specSummary for review context. Standalone tournaments pass specSummary from implementation_tournament state.",
         };
       }
     } else {
@@ -1636,18 +1658,28 @@ export function getWorkflowStep(
           .join("; ")
       : "";
     if (typeof specSummary === "string" && specSummary.trim() !== "" && gateList !== "") {
+      const bonFeatures = loadBestOfNFeatures();
+      const maxCostTier = isModelTier(bonFeatures.maxCostTier)
+        ? bonFeatures.maxCostTier
+        : "standard";
       const paths = TOURNAMENT_PATH_DEFS.slice(0, tournamentN);
-      const tasks: WorkflowTask[] = paths.map((p) => ({
-        id: p.id,
-        agentId: p.id,
-        instruction:
-          `Implement: ${specSummary.trim()}\n` +
-          `Worktree: .worktrees/bon-${p.id} (create from HEAD; implement ONLY in worktree).\n` +
-          `Constraint: ${p.constraint}.\n` +
-          `Suggested model: ${p.model} (builder tier; max ${loadBestOfNFeatures().maxCostTier}).\n` +
-          `Run before submit: ${gateList}.\n` +
-          `Output: summary, files touched, verify exit codes. Append to parent state candidates[] and objectiveGateResults[] for id "${p.id}". Do NOT merge to main.`,
-      }));
+      const tasks: WorkflowTask[] = paths.map((p) => {
+        const builder = resolveTournamentBuilderModel(p.model, p.builderTier, maxCostTier);
+        const capNote = builder.capped
+          ? ` (capped to ${builder.tier} tier per bestOfN.maxCostTier=${maxCostTier})`
+          : "";
+        return {
+          id: p.id,
+          agentId: p.id,
+          instruction:
+            `Implement: ${specSummary.trim()}\n` +
+            `Worktree: .worktrees/bon-${p.id} (create from HEAD; implement ONLY in worktree).\n` +
+            `Constraint: ${p.constraint}.\n` +
+            `Required builder model tier: ${builder.tier} — use ${builder.model}${capNote}. Do not exceed maxCostTier.\n` +
+            `Run before submit: ${gateList}.\n` +
+            `Output: summary, files touched, verify exit codes. Append to parent state objectiveGateResults[] (and candidates[] when available) for id "${p.id}". Do NOT merge to main.`,
+        };
+      });
       return withTierHint(
         {
           ...baseResult,
@@ -1719,7 +1751,7 @@ export function getWorkflowStep(
       return withTierHint(
         {
           ...baseResult,
-          instruction: `${baseResult.instruction}\n\nHandoff state template: workflow_step('full_dev', 5, { tournamentHandoff: true, plan: <from state>, skepticPassed: <from state>, specialistList: ['implementation_tournament'], taskResults: { implementation_tournament: ${JSON.stringify(String(summary))} }, mergeComplete: true, selectedCandidate: '${selected}', auditPath: <from state> })`,
+          instruction: `${baseResult.instruction}\n\nHandoff state template: workflow_step('full_dev', 5, { tournamentHandoff: true, specSummary: <from state>, plan: <from state when parent full_dev>, skepticPassed: <from state when available>, specialistList: ['implementation_tournament'], taskResults: { implementation_tournament: ${JSON.stringify(String(summary))} }, mergeComplete: true, selectedCandidate: '${selected}', auditPath: <from state> })`,
           workflowPhase: "tournament_handoff",
           done: true,
         },
@@ -1846,6 +1878,22 @@ export function getWorkflowStep(
     result = {
       ...baseResult,
       instruction: `${skepticGateWarning}\n\n${baseResult.instruction}`,
+    };
+  }
+
+  if (
+    workflowType === "full_dev" &&
+    step === 5 &&
+    state.tournamentHandoff === true &&
+    (state.skepticPassed === undefined ||
+      state.skepticPassed === null ||
+      state.skepticPassed === false)
+  ) {
+    result = {
+      ...result,
+      instruction:
+        "[tournamentStandalone] No parent skepticPassed — treat specSummary and auditPath as the review baseline; run get_skill('pn-skeptic-challenge') post-build before sign-off.\n\n" +
+        result.instruction,
     };
   }
 

@@ -90,6 +90,23 @@ describe("workflows contract", () => {
       expect(result.error).toContain("priorArt");
     });
 
+    it("full_dev step 0 with intent=involved uses stricter discovery instruction", () => {
+      const result = getWorkflowStep("full_dev", 0, { intent: "involved" });
+      assertWorkflowStepResultShape(result);
+      expect((result as WorkflowStepResult).instruction).toContain("REQUIRED (intent=involved)");
+    });
+
+    it("full_dev step 1 with intent=involved requires human gate confirmation", () => {
+      const result = getWorkflowStep("full_dev", 1, {
+        discoverySpec: "spec",
+        intent: "involved",
+      });
+      assertWorkflowStepResultShape(result);
+      const w = result as WorkflowStepResult;
+      expect(w.gate).toBe("human");
+      expect(w.instruction).toContain("REQUIRED");
+    });
+
     it("returns step result for all workflow types at step 0", () => {
       for (const wt of workflowTypesWithStep0) {
         const result = getWorkflowStep(wt, 0, {});
@@ -1081,16 +1098,88 @@ describe("workflows contract", () => {
         expect(w.done).toBe(true);
         expect(w.instruction).toContain("workflow_step('full_dev', 5");
         expect(w.instruction).toContain("tournamentHandoff");
+        expect(w.instruction).toContain("specSummary");
+      });
+
+      it("step 2 two survivors proceeds to judge (step 3)", async () => {
+        vi.stubEnv("PNCORE_FEATURES", JSON.stringify({ bestOfN: { enabled: true } }));
+        const { getWorkflowStep: gws } = await import("./workflows.js");
+        const r = gws("implementation_tournament", 2, {
+          objectiveGateResults: [
+            { candidate_id: "path-a", passed: true, failed_commands: [] },
+            { candidate_id: "path-b", passed: true, failed_commands: [] },
+          ],
+        });
+        assertWorkflowStepResultShape(r);
+        const w = r as WorkflowStepResult;
+        expect(w.nextStep).toBe(3);
+        expect(w.workflowPhase).toBeUndefined();
+      });
+
+      it("step 2 single survivor skips judge without candidates[]", async () => {
+        vi.stubEnv("PNCORE_FEATURES", JSON.stringify({ bestOfN: { enabled: true } }));
+        const { getWorkflowStep: gws } = await import("./workflows.js");
+        const r = gws("implementation_tournament", 2, {
+          objectiveGateResults: [
+            { candidate_id: "path-a", passed: true, failed_commands: [] },
+            { candidate_id: "path-b", passed: false, failed_commands: ["npm run test:scripts"] },
+          ],
+        });
+        assertWorkflowStepResultShape(r);
+        const w = r as WorkflowStepResult;
+        expect(w.nextStep).toBe(4);
+        expect(w.instruction).toContain("path-a");
+      });
+
+      it("step 1 enforces maxCostTier on builder prompts", async () => {
+        vi.stubEnv(
+          "PNCORE_FEATURES",
+          JSON.stringify({ bestOfN: { enabled: true, maxCostTier: "fast" } })
+        );
+        const { getWorkflowStep: gws } = await import("./workflows.js");
+        const r = gws("implementation_tournament", 1, fanOutState);
+        assertWorkflowStepResultShape(r);
+        const w = r as WorkflowStepResult;
+        expect(w.tasks![0].instruction).toContain("capped to fast tier");
+        expect(w.tasks![0].instruction).toContain("composer-2.5-fast");
+      });
+
+      it("full_dev step 5 accepts tournamentHandoff with specSummary only (standalone)", () => {
+        const r = getWorkflowStep("full_dev", 5, {
+          tournamentHandoff: true,
+          specSummary: "Extract YAML parser module with tests unchanged",
+          taskResults: { implementation_tournament: "tournament merge summary" },
+        });
+        assertWorkflowStepResultShape(r);
+        const w = r as WorkflowStepResult;
+        expect(w.instruction).toContain("[tournamentStandalone]");
+        expect(w.instruction).toContain("pn-skeptic-challenge");
+      });
+
+      it("full_dev step 5 rejects tournamentHandoff without plan or specSummary", () => {
+        const r = getWorkflowStep("full_dev", 5, {
+          tournamentHandoff: true,
+          taskResults: { implementation_tournament: "tournament merge summary" },
+        });
+        expect(r).toHaveProperty("error");
+        expect((r as { error: string }).error).toContain("specSummary");
       });
 
       it("full_dev step 5 accepts tournamentHandoff with taskResults", () => {
         const r = getWorkflowStep("full_dev", 5, {
           tournamentHandoff: true,
           plan: "test plan",
-          skepticPassed: { verdict: "pass", go_no_go: "go" },
+          skepticPassed: {
+            verdict: "pass",
+            go_no_go: "go",
+            gate_id: "g1",
+            confirmed_at: "2026-01-01",
+          },
           taskResults: { implementation_tournament: "tournament merge summary" },
         });
         assertWorkflowStepResultShape(r);
+        const w = r as WorkflowStepResult;
+        expect(w.instruction).not.toContain("[tournamentStandalone]");
       });
 
       it("full_dev step 5 rejects tournamentHandoff without summary", () => {

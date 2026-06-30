@@ -360,7 +360,7 @@ regTool(
       return textContent(JSON.stringify({ role, ...base }));
     }
     if (workflowType === undefined) {
-      return mcpError("INVALID_PARAMS", "Provide workflowType and optional step, or role", {});
+      return mcpError("INVALID_STATE", "Provide workflowType and optional step, or role", {});
     }
     if (step !== undefined) {
       const suggested = resolveStepTier(workflowType, step);

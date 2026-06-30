@@ -22,26 +22,46 @@ export function isModelTier(v) {
 // Centralized exemplars. Bump these (and only these) when Cursor's picker rotates.
 export const TIER_META = {
     fast: {
-        exemplar: "composer-2",
+        exemplar: "composer-2.5-fast",
         alternates: ["gemini-3-flash"],
-        description: "Efficiency tier: mechanical formatting, summaries, asset hand-off, brief terminal output.",
+        description: "Efficiency tier: mechanical formatting, summaries, asset hand-off, brief terminal output, explore subagents.",
     },
     standard: {
-        exemplar: "sonnet-4.6",
-        alternates: ["gpt-5.5", "codex-5.3"],
-        description: "Daily-driver tier: scoped reasoning, implementation, structured Q&A. Balanced cost.",
+        exemplar: "claude-4.6-sonnet-medium-thinking",
+        alternates: ["gpt-5.3-codex", "gpt-5.5-medium"],
+        description: "Daily-driver tier: scoped reasoning, implementation, structured Q&A, checker subagents. Balanced cost.",
     },
     premium: {
-        exemplar: "opus-4.7",
+        exemplar: "claude-opus-4-8-thinking-high",
         alternates: [],
-        description: "Premium tier: plan writing, skeptic challenge, design philosophy, multi-criteria audit.",
+        description: "Premium tier: plan writing, skeptic challenge, design philosophy, multi-criteria audit, security-review subagent.",
     },
     premium_thinking: {
-        exemplar: "opus-4.7 + max",
+        exemplar: "claude-opus-4-8-thinking-high + MAX",
         alternates: [],
-        description: "Premium + MAX Mode (extended thinking): security audit, financial models, strategic frame, contract design.",
+        description: "Premium + MAX Mode (extended thinking): security audit, financial models, strategic frame, contract design, best-of-N judge.",
     },
 };
+export const SUBAGENT_ROLE_TIERS = {
+    explorer: "fast",
+    builder: "standard",
+    judge: "premium_thinking",
+    checker: "standard",
+};
+export function isSubagentRole(v) {
+    return typeof v === "string" && v in SUBAGENT_ROLE_TIERS;
+}
+/** Tier suggestion for Task subagent_type routing (explorer/builder/judge/checker). */
+export function resolveRoleTier(role, tierAliases) {
+    const tier = applyTierAlias(SUBAGENT_ROLE_TIERS[role], tierAliases);
+    const roleRationale = {
+        explorer: "Explore/orient subagents: repo search, layout, quick scans.",
+        builder: "Builder subagents: scoped implementation in worktrees (best-of-n-runner, generalPurpose).",
+        judge: "Judge pass: separate premium tier after objective gates (maker ≠ checker).",
+        checker: "Checker/reviewer subagents: readonly review, bugbot, same-session verify.",
+    };
+    return buildSuggestedTier(tier, roleRationale[role] ?? TIER_META[tier].description);
+}
 /** Build the structured suggestedModelTier field. Falls back to TIER_META.description when no rationale given. */
 export function buildSuggestedTier(tier, rationale) {
     const meta = TIER_META[tier];
@@ -64,4 +84,24 @@ export function applyTierAlias(tier, aliases) {
         return tier;
     const aliased = aliases[tier];
     return aliased && isModelTier(aliased) ? aliased : tier;
+}
+const TIER_RANK = {
+    fast: 0,
+    standard: 1,
+    premium: 2,
+    premium_thinking: 3,
+};
+/** Clamp `tier` to at most `maxTier` (for bestOfN.maxCostTier builder cap). */
+export function capModelTier(tier, maxTier) {
+    return TIER_RANK[tier] <= TIER_RANK[maxTier] ? tier : maxTier;
+}
+/**
+ * Resolve the builder model exemplar for a tournament path, enforcing maxCostTier.
+ * When capped, returns the max tier exemplar instead of the path's preferred model.
+ */
+export function resolveTournamentBuilderModel(preferredModel, builderTier, maxCostTier) {
+    const tier = capModelTier(builderTier, maxCostTier);
+    const capped = tier !== builderTier;
+    const model = capped ? TIER_META[tier].exemplar : preferredModel;
+    return { tier, model, capped };
 }

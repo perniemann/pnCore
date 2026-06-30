@@ -60,7 +60,9 @@ export function resolveBestOfNSelection({
     throw new Error("resolveBestOfNSelection: no scored survivors to rank");
   }
 
-  const sorted = [...scored].sort((a, b) => b.score - a.score);
+  const sorted = [...scored].sort(
+    (a, b) => b.score - a.score || a.candidate_id.localeCompare(b.candidate_id)
+  );
   const top = sorted[0];
   const runnerUp = sorted[1] ?? null;
 

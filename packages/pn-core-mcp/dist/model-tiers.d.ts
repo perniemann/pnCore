@@ -29,6 +29,12 @@ export type SuggestedModelTier = {
     exemplar: string;
     rationale: string;
 };
+/** Subagent role → model tier (P2 best-of-N / routing). */
+export type SubagentRole = "explorer" | "builder" | "judge" | "checker";
+export declare const SUBAGENT_ROLE_TIERS: Record<SubagentRole, ModelTier>;
+export declare function isSubagentRole(v: unknown): v is SubagentRole;
+/** Tier suggestion for Task subagent_type routing (explorer/builder/judge/checker). */
+export declare function resolveRoleTier(role: SubagentRole, tierAliases?: Partial<Record<ModelTier, ModelTier>>): SuggestedModelTier;
 /** Build the structured suggestedModelTier field. Falls back to TIER_META.description when no rationale given. */
 export declare function buildSuggestedTier(tier: ModelTier, rationale: string | undefined): SuggestedModelTier;
 /** One-line inline hint suitable for prepending to an instruction. Kept terse. */
@@ -38,3 +44,14 @@ export declare function renderTierHint(suggested: SuggestedModelTier): string;
  * users without MAX Mode access). Returns the input tier when no alias matches.
  */
 export declare function applyTierAlias(tier: ModelTier, aliases?: Partial<Record<ModelTier, ModelTier>>): ModelTier;
+/** Clamp `tier` to at most `maxTier` (for bestOfN.maxCostTier builder cap). */
+export declare function capModelTier(tier: ModelTier, maxTier: ModelTier): ModelTier;
+/**
+ * Resolve the builder model exemplar for a tournament path, enforcing maxCostTier.
+ * When capped, returns the max tier exemplar instead of the path's preferred model.
+ */
+export declare function resolveTournamentBuilderModel(preferredModel: string, builderTier: ModelTier, maxCostTier: ModelTier): {
+    tier: ModelTier;
+    model: string;
+    capped: boolean;
+};

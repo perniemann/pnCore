@@ -4,10 +4,10 @@
  * 2026 best practice: "Gating LLM invocation behind deterministic routing decisions."
  */
 import { getResource } from "./content.js";
-import { loadFeatures } from "./features.js";
+import { loadFeatures, loadBestOfNFeatures } from "./features.js";
 import { applySkepticGateStateChecks } from "./skeptic-gate-state.js";
 import { debug } from "./debug.js";
-import { applyTierAlias, buildSuggestedTier, isModelTier, renderTierHint, } from "./model-tiers.js";
+import { applyTierAlias, buildSuggestedTier, isModelTier, renderTierHint, resolveTournamentBuilderModel, } from "./model-tiers.js";
 /** Terminal-step reminder — only emitted when Paperclip env vars are configured. */
 function paperclipWorkflowHint() {
     if (!process.env.PAPERCLIP_API_URL || !process.env.PAPERCLIP_API_KEY)
@@ -25,6 +25,8 @@ const designSteps = [
         gate: "human",
         nextStep: 1,
         requiredFromState: [],
+        modelTier: "fast",
+        tierRationale: "Structured design Q&A presentation; synthesis happens in step 1.",
     },
     {
         instruction: "Load pn-core://reference/design-intent.md. Emit Design Read one-liner and tuning dials (DESIGN_VARIANCE, MOTION_INTENSITY, VISUAL_DENSITY). From discoverySpec, produce a design plan (Design Read + dials, page mode, typography, tokens, components). Reference get_skill('pn-frontend-design-philosophy') Phase 0 then Phase 1–3. REQUIRED: run get_skill('pn-skeptic-challenge') on the plan — output both plan and skeptic verdict. After user confirms, call workflow_step(step=2) with state: { plan, skepticPassed: <gate record from workflow_confirm>, skepticVerdict }." +
@@ -77,6 +79,8 @@ const fullDevSteps = [
         gate: "human",
         nextStep: 1,
         requiredFromState: [],
+        modelTier: "fast",
+        tierRationale: "Structured discovery Q&A; no plan synthesis yet.",
     },
     {
         instruction: "If .cursor/rules/project-context.mdc does not exist, create it (alwaysApply: true, triangle tag, one-sentence goal/stack/scope from discoverySpec, pn-build-gate + pn-mcp-proactive references; ≤25 lines). Then load get_skill('pn-prior-art-research'), run it from discoverySpec, save to docs/research/. Recommend adapt vs build. After user confirms, call workflow_step(step=2) with state: { priorArt }.",
@@ -132,6 +136,8 @@ const projectKickoffSteps = [
         gate: "human",
         nextStep: 1,
         requiredFromState: [],
+        modelTier: "fast",
+        tierRationale: "Structured discovery Q&A; doc authoring starts in step 1.",
     },
     {
         instruction: "Load get_skill('pn-create-prd'). Run from discoverySpec (feature-matrix for full app/multi-phase, else 8-section). Save to docs/refs/PRD.md. After user confirms, call workflow_step(step=2) with state: { discoverySpec, prdPath: 'docs/refs/PRD.md' }.",
@@ -184,6 +190,8 @@ const projectKickoffSteps = [
         gate: "model",
         nextStep: 7,
         requiredFromState: ["refsIndexPath"],
+        modelTier: "fast",
+        tierRationale: "Mechanical project-context and skill stub from locked refs.",
     },
 ];
 const promptOptimizeSteps = [
@@ -192,6 +200,8 @@ const promptOptimizeSteps = [
         gate: "human",
         nextStep: 1,
         requiredFromState: [],
+        modelTier: "fast",
+        tierRationale: "Structured prompt-intake questionnaire.",
     },
     {
         instruction: "From promptSpec, produce draft optimized prompt (4-Block layout per pn-prompt-optimize). Output: draft, notes, usage tips. After user confirms or provides feedback, call workflow_step(step=2) with state: { draft, notes, usage, reviewComplete: <gate record from workflow_confirm>, userFeedback? }." +
@@ -245,6 +255,8 @@ const imageCreateSteps = [
         gate: "human",
         nextStep: 1,
         requiredFromState: [],
+        modelTier: "fast",
+        tierRationale: "Structured image-intake questionnaire.",
     },
     {
         instruction: "Produce image spec (summary, format, dimensions, path). Present output contract for confirmation. Do not generate until confirmed. After confirmed, call workflow_step(step=2) with state: { specConfirmed: true, imageSpec }.",
@@ -277,6 +289,8 @@ const mediaDirectorSteps = [
         gate: "human",
         nextStep: 1,
         requiredFromState: [],
+        modelTier: "fast",
+        tierRationale: "Run-intent confirmation and flags only.",
     },
     {
         instruction: "Required-topics questionnaire with INLINE ADAPTIVE GRILL. Load get_skill('pn-cinematography-lighting'), get_skill('pn-image-prompt-engineering'), get_skill('pn-image-creator'), and get_skill('pn-generative-video-pipelines') when video is in scope. Present these six sections ONE BY ONE via ask_question: (1) Purpose, (2) Audience-goal, (3) Visual direction, (4) Deliverable contract (format/dimensions/duration/aspect), (5) Technical-pipeline (ComfyUI / closed API / hybrid; checkpoints; VAEs; seeds; dtype; VRAM), (6) Licensing-policy (commercial use, realistic-person/celebrity/minor risk). After EACH answer, apply the GRILL TRIGGER RULES verbatim — fire get_skill('pn-grill') inline on that branch when ANY of: (a) blank; (b) answer length < 10 characters; (c) single-word value for visual_direction or purpose; (d) the answer contradicts a previously answered topic. ALSO: when state.grillTopics === true, force grill on every topic regardless of answer quality; when state.grillTopics === false (explicitly set), skip grill even on weak answers and emit gate_log_append { outcome: 'grill_skipped_explicit' }. After all six topics are answered and any triggered grill branches resolved, call workflow_step(step=2) with state: { requiredTopics, grillComplete: true }.",
@@ -368,6 +382,8 @@ const gameFeatureSteps = [
         gate: "human",
         nextStep: 1,
         requiredFromState: [],
+        modelTier: "fast",
+        tierRationale: "Structured game-mechanic intake questionnaire.",
     },
     {
         instruction: "Create implementation plan (game loop fit, state changes, integration points). Run get_skill('pn-skeptic-challenge') on the plan. Output both. After user confirms, call workflow_step(step=2) with state: { plan, skepticPassed: <gate record from workflow_confirm> }." +
@@ -410,6 +426,8 @@ const svgCreateSteps = [
         gate: "human",
         nextStep: 1,
         requiredFromState: [],
+        modelTier: "fast",
+        tierRationale: "Structured SVG-intake questionnaire.",
     },
     {
         instruction: "Produce SVG spec (Markdown) via get_skill('pn-documentation'). Save to docs/svg/. Do not generate until user confirms. After confirmed, call workflow_step(step=2) with state: { specPath, svgSpec, specConfirmed: true }.",
@@ -748,12 +766,86 @@ function toposortSlices(sliceIds, dependsOnMap) {
     }
     return result.length === sliceIds.length ? result : null;
 }
+const TOURNAMENT_PATH_DEFS = [
+    {
+        id: "path-a",
+        constraint: "Minimize surface area",
+        model: "claude-4.6-sonnet-medium-thinking",
+        builderTier: "standard",
+    },
+    {
+        id: "path-b",
+        constraint: "Optimize happy path",
+        model: "gpt-5.3-codex",
+        builderTier: "standard",
+    },
+    {
+        id: "path-c",
+        constraint: "Maximize extensibility",
+        model: "gemini-3.1-pro",
+        builderTier: "standard",
+    },
+];
+const implementationTournamentSteps = [
+    {
+        instruction: "Load get_skill('pn-best-of-n'). Restate spec in ≤5 sentences. Confirm scope is NOT auth, RLS, payments, or secrets (use parallel review panel instead). List objective gate commands (verifyCommands: [{ cmd, exit: 0 }]). Set tournamentN to 2 or 3 (default from features.bestOfN.defaultN). After user confirms scope and gates, call workflow_step('implementation_tournament', step=1) with state: { specSummary, verifyCommands, tournamentN, scopeConfirmed: true }.",
+        gate: "human",
+        nextStep: 1,
+        requiredFromState: [],
+        modelTier: "fast",
+        tierRationale: "Scope and gate checklist before fan-out.",
+    },
+    {
+        instruction: "Parallel builder fan-out (see tasks[] when tournamentN ≥ 2). Each path uses Task subagent_type best-of-n-runner in an isolated worktree under .worktrees/. Builders use standard tier (capped by features.bestOfN.maxCostTier). Do NOT merge to main. When all paths report, call workflow_step(step=2) with state: { candidates[], objectiveGateResults[] }.",
+        gate: "model",
+        nextStep: 2,
+        requiredFromState: ["specSummary", "verifyCommands", "scopeConfirmed"],
+        modelTier: "standard",
+        tierRationale: "Orchestrate parallel builders; implementation runs in subagents.",
+    },
+    {
+        instruction: "Hard gate: discard candidates with non-zero verify exit. If zero survivors → go_no_go: no_go. If one survivor → set selectedCandidate to that id, judgeComplete: true, skip LLM judge. If ≥2 survivors → call workflow_step(step=3) with objectiveGateResults and candidates for survivors only.",
+        gate: "model",
+        nextStep: 3,
+        requiredFromState: ["objectiveGateResults"],
+        modelTier: "fast",
+        tierRationale: "Mechanical elimination from verify exit codes.",
+    },
+    {
+        instruction: "Premium judge pass (maker ≠ checker). Score 0–1 per survivor. Compute auto_select with scripts/best-of-n-select.mjs (threshold: features.bestOfN.autoSelectMinDelta, default 0.15). Save audit JSON to docs/audits/best-of-n-YYYY-MM-DD-<slug>.json and validate with scripts/validate-best-of-n-contract.mjs. Human gate when human_gate_required. After winner confirmed, call workflow_step(step=4) with { selectedCandidate, judgeComplete: true, auditPath, taskResults }." +
+            GATE_STATE_FROM_CONFIRM,
+        gate: "human",
+        nextStep: 4,
+        requiredFromState: ["objectiveGateResults"],
+        modelTier: "premium_thinking",
+        tierRationale: "Separate judge tier after objective gates.",
+    },
+    {
+        instruction: "Merge or copy winner worktree changes to main. Re-run verifyCommands from step 0. Run pn-build-gate phase-complete on merged diff. Discard loser worktrees under .worktrees/. Log report_usage per fan-out/judge/merge when MCP available. When merge and verify pass, call workflow_step('implementation_tournament', step=5) with state: { mergeComplete: true, selectedCandidate, auditPath, specSummary, taskResults: { implementation_tournament: '<merge summary>' }, plan, skepticPassed, planArtifactPath, planSummary, discoverySpec } (pass plan fields when parent full_dev supplied them; standalone tournaments must include specSummary).",
+        gate: "model",
+        nextStep: 5,
+        requiredFromState: ["selectedCandidate", "judgeComplete"],
+        modelTier: "standard",
+        tierRationale: "Merge winner and run project verify gates.",
+    },
+    {
+        instruction: "TOURNAMENT HANDOFF — continue delivery on main via full_dev review phase (specialists skipped; implementation came from tournament). Call workflow_step('full_dev', 5, { tournamentHandoff: true, specSummary, specialistList: ['implementation_tournament'], taskResults: { implementation_tournament: <same merge summary> }, mergeComplete: true, selectedCandidate, auditPath, plan, skepticPassed, discoverySpec }). When no parent full_dev plan exists (standalone tournament), omit plan/skepticPassed — full_dev accepts specSummary-only handoff. Follow returned full_dev instructions through step 6. Implementation tournament workflow complete after full_dev step 6." +
+            paperclipWorkflowHint(),
+        gate: "model",
+        nextStep: 5,
+        requiredFromState: ["mergeComplete", "selectedCandidate"],
+        modelTier: "fast",
+        tierRationale: "Hand off to full_dev review; no further tournament steps.",
+    },
+];
 const featureProgramSteps = [
     {
         instruction: "Feature-program workflow (multi-slice hierarchical orchestration). Load get_skill('pn-discovery-questionnaire'). Present all sections and gate on user confirmation. Save spec to docs/discovery/YYYY-MM-DD-<programSlug>.md. Ask for a program slug (kebab-case, e.g. 'user-auth-payments') and confirm the program branch name (default: program/<programSlug>). After user confirms, call workflow_step('feature_program', step=1) with state: { discoveryPath, programSlug, programBranch }.",
         gate: "human",
         nextStep: 1,
         requiredFromState: [],
+        modelTier: "fast",
+        tierRationale: "Structured program discovery Q&A; decomposition is step 1.",
     },
     {
         instruction: "Decompose into vertical slices using get_skill('pn-program-orchestration') and get_skill('pn-slice-contracts'). HARD EXIT: if the program resolves to a single slice, output 'Single-slice program — run /pn-build instead.' and stop. For ≥2 slices: (a) Define each slice with id, title, ownedPaths[], dependsOn[], contractsProduced[], contractsConsumed[]. Sizing rule: target ≤4 files / ≤100 LOC per specialist task inside each slice. (b) Lock interface contracts (TS interfaces, JSON Schema, or OpenAPI stubs) in docs/refs/contracts/<programSlug>/. (c) Emit .cursor/worktrees.json with per-slice setup commands for the project stack (see get_skill('pn-slice-contracts') for templates). (d) Validate the dependency DAG — workflow_step enforces no cycles at step 1. Present slices and contracts for user confirmation. After confirmed, call workflow_step('feature_program', step=2) with state: { slices, contractsPath, worktreesConfigPath }.",
@@ -802,7 +894,8 @@ const featureProgramSteps = [
 // .pncore/workflow-handoff.jsonl for cross-session resume. It is applied only
 // to multi-phase workflows where losing context between sessions is costly:
 //   design, full_dev, project_kickoff, backend_audit, unreal_feature, godot_feature,
-//   fsi_analyst_draft, business_strategy, media_director, feature_program.
+//   fsi_analyst_draft, business_strategy, media_director, feature_program,
+//   implementation_tournament.
 // The remaining workflows (prompt_optimize, frontend_audit, image_create,
 // visual_tweak, game_feature, svg_create) are short, atomic, or single-artifact
 // flows where the handoff log adds noise without recovery value. Add withHandoff()
@@ -826,6 +919,7 @@ export const workflowSteps = {
     business_strategy: withHandoff(businessStrategySteps),
     media_director: withHandoff(mediaDirectorSteps),
     feature_program: withHandoff(featureProgramSteps),
+    implementation_tournament: withHandoff(implementationTournamentSteps),
 };
 /**
  * Resolve the model tier for a (workflowType, step) pair, applying per-step
@@ -926,20 +1020,38 @@ export function getWorkflowStep(workflowType, step, state) {
     if (step < 0 || step >= steps.length)
         return { error: `Invalid step ${step} for workflow ${workflowType}` };
     const def = steps[step];
-    // full_dev step 5: accept either specialistsComplete or taskResults (with all specialist ids)
+    // full_dev step 5: accept specialistsComplete, taskResults, or tournament handoff
     if (workflowType === "full_dev" && step === 5) {
-        const hasComplete = state.specialistsComplete === true;
-        const list = state.specialistList;
-        const results = state.taskResults;
-        const hasTaskResults = Array.isArray(list) &&
-            list.length > 0 &&
-            results &&
-            typeof results === "object" &&
-            list.every((id) => results[id] != null && String(results[id]).trim() !== "");
-        if (!hasComplete && !hasTaskResults) {
-            return {
-                error: "Step 5 requires state: specialistsComplete (true) or taskResults (object with an entry for each specialist in specialistList). Complete step 4 first.",
-            };
+        if (state.tournamentHandoff === true) {
+            const results = state.taskResults;
+            const summary = results?.implementation_tournament;
+            if (summary === undefined || summary === null || String(summary).trim() === "") {
+                return {
+                    error: "Step 5 tournamentHandoff requires taskResults.implementation_tournament with a non-empty merge summary from implementation_tournament step 5.",
+                };
+            }
+            const hasPlan = typeof state.plan === "string" && state.plan.trim() !== "";
+            const hasSpec = typeof state.specSummary === "string" && state.specSummary.trim() !== "";
+            if (!hasPlan && !hasSpec) {
+                return {
+                    error: "Step 5 tournamentHandoff requires plan or specSummary for review context. Standalone tournaments pass specSummary from implementation_tournament state.",
+                };
+            }
+        }
+        else {
+            const hasComplete = state.specialistsComplete === true;
+            const list = state.specialistList;
+            const results = state.taskResults;
+            const hasTaskResults = Array.isArray(list) &&
+                list.length > 0 &&
+                results &&
+                typeof results === "object" &&
+                list.every((id) => results[id] != null && String(results[id]).trim() !== "");
+            if (!hasComplete && !hasTaskResults) {
+                return {
+                    error: "Step 5 requires state: specialistsComplete (true) or taskResults (object with an entry for each specialist in specialistList). Complete step 4 first.",
+                };
+            }
         }
     }
     else {
@@ -1180,6 +1292,14 @@ export function getWorkflowStep(workflowType, step, state) {
             };
         }
     }
+    // implementation_tournament step 0: gate on bestOfN.enabled feature flag
+    if (workflowType === "implementation_tournament" && step === 0) {
+        if (!loadBestOfNFeatures().enabled) {
+            return {
+                error: 'implementation_tournament is behind the bestOfN.enabled feature flag (default: false). Enable it by adding {"bestOfN": {"enabled": true}} to pn-core://config/features.json or PNCORE_FEATURES. For skill-only tournaments, use get_skill(\'pn-best-of-n\') or /pn-best-of-n until the flag is on.',
+            };
+        }
+    }
     // feature_program step 1: single-slice hard exit + DAG cycle validation
     if (workflowType === "feature_program" && step === 1) {
         const slices = state.slices;
@@ -1205,6 +1325,95 @@ export function getWorkflowStep(workflowType, step, state) {
                     error: "Dependency DAG cycle detected in slices[].dependsOn. A cycle means slices transitively depend on each other, which prevents a safe merge order. Fix the dependsOn declarations (remove circular links) and call workflow_step again.",
                 };
             }
+        }
+    }
+    // implementation_tournament step 1: parallel best-of-n-runner fan-out
+    if (workflowType === "implementation_tournament" && step === 1) {
+        const specSummary = state.specSummary;
+        const verifyCommands = state.verifyCommands;
+        const tournamentNRaw = typeof state.tournamentN === "number" ? state.tournamentN : loadBestOfNFeatures().defaultN;
+        const tournamentN = Math.min(3, Math.max(2, Math.floor(tournamentNRaw)));
+        const gateList = Array.isArray(verifyCommands)
+            ? verifyCommands
+                .filter((v) => typeof v?.cmd === "string" && v.cmd.trim() !== "")
+                .map((v) => v.cmd.trim())
+                .join("; ")
+            : "";
+        if (typeof specSummary === "string" && specSummary.trim() !== "" && gateList !== "") {
+            const bonFeatures = loadBestOfNFeatures();
+            const maxCostTier = isModelTier(bonFeatures.maxCostTier)
+                ? bonFeatures.maxCostTier
+                : "standard";
+            const paths = TOURNAMENT_PATH_DEFS.slice(0, tournamentN);
+            const tasks = paths.map((p) => {
+                const builder = resolveTournamentBuilderModel(p.model, p.builderTier, maxCostTier);
+                const capNote = builder.capped
+                    ? ` (capped to ${builder.tier} tier per bestOfN.maxCostTier=${maxCostTier})`
+                    : "";
+                return {
+                    id: p.id,
+                    agentId: p.id,
+                    instruction: `Implement: ${specSummary.trim()}\n` +
+                        `Worktree: .worktrees/bon-${p.id} (create from HEAD; implement ONLY in worktree).\n` +
+                        `Constraint: ${p.constraint}.\n` +
+                        `Required builder model tier: ${builder.tier} — use ${builder.model}${capNote}. Do not exceed maxCostTier.\n` +
+                        `Run before submit: ${gateList}.\n` +
+                        `Output: summary, files touched, verify exit codes. Append to parent state objectiveGateResults[] (and candidates[] when available) for id "${p.id}". Do NOT merge to main.`,
+                };
+            });
+            return withTierHint({
+                ...baseResult,
+                instruction: `Parallel tournament fan-out (N=${tournamentN}): spawn Task subagents (subagent_type: best-of-n-runner) for each task below in isolated worktrees. Same spec, different constraint per path. When all paths complete, call workflow_step('implementation_tournament', step=2) with candidates[] and objectiveGateResults[].`,
+                parallel: true,
+                tasks,
+                workflowPhase: "tournament_fanout",
+            }, workflowType, step);
+        }
+    }
+    // implementation_tournament step 2: single-survivor fast path after objective gates
+    if (workflowType === "implementation_tournament" && step === 2) {
+        const gateResults = state.objectiveGateResults;
+        if (Array.isArray(gateResults)) {
+            const survivors = gateResults.filter((g) => typeof g.candidate_id === "string" && g.passed === true);
+            if (survivors.length === 0) {
+                return {
+                    error: "Zero survivors after objective gates. Set go_no_go: no_go in audit JSON; escalate human (narrow spec, fix tests, or increase N).",
+                };
+            }
+            if (survivors.length === 1) {
+                const winnerId = survivors[0].candidate_id;
+                return withTierHint({
+                    ...baseResult,
+                    instruction: `Single survivor "${winnerId}" after objective gates — skip LLM judge. Call workflow_step('implementation_tournament', step=4) with selectedCandidate: "${winnerId}", judgeComplete: true, and taskResults summarizing the merge-ready worktree.`,
+                    nextStep: 4,
+                    done: false,
+                    workflowPhase: "tournament_gate",
+                }, workflowType, step, { tier: "fast", rationale: "Mechanical winner when only one path passes gates." });
+            }
+        }
+    }
+    // implementation_tournament step 3: remind judge of auto-select threshold
+    if (workflowType === "implementation_tournament" && step === 3) {
+        const minDelta = loadBestOfNFeatures().autoSelectMinDelta;
+        return withTierHint({
+            ...baseResult,
+            instruction: `${baseResult.instruction}\n\nAuto-select threshold (bestOfN.autoSelectMinDelta): ${minDelta}. Use resolveBestOfNSelection / scripts/best-of-n-select.mjs (validator reads the same threshold from features.json / PNCORE_FEATURES).`,
+            workflowPhase: "tournament_judge",
+        }, workflowType, step);
+    }
+    // implementation_tournament step 5: explicit full_dev handoff payload
+    if (workflowType === "implementation_tournament" && step === 5) {
+        const selected = state.selectedCandidate;
+        const summary = state.taskResults &&
+            typeof state.taskResults === "object" &&
+            state.taskResults.implementation_tournament;
+        if (typeof selected === "string" && selected.trim() !== "" && summary != null) {
+            return withTierHint({
+                ...baseResult,
+                instruction: `${baseResult.instruction}\n\nHandoff state template: workflow_step('full_dev', 5, { tournamentHandoff: true, specSummary: <from state>, plan: <from state when parent full_dev>, skepticPassed: <from state when available>, specialistList: ['implementation_tournament'], taskResults: { implementation_tournament: ${JSON.stringify(String(summary))} }, mergeComplete: true, selectedCandidate: '${selected}', auditPath: <from state> })`,
+                workflowPhase: "tournament_handoff",
+                done: true,
+            }, workflowType, step);
         }
     }
     // feature_program step 3: return parallel tasks (one per slice)
@@ -1282,6 +1491,18 @@ export function getWorkflowStep(workflowType, step, state) {
         result = {
             ...baseResult,
             instruction: `${skepticGateWarning}\n\n${baseResult.instruction}`,
+        };
+    }
+    if (workflowType === "full_dev" &&
+        step === 5 &&
+        state.tournamentHandoff === true &&
+        (state.skepticPassed === undefined ||
+            state.skepticPassed === null ||
+            state.skepticPassed === false)) {
+        result = {
+            ...result,
+            instruction: "[tournamentStandalone] No parent skepticPassed — treat specSummary and auditPath as the review baseline; run get_skill('pn-skeptic-challenge') post-build before sign-off.\n\n" +
+                result.instruction,
         };
     }
     return withTierHint(result, workflowType, step);
