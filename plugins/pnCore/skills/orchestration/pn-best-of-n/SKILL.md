@@ -50,7 +50,7 @@ Spawn **N** Task subagents (`subagent_type: best-of-n-runner`) **in parallel**, 
 | B | Optimize happy path — fastest common case |
 | C (optional) | Maximize extensibility — edge cases and future hooks |
 
-**Model diversity (recommended):** assign different `model` per path when available (e.g. sonnet vs codex) for perspective diversity. Builders use **standard** tier.
+**Model diversity (recommended):** assign different `model` per path when available (e.g. sonnet vs codex) for perspective diversity. Builders use **standard** tier, **capped** by `bestOfN.maxCostTier` in `pn-core://config/features.json` (or `PNCORE_FEATURES`). When capped, MCP `implementation_tournament` step 1 prompts use the max-tier exemplar instead of the path's preferred model — do not exceed the cap in ad-hoc fan-out either.
 
 Prompt each subagent:
 
@@ -92,7 +92,8 @@ Emit verdict in `pn-core://reference/schemas/best-of-n.contract.json` shape. Sav
 2. Discard loser worktrees
 3. Run phase-complete gate (`pn-build-gate`): verify + Task checker on merged diff
 4. When `bestOfN.enabled`: `workflow_step('implementation_tournament', 5, …)` hands off to `workflow_step('full_dev', 5, { tournamentHandoff: true, … })` for review through full_dev step 6
-5. High-risk merged slice → parallel review panel if applicable
+5. **Standalone tournament** (no parent `full_dev` plan): pass `specSummary` (required) and omit `plan` / `skepticPassed`; full_dev step 5 accepts specSummary-only handoff and prefixes review instructions to run post-build skeptic before sign-off
+6. High-risk merged slice → parallel review panel if applicable
 
 ## Human gate (required when close)
 

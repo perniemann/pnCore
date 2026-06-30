@@ -10,6 +10,7 @@ import { McpError } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import { listSkills, getSkill, listAgents, listInternalAgents, getAgent, listCommands, getCommand, listRules, getRule, resourceDefs, getResource, } from "./content.js";
 import { getWorkflowStep, resolveStepTier, workflowSteps } from "./workflows.js";
+import { resolveRoleTier } from "./model-tiers.js";
 import { loadPaperclipConfig, resolvePaperclipIssueId, parsePaperclipResponse, } from "./paperclip.js";
 import { evaluateApprovalCheckpoint } from "./approval-checkpoint.js";
 import { issueHumanGateTicket, parseRequiredApprovalWorkflows, validateAndConsumeHumanGateTicket, workflowRequiresHumanGateApproval, } from "./human-gate-tickets.js";
@@ -130,6 +131,7 @@ const workflowTypeEnum = z.enum([
     "business_strategy",
     "media_director",
     "feature_program",
+    "implementation_tournament",
 ]);
 const requiredHumanGateWorkflows = parseRequiredApprovalWorkflows(process.env.PNCORE_REQUIRE_APPROVAL_FOR_WORKFLOWS);
 const defaultHumanGateTicketsPath = process.env.PNCORE_HUMAN_GATE_TICKETS_PATH ?? ".pncore/human-gate-tickets.jsonl";
@@ -220,15 +222,28 @@ regTool("list_workflow_types", "List available workflow types and their step cou
     const table = Object.fromEntries(Object.entries(workflowSteps).map(([k, v]) => [k, { steps: v.length }]));
     return textContent(JSON.stringify(table));
 });
-regTool("suggest_model_tier", "Return the suggested LLM model tier for a workflow step. Omit `step` to get the full per-step table for the workflow. Tiers: fast | standard | premium | premium_thinking. Suggestions reflect the cognitive demand of each step and incorporate any modelTierOverrides / tierAliases configured in features.json or PNCORE_FEATURES.", {
-    workflowType: workflowTypeEnum.describe("Workflow type (same as workflow_step)"),
+regTool("suggest_model_tier", "Return the suggested LLM model tier for a workflow step or subagent role. Omit `step` to get the full per-step table for the workflow. When `role` is set (explorer | builder | judge | checker), returns the tier for that subagent kind and ignores step. Tiers: fast | standard | premium | premium_thinking. Suggestions reflect cognitive demand and incorporate modelTierOverrides / tierAliases from features.json or PNCORE_FEATURES.", {
+    workflowType: workflowTypeEnum
+        .optional()
+        .describe("Workflow type (same as workflow_step). Required unless role is set."),
     step: z
         .number()
         .int()
         .min(0)
         .optional()
         .describe("Specific step index. Omit to get the full per-step table for this workflow."),
-}, { readOnlyHint: true, destructiveHint: false, idempotentHint: true }, async ({ workflowType, step }) => {
+    role: z
+        .enum(["explorer", "builder", "judge", "checker"])
+        .optional()
+        .describe("Subagent role tier (explorer=fast, builder=standard, judge=premium_thinking, checker=standard). When set, workflowType/step are optional."),
+}, { readOnlyHint: true, destructiveHint: false, idempotentHint: true }, async ({ workflowType, step, role }) => {
+    if (role !== undefined) {
+        const base = resolveRoleTier(role, loadFeatures().tierAliases);
+        return textContent(JSON.stringify({ role, ...base }));
+    }
+    if (workflowType === undefined) {
+        return mcpError("INVALID_STATE", "Provide workflowType and optional step, or role", {});
+    }
     if (step !== undefined) {
         const suggested = resolveStepTier(workflowType, step);
         if (suggested === null) {
@@ -418,7 +433,7 @@ for (const { listName, getName, listDesc, getDesc, idDesc, notFoundLabel, list, 
 }
 // Deterministic workflow engine: control flow in tool, not prompts. Model assists each step.
 regTool("workflow_step", "Get the next instruction for a workflow step. Call this at workflow start and after completing each step. The tool validates state and returns a single instruction. Control flow is deterministic; the model cannot advance without valid state. Stateless: you supply full state on each call. When PNCORE_REQUIRE_APPROVAL_FOR_WORKFLOWS lists this workflowType and the step gate is human, state must include pncoreHumanGateTicket from approval_checkpoint (see MCP README).", {
-    workflowType: workflowTypeEnum.describe("Workflow type: design (6), full_dev (7), project_kickoff (8), prompt_optimize (3), frontend_audit (3), backend_audit (7), image_create (4), visual_tweak (5), game_feature (5), svg_create (5), engine_feature (5; requires state.engine: 'unreal'|'godot'), unreal_feature (5; deprecated alias for engine_feature), godot_feature (5; deprecated alias for engine_feature), fsi_analyst_draft (6), media_director (7), feature_program (6; multi-slice hierarchical orchestration; requires featureProgram: true in features.json)"),
+    workflowType: workflowTypeEnum.describe("Workflow type: design (6), full_dev (7), project_kickoff (8), prompt_optimize (3), frontend_audit (3), backend_audit (7), image_create (4), visual_tweak (5), game_feature (5), svg_create (5), engine_feature (5; requires state.engine: 'unreal'|'godot'), unreal_feature (5; deprecated alias for engine_feature), godot_feature (5; deprecated alias for engine_feature), fsi_analyst_draft (6), media_director (7), feature_program (6; requires featureProgram: true), implementation_tournament (6; requires bestOfN.enabled: true)"),
     step: z.number().int().min(0).describe("Current step number (0 = start)"),
     state: z
         .record(z.string(), z.unknown())

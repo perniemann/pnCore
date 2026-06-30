@@ -31,7 +31,8 @@ let _validate;
 function getValidator() {
   if (!_validate) {
     const schema = JSON.parse(readFileSync(SCHEMA_PATH, "utf-8"));
-    const { $examples: _examples, ...compilableSchema } = schema;
+    const compilableSchema = { ...schema };
+    delete compilableSchema.$examples;
     const ajv = new Ajv({ strict: false, allErrors: true });
     _validate = ajv.compile(compilableSchema);
   }

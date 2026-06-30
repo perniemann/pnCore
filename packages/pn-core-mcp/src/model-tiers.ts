@@ -124,3 +124,30 @@ export function applyTierAlias(
   const aliased = aliases[tier];
   return aliased && isModelTier(aliased) ? aliased : tier;
 }
+
+const TIER_RANK: Record<ModelTier, number> = {
+  fast: 0,
+  standard: 1,
+  premium: 2,
+  premium_thinking: 3,
+};
+
+/** Clamp `tier` to at most `maxTier` (for bestOfN.maxCostTier builder cap). */
+export function capModelTier(tier: ModelTier, maxTier: ModelTier): ModelTier {
+  return TIER_RANK[tier] <= TIER_RANK[maxTier] ? tier : maxTier;
+}
+
+/**
+ * Resolve the builder model exemplar for a tournament path, enforcing maxCostTier.
+ * When capped, returns the max tier exemplar instead of the path's preferred model.
+ */
+export function resolveTournamentBuilderModel(
+  preferredModel: string,
+  builderTier: ModelTier,
+  maxCostTier: ModelTier
+): { tier: ModelTier; model: string; capped: boolean } {
+  const tier = capModelTier(builderTier, maxCostTier);
+  const capped = tier !== builderTier;
+  const model = capped ? TIER_META[tier].exemplar : preferredModel;
+  return { tier, model, capped };
+}

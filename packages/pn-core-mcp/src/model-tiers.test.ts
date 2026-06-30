@@ -54,6 +54,37 @@ describe("model-tiers helpers (pure)", () => {
     expect(applyTierAlias("premium_thinking", { premium_thinking: "premium" })).toBe("premium");
     expect(applyTierAlias("premium", { premium: "standard" })).toBe("standard");
   });
+
+  it("capModelTier clamps to max tier", async () => {
+    const { capModelTier } = await import("./model-tiers.js");
+    expect(capModelTier("standard", "fast")).toBe("fast");
+    expect(capModelTier("fast", "standard")).toBe("fast");
+    expect(capModelTier("premium_thinking", "premium")).toBe("premium");
+  });
+
+  it("resolveTournamentBuilderModel uses path model when within cap", async () => {
+    const { resolveTournamentBuilderModel } = await import("./model-tiers.js");
+    const r = resolveTournamentBuilderModel("gpt-5.3-codex", "standard", "standard");
+    expect(r.tier).toBe("standard");
+    expect(r.model).toBe("gpt-5.3-codex");
+    expect(r.capped).toBe(false);
+  });
+
+  it("resolveTournamentBuilderModel caps to maxCostTier exemplar", async () => {
+    const { resolveTournamentBuilderModel, TIER_META } = await import("./model-tiers.js");
+    const r = resolveTournamentBuilderModel("gpt-5.3-codex", "standard", "fast");
+    expect(r.tier).toBe("fast");
+    expect(r.model).toBe(TIER_META.fast.exemplar);
+    expect(r.capped).toBe(true);
+  });
+
+  it("isSubagentRole accepts canonical roles and rejects junk", async () => {
+    const { isSubagentRole } = await import("./model-tiers.js");
+    expect(isSubagentRole("builder")).toBe(true);
+    expect(isSubagentRole("checker")).toBe(true);
+    expect(isSubagentRole("nope")).toBe(false);
+    expect(isSubagentRole(undefined)).toBe(false);
+  });
 });
 
 describe("PNCORE_FEATURES modelTierOverrides", () => {
@@ -137,6 +168,12 @@ describe("resolveRoleTier", () => {
   it("maps explorer to fast", async () => {
     const { resolveRoleTier } = await import("./model-tiers.js");
     expect(resolveRoleTier("explorer").tier).toBe("fast");
+  });
+
+  it("maps builder and checker to standard", async () => {
+    const { resolveRoleTier } = await import("./model-tiers.js");
+    expect(resolveRoleTier("builder").tier).toBe("standard");
+    expect(resolveRoleTier("checker").tier).toBe("standard");
   });
 
   it("applies tierAliases when provided", async () => {

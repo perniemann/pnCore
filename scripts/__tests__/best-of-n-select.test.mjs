@@ -141,6 +141,20 @@ test("custom minDelta overrides default", () => {
   assert.equal(result.auto_selected, true);
 });
 
+test("score tie breaks lexicographically by candidate_id", () => {
+  const result = resolveBestOfNSelection({
+    llm_scores: [
+      { candidate_id: "path-b", score: 0.8 },
+      { candidate_id: "path-a", score: 0.8 },
+    ],
+  });
+  assert.equal(result.winner_id, "path-a");
+  assert.equal(result.runner_up_id, "path-b");
+  assert.equal(result.auto_selected, false);
+  assert.equal(result.human_gate_required, true);
+  assert.equal(result.score_delta, 0);
+});
+
 // ── validateSelectionCoherence ────────────────────────────────────────────────
 
 test("validateSelectionCoherence: compliant fixture is coherent", () => {
