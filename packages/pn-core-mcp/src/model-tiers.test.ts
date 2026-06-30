@@ -138,4 +138,10 @@ describe("resolveRoleTier", () => {
     const { resolveRoleTier } = await import("./model-tiers.js");
     expect(resolveRoleTier("explorer").tier).toBe("fast");
   });
+
+  it("applies tierAliases when provided", async () => {
+    const { resolveRoleTier } = await import("./model-tiers.js");
+    const r = resolveRoleTier("judge", { premium_thinking: "premium" });
+    expect(r.tier).toBe("premium");
+  });
 });

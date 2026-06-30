@@ -1066,6 +1066,43 @@ describe("workflows contract", () => {
         expect(w.workflowPhase).toBe("tournament_judge");
         expect(w.instruction).toContain("0.2");
       });
+
+      it("step 5 returns full_dev handoff when mergeComplete", async () => {
+        vi.stubEnv("PNCORE_FEATURES", JSON.stringify({ bestOfN: { enabled: true } }));
+        const { getWorkflowStep: gws } = await import("./workflows.js");
+        const r = gws("implementation_tournament", 5, {
+          mergeComplete: true,
+          selectedCandidate: "path-a",
+          taskResults: { implementation_tournament: "merged winner to main" },
+        });
+        assertWorkflowStepResultShape(r);
+        const w = r as WorkflowStepResult;
+        expect(w.workflowPhase).toBe("tournament_handoff");
+        expect(w.done).toBe(true);
+        expect(w.instruction).toContain("workflow_step('full_dev', 5");
+        expect(w.instruction).toContain("tournamentHandoff");
+      });
+
+      it("full_dev step 5 accepts tournamentHandoff with taskResults", () => {
+        const r = getWorkflowStep("full_dev", 5, {
+          tournamentHandoff: true,
+          plan: "test plan",
+          skepticPassed: { verdict: "pass", go_no_go: "go" },
+          taskResults: { implementation_tournament: "tournament merge summary" },
+        });
+        assertWorkflowStepResultShape(r);
+      });
+
+      it("full_dev step 5 rejects tournamentHandoff without summary", () => {
+        const r = getWorkflowStep("full_dev", 5, {
+          tournamentHandoff: true,
+          plan: "test plan",
+          skepticPassed: { verdict: "pass" },
+          taskResults: {},
+        });
+        expect(r).toHaveProperty("error");
+        expect((r as { error: string }).error).toContain("implementation_tournament");
+      });
     });
 
     describe("suggestedModelTier (model-tier suggestions)", () => {

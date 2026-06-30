@@ -12,7 +12,8 @@ import { readFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import Ajv from "ajv/dist/2020.js";
-import { resolveBestOfNSelection, DEFAULT_AUTO_SELECT_MIN_DELTA } from "./best-of-n-select.mjs";
+import { resolveBestOfNSelection } from "./best-of-n-select.mjs";
+import { loadBestOfNFeaturesFromConfig } from "./load-best-of-n-features.mjs";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const SCHEMA_PATH = resolve(
@@ -40,12 +41,13 @@ function getValidator() {
 /**
  * Semantic coherence check: when llm_scores are present, verify winner_id is
  * the top scorer and that auto_selected / human_gate_required match the
- * computed delta against DEFAULT_AUTO_SELECT_MIN_DELTA.
+ * computed delta against features.bestOfN.autoSelectMinDelta (or CLI override).
  *
  * @param {unknown} data
+ * @param {{ minDelta?: number }} [opts]
  * @returns {{ coherent: boolean, issues: string[] }}
  */
-export function validateSelectionCoherence(data) {
+export function validateSelectionCoherence(data, opts = {}) {
   if (
     !data ||
     typeof data !== "object" ||
@@ -57,12 +59,17 @@ export function validateSelectionCoherence(data) {
 
   const issues = [];
 
+  const minDelta =
+    typeof opts.minDelta === "number" && opts.minDelta >= 0
+      ? opts.minDelta
+      : loadBestOfNFeaturesFromConfig().autoSelectMinDelta;
+
   let resolved;
   try {
     resolved = resolveBestOfNSelection({
       llm_scores: data.llm_scores,
       objective_gate_results: data.objective_gate_results,
-      minDelta: DEFAULT_AUTO_SELECT_MIN_DELTA,
+      minDelta,
     });
   } catch (err) {
     issues.push(`selection resolution failed: ${err.message}`);
@@ -93,15 +100,15 @@ export function validateSelectionCoherence(data) {
   return { coherent: issues.length === 0, issues };
 }
 
-/** @param {unknown} data @returns {{ valid: boolean, errors: import('ajv').ErrorObject[] }} */
-export function validate(data) {
+/** @param {unknown} data @param {{ minDelta?: number }} [opts] @returns {{ valid: boolean, errors: import('ajv').ErrorObject[] }} */
+export function validate(data, opts = {}) {
   const v = getValidator();
   const valid = v(data);
   if (!valid) {
     return { valid: false, errors: v.errors ?? [] };
   }
 
-  const coherence = validateSelectionCoherence(data);
+  const coherence = validateSelectionCoherence(data, opts);
   if (!coherence.coherent) {
     return {
       valid: false,

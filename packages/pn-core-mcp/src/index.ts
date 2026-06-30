@@ -356,8 +356,8 @@ regTool(
   { readOnlyHint: true, destructiveHint: false, idempotentHint: true },
   async ({ workflowType, step, role }) => {
     if (role !== undefined) {
-      const suggested = resolveRoleTier(role);
-      return textContent(JSON.stringify({ role, ...suggested }));
+      const base = resolveRoleTier(role, loadFeatures().tierAliases);
+      return textContent(JSON.stringify({ role, ...base }));
     }
     if (workflowType === undefined) {
       return mcpError("INVALID_PARAMS", "Provide workflowType and optional step, or role", {});
@@ -622,7 +622,7 @@ regTool(
   "Get the next instruction for a workflow step. Call this at workflow start and after completing each step. The tool validates state and returns a single instruction. Control flow is deterministic; the model cannot advance without valid state. Stateless: you supply full state on each call. When PNCORE_REQUIRE_APPROVAL_FOR_WORKFLOWS lists this workflowType and the step gate is human, state must include pncoreHumanGateTicket from approval_checkpoint (see MCP README).",
   {
     workflowType: workflowTypeEnum.describe(
-      "Workflow type: design (6), full_dev (7), project_kickoff (8), prompt_optimize (3), frontend_audit (3), backend_audit (7), image_create (4), visual_tweak (5), game_feature (5), svg_create (5), engine_feature (5; requires state.engine: 'unreal'|'godot'), unreal_feature (5; deprecated alias for engine_feature), godot_feature (5; deprecated alias for engine_feature), fsi_analyst_draft (6), media_director (7), feature_program (6; requires featureProgram: true), implementation_tournament (5; requires bestOfN.enabled: true)"
+      "Workflow type: design (6), full_dev (7), project_kickoff (8), prompt_optimize (3), frontend_audit (3), backend_audit (7), image_create (4), visual_tweak (5), game_feature (5), svg_create (5), engine_feature (5; requires state.engine: 'unreal'|'godot'), unreal_feature (5; deprecated alias for engine_feature), godot_feature (5; deprecated alias for engine_feature), fsi_analyst_draft (6), media_director (7), feature_program (6; requires featureProgram: true), implementation_tournament (6; requires bestOfN.enabled: true)"
     ),
     step: z.number().int().min(0).describe("Current step number (0 = start)"),
     state: z

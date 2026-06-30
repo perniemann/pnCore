@@ -79,9 +79,11 @@ export function isSubagentRole(v: unknown): v is SubagentRole {
 }
 
 /** Tier suggestion for Task subagent_type routing (explorer/builder/judge/checker). */
-export function resolveRoleTier(role: SubagentRole): SuggestedModelTier {
-  const tier = SUBAGENT_ROLE_TIERS[role];
-  const meta = TIER_META[tier];
+export function resolveRoleTier(
+  role: SubagentRole,
+  tierAliases?: Partial<Record<ModelTier, ModelTier>>
+): SuggestedModelTier {
+  const tier = applyTierAlias(SUBAGENT_ROLE_TIERS[role], tierAliases);
   const roleRationale: Record<SubagentRole, string> = {
     explorer: "Explore/orient subagents: repo search, layout, quick scans.",
     builder:
@@ -89,7 +91,7 @@ export function resolveRoleTier(role: SubagentRole): SuggestedModelTier {
     judge: "Judge pass: separate premium tier after objective gates (maker ≠ checker).",
     checker: "Checker/reviewer subagents: readonly review, bugbot, same-session verify.",
   };
-  return buildSuggestedTier(tier, roleRationale[role] ?? meta.description);
+  return buildSuggestedTier(tier, roleRationale[role] ?? TIER_META[tier].description);
 }
 
 /** Build the structured suggestedModelTier field. Falls back to TIER_META.description when no rationale given. */

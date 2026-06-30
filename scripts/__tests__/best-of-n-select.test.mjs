@@ -190,3 +190,12 @@ test("pilot-01-r2 coherence: auto_selected=false, human_gate_required=true match
   const result = validateSelectionCoherence(data);
   assert.equal(result.coherent, true, `issues: ${result.issues.join(", ")}`);
 });
+
+test("validateSelectionCoherence respects opts.minDelta override", () => {
+  const data = loadFixture("compliant-example.json");
+  const strict = validateSelectionCoherence(data, { minDelta: 0.2 });
+  assert.equal(strict.coherent, true);
+  const loose = validateSelectionCoherence(data, { minDelta: 0.05 });
+  assert.equal(loose.coherent, false);
+  assert.ok(loose.issues.some((i) => i.includes("auto_selected")));
+});

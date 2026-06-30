@@ -82,7 +82,7 @@ Only when **≥2** survivors remain:
 - Pass **summaries**, not full diffs, when total size is large
 - Score 0–1 per survivor; pick winner with rationale
 - **Auto-select** only when top score leads second by **≥0.15** and objective gates tied; else `workflow_confirm` / `AskQuestion`
-- Compute flags with `scripts/best-of-n-select.mjs` (`resolveBestOfNSelection`); validate audit JSON with `scripts/validate-best-of-n-contract.mjs` (schema + selection coherence)
+- Compute flags with `scripts/best-of-n-select.mjs` (`resolveBestOfNSelection`); validate audit JSON with `scripts/validate-best-of-n-contract.mjs` (schema + selection coherence; reads `bestOfN.autoSelectMinDelta` from features.json / `PNCORE_FEATURES`)
 
 Emit verdict in `pn-core://reference/schemas/best-of-n.contract.json` shape. Save to `docs/audits/best-of-n-YYYY-MM-DD-<slug>.json`.
 
@@ -91,7 +91,8 @@ Emit verdict in `pn-core://reference/schemas/best-of-n.contract.json` shape. Sav
 1. Merge or copy winner worktree changes to main branch per project conventions
 2. Discard loser worktrees
 3. Run phase-complete gate (`pn-build-gate`): verify + Task checker on merged diff
-4. High-risk merged slice → parallel review panel if applicable
+4. When `bestOfN.enabled`: `workflow_step('implementation_tournament', 5, …)` hands off to `workflow_step('full_dev', 5, { tournamentHandoff: true, … })` for review through full_dev step 6
+5. High-risk merged slice → parallel review panel if applicable
 
 ## Human gate (required when close)
 

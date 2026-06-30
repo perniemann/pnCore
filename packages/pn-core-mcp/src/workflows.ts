@@ -1007,14 +1007,22 @@ const implementationTournamentSteps: StepDef[] = [
   },
   {
     instruction:
-      "Merge or copy winner worktree changes to main. Re-run verifyCommands from step 0. Run pn-build-gate phase-complete on merged diff. Discard loser worktrees under .worktrees/. Log report_usage per fan-out/judge/merge when MCP available. Implementation tournament complete." +
-      paperclipWorkflowHint() +
-      " Do not call workflow_step again.",
+      "Merge or copy winner worktree changes to main. Re-run verifyCommands from step 0. Run pn-build-gate phase-complete on merged diff. Discard loser worktrees under .worktrees/. Log report_usage per fan-out/judge/merge when MCP available. When merge and verify pass, call workflow_step('implementation_tournament', step=5) with state: { mergeComplete: true, selectedCandidate, auditPath, taskResults: { implementation_tournament: '<merge summary>' }, plan, skepticPassed, planArtifactPath, planSummary, discoverySpec } (pass through plan fields from parent full_dev when available).",
     gate: "model",
-    nextStep: 4,
+    nextStep: 5,
     requiredFromState: ["selectedCandidate", "judgeComplete"],
     modelTier: "standard",
     tierRationale: "Merge winner and run project verify gates.",
+  },
+  {
+    instruction:
+      "TOURNAMENT HANDOFF — continue delivery on main via full_dev review phase (specialists skipped; implementation came from tournament). Call workflow_step('full_dev', 5, { tournamentHandoff: true, plan, skepticPassed, specialistList: ['implementation_tournament'], taskResults: { implementation_tournament: <same merge summary> }, mergeComplete: true, selectedCandidate, auditPath, discoverySpec }). Follow returned full_dev instructions through step 6. Implementation tournament workflow complete after full_dev step 6." +
+      paperclipWorkflowHint(),
+    gate: "model",
+    nextStep: 5,
+    requiredFromState: ["mergeComplete", "selectedCandidate"],
+    modelTier: "fast",
+    tierRationale: "Hand off to full_dev review; no further tournament steps.",
   },
 ];
 
@@ -1232,22 +1240,33 @@ export function getWorkflowStep(
 
   const def = steps[step];
 
-  // full_dev step 5: accept either specialistsComplete or taskResults (with all specialist ids)
+  // full_dev step 5: accept specialistsComplete, taskResults, or tournament handoff
   if (workflowType === "full_dev" && step === 5) {
-    const hasComplete = state.specialistsComplete === true;
-    const list = state.specialistList as string[] | undefined;
-    const results = state.taskResults as Record<string, unknown> | undefined;
-    const hasTaskResults =
-      Array.isArray(list) &&
-      list.length > 0 &&
-      results &&
-      typeof results === "object" &&
-      list.every((id) => results[id] != null && String(results[id]).trim() !== "");
-    if (!hasComplete && !hasTaskResults) {
-      return {
-        error:
-          "Step 5 requires state: specialistsComplete (true) or taskResults (object with an entry for each specialist in specialistList). Complete step 4 first.",
-      };
+    if (state.tournamentHandoff === true) {
+      const results = state.taskResults as Record<string, unknown> | undefined;
+      const summary = results?.implementation_tournament;
+      if (summary === undefined || summary === null || String(summary).trim() === "") {
+        return {
+          error:
+            "Step 5 tournamentHandoff requires taskResults.implementation_tournament with a non-empty merge summary from implementation_tournament step 5.",
+        };
+      }
+    } else {
+      const hasComplete = state.specialistsComplete === true;
+      const list = state.specialistList as string[] | undefined;
+      const results = state.taskResults as Record<string, unknown> | undefined;
+      const hasTaskResults =
+        Array.isArray(list) &&
+        list.length > 0 &&
+        results &&
+        typeof results === "object" &&
+        list.every((id) => results[id] != null && String(results[id]).trim() !== "");
+      if (!hasComplete && !hasTaskResults) {
+        return {
+          error:
+            "Step 5 requires state: specialistsComplete (true) or taskResults (object with an entry for each specialist in specialistList). Complete step 4 first.",
+        };
+      }
     }
   } else {
     const missing = def.requiredFromState.filter((key) => {
@@ -1681,12 +1700,33 @@ export function getWorkflowStep(
     return withTierHint(
       {
         ...baseResult,
-        instruction: `${baseResult.instruction}\n\nAuto-select threshold (bestOfN.autoSelectMinDelta): ${minDelta}. Use resolveBestOfNSelection / scripts/best-of-n-select.mjs before setting auto_selected in audit JSON.`,
+        instruction: `${baseResult.instruction}\n\nAuto-select threshold (bestOfN.autoSelectMinDelta): ${minDelta}. Use resolveBestOfNSelection / scripts/best-of-n-select.mjs (validator reads the same threshold from features.json / PNCORE_FEATURES).`,
         workflowPhase: "tournament_judge",
       },
       workflowType,
       step
     );
+  }
+
+  // implementation_tournament step 5: explicit full_dev handoff payload
+  if (workflowType === "implementation_tournament" && step === 5) {
+    const selected = state.selectedCandidate as string | undefined;
+    const summary =
+      state.taskResults &&
+      typeof state.taskResults === "object" &&
+      (state.taskResults as Record<string, unknown>).implementation_tournament;
+    if (typeof selected === "string" && selected.trim() !== "" && summary != null) {
+      return withTierHint(
+        {
+          ...baseResult,
+          instruction: `${baseResult.instruction}\n\nHandoff state template: workflow_step('full_dev', 5, { tournamentHandoff: true, plan: <from state>, skepticPassed: <from state>, specialistList: ['implementation_tournament'], taskResults: { implementation_tournament: ${JSON.stringify(String(summary))} }, mergeComplete: true, selectedCandidate: '${selected}', auditPath: <from state> })`,
+          workflowPhase: "tournament_handoff",
+          done: true,
+        },
+        workflowType,
+        step
+      );
+    }
   }
 
   // feature_program step 3: return parallel tasks (one per slice)
