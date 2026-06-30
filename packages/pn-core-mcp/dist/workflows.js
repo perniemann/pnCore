@@ -1341,9 +1341,10 @@ export function getWorkflowStep(workflowType, step, state) {
             : "";
         if (typeof specSummary === "string" && specSummary.trim() !== "" && gateList !== "") {
             const bonFeatures = loadBestOfNFeatures();
-            const maxCostTier = isModelTier(bonFeatures.maxCostTier)
+            const rawMaxCostTier = isModelTier(bonFeatures.maxCostTier)
                 ? bonFeatures.maxCostTier
                 : "standard";
+            const maxCostTier = applyTierAlias(rawMaxCostTier, loadFeatures().tierAliases);
             const paths = TOURNAMENT_PATH_DEFS.slice(0, tournamentN);
             const tasks = paths.map((p) => {
                 const builder = resolveTournamentBuilderModel(p.model, p.builderTier, maxCostTier);
