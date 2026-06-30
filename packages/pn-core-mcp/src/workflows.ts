@@ -5,7 +5,7 @@
  */
 
 import { getResource } from "./content.js";
-import { loadFeatures } from "./features.js";
+import { loadFeatures, loadBestOfNFeatures } from "./features.js";
 import { applySkepticGateStateChecks } from "./skeptic-gate-state.js";
 import { debug } from "./debug.js";
 import {
@@ -34,7 +34,8 @@ export type WorkflowType =
   | "fsi_analyst_draft"
   | "business_strategy"
   | "media_director"
-  | "feature_program";
+  | "feature_program"
+  | "implementation_tournament";
 export type GateType = "human" | "model";
 
 /** Intent from pn-new: full_auto (few gates), design_focused (design workflow), involved (strict gates at every step). */
@@ -68,8 +69,9 @@ export interface WorkflowStepResult {
   done?: boolean;
   parallel?: boolean;
   tasks?: WorkflowTask[];
-  /** Present when full_dev step 5 requires merge reconciliation before review, or step 3 GitHub Issues phase. */
-  workflowPhase?: "merge" | "github_issues";
+  /** Present when full_dev step 5 requires merge reconciliation before review, step 3 GitHub Issues phase, or tournament phases. */
+  workflowPhase?:
+    "merge" | "github_issues" | "tournament_fanout" | "tournament_gate" | "tournament_judge";
   /**
    * Suggested LLM model tier for the work this step asks of the model.
    * Always populated; mirrors the inline hint that is prepended to
@@ -947,6 +949,75 @@ function toposortSlices(
   return result.length === sliceIds.length ? result : null;
 }
 
+const TOURNAMENT_PATH_DEFS = [
+  {
+    id: "path-a",
+    constraint: "Minimize surface area",
+    model: "claude-4.6-sonnet-medium-thinking",
+  },
+  {
+    id: "path-b",
+    constraint: "Optimize happy path",
+    model: "gpt-5.3-codex",
+  },
+  {
+    id: "path-c",
+    constraint: "Maximize extensibility",
+    model: "gemini-3.1-pro",
+  },
+] as const;
+
+const implementationTournamentSteps: StepDef[] = [
+  {
+    instruction:
+      "Load get_skill('pn-best-of-n'). Restate spec in ≤5 sentences. Confirm scope is NOT auth, RLS, payments, or secrets (use parallel review panel instead). List objective gate commands (verifyCommands: [{ cmd, exit: 0 }]). Set tournamentN to 2 or 3 (default from features.bestOfN.defaultN). After user confirms scope and gates, call workflow_step('implementation_tournament', step=1) with state: { specSummary, verifyCommands, tournamentN, scopeConfirmed: true }.",
+    gate: "human",
+    nextStep: 1,
+    requiredFromState: [],
+    modelTier: "fast",
+    tierRationale: "Scope and gate checklist before fan-out.",
+  },
+  {
+    instruction:
+      "Parallel builder fan-out (see tasks[] when tournamentN ≥ 2). Each path uses Task subagent_type best-of-n-runner in an isolated worktree under .worktrees/. Builders use standard tier (capped by features.bestOfN.maxCostTier). Do NOT merge to main. When all paths report, call workflow_step(step=2) with state: { candidates[], objectiveGateResults[] }.",
+    gate: "model",
+    nextStep: 2,
+    requiredFromState: ["specSummary", "verifyCommands", "scopeConfirmed"],
+    modelTier: "standard",
+    tierRationale: "Orchestrate parallel builders; implementation runs in subagents.",
+  },
+  {
+    instruction:
+      "Hard gate: discard candidates with non-zero verify exit. If zero survivors → go_no_go: no_go. If one survivor → set selectedCandidate to that id, judgeComplete: true, skip LLM judge. If ≥2 survivors → call workflow_step(step=3) with objectiveGateResults and candidates for survivors only.",
+    gate: "model",
+    nextStep: 3,
+    requiredFromState: ["candidates", "objectiveGateResults"],
+    modelTier: "fast",
+    tierRationale: "Mechanical elimination from verify exit codes.",
+  },
+  {
+    instruction:
+      "Premium judge pass (maker ≠ checker). Score 0–1 per survivor. Compute auto_select with scripts/best-of-n-select.mjs (threshold: features.bestOfN.autoSelectMinDelta, default 0.15). Save audit JSON to docs/audits/best-of-n-YYYY-MM-DD-<slug>.json and validate with scripts/validate-best-of-n-contract.mjs. Human gate when human_gate_required. After winner confirmed, call workflow_step(step=4) with { selectedCandidate, judgeComplete: true, auditPath, taskResults }." +
+      GATE_STATE_FROM_CONFIRM,
+    gate: "human",
+    nextStep: 4,
+    requiredFromState: ["objectiveGateResults"],
+    modelTier: "premium_thinking",
+    tierRationale: "Separate judge tier after objective gates.",
+  },
+  {
+    instruction:
+      "Merge or copy winner worktree changes to main. Re-run verifyCommands from step 0. Run pn-build-gate phase-complete on merged diff. Discard loser worktrees under .worktrees/. Log report_usage per fan-out/judge/merge when MCP available. Implementation tournament complete." +
+      paperclipWorkflowHint() +
+      " Do not call workflow_step again.",
+    gate: "model",
+    nextStep: 4,
+    requiredFromState: ["selectedCandidate", "judgeComplete"],
+    modelTier: "standard",
+    tierRationale: "Merge winner and run project verify gates.",
+  },
+];
+
 const featureProgramSteps: StepDef[] = [
   {
     instruction:
@@ -1010,7 +1081,8 @@ const featureProgramSteps: StepDef[] = [
 // .pncore/workflow-handoff.jsonl for cross-session resume. It is applied only
 // to multi-phase workflows where losing context between sessions is costly:
 //   design, full_dev, project_kickoff, backend_audit, unreal_feature, godot_feature,
-//   fsi_analyst_draft, business_strategy, media_director, feature_program.
+//   fsi_analyst_draft, business_strategy, media_director, feature_program,
+//   implementation_tournament.
 // The remaining workflows (prompt_optimize, frontend_audit, image_create,
 // visual_tweak, game_feature, svg_create) are short, atomic, or single-artifact
 // flows where the handoff log adds noise without recovery value. Add withHandoff()
@@ -1034,6 +1106,7 @@ export const workflowSteps: Record<WorkflowType, StepDef[]> = {
   business_strategy: withHandoff(businessStrategySteps),
   media_director: withHandoff(mediaDirectorSteps),
   feature_program: withHandoff(featureProgramSteps),
+  implementation_tournament: withHandoff(implementationTournamentSteps),
 };
 
 /**
@@ -1484,6 +1557,16 @@ export function getWorkflowStep(
     }
   }
 
+  // implementation_tournament step 0: gate on bestOfN.enabled feature flag
+  if (workflowType === "implementation_tournament" && step === 0) {
+    if (!loadBestOfNFeatures().enabled) {
+      return {
+        error:
+          'implementation_tournament is behind the bestOfN.enabled feature flag (default: false). Enable it by adding {"bestOfN": {"enabled": true}} to pn-core://config/features.json or PNCORE_FEATURES. For skill-only tournaments, use get_skill(\'pn-best-of-n\') or /pn-best-of-n until the flag is on.',
+      };
+    }
+  }
+
   // feature_program step 1: single-slice hard exit + DAG cycle validation
   if (workflowType === "feature_program" && step === 1) {
     const slices = state.slices as Array<{ id: string; dependsOn?: string[] }> | undefined;
@@ -1517,6 +1600,93 @@ export function getWorkflowStep(
         };
       }
     }
+  }
+
+  // implementation_tournament step 1: parallel best-of-n-runner fan-out
+  if (workflowType === "implementation_tournament" && step === 1) {
+    const specSummary = state.specSummary as string | undefined;
+    const verifyCommands = state.verifyCommands as
+      Array<{ cmd?: string; exit?: number }> | undefined;
+    const tournamentNRaw =
+      typeof state.tournamentN === "number" ? state.tournamentN : loadBestOfNFeatures().defaultN;
+    const tournamentN = Math.min(3, Math.max(2, Math.floor(tournamentNRaw)));
+    const gateList = Array.isArray(verifyCommands)
+      ? verifyCommands
+          .filter((v) => typeof v?.cmd === "string" && v.cmd.trim() !== "")
+          .map((v) => v.cmd!.trim())
+          .join("; ")
+      : "";
+    if (typeof specSummary === "string" && specSummary.trim() !== "" && gateList !== "") {
+      const paths = TOURNAMENT_PATH_DEFS.slice(0, tournamentN);
+      const tasks: WorkflowTask[] = paths.map((p) => ({
+        id: p.id,
+        agentId: p.id,
+        instruction:
+          `Implement: ${specSummary.trim()}\n` +
+          `Worktree: .worktrees/bon-${p.id} (create from HEAD; implement ONLY in worktree).\n` +
+          `Constraint: ${p.constraint}.\n` +
+          `Suggested model: ${p.model} (builder tier; max ${loadBestOfNFeatures().maxCostTier}).\n` +
+          `Run before submit: ${gateList}.\n` +
+          `Output: summary, files touched, verify exit codes. Append to parent state candidates[] and objectiveGateResults[] for id "${p.id}". Do NOT merge to main.`,
+      }));
+      return withTierHint(
+        {
+          ...baseResult,
+          instruction: `Parallel tournament fan-out (N=${tournamentN}): spawn Task subagents (subagent_type: best-of-n-runner) for each task below in isolated worktrees. Same spec, different constraint per path. When all paths complete, call workflow_step('implementation_tournament', step=2) with candidates[] and objectiveGateResults[].`,
+          parallel: true,
+          tasks,
+          workflowPhase: "tournament_fanout",
+        },
+        workflowType,
+        step
+      );
+    }
+  }
+
+  // implementation_tournament step 2: single-survivor fast path after objective gates
+  if (workflowType === "implementation_tournament" && step === 2) {
+    const gateResults = state.objectiveGateResults as
+      Array<{ candidate_id?: string; passed?: boolean }> | undefined;
+    if (Array.isArray(gateResults)) {
+      const survivors = gateResults.filter(
+        (g) => typeof g.candidate_id === "string" && g.passed === true
+      );
+      if (survivors.length === 0) {
+        return {
+          error:
+            "Zero survivors after objective gates. Set go_no_go: no_go in audit JSON; escalate human (narrow spec, fix tests, or increase N).",
+        };
+      }
+      if (survivors.length === 1) {
+        const winnerId = survivors[0].candidate_id!;
+        return withTierHint(
+          {
+            ...baseResult,
+            instruction: `Single survivor "${winnerId}" after objective gates — skip LLM judge. Call workflow_step('implementation_tournament', step=4) with selectedCandidate: "${winnerId}", judgeComplete: true, and taskResults summarizing the merge-ready worktree.`,
+            nextStep: 4,
+            done: false,
+            workflowPhase: "tournament_gate",
+          },
+          workflowType,
+          step,
+          { tier: "fast", rationale: "Mechanical winner when only one path passes gates." }
+        );
+      }
+    }
+  }
+
+  // implementation_tournament step 3: remind judge of auto-select threshold
+  if (workflowType === "implementation_tournament" && step === 3) {
+    const minDelta = loadBestOfNFeatures().autoSelectMinDelta;
+    return withTierHint(
+      {
+        ...baseResult,
+        instruction: `${baseResult.instruction}\n\nAuto-select threshold (bestOfN.autoSelectMinDelta): ${minDelta}. Use resolveBestOfNSelection / scripts/best-of-n-select.mjs before setting auto_selected in audit JSON.`,
+        workflowPhase: "tournament_judge",
+      },
+      workflowType,
+      step
+    );
   }
 
   // feature_program step 3: return parallel tasks (one per slice)

@@ -6,10 +6,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import {
-  DEFAULT_AUTO_SELECT_MIN_DELTA,
-  resolveBestOfNSelection,
-} from "../best-of-n-select.mjs";
+import { DEFAULT_AUTO_SELECT_MIN_DELTA, resolveBestOfNSelection } from "../best-of-n-select.mjs";
 import { validate, validateSelectionCoherence } from "../validate-best-of-n-contract.mjs";
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
@@ -84,7 +81,7 @@ test("delta >= 0.15 → auto_selected: true (compliant fixture: 0.82 vs 0.71 = 0
 test("delta exactly 0.15 → auto_selected: true", () => {
   const result = resolveBestOfNSelection({
     llm_scores: [
-      { candidate_id: "alpha", score: 0.90 },
+      { candidate_id: "alpha", score: 0.9 },
       { candidate_id: "beta", score: 0.75 },
     ],
   });
@@ -99,7 +96,7 @@ test("delta > 0.15 → auto_selected: true", () => {
   const result = resolveBestOfNSelection({
     llm_scores: [
       { candidate_id: "x", score: 0.95 },
-      { candidate_id: "y", score: 0.70 },
+      { candidate_id: "y", score: 0.7 },
     ],
   });
   assert.equal(result.auto_selected, true);
@@ -120,7 +117,7 @@ test("sole llm_score entry → auto_selected: true, runner_up_id null", () => {
 test("survivors filter: failed gates excluded from ranking", () => {
   const result = resolveBestOfNSelection({
     llm_scores: [
-      { candidate_id: "good", score: 0.60 },
+      { candidate_id: "good", score: 0.6 },
       { candidate_id: "broken", score: 0.99 },
     ],
     objective_gate_results: [
@@ -136,7 +133,7 @@ test("survivors filter: failed gates excluded from ranking", () => {
 test("custom minDelta overrides default", () => {
   const result = resolveBestOfNSelection({
     llm_scores: [
-      { candidate_id: "a", score: 0.80 },
+      { candidate_id: "a", score: 0.8 },
       { candidate_id: "b", score: 0.75 },
     ],
     minDelta: 0.03,
@@ -179,7 +176,14 @@ test("validate() catches schema errors before coherence", () => {
 test("pilot-01-r2 coherence: auto_selected=false, human_gate_required=true match delta 0.06", () => {
   const data = JSON.parse(
     readFileSync(
-      join(__dirname, "..", "..", "docs", "audits", "best-of-n-2026-06-30-pilot-01-r2-validate-contract.json"),
+      join(
+        __dirname,
+        "..",
+        "..",
+        "docs",
+        "audits",
+        "best-of-n-2026-06-30-pilot-01-r2-validate-contract.json"
+      ),
       "utf-8"
     )
   );

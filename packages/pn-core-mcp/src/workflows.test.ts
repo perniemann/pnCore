@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import {
   getWorkflowStep,
   resolveStepTier,
@@ -47,9 +47,11 @@ describe("workflows contract", () => {
      * Excluded from the generic step-0 loop because they require special setup:
      * - engine_feature: requires state.engine ('unreal'|'godot').
      * - feature_program: requires featureProgram feature flag (default: false).
+     * - implementation_tournament: requires bestOfN.enabled (default: false).
      */
     const workflowTypesWithStep0: WorkflowType[] = workflowTypes.filter(
-      (wt) => wt !== "engine_feature" && wt !== "feature_program"
+      (wt) =>
+        wt !== "engine_feature" && wt !== "feature_program" && wt !== "implementation_tournament"
     );
 
     it("returns valid result for design workflow step 0", () => {
@@ -977,6 +979,92 @@ describe("workflows contract", () => {
         // phantom is not added to queue → result.length (1) < sliceIds.length (2) → null → cycle error
         expect(r).toHaveProperty("error");
         expect((r as { error: string }).error).toContain("cycle");
+      });
+    });
+
+    describe("implementation_tournament workflow", () => {
+      afterEach(() => {
+        vi.unstubAllEnvs();
+        vi.resetModules();
+      });
+
+      const fanOutState = {
+        specSummary: "Extract YAML parser module with tests unchanged",
+        verifyCommands: [{ cmd: "npm run test:scripts", exit: 0 }],
+        scopeConfirmed: true,
+        tournamentN: 2,
+      };
+
+      it("step 0 returns error when bestOfN.enabled is off (default)", () => {
+        const r = getWorkflowStep("implementation_tournament", 0, {});
+        expect(r).toHaveProperty("error");
+        expect((r as { error: string }).error).toContain("bestOfN");
+      });
+
+      it("step 1 returns parallel fan-out tasks when flag enabled", async () => {
+        vi.stubEnv("PNCORE_FEATURES", JSON.stringify({ bestOfN: { enabled: true } }));
+        const { getWorkflowStep: gws } = await import("./workflows.js");
+        const r = gws("implementation_tournament", 1, fanOutState);
+        assertWorkflowStepResultShape(r);
+        const w = r as WorkflowStepResult;
+        expect(w.parallel).toBe(true);
+        expect(w.tasks).toHaveLength(2);
+        expect(w.tasks!.map((t) => t.id)).toEqual(["path-a", "path-b"]);
+        expect(w.workflowPhase).toBe("tournament_fanout");
+        expect(w.instruction).toContain("best-of-n-runner");
+        for (const task of w.tasks!) {
+          expect(task.instruction).toContain("Worktree:");
+          expect(task.instruction).toContain("npm run test:scripts");
+        }
+      });
+
+      it("step 2 single survivor skips judge to step 4", async () => {
+        vi.stubEnv("PNCORE_FEATURES", JSON.stringify({ bestOfN: { enabled: true } }));
+        const { getWorkflowStep: gws } = await import("./workflows.js");
+        const r = gws("implementation_tournament", 2, {
+          candidates: [
+            { id: "path-a", worktree: ".worktrees/a", summary: "a", constraint: "min", model: "m" },
+            { id: "path-b", worktree: ".worktrees/b", summary: "b", constraint: "max", model: "m" },
+          ],
+          objectiveGateResults: [
+            { candidate_id: "path-a", passed: true, failed_commands: [] },
+            { candidate_id: "path-b", passed: false, failed_commands: ["npm run test:scripts"] },
+          ],
+        });
+        assertWorkflowStepResultShape(r);
+        const w = r as WorkflowStepResult;
+        expect(w.nextStep).toBe(4);
+        expect(w.workflowPhase).toBe("tournament_gate");
+        expect(w.instruction).toContain("path-a");
+      });
+
+      it("step 2 zero survivors returns error", async () => {
+        vi.stubEnv("PNCORE_FEATURES", JSON.stringify({ bestOfN: { enabled: true } }));
+        const { getWorkflowStep: gws } = await import("./workflows.js");
+        const r = gws("implementation_tournament", 2, {
+          candidates: [{ id: "path-a" }],
+          objectiveGateResults: [{ candidate_id: "path-a", passed: false, failed_commands: ["x"] }],
+        });
+        expect(r).toHaveProperty("error");
+        expect((r as { error: string }).error).toContain("Zero survivors");
+      });
+
+      it("step 3 includes autoSelectMinDelta in instruction", async () => {
+        vi.stubEnv(
+          "PNCORE_FEATURES",
+          JSON.stringify({ bestOfN: { enabled: true, autoSelectMinDelta: 0.2 } })
+        );
+        const { getWorkflowStep: gws } = await import("./workflows.js");
+        const r = gws("implementation_tournament", 3, {
+          objectiveGateResults: [
+            { candidate_id: "path-a", passed: true, failed_commands: [] },
+            { candidate_id: "path-b", passed: true, failed_commands: [] },
+          ],
+        });
+        assertWorkflowStepResultShape(r);
+        const w = r as WorkflowStepResult;
+        expect(w.workflowPhase).toBe("tournament_judge");
+        expect(w.instruction).toContain("0.2");
       });
     });
 

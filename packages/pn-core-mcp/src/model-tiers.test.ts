@@ -125,3 +125,17 @@ describe("PNCORE_FEATURES tierAliases", () => {
     expect(r!.tier).toBe("premium_thinking");
   });
 });
+
+describe("resolveRoleTier", () => {
+  it("maps judge to premium_thinking", async () => {
+    const { resolveRoleTier } = await import("./model-tiers.js");
+    const r = resolveRoleTier("judge");
+    expect(r.tier).toBe("premium_thinking");
+    expect(r.rationale).toMatch(/judge/i);
+  });
+
+  it("maps explorer to fast", async () => {
+    const { resolveRoleTier } = await import("./model-tiers.js");
+    expect(resolveRoleTier("explorer").tier).toBe("fast");
+  });
+});

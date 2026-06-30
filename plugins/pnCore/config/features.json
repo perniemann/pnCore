@@ -1,1 +1,8 @@
-{}
+{
+  "bestOfN": {
+    "enabled": false,
+    "defaultN": 2,
+    "autoSelectMinDelta": 0.15,
+    "maxCostTier": "standard"
+  }
+}
