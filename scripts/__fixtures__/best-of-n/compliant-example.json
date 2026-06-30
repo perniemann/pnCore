@@ -1,0 +1,35 @@
+{
+  "spec_summary": "Refactor parseUserInput with strong unit test harness",
+  "candidates": [
+    {
+      "id": "path-a",
+      "worktree": ".worktrees/bon-path-a",
+      "summary": "Parser combinator approach",
+      "constraint": "Minimize surface area",
+      "model": "claude-4.6-sonnet-medium-thinking",
+      "verify_commands": [{ "cmd": "npm test -- parseUserInput", "exit": 0 }]
+    },
+    {
+      "id": "path-b",
+      "worktree": ".worktrees/bon-path-b",
+      "summary": "Regex pipeline with explicit stages",
+      "constraint": "Optimize happy path",
+      "model": "gpt-5.3-codex",
+      "verify_commands": [{ "cmd": "npm test -- parseUserInput", "exit": 0 }]
+    }
+  ],
+  "objective_gate_results": [
+    { "candidate_id": "path-a", "passed": true, "failed_commands": [] },
+    { "candidate_id": "path-b", "passed": true, "failed_commands": [] }
+  ],
+  "llm_scores": [
+    { "candidate_id": "path-a", "score": 0.82, "notes": "Simpler API, fewer edge-case branches" },
+    { "candidate_id": "path-b", "score": 0.71, "notes": "Faster but harder to extend" }
+  ],
+  "winner_id": "path-a",
+  "discarded_ids": ["path-b"],
+  "rationale": "path-a wins on interface simplicity after both passed npm test",
+  "auto_selected": false,
+  "human_gate_required": true,
+  "go_no_go": "conditional_go"
+}

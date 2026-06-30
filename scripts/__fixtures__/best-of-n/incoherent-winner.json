@@ -1,0 +1,32 @@
+{
+  "spec_summary": "Selection coherence fixture: winner mismatch (path-b has higher score than winner_id=path-a)",
+  "candidates": [
+    {
+      "id": "path-a",
+      "worktree": ".worktrees/bon-test-path-a",
+      "summary": "Minimize surface area",
+      "constraint": "Minimize surface area",
+      "model": "claude-4.6-sonnet"
+    },
+    {
+      "id": "path-b",
+      "worktree": ".worktrees/bon-test-path-b",
+      "summary": "Optimize happy path",
+      "constraint": "Optimize happy path",
+      "model": "gpt-5"
+    }
+  ],
+  "objective_gate_results": [
+    { "candidate_id": "path-a", "passed": true, "failed_commands": [] },
+    { "candidate_id": "path-b", "passed": true, "failed_commands": [] }
+  ],
+  "llm_scores": [
+    { "candidate_id": "path-a", "score": 0.71, "notes": "Good but second" },
+    { "candidate_id": "path-b", "score": 0.85, "notes": "Top scorer" }
+  ],
+  "winner_id": "path-a",
+  "discarded_ids": [],
+  "rationale": "Intentionally wrong winner for coherence test",
+  "auto_selected": true,
+  "go_no_go": "go"
+}

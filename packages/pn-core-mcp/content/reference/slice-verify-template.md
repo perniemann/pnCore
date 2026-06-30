@@ -23,6 +23,15 @@ checker:
   task_id: abc123
   artifact: docs/audits/checker-2026-06-29-s2.md
   skip_reason:
+review_panel:
+  risk: auth
+  synthesized_artifact: docs/audits/review-panel-2026-06-29-s2.md
+  bugbot:
+    task_id: bugbot-xyz
+    artifact: docs/audits/bugbot-2026-06-29-s2.md
+  security_review:
+    task_id: sec-xyz
+    artifact: docs/audits/security-review-2026-06-29-s2.md
 skeptic:
   verdict: light-pass
   artifact:
@@ -38,7 +47,20 @@ user_continue:
   at: 2026-06-29T14:00:00Z
 ---
 
-*(Inline `#` comments in real files are optional; omit empty keys like `skip_reason` when unused.)*
+*(Inline `#` comments in real files are optional; omit empty keys like `skip_reason` when unused. Omit entire `review_panel` block when the slice is not auth/RLS/payments/secrets.)*
+
+### `review_panel` (optional — high-risk slices only)
+
+When the phase touches **auth, RLS, payments, or secrets** (`pn-build-gate` parallel review panel):
+
+| Key | Required when `review_panel` present | Notes |
+|-----|--------------------------------------|-------|
+| `review_panel.risk` | Yes | One of: `auth`, `rls`, `payments`, `secrets` |
+| `review_panel.synthesized_artifact` | Recommended | Lead merge of checker + bugbot + security findings |
+| `review_panel.bugbot.task_id` or `.artifact` | Yes | Task subagent `bugbot`, `readonly: true` |
+| `review_panel.security_review.task_id` or `.artifact` | Yes | Task subagent `security-review`, `readonly: true` |
+
+`checker.kind: task` remains **mandatory** — the panel augments the checker; it does not replace it.
 
 ---
 
@@ -78,6 +100,7 @@ user_continue:
 4. **`verify`** — list commands run **after** the slice implementation; include exit code 0 or document failure (slice not complete).
 5. **Program end** — after the last slice, also produce baseline/closing audit and run `/pn-preflight` (when marketing UI) and `/pn-deliver` per plan § Program completion.
 6. **Automation** — `node scripts/validate-slice-verify.mjs .` (from project root with pnCore scripts available); add `--strict-plan` when a redo/program plan lists slices.
+7. **`review_panel`** — when `review_panel.risk` is set, `checker.kind` must still be `task` with evidence; `bugbot` and `security_review` each need `task_id` or `artifact`. See `pn-core://reference/subagent-routing.md`.
 
 ---
 

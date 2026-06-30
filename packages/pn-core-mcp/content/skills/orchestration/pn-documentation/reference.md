@@ -73,26 +73,28 @@ Full document templates and format structures. For doc type rules and convention
 
 Baseline per skill invocation (single pass). Multiply by step count for multi-step phases.
 
+**Roadmap tier → pnCore model tier:** Low = `fast`, Medium = `standard`, High = `premium`, Highest = `premium_thinking`. See `pn-create-workflow-roadmap` §3 and `pn-core://reference/subagent-routing.md`.
+
 | Skill/Command | Est. Input | Est. Output | Model Tier |
 |---|---|---|---|
-| pn-discovery-questionnaire | 8–15K | 3–6K | Medium |
-| pn-create-prd | 10–15K | 5–8K | Medium |
-| pn-create-design-doc | 10–15K | 5–8K | High |
-| pn-prior-art-research | 15–25K | 5–10K | Medium |
-| pn-writing-plans | 15–25K | 10–20K | Medium |
-| pn-create-workflow-roadmap | 10–15K | 5–10K | Medium |
-| pn-scaffolder | 10–15K | 10–15K | Medium |
-| pn-frontend-developer | 20–40K | 15–30K | Medium |
-| pn-backend-developer | 20–40K | 15–30K | Medium |
-| pn-testing-specialist | 15–25K | 10–20K | Medium |
-| pn-assets-manager | 10–20K | 5–15K | High |
-| pn-design | 15–25K | 10–20K | High |
-| pn-game | 15–25K | 10–20K | High |
-| pn-reviewer | 20–35K | 5–10K | Medium |
-| pn-security-auditor | 20–35K | 5–10K | Highest |
-| pn-frontend-audit | 20–35K | 5–10K | Highest |
-| pn-deliver (verify) | 10–15K | 3–5K | Low |
-| pn-deliver (package) | 10–15K | 5–8K | Medium |
+| pn-discovery-questionnaire | 8–15K | 3–6K | Low (`fast`) |
+| pn-create-prd | 10–15K | 5–8K | High (`premium`) |
+| pn-create-design-doc | 10–15K | 5–8K | High (`premium`) |
+| pn-prior-art-research | 15–25K | 5–10K | Medium (`standard`) |
+| pn-writing-plans | 15–25K | 10–20K | High (`premium`) |
+| pn-create-workflow-roadmap | 10–15K | 5–10K | Medium (`standard`) |
+| pn-scaffolder | 10–15K | 10–15K | Medium (`standard`) |
+| pn-frontend-developer | 20–40K | 15–30K | Medium (`standard`) |
+| pn-backend-developer | 20–40K | 15–30K | Medium (`standard`) |
+| pn-testing-specialist | 15–25K | 10–20K | Medium (`standard`) |
+| pn-assets-manager | 10–20K | 5–15K | Low (`fast`) |
+| pn-design | 15–25K | 10–20K | High (`premium`) |
+| pn-game | 15–25K | 10–20K | High (`premium`) |
+| pn-reviewer | 20–35K | 5–10K | Medium (`standard`) |
+| pn-security-auditor | 20–35K | 5–10K | Highest (`premium_thinking`) |
+| pn-frontend-audit | 20–35K | 5–10K | Highest (`premium_thinking`) |
+| pn-deliver (verify) | 10–15K | 3–5K | Low (`fast`) |
+| pn-deliver (package) | 10–15K | 5–8K | Medium (`standard`) |
 
 ---
 

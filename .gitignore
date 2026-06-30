@@ -36,6 +36,9 @@ packages/pn-core-mcp/.pncursor/
 # Test install target (do not commit)
 .test-project/
 
+# Local best-of-N / tournament git worktrees (see pn-best-of-n skill)
+.worktrees/
+
 # pn-session-retro v2 state (reserved; harmless if absent)
 .cursor/hooks/state/retro-index.json
 .cursor/hooks/state/retro-patterns.json

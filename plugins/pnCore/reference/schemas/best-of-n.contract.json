@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pn-core://reference/schemas/best-of-n.contract.json",
+  "title": "Best-of-N Contract",
+  "description": "Output contract for pn-best-of-n tournament judge after objective gates eliminate failing candidates",
+  "type": "object",
+  "required": [
+    "spec_summary",
+    "candidates",
+    "objective_gate_results",
+    "winner_id",
+    "discarded_ids",
+    "rationale",
+    "auto_selected",
+    "go_no_go"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "spec_summary": { "type": "string" },
+    "candidates": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "worktree", "summary", "constraint", "model"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "worktree": { "type": "string" },
+          "summary": { "type": "string" },
+          "constraint": { "type": "string" },
+          "model": { "type": "string" },
+          "verify_commands": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["cmd", "exit"],
+              "additionalProperties": false,
+              "properties": {
+                "cmd": { "type": "string" },
+                "exit": { "type": "integer" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "objective_gate_results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["candidate_id", "passed", "failed_commands"],
+        "additionalProperties": false,
+        "properties": {
+          "candidate_id": { "type": "string" },
+          "passed": { "type": "boolean" },
+          "failed_commands": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "llm_scores": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["candidate_id", "score", "notes"],
+        "additionalProperties": false,
+        "properties": {
+          "candidate_id": { "type": "string" },
+          "score": { "type": "number", "minimum": 0, "maximum": 1 },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "winner_id": { "type": "string" },
+    "discarded_ids": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "rationale": { "type": "string" },
+    "auto_selected": { "type": "boolean" },
+    "human_gate_required": { "type": "boolean" },
+    "go_no_go": { "type": "string", "enum": ["go", "no_go", "conditional_go"] }
+  },
+  "$examples": [
+    {
+      "spec_summary": "Refactor parseUserInput with strong unit test harness",
+      "candidates": [
+        {
+          "id": "path-a",
+          "worktree": ".worktrees/bon-path-a",
+          "summary": "Parser combinator approach",
+          "constraint": "Minimize surface area",
+          "model": "claude-4.6-sonnet-medium-thinking",
+          "verify_commands": [{ "cmd": "npm test -- parseUserInput", "exit": 0 }]
+        },
+        {
+          "id": "path-b",
+          "worktree": ".worktrees/bon-path-b",
+          "summary": "Regex pipeline with explicit stages",
+          "constraint": "Optimize happy path",
+          "model": "gpt-5.3-codex",
+          "verify_commands": [{ "cmd": "npm test -- parseUserInput", "exit": 0 }]
+        }
+      ],
+      "objective_gate_results": [
+        { "candidate_id": "path-a", "passed": true, "failed_commands": [] },
+        { "candidate_id": "path-b", "passed": true, "failed_commands": [] }
+      ],
+      "llm_scores": [
+        { "candidate_id": "path-a", "score": 0.82, "notes": "Simpler API, fewer edge-case branches" },
+        { "candidate_id": "path-b", "score": 0.71, "notes": "Faster but harder to extend" }
+      ],
+      "winner_id": "path-a",
+      "discarded_ids": ["path-b"],
+      "rationale": "path-a wins on interface simplicity after both passed npm test",
+      "auto_selected": true,
+      "go_no_go": "go"
+    }
+  ]
+}

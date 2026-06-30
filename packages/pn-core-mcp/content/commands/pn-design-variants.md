@@ -46,3 +46,4 @@ Final comparison table with a recommended pick and rationale.
 - Each variant must be genuinely different — not iterations of the same idea
 - No variant gets implementation until the comparison is done and the user confirms a direction
 - If the variants converge, flag it and ask for an additional constraint to diverge further
+- After the user picks a direction and wants **code** tournaments → `/pn-best-of-n` (not this command)

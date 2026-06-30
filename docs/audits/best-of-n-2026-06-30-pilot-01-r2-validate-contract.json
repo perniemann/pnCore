@@ -1,0 +1,69 @@
+{
+  "spec_summary": "P1 pilot task 1 round 2 (N=3): CLI validator for Best-of-N judge JSON; user requested re_run after round 1 close scores.",
+  "candidates": [
+    {
+      "id": "path-a",
+      "worktree": ".worktrees/bon-pilot-01-r2-path-a",
+      "summary": "Single-file module: lazy AJV compile, validate() export + CLI guard, correct script name",
+      "constraint": "Minimize surface area",
+      "model": "claude-4.6-sonnet-medium-thinking",
+      "verify_commands": [
+        { "cmd": "npm run test:scripts", "exit": 0 },
+        { "cmd": "node scripts/validate-best-of-n-contract.mjs scripts/__fixtures__/best-of-n/compliant-example.json", "exit": 0 },
+        { "cmd": "node scripts/validate-best-of-n-contract.mjs scripts/__fixtures__/best-of-n/missing-winner-id.json", "exit": 1 }
+      ]
+    },
+    {
+      "id": "path-b",
+      "worktree": ".worktrees/bon-pilot-01-r2-path-b-a1b2c3d4",
+      "summary": "Fast first-error CLI as validate-best-of-n.mjs (spec name mismatch)",
+      "constraint": "Optimize happy path",
+      "model": "gpt-5.3-codex",
+      "verify_commands": [
+        { "cmd": "npm run test:scripts", "exit": 0 },
+        { "cmd": "node scripts/validate-best-of-n.mjs scripts/__fixtures__/best-of-n/compliant-example.json", "exit": 0 },
+        { "cmd": "node scripts/validate-best-of-n.mjs scripts/__fixtures__/best-of-n/missing-winner-id.json", "exit": 1 }
+      ]
+    },
+    {
+      "id": "path-c",
+      "worktree": ".worktrees/bon-pilot-01-r2-path-c",
+      "summary": "Lib + CLI with --jsonl batch mode and repoRoot option; recompiles AJV per validate call",
+      "constraint": "Maximize extensibility",
+      "model": "gemini-3.1-pro",
+      "verify_commands": [
+        { "cmd": "npm run test:scripts", "exit": 0 },
+        { "cmd": "node scripts/validate-best-of-n-contract.mjs scripts/__fixtures__/best-of-n/compliant-example.json", "exit": 0 },
+        { "cmd": "node scripts/validate-best-of-n-contract.mjs scripts/__fixtures__/best-of-n/missing-winner-id.json", "exit": 1 }
+      ]
+    }
+  ],
+  "objective_gate_results": [
+    { "candidate_id": "path-a", "passed": true, "failed_commands": [] },
+    { "candidate_id": "path-b", "passed": true, "failed_commands": [] },
+    { "candidate_id": "path-c", "passed": true, "failed_commands": [] }
+  ],
+  "llm_scores": [
+    {
+      "candidate_id": "path-a",
+      "score": 0.85,
+      "notes": "Cleanest delivery: lazy compile, spec-correct filename, single cohesive module"
+    },
+    {
+      "candidate_id": "path-c",
+      "score": 0.79,
+      "notes": "JSONL batch useful for audit trails; lib re-instantiates AJV each call — fix before production"
+    },
+    {
+      "candidate_id": "path-b",
+      "score": 0.73,
+      "notes": "Passes gates but uses validate-best-of-n.mjs instead of spec name"
+    }
+  ],
+  "winner_id": "path-a",
+  "discarded_ids": ["path-b"],
+  "rationale": "path-a wins on spec adherence and implementation quality; path-c second for batch mode potential; path-b penalized for CLI naming drift. Top-two delta 0.06 < 0.15.",
+  "auto_selected": false,
+  "human_gate_required": true,
+  "go_no_go": "go"
+}

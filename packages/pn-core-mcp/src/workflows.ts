@@ -101,6 +101,8 @@ const designSteps: StepDef[] = [
     gate: "human",
     nextStep: 1,
     requiredFromState: [],
+    modelTier: "fast",
+    tierRationale: "Structured design Q&A presentation; synthesis happens in step 1.",
   },
   {
     instruction:
@@ -163,6 +165,8 @@ const fullDevSteps: StepDef[] = [
     gate: "human",
     nextStep: 1,
     requiredFromState: [],
+    modelTier: "fast",
+    tierRationale: "Structured discovery Q&A; no plan synthesis yet.",
   },
   {
     instruction:
@@ -226,6 +230,8 @@ const projectKickoffSteps: StepDef[] = [
     gate: "human",
     nextStep: 1,
     requiredFromState: [],
+    modelTier: "fast",
+    tierRationale: "Structured discovery Q&A; doc authoring starts in step 1.",
   },
   {
     instruction:
@@ -285,6 +291,8 @@ const projectKickoffSteps: StepDef[] = [
     gate: "model",
     nextStep: 7,
     requiredFromState: ["refsIndexPath"],
+    modelTier: "fast",
+    tierRationale: "Mechanical project-context and skill stub from locked refs.",
   },
 ];
 
@@ -295,6 +303,8 @@ const promptOptimizeSteps: StepDef[] = [
     gate: "human",
     nextStep: 1,
     requiredFromState: [],
+    modelTier: "fast",
+    tierRationale: "Structured prompt-intake questionnaire.",
   },
   {
     instruction:
@@ -356,6 +366,8 @@ const imageCreateSteps: StepDef[] = [
     gate: "human",
     nextStep: 1,
     requiredFromState: [],
+    modelTier: "fast",
+    tierRationale: "Structured image-intake questionnaire.",
   },
   {
     instruction:
@@ -393,6 +405,8 @@ const mediaDirectorSteps: StepDef[] = [
     gate: "human",
     nextStep: 1,
     requiredFromState: [],
+    modelTier: "fast",
+    tierRationale: "Run-intent confirmation and flags only.",
   },
   {
     instruction:
@@ -498,6 +512,8 @@ const gameFeatureSteps: StepDef[] = [
     gate: "human",
     nextStep: 1,
     requiredFromState: [],
+    modelTier: "fast",
+    tierRationale: "Structured game-mechanic intake questionnaire.",
   },
   {
     instruction:
@@ -546,6 +562,8 @@ const svgCreateSteps: StepDef[] = [
     gate: "human",
     nextStep: 1,
     requiredFromState: [],
+    modelTier: "fast",
+    tierRationale: "Structured SVG-intake questionnaire.",
   },
   {
     instruction:
@@ -936,6 +954,8 @@ const featureProgramSteps: StepDef[] = [
     gate: "human",
     nextStep: 1,
     requiredFromState: [],
+    modelTier: "fast",
+    tierRationale: "Structured program discovery Q&A; decomposition is step 1.",
   },
   {
     instruction:

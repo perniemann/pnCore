@@ -33,28 +33,28 @@ export type TierMeta = {
 // Centralized exemplars. Bump these (and only these) when Cursor's picker rotates.
 export const TIER_META: Record<ModelTier, TierMeta> = {
   fast: {
-    exemplar: "composer-2",
+    exemplar: "composer-2.5-fast",
     alternates: ["gemini-3-flash"],
     description:
-      "Efficiency tier: mechanical formatting, summaries, asset hand-off, brief terminal output.",
+      "Efficiency tier: mechanical formatting, summaries, asset hand-off, brief terminal output, explore subagents.",
   },
   standard: {
-    exemplar: "sonnet-4.6",
-    alternates: ["gpt-5.5", "codex-5.3"],
+    exemplar: "claude-4.6-sonnet-medium-thinking",
+    alternates: ["gpt-5.3-codex", "gpt-5.5-medium"],
     description:
-      "Daily-driver tier: scoped reasoning, implementation, structured Q&A. Balanced cost.",
+      "Daily-driver tier: scoped reasoning, implementation, structured Q&A, checker subagents. Balanced cost.",
   },
   premium: {
-    exemplar: "opus-4.7",
+    exemplar: "claude-opus-4-8-thinking-high",
     alternates: [],
     description:
-      "Premium tier: plan writing, skeptic challenge, design philosophy, multi-criteria audit.",
+      "Premium tier: plan writing, skeptic challenge, design philosophy, multi-criteria audit, security-review subagent.",
   },
   premium_thinking: {
-    exemplar: "opus-4.7 + max",
+    exemplar: "claude-opus-4-8-thinking-high + MAX",
     alternates: [],
     description:
-      "Premium + MAX Mode (extended thinking): security audit, financial models, strategic frame, contract design.",
+      "Premium + MAX Mode (extended thinking): security audit, financial models, strategic frame, contract design, best-of-N judge.",
   },
 };
 

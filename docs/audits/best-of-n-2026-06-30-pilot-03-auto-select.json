@@ -1,0 +1,49 @@
+{
+  "spec_summary": "P1 pilot task 3 (N=2): auto-select helper (score delta >= 0.15) + selection coherence check in validate-best-of-n-contract.mjs.",
+  "candidates": [
+    {
+      "id": "path-a",
+      "worktree": ".worktrees/bon-pilot-03-path-a",
+      "summary": "best-of-n-select.mjs with resolveBestOfNSelection; validateSelectionCoherence integrated into validate(); 14 tests; fixed compliant-example fixture",
+      "constraint": "Minimize surface area",
+      "model": "claude-4.6-sonnet-medium-thinking",
+      "verify_commands": [
+        { "cmd": "npm run test:scripts", "exit": 0 },
+        { "cmd": "node --test scripts/__tests__/best-of-n-select.test.mjs", "exit": 0 }
+      ]
+    },
+    {
+      "id": "path-b",
+      "worktree": ".worktrees/bon-pilot-03-path-b-a1b2c3d4",
+      "summary": "Single-pass resolveBestOfNSelection + CLI; best-of-n-contract-lib.mjs split; 6 tests",
+      "constraint": "Optimize happy path",
+      "model": "gpt-5.3-codex",
+      "verify_commands": [
+        { "cmd": "npm run test:scripts", "exit": 0 },
+        { "cmd": "node --test scripts/__tests__/best-of-n-select.test.mjs", "exit": 0 }
+      ]
+    }
+  ],
+  "objective_gate_results": [
+    { "candidate_id": "path-a", "passed": true, "failed_commands": [] },
+    { "candidate_id": "path-b", "passed": true, "failed_commands": [] }
+  ],
+  "llm_scores": [
+    {
+      "candidate_id": "path-a",
+      "score": 0.90,
+      "notes": "Thinnest integration; single-survivor gate path; 14 tests; preserves validate() export for existing tests"
+    },
+    {
+      "candidate_id": "path-b",
+      "score": 0.72,
+      "notes": "CLI useful but adds best-of-n-contract-lib.mjs; ranking ignores single-survivor shortcut; fewer edge-case tests"
+    }
+  ],
+  "winner_id": "path-a",
+  "discarded_ids": ["path-b"],
+  "rationale": "path-a wins on spec adherence and test depth without extra lib module. Delta 0.18 >= 0.15.",
+  "auto_selected": true,
+  "human_gate_required": false,
+  "go_no_go": "go"
+}
