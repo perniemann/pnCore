@@ -5,110 +5,12 @@
 
 import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
+import { extractFrontMatter, parseSliceVerifyYaml } from "./slice-verify-yaml.mjs";
+
+export { extractFrontMatter, parseSliceVerifyYaml };
 
 const SLICE_ID_RE = /\b(S\d+|Phase[- ]?\d+)\b/gi;
 const VERIFY_FILE_RE = /-verify-/i;
-
-/** @param {string} content */
-export function extractFrontMatter(content) {
-  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-  return match ? match[1] : null;
-}
-
-/** @param {string} block @param {string} key */
-function getTopScalar(block, key) {
-  const m = block.match(new RegExp(`^${key}:\\s*(.+)$`, "m"));
-  if (!m) return undefined;
-  return m[1]
-    .trim()
-    .replace(/^["']|["']$/g, "")
-    .replace(/\s+#.*$/, "")
-    .trim();
-}
-
-/** @param {string} block @param {string} key */
-function getNestedSection(block, key) {
-  const lines = block.split("\n");
-  let start = -1;
-  for (let i = 0; i < lines.length; i++) {
-    if (lines[i].match(new RegExp(`^${key}:\\s*$`))) {
-      start = i + 1;
-      break;
-    }
-  }
-  if (start < 0) return "";
-  const out = [];
-  for (let i = start; i < lines.length; i++) {
-    const line = lines[i];
-    if (line.match(/^[a-zA-Z_][\w-]*:\s*/)) break;
-    if (line.match(/^\S/)) break;
-    out.push(line);
-  }
-  return out.join("\n");
-}
-
-/** @param {string} section @param {string} key */
-function getNestedScalar(section, key) {
-  const listItem = section.match(new RegExp(`^\\s+-\\s+${key}:\\s*(.+)$`, "m"));
-  if (listItem) {
-    return listItem[1]
-      .trim()
-      .replace(/^["']|["']$/g, "")
-      .replace(/\s+#.*$/, "")
-      .trim();
-  }
-  const m = section.match(new RegExp(`^\\s+${key}:\\s*(.+)$`, "m"));
-  if (!m) return undefined;
-  return m[1]
-    .trim()
-    .replace(/^["']|["']$/g, "")
-    .replace(/\s+#.*$/, "")
-    .trim();
-}
-
-/** @param {string} verifySection */
-function parseVerifyList(verifySection) {
-  if (!verifySection.trim()) return [];
-  /** @type {{ cmd: string, exit?: number, note?: string }[]} */
-  const verify = [];
-  const chunks = verifySection.split(/\n(?=\s+-\s+cmd:)/).filter((c) => c.trim());
-  for (const chunk of chunks) {
-    const cmd = getNestedScalar(chunk, "cmd");
-    if (!cmd) continue;
-    const exitRaw = getNestedScalar(chunk, "exit");
-    const note = getNestedScalar(chunk, "note");
-    verify.push({
-      cmd,
-      exit: exitRaw !== undefined && exitRaw !== "" ? Number(exitRaw) : undefined,
-      note,
-    });
-  }
-  return verify;
-}
-
-/** @param {string} yaml */
-export function parseSliceVerifyYaml(yaml) {
-  const checkerSection = getNestedSection(yaml, "checker");
-  const userContinueSection = getNestedSection(yaml, "user_continue");
-  const verifySection = getNestedSection(yaml, "verify");
-  const verify = parseVerifyList(verifySection);
-
-  return {
-    program: getTopScalar(yaml, "program"),
-    slice: getTopScalar(yaml, "slice"),
-    date: getTopScalar(yaml, "date"),
-    checker: {
-      kind: getNestedScalar(checkerSection, "kind"),
-      task_id: getNestedScalar(checkerSection, "task_id"),
-      artifact: getNestedScalar(checkerSection, "artifact"),
-      skip_reason: getNestedScalar(checkerSection, "skip_reason"),
-    },
-    user_continue: {
-      at: getNestedScalar(userContinueSection, "at"),
-    },
-    verify,
-  };
-}
 
 /**
  * @param {ReturnType<typeof parseSliceVerifyYaml>} fm
@@ -154,6 +56,30 @@ export function validateSliceVerifyFrontMatter(fm, fileLabel = "slice verify") {
         errors.push(`${fileLabel}: verify[${i}] missing numeric exit`);
       } else if (entry.exit !== 0) {
         errors.push(`${fileLabel}: verify[${i}] exit=${entry.exit} (expected 0 for ship)`);
+      }
+    }
+  }
+
+  const panelRisk = fm.review_panel?.risk?.trim();
+  if (panelRisk) {
+    const allowed = new Set(["auth", "rls", "payments", "secrets"]);
+    if (!allowed.has(panelRisk)) {
+      errors.push(
+        `${fileLabel}: review_panel.risk must be auth|rls|payments|secrets (got '${panelRisk}')`
+      );
+    }
+    if (kind !== "task") {
+      errors.push(
+        `${fileLabel}: review_panel requires checker.kind=task (panel augments checker; got '${kind ?? ""}')`
+      );
+    }
+    for (const role of ["bugbot", "security_review"]) {
+      const sub = fm.review_panel[role];
+      const hasEvidence = Boolean(sub?.task_id?.trim() || sub?.artifact?.trim());
+      if (!hasEvidence) {
+        errors.push(
+          `${fileLabel}: review_panel.${role} requires task_id or artifact when review_panel.risk is set`
+        );
       }
     }
   }

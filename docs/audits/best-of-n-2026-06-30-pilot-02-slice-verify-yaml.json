@@ -1,0 +1,49 @@
+{
+  "spec_summary": "P1 pilot task 2 (N=2): extract YAML front-matter parsing from slice-verify-lib.mjs into slice-verify-yaml.mjs; behavior unchanged including review_panel.",
+  "candidates": [
+    {
+      "id": "path-a",
+      "worktree": ".worktrees/bon-pilot-02-path-a",
+      "summary": "Lift existing line-based helpers into slice-verify-yaml.mjs; lib re-exports; 6 yaml unit tests including review_panel",
+      "constraint": "Minimize surface area",
+      "model": "claude-4.6-sonnet-medium-thinking",
+      "verify_commands": [
+        { "cmd": "npm run test:scripts", "exit": 0 },
+        { "cmd": "node --test scripts/__tests__/slice-verify-yaml.test.mjs", "exit": 0 }
+      ]
+    },
+    {
+      "id": "path-b",
+      "worktree": ".worktrees/bon-pilot-02-path-b",
+      "summary": "Single-pass scanYamlDocument scanner; parseSliceVerifyYaml derived from nested object; 3 yaml tests",
+      "constraint": "Optimize happy path",
+      "model": "gpt-5.3-codex",
+      "verify_commands": [
+        { "cmd": "npm run test:scripts", "exit": 0 },
+        { "cmd": "node --test scripts/__tests__/slice-verify-yaml.test.mjs", "exit": 0 }
+      ]
+    }
+  ],
+  "objective_gate_results": [
+    { "candidate_id": "path-a", "passed": true, "failed_commands": [] },
+    { "candidate_id": "path-b", "passed": true, "failed_commands": [] }
+  ],
+  "llm_scores": [
+    {
+      "candidate_id": "path-a",
+      "score": 0.91,
+      "notes": "Complete parity with main including review_panel parsing and validation; thinnest lib shim; 6 focused yaml tests"
+    },
+    {
+      "candidate_id": "path-b",
+      "score": 0.58,
+      "notes": "Single-pass scanner is cleaner in theory but omits review_panel entirely — would fail main review_panel fixtures if merged"
+    }
+  ],
+  "winner_id": "path-a",
+  "discarded_ids": ["path-b"],
+  "rationale": "path-a wins on spec completeness: path-b gates passed in worktree branched from HEAD without uncommitted review_panel work, so its parser lacks review_panel fields required on main. Delta 0.33 >= 0.15.",
+  "auto_selected": true,
+  "human_gate_required": false,
+  "go_no_go": "go"
+}

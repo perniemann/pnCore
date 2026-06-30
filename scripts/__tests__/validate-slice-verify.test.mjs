@@ -26,6 +26,32 @@ function loadFixture(name) {
   return readFileSync(join(fixturesDir, name), "utf8");
 }
 
+test("compliant review_panel fixture passes validation", () => {
+  const errors = validateSliceVerifyContent(
+    loadFixture("compliant-review-panel.md"),
+    "compliant-review-panel.md"
+  );
+  assert.deepEqual(errors, []);
+});
+
+test("review_panel with missing bugbot evidence fails validation", () => {
+  const errors = validateSliceVerifyContent(
+    loadFixture("bad-review-panel-missing-bugbot.md"),
+    "bad-review-panel-missing-bugbot.md"
+  );
+  assert.ok(errors.some((e) => e.includes("review_panel.bugbot")));
+});
+
+test("parseSliceVerifyYaml reads review_panel subagents", () => {
+  const fm = parseSliceVerifyYaml(extractYaml(loadFixture("compliant-review-panel.md")));
+  assert.equal(fm.review_panel.risk, "auth");
+  assert.equal(fm.review_panel.bugbot.task_id, "bugbot-task-1");
+  assert.equal(
+    fm.review_panel.security_review.artifact,
+    "docs/audits/security-review-2026-06-30-s1.md"
+  );
+});
+
 test("parseSliceVerifyYaml reads task checker and verify list", () => {
   const fm = parseSliceVerifyYaml(extractYaml(loadFixture("compliant-task.md")));
   assert.equal(fm.program, "frontend-redo-2026-06-29");

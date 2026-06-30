@@ -1,0 +1,19 @@
+{
+  "spec_summary": "Refactor parseUserInput with strong unit test harness",
+  "candidates": [
+    {
+      "id": "path-a",
+      "worktree": ".worktrees/bon-path-a",
+      "summary": "Parser combinator approach",
+      "constraint": "Minimize surface area",
+      "model": "claude-4.6-sonnet-medium-thinking"
+    }
+  ],
+  "objective_gate_results": [
+    { "candidate_id": "path-a", "passed": true, "failed_commands": [] }
+  ],
+  "discarded_ids": [],
+  "rationale": "incomplete example for negative test",
+  "auto_selected": false,
+  "go_no_go": "no_go"
+}

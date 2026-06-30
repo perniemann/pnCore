@@ -1,0 +1,51 @@
+{
+  "spec_summary": "P1 pilot task 1: CLI validator for Best-of-N judge JSON against best-of-n.contract.json schema, with fixtures and script tests.",
+  "candidates": [
+    {
+      "id": "path-a",
+      "worktree": ".worktrees/bon-pilot-01-path-a",
+      "summary": "Minimal surface: one validateBestOfNContract(obj) export, strips $examples before AJV compile, allErrors for multi-field feedback",
+      "constraint": "Minimize surface area",
+      "model": "claude-4.6-sonnet-medium-thinking",
+      "verify_commands": [
+        { "cmd": "npm run test:scripts", "exit": 0 },
+        { "cmd": "node scripts/validate-best-of-n-contract.mjs scripts/__fixtures__/best-of-n/compliant-example.json", "exit": 0 },
+        { "cmd": "node scripts/validate-best-of-n-contract.mjs scripts/__fixtures__/best-of-n/missing-winner-id.json", "exit": 1 }
+      ]
+    },
+    {
+      "id": "path-b",
+      "worktree": ".worktrees/bon-pilot-01-path-b-a1b2c3d4",
+      "summary": "Happy-path optimized: schema compiled once, first-error fast fail, worktree-aware schema discovery via git worktree list",
+      "constraint": "Optimize happy path",
+      "model": "gpt-5.3-codex",
+      "verify_commands": [
+        { "cmd": "npm run test:scripts", "exit": 0 },
+        { "cmd": "node scripts/validate-best-of-n-contract.mjs scripts/__fixtures__/best-of-n/compliant-example.json", "exit": 0 },
+        { "cmd": "node scripts/validate-best-of-n-contract.mjs scripts/__fixtures__/best-of-n/missing-winner-id.json", "exit": 1 }
+      ]
+    }
+  ],
+  "objective_gate_results": [
+    { "candidate_id": "path-a", "passed": true, "failed_commands": [] },
+    { "candidate_id": "path-b", "passed": true, "failed_commands": [] }
+  ],
+  "llm_scores": [
+    {
+      "candidate_id": "path-a",
+      "score": 0.76,
+      "notes": "Best match to min-surface constraint; 8 tests; allErrors useful for CI; schema path is __dirname-relative only"
+    },
+    {
+      "candidate_id": "path-b",
+      "score": 0.84,
+      "notes": "Worktree-aware schema discovery fits tournament runners; clearer required-field messages; slightly more API surface than path-a constraint"
+    }
+  ],
+  "winner_id": "path-b",
+  "discarded_ids": [],
+  "rationale": "path-b edges on worktree schema discovery (relevant when judges validate from isolated worktrees) and error readability; path-a wins on simplicity. Delta 0.08 < 0.15 auto-select threshold.",
+  "auto_selected": false,
+  "human_gate_required": true,
+  "go_no_go": "conditional_go"
+}

@@ -59,14 +59,23 @@ For each phase in the plan, determine which pn-core commands/skills run at each 
 
 ### 3. Assign model tiers
 
-Use these rules to assign model tiers per step:
+Use these rules to assign model tiers per step. **Canonical four-tier names** (used by `workflow_step` and `suggest_model_tier`) map to the roadmap vocabulary below:
+
+| Roadmap tier | pnCore model tier | Exemplar (June 2026) |
+|--------------|-------------------|----------------------|
+| **Low** | `fast` | composer-2.5-fast |
+| **Medium** | `standard` | claude-4.6-sonnet-medium-thinking |
+| **High** | `premium` | claude-opus-4-8-thinking-high |
+| **Highest** | `premium_thinking` | claude-opus-4-8-thinking-high + MAX |
 
 | Model Tier | Assign when |
 |------------|-------------|
-| **Highest** | Security audits, WCAG/a11y audits, GDPR analysis, full codebase review, complex multi-file reasoning (10+ files) |
-| **High** | Architecture decisions, creative design (animation, assets), DB migration design, domain-specific logic (game mechanics, scoring) |
-| **Medium** | Feature development, component building, test writing, planning, discovery, scaffolding, review |
-| **Low** | Verification checklists, doc formatting, simple edits, acceptance gates |
+| **Highest** (`premium_thinking`) | Security audits, financial models, program DAG + contract authoring, strategic frames |
+| **High** (`premium`) | Architecture decisions, creative design (animation, assets), DB migration design, skeptic on plan/output, security-review subagent |
+| **Medium** (`standard`) | Feature development, component building, test writing, planning, scaffolding, checker subagents |
+| **Low** (`fast`) | Discovery questionnaires, verification checklists, doc formatting, terminal summaries, explore subagents |
+
+Subagent routing detail: `pn-core://reference/subagent-routing.md`.
 
 ### 4. Estimate token costs
 

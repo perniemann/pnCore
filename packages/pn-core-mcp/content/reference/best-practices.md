@@ -34,6 +34,7 @@ Cross-cutting checklist for design, full_dev, and frontend_audit workflows. Cove
 - Deterministic workflow steps; human gates before plan and before implement.
 - Prefer MCP `workflow_step` when available; ask when plan contains options that need user input (plan accuracy).
 - When `full_dev` step 4 returns `parallel: true` and `tasks`, run those specialist tasks in parallel (e.g. Cursor Task tool per task); pass `taskResults` (one summary string per specialist id) when advancing to step 5. Normative detail: `pn-core://reference/RUNBOOK.md`, `pn-core://reference/workflow-state-schema.md`.
+- **Subagent routing:** Use `pn-core://reference/subagent-routing.md` for Task `subagent_type`, per-role model tiers, and the parallel review panel (checker + bugbot + security-review on auth/RLS/payments slices).
 - **Phased specialists:** If `specialistList` mixes parallelGroup 0 (e.g. scaffolder) with multiple group-1 specialists, step 4 uses Phase A (sequential) then Phase B (`parallel: true`). Complete Phase A, call `workflow_step` again on step 4 with `specialistSequentialComplete: true` and partial `taskResults`, then run Phase B. After any parallel segment, follow file ownership in `pn-core://reference/parallel-rules.md` and run a merge/conflict check before review (see `pn-build` step 5.5).
 
 ## 6. Cost Control (optional)

@@ -97,8 +97,19 @@ Produce a recommended synthesis if the user wants one, or let them choose.
 
 - Do not let sub-agents produce similar designs — if they converge, re-spawn with more extreme constraints
 - Do not skip the comparison — the value is in the contrast
-- Do not implement during this skill — this is about interface/layout shape, not code
+- Do not implement during this skill — this is about interface/layout shape, not code (see **Implementation mode** below)
 - Do not evaluate based on implementation effort — evaluate on interface quality
+
+## Implementation mode (after design is chosen)
+
+When the user has **picked a design direction** and needs **competing code implementations** (not more sketches):
+
+1. Stop this skill — do not spawn implementation subagents here
+2. Invoke **`get_skill("pn-best-of-n")`** or `/pn-best-of-n` with the chosen design as spec
+3. Require objective verify commands (tests/lint) before any LLM judge
+4. **Never** use best-of-N for auth/RLS/payments/secrets — use parallel review panel per `pn-build-gate`
+
+Contract: `pn-core://reference/schemas/best-of-n.contract.json`
 
 ## Skills to use
 

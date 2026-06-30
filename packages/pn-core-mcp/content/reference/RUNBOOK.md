@@ -28,6 +28,7 @@ Whenever a plan needs user input, ask before locking. See `pn-build-gate` and `r
 | **Stress-test a plan** | `get_command("pn-grill")` | Socratic one-Q-at-a-time interrogation with recommended answers. |
 | **Pressure-test a startup idea** | `get_command("pn-pressure-test")` | Strong/Weak/Pivot, scorecard, fatal flaws, MVP wedge; optional playbooks under skill `references/`. |
 | **Explore design options** | `get_command("pn-design-variants")` | Parallel sub-agents generating radically different approaches. |
+| **Competing implementations (best-of-N)** | `get_command("pn-best-of-n")` | 2–3 worktree-isolated paths, objective gates, premium judge. Not auth/security. |
 | **Full involvement (MCP-only)** | `get_command("pn-new")` → choose Involved, or `workflow_step("full_dev", 0, { intent: "involved" })` | Maximum gates at every step. |
 | **FSI analyst draft** (comps, DCF, earnings note, IC memo, GL recon, …) | `workflow_step("fsi_analyst_draft", 0, {})` | 6 steps: scope → sources → draft → QC → sign-off gate → deliver. Steps 0, 3, 4 are human-gated. Step 4 is the mandatory delivery sign-off (non-advice boundary). All outputs require professional review before use. |
 
@@ -61,7 +62,9 @@ Tradeoffs: HTML is often slower to generate and **noisier in git diffs** than ma
 
 - **Specialists:** `config/specialists.json` (or `pn-core://config/specialists.json`). Do not hardcode.
 - **Stacks:** `config/stacks.json` (or `pn-core://config/stacks.json`).
-- **Features:** `pn-core://config/features.json` merged with env **`PNCORE_FEATURES`** (JSON object). Keys: `strictPlanSummary`, `mergePhaseFullDev`, `truncateSkills`.
+- **Features:** `pn-core://config/features.json` merged with env **`PNCORE_FEATURES`** (JSON object). Keys: `strictPlanSummary`, `mergePhaseFullDev`, `truncateSkills`, `modelTierOverrides`, `tierAliases`.
+- **Subagent routing:** `pn-core://reference/subagent-routing.md` — Task `subagent_type`, model tier per role, parallel review panel on auth/RLS/payments slices.
+- **Model tiers:** `workflow_step` returns `suggestedModelTier` (`fast` / `standard` / `premium` / `premium_thinking`). Exemplars: composer-2.5-fast, claude-4.6-sonnet-medium-thinking, claude-opus-4-8-thinking-high. Override via `PNCORE_FEATURES.modelTierOverrides` (`<workflowType>.<step>`) and `tierAliases`.
 
 ## Run correlation and budgets
 

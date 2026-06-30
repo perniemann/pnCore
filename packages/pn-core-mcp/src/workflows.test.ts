@@ -1010,11 +1010,24 @@ describe("workflows contract", () => {
         expect(r.suggestedModelTier!.rationale.length).toBeGreaterThan(0);
       });
 
-      it("does NOT prepend inline hint when tier is standard (design step 0)", () => {
-        const result = getWorkflowStep("design", 0, {});
+      it("does NOT prepend inline hint when tier is standard (design step 3 build)", () => {
+        const result = getWorkflowStep("design", 3, {
+          discoverySpec: "x",
+          plan: "p",
+          skepticPassed: true,
+          skepticVerdict: "proceed",
+          assetsComplete: true,
+        });
         const r = result as WorkflowStepResult;
         expect(r.suggestedModelTier?.tier).toBe("standard");
         expect(r.instruction.startsWith("**Suggested model tier:**")).toBe(false);
+      });
+
+      it("DOES prepend inline hint when tier is fast (design step 0 discovery)", () => {
+        const result = getWorkflowStep("design", 0, {});
+        const r = result as WorkflowStepResult;
+        expect(r.suggestedModelTier?.tier).toBe("fast");
+        expect(r.instruction).toMatch(SUGGEST_HINT_RE);
       });
 
       it("DOES prepend inline hint when tier is non-standard (design step 1 = premium)", () => {

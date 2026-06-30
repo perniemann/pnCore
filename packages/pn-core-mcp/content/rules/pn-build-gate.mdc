@@ -55,6 +55,10 @@ When a plan phase, specialist slice, or program chunk is **complete** (or you wo
 
 1. **Verify first:** Run applicable verification (`npm test`, `npm run build`, `lint` as scope requires). Read full output before claiming complete.
 2. **Spawn checker (automatic):** Use the Task tool to spawn **pn-reviewer** (`subagent_type: generalPurpose`, `readonly: true`) scoped to **this phase's diff only** (context tier 2 — not the whole repo unless that is the phase). Prompt: load `get_skill("pn-review-optimize-loop")`; for UI-heavy phases run `pn-evidence-qa` before reality-check. Save checker output to `docs/audits/checker-YYYY-MM-DD-<slice>.md` when the program produces audit artifacts.
+   - **Parallel review panel (high-risk slices):** When the phase touches **auth, RLS, payments, or secrets**, spawn **in the same turn** (parallel with the checker, not instead of it):
+     - `bugbot`, `readonly: true` — bug-pattern review on the phase diff
+     - `security-review`, `readonly: true` — security review on the phase diff
+     - Lead synthesizes checker + bugbot + security findings into the checker artifact (or `docs/audits/review-panel-YYYY-MM-DD-<slice>.md`). See `pn-core://reference/subagent-routing.md`.
 3. **Builder fixes** issues the checker reports; do **not** implement the next phase in the same turn.
 4. **Block next phase** until checker pass **or** user says `skip review`. Do not declare phase complete without checker evidence or an explicit skip.
 5. **Slice verify artifact:** Write `docs/audits/<program>-<slice>-verify-YYYY-MM-DD.md` using `pn-core://reference/slice-verify-template.md` (YAML front matter + acceptance table). `/pn-deliver` may block if the plan lists slices and verify files are missing.

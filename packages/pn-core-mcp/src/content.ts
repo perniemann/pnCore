@@ -349,6 +349,14 @@ export const resourceDefs: {
     mimeType: "text/markdown",
   },
   {
+    uri: "pn-core://reference/subagent-routing.md",
+    name: "subagent-routing.md",
+    description:
+      "Task subagent_type and model-tier routing; parallel review panel for high-risk slices; explore vs best-of-N vs specialist parallel",
+    path: "reference/subagent-routing.md",
+    mimeType: "text/markdown",
+  },
+  {
     uri: "pn-core://reference/embedded-studio-dna.md",
     name: "embedded-studio-dna.md",
     description:
@@ -427,6 +435,13 @@ export const resourceDefs: {
     name: "fix_tasks.contract.json",
     description: "Fix tasks contract schema for CI/fix flows",
     path: "reference/schemas/fix_tasks.contract.json",
+    mimeType: "application/json",
+  },
+  {
+    uri: "pn-core://reference/schemas/best-of-n.contract.json",
+    name: "best-of-n.contract.json",
+    description: "Best-of-N tournament judge contract after objective verification gates",
+    path: "reference/schemas/best-of-n.contract.json",
     mimeType: "application/json",
   },
 ];
