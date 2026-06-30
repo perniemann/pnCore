@@ -86,7 +86,8 @@ test("parseSliceVerifyYaml reads task checker and verify list", () => {
 });
 
 test("parseSliceVerifyYaml returns undefined for missing optional keys", () => {
-  const yaml = "program: test-prog\nslice: S1\nchecker:\n  kind: task\n  task_id: t1\nverify:\n  - cmd: npm test\n    exit: 0\nuser_continue:\n  at: 2026-01-01T00:00:00Z";
+  const yaml =
+    "program: test-prog\nslice: S1\nchecker:\n  kind: task\n  task_id: t1\nverify:\n  - cmd: npm test\n    exit: 0\nuser_continue:\n  at: 2026-01-01T00:00:00Z";
   const fm = parseSliceVerifyYaml(yaml);
   assert.equal(fm.date, undefined);
   assert.equal(fm.checker.artifact, undefined);

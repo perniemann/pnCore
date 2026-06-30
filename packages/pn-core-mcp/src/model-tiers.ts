@@ -64,6 +64,34 @@ export type SuggestedModelTier = {
   rationale: string;
 };
 
+/** Subagent role → model tier (P2 best-of-N / routing). */
+export type SubagentRole = "explorer" | "builder" | "judge" | "checker";
+
+export const SUBAGENT_ROLE_TIERS: Record<SubagentRole, ModelTier> = {
+  explorer: "fast",
+  builder: "standard",
+  judge: "premium_thinking",
+  checker: "standard",
+};
+
+export function isSubagentRole(v: unknown): v is SubagentRole {
+  return typeof v === "string" && v in SUBAGENT_ROLE_TIERS;
+}
+
+/** Tier suggestion for Task subagent_type routing (explorer/builder/judge/checker). */
+export function resolveRoleTier(role: SubagentRole): SuggestedModelTier {
+  const tier = SUBAGENT_ROLE_TIERS[role];
+  const meta = TIER_META[tier];
+  const roleRationale: Record<SubagentRole, string> = {
+    explorer: "Explore/orient subagents: repo search, layout, quick scans.",
+    builder:
+      "Builder subagents: scoped implementation in worktrees (best-of-n-runner, generalPurpose).",
+    judge: "Judge pass: separate premium tier after objective gates (maker ≠ checker).",
+    checker: "Checker/reviewer subagents: readonly review, bugbot, same-session verify.",
+  };
+  return buildSuggestedTier(tier, roleRationale[role] ?? meta.description);
+}
+
 /** Build the structured suggestedModelTier field. Falls back to TIER_META.description when no rationale given. */
 export function buildSuggestedTier(
   tier: ModelTier,

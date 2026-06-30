@@ -38,6 +38,8 @@ description: Run 2–3 competing implementations of the same spec in isolated wo
 
 Log `report_usage` when MCP available (pilot metric for P1 exit criteria).
 
+**MCP workflow (P2):** when `bestOfN.enabled` is true in `pn-core://config/features.json`, use `workflow_step('implementation_tournament', 0, {})` instead of ad-hoc fan-out. Skill-only path remains valid when the flag is off.
+
 ### 2. Fan-out — parallel builders
 
 Spawn **N** Task subagents (`subagent_type: best-of-n-runner`) **in parallel**, each in an **isolated worktree** on the **same spec** with a **different constraint**:

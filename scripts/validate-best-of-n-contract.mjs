@@ -12,10 +12,7 @@ import { readFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import Ajv from "ajv/dist/2020.js";
-import {
-  resolveBestOfNSelection,
-  DEFAULT_AUTO_SELECT_MIN_DELTA,
-} from "./best-of-n-select.mjs";
+import { resolveBestOfNSelection, DEFAULT_AUTO_SELECT_MIN_DELTA } from "./best-of-n-select.mjs";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const SCHEMA_PATH = resolve(
@@ -122,8 +119,7 @@ export function validate(data) {
 }
 
 const isMain =
-  process.argv[1] &&
-  resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url));
+  process.argv[1] && resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url));
 
 if (isMain) {
   const filePath = process.argv[2];

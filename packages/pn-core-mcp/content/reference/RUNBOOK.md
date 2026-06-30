@@ -28,7 +28,7 @@ Whenever a plan needs user input, ask before locking. See `pn-build-gate` and `r
 | **Stress-test a plan** | `get_command("pn-grill")` | Socratic one-Q-at-a-time interrogation with recommended answers. |
 | **Pressure-test a startup idea** | `get_command("pn-pressure-test")` | Strong/Weak/Pivot, scorecard, fatal flaws, MVP wedge; optional playbooks under skill `references/`. |
 | **Explore design options** | `get_command("pn-design-variants")` | Parallel sub-agents generating radically different approaches. |
-| **Competing implementations (best-of-N)** | `get_command("pn-best-of-n")` | 2–3 worktree-isolated paths, objective gates, premium judge. Not auth/security. |
+| **Competing implementations (best-of-N)** | `get_command("pn-best-of-n")` or `workflow_step('implementation_tournament', …)` when `bestOfN.enabled` | 2–3 worktree-isolated paths, objective gates, premium judge. Not auth/security. |
 | **Full involvement (MCP-only)** | `get_command("pn-new")` → choose Involved, or `workflow_step("full_dev", 0, { intent: "involved" })` | Maximum gates at every step. |
 | **FSI analyst draft** (comps, DCF, earnings note, IC memo, GL recon, …) | `workflow_step("fsi_analyst_draft", 0, {})` | 6 steps: scope → sources → draft → QC → sign-off gate → deliver. Steps 0, 3, 4 are human-gated. Step 4 is the mandatory delivery sign-off (non-advice boundary). All outputs require professional review before use. |
 

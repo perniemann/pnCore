@@ -2,12 +2,25 @@ import { getResource, getContentVersion } from "./content.js";
 import { debug } from "./debug.js";
 import { isModelTier, type ModelTier } from "./model-tiers.js";
 
+export type BestOfNFeatures = {
+  /** Enable workflow_step('implementation_tournament', …). Default: false until P2 validated. */
+  enabled?: boolean;
+  /** Default fan-out count (2 or 3). */
+  defaultN?: number;
+  /** Auto-select winner when top-two LLM score delta >= this value. */
+  autoSelectMinDelta?: number;
+  /** Cap builder subagent tier during tournament fan-out. */
+  maxCostTier?: ModelTier;
+};
+
 export type PnCoreFeatures = {
   strictPlanSummary?: boolean;
   mergePhaseFullDev?: boolean;
   truncateSkills?: boolean;
   /** Enable the feature_program workflow type (multi-slice hierarchical orchestration). Default: false (preview). */
   featureProgram?: boolean;
+  /** Best-of-N tournament workflow (implementation_tournament). See ADR-0006. */
+  bestOfN?: BestOfNFeatures;
   /**
    * Per-step model-tier override. Key format: `<workflowType>.<step>`
    * (e.g. `"full_dev.2": "premium_thinking"`). Wins over the StepDef default.
@@ -21,11 +34,19 @@ export type PnCoreFeatures = {
   strictSkepticGates?: boolean;
 };
 
+const DEFAULT_BEST_OF_N: Required<BestOfNFeatures> = {
+  enabled: false,
+  defaultN: 2,
+  autoSelectMinDelta: 0.15,
+  maxCostTier: "standard",
+};
+
 const DEFAULTS: Required<PnCoreFeatures> = {
   strictPlanSummary: false,
   mergePhaseFullDev: true,
   truncateSkills: true,
   featureProgram: false,
+  bestOfN: DEFAULT_BEST_OF_N,
   modelTierOverrides: {},
   tierAliases: {},
   strictSkepticGates: false,
@@ -44,6 +65,34 @@ function sanitizeOverrides(input: unknown): Record<string, ModelTier> | undefine
     if (typeof k === "string" && k.includes(".") && isModelTier(v)) out[k] = v;
   }
   return out;
+}
+
+function sanitizeBestOfN(input: unknown): BestOfNFeatures | undefined {
+  if (!input || typeof input !== "object" || Array.isArray(input)) return undefined;
+  const o = input as Record<string, unknown>;
+  const out: BestOfNFeatures = {};
+  if (typeof o.enabled === "boolean") out.enabled = o.enabled;
+  if (typeof o.defaultN === "number" && o.defaultN >= 2 && o.defaultN <= 3) {
+    out.defaultN = Math.floor(o.defaultN);
+  }
+  if (typeof o.autoSelectMinDelta === "number" && o.autoSelectMinDelta >= 0) {
+    out.autoSelectMinDelta = o.autoSelectMinDelta;
+  }
+  if (isModelTier(o.maxCostTier)) out.maxCostTier = o.maxCostTier;
+  return Object.keys(out).length > 0 ? out : undefined;
+}
+
+function mergeBestOfN(
+  env: BestOfNFeatures | undefined,
+  file: BestOfNFeatures | undefined
+): Required<BestOfNFeatures> {
+  return {
+    enabled: env?.enabled ?? file?.enabled ?? DEFAULT_BEST_OF_N.enabled,
+    defaultN: env?.defaultN ?? file?.defaultN ?? DEFAULT_BEST_OF_N.defaultN,
+    autoSelectMinDelta:
+      env?.autoSelectMinDelta ?? file?.autoSelectMinDelta ?? DEFAULT_BEST_OF_N.autoSelectMinDelta,
+    maxCostTier: env?.maxCostTier ?? file?.maxCostTier ?? DEFAULT_BEST_OF_N.maxCostTier,
+  };
 }
 
 /** Filter an unknown object down to validated entries of Partial<Record<ModelTier, ModelTier>>. */
@@ -84,6 +133,8 @@ export function loadFeatures(): Required<PnCoreFeatures> {
   const overridesFromFile = sanitizeOverrides(file.modelTierOverrides);
   const aliasesFromEnv = sanitizeAliases(envPart.tierAliases);
   const aliasesFromFile = sanitizeAliases(file.tierAliases);
+  const bestOfNFromEnv = sanitizeBestOfN(envPart.bestOfN);
+  const bestOfNFromFile = sanitizeBestOfN(file.bestOfN);
   _featuresVersion = version;
   _featuresCache = {
     strictPlanSummary:
@@ -92,12 +143,18 @@ export function loadFeatures(): Required<PnCoreFeatures> {
       envPart.mergePhaseFullDev ?? file.mergePhaseFullDev ?? DEFAULTS.mergePhaseFullDev,
     truncateSkills: envPart.truncateSkills ?? file.truncateSkills ?? DEFAULTS.truncateSkills,
     featureProgram: envPart.featureProgram ?? file.featureProgram ?? DEFAULTS.featureProgram,
+    bestOfN: mergeBestOfN(bestOfNFromEnv, bestOfNFromFile),
     modelTierOverrides: overridesFromEnv ?? overridesFromFile ?? DEFAULTS.modelTierOverrides,
     tierAliases: aliasesFromEnv ?? aliasesFromFile ?? DEFAULTS.tierAliases,
     strictSkepticGates:
       envPart.strictSkepticGates ?? file.strictSkepticGates ?? DEFAULTS.strictSkepticGates,
   };
   return _featuresCache;
+}
+
+/** Resolved best-of-N config (always populated after loadFeatures). */
+export function loadBestOfNFeatures(): Required<BestOfNFeatures> {
+  return loadFeatures().bestOfN;
 }
 
 /** Env override for strict skeptic gate checks (also features.json.strictSkepticGates). */
