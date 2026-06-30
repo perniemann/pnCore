@@ -1,6 +1,6 @@
 /**
  * Per-tool integration tests via StdioClientTransport.
- * Covers all 23 tools: one happy-path + one negative case each.
+ * Covers all 24 tools: one happy-path + one negative case each.
  * Negatives assert the unified error envelope: { isError: true, content: [{ type: "text", text: JSON({ code, error }) }] }
  * Depends on: F1.1 (error envelope shape), F1.4 (list_agents cardinality)
  */
@@ -531,6 +531,28 @@ describe("MCP per-tool integration", () => {
     });
     const err = assertErrorEnvelope(result);
     expect(err.code).toBe("PATH_TRAVERSAL");
+  });
+
+  // ── suggest_model_tier ────────────────────────────────────────────────────
+  it("suggest_model_tier: role builder returns standard tier", async () => {
+    const result = await client.callTool({
+      name: "suggest_model_tier",
+      arguments: { role: "builder" },
+    });
+    expect(result.isError).toBeFalsy();
+    const parsed = parseFirst(result);
+    expect(parsed.role).toBe("builder");
+    expect(parsed.tier).toBe("standard");
+    expect(typeof parsed.exemplar).toBe("string");
+  });
+
+  it("suggest_model_tier: missing role and workflowType returns INVALID_STATE", async () => {
+    const result = await client.callTool({
+      name: "suggest_model_tier",
+      arguments: {},
+    });
+    const err = assertErrorEnvelope(result);
+    expect(err.code).toBe("INVALID_STATE");
   });
 
   // ── paperclip_issue_checkout ──────────────────────────────────────────────

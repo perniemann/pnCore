@@ -50,7 +50,7 @@ Spawn **N** Task subagents (`subagent_type: best-of-n-runner`) **in parallel**, 
 | B | Optimize happy path — fastest common case |
 | C (optional) | Maximize extensibility — edge cases and future hooks |
 
-**Model diversity (recommended):** assign different `model` per path when available (e.g. sonnet vs codex) for perspective diversity. Builders use **standard** tier, **capped** by `bestOfN.maxCostTier` in `pn-core://config/features.json` (or `PNCORE_FEATURES`). When capped, MCP `implementation_tournament` step 1 prompts use the max-tier exemplar instead of the path's preferred model — do not exceed the cap in ad-hoc fan-out either.
+**Model diversity (recommended):** assign different `model` per path when available (e.g. sonnet vs codex) for perspective diversity. Builders use **standard** tier, **capped** by `bestOfN.maxCostTier` in `pn-core://config/features.json` (or `PNCORE_FEATURES`), after global `tierAliases` are applied (same as `suggest_model_tier`). When capped, MCP `implementation_tournament` step 1 prompts use the max-tier exemplar instead of the path's preferred model — do not exceed the cap in ad-hoc fan-out either.
 
 Prompt each subagent:
 

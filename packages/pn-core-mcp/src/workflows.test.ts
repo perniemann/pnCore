@@ -1101,6 +1101,37 @@ describe("workflows contract", () => {
         expect(w.instruction).toContain("specSummary");
       });
 
+      it("step 1 applies tierAliases to maxCostTier cap", async () => {
+        vi.stubEnv(
+          "PNCORE_FEATURES",
+          JSON.stringify({
+            bestOfN: { enabled: true, maxCostTier: "standard" },
+            tierAliases: { standard: "fast" },
+          })
+        );
+        const { getWorkflowStep: gws } = await import("./workflows.js");
+        const r = gws("implementation_tournament", 1, fanOutState);
+        assertWorkflowStepResultShape(r);
+        const w = r as WorkflowStepResult;
+        expect(w.tasks![0].instruction).toContain("capped to fast tier");
+      });
+
+      it("full_dev step 5 tournamentHandoff skips merge phase with single specialist", async () => {
+        vi.stubEnv("PNCORE_FEATURES", JSON.stringify({ mergePhaseFullDev: true }));
+        const { getWorkflowStep: gws } = await import("./workflows.js");
+        const r = gws("full_dev", 5, {
+          tournamentHandoff: true,
+          specSummary: "Extract YAML parser module with tests unchanged",
+          specialistList: ["implementation_tournament"],
+          taskResults: { implementation_tournament: "tournament merge summary" },
+          mergeComplete: false,
+        });
+        assertWorkflowStepResultShape(r);
+        const w = r as WorkflowStepResult;
+        expect(w.workflowPhase).not.toBe("merge");
+        expect(w.instruction).not.toContain("MERGE PHASE");
+      });
+
       it("step 2 two survivors proceeds to judge (step 3)", async () => {
         vi.stubEnv("PNCORE_FEATURES", JSON.stringify({ bestOfN: { enabled: true } }));
         const { getWorkflowStep: gws } = await import("./workflows.js");
