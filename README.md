@@ -27,7 +27,7 @@ Canonical content lives in `packages/pn-core-mcp/content/` and syncs into the pl
 
 ### Cursor — MCP (one-click)
 
-[![Install MCP](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=pn-core&config=eyJjb21tYW5kIjoiY21kIiwiYXJncyI6WyIvYyIsIm5weCIsIi15IiwiLS1wYWNrYWdlPWdpdCtodHRwczovL2dpdGh1Yi5jb20vcGVybmllbWFubi9wbkNvcmUuZ2l0I21haW4iLCItLSIsIm5vZGUiLCJwYWNrYWdlcy9wbi1jb3JlLW1jcC9kaXN0L2luZGV4LmpzIl19)
+[![Install MCP](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=pn-core&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIi0tcGFja2FnZT1naXQraHR0cHM6Ly9naXRodWIuY29tL3Blcm5pZW1hbm4vcG5Db3JlLmdpdCNtYWluIiwiLS0iLCJwbi1jb3JlIl19)
 
 Or add manually to `~/.cursor/mcp.json`:
 
@@ -35,14 +35,14 @@ Or add manually to `~/.cursor/mcp.json`:
 {
   "mcpServers": {
     "pn-core": {
-      "command": "cmd",
-      "args": ["/c", "npx", "-y", "--package=git+https://github.com/perniemann/pnCore.git#main", "--", "node", "packages/pn-core-mcp/dist/index.js"]
+      "command": "npx",
+      "args": ["-y", "--package=git+https://github.com/perniemann/pnCore.git#main", "--", "pn-core"]
     }
   }
 }
 ```
 
-**Mac/Linux:** replace `"command": "cmd"` with `"command": "npx"` and drop `"/c"` from `args` (keep `--package=git+…` and the trailing `node packages/pn-core-mcp/dist/index.js`). Config options, path parameters, and the Windows `'pn-core' is not recognized` fix: [packages/pn-core-mcp/README.md](packages/pn-core-mcp/README.md).
+**Windows:** if `npx` fails from MCP settings, use `"command": "cmd"` with `"/c"` before `npx` in `args` (same trailing `-- pn-core`). Config options, path parameters, and troubleshooting: [packages/pn-core-mcp/README.md](packages/pn-core-mcp/README.md).
 
 ### Cursor — Plugin
 

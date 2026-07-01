@@ -4,6 +4,10 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+
+- MCP one-click install deeplink: use `npx --package … -- pn-core` instead of `cmd` + `node packages/pn-core-mcp/dist/index.js`. The old path was relative to the MCP host working directory (broken on Linux/Mac and empty project folders); the badge now works cross-platform.
+
 ## [0.14.6] - 2026-06-22
 
 ### Added
