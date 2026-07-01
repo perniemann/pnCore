@@ -8,11 +8,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import {
-  encodeMcpConfig,
-  mcpConfigNpx,
-  npxPnCoreArgsForPackage,
-} from "../mcp-npx-config.mjs";
+import { encodeMcpConfig, mcpConfigNpx, npxPnCoreArgsForPackage } from "../mcp-npx-config.mjs";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -50,7 +46,10 @@ test("npx --package local file install launches pn-core MCP", () => {
       timeout: 120_000,
     });
     assert.equal(result.status, 0, result.stderr || result.stdout);
-    const line = result.stdout.trim().split("\n").find((l) => l.startsWith("{"));
+    const line = result.stdout
+      .trim()
+      .split("\n")
+      .find((l) => l.startsWith("{"));
     assert.ok(line, "expected JSON-RPC response on stdout");
     const parsed = JSON.parse(line);
     assert.equal(parsed.result?.serverInfo?.name, "pn-core-mcp");

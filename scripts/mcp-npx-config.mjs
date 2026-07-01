@@ -3,8 +3,7 @@
  * Uses the package bin (`pn-core`) so npx resolves paths inside the install tree.
  * Do not use `node packages/pn-core-mcp/dist/index.js` — that path is relative to CWD, not the package.
  */
-export const PN_CORE_GIT_PACKAGE =
-  "git+https://github.com/perniemann/pnCore.git#main";
+export const PN_CORE_GIT_PACKAGE = "git+https://github.com/perniemann/pnCore.git#main";
 
 export function npxPnCoreArgsForPackage(packageSpec = PN_CORE_GIT_PACKAGE) {
   return ["-y", `--package=${packageSpec}`, "--", "pn-core"];

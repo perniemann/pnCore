@@ -3,11 +3,7 @@
  * Generate MCP install deeplinks for pn-core.
  * Run from repo root. Outputs URLs for README and docs.
  */
-import {
-  mcpConfigNpx,
-  mcpConfigWindowsCmd,
-  mcpInstallUrls,
-} from "./mcp-npx-config.mjs";
+import { mcpConfigNpx, mcpConfigWindowsCmd, mcpInstallUrls } from "./mcp-npx-config.mjs";
 
 const primary = mcpInstallUrls(mcpConfigNpx);
 const windows = mcpInstallUrls(mcpConfigWindowsCmd);
