@@ -6,11 +6,11 @@ MCP server for [pnCore](https://github.com/perniemann/pnCore) **0.14.6**: same s
 
 **Install (Cursor)** — one-click deeplink (same badge as [repo README](../../README.md#mcp-any-mcp-client)):
 
-[![Install MCP](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=pn-core&config=eyJjb21tYW5kIjoiY21kIiwiYXJncyI6WyIvYyIsIm5weCIsIi15IiwiLS1wYWNrYWdlPWdpdCtodHRwczovL2dpdGh1Yi5jb20vcGVybmllbWFubi9wbkNvcmUuZ2l0I21haW4iLCItLSIsIm5vZGUiLCJwYWNrYWdlcy9wbi1jb3JlLW1jcC9kaXN0L2luZGV4LmpzIl19)
+[![Install MCP](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=pn-core&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIi0tcGFja2FnZT1naXQraHR0cHM6Ly9naXRodWIuY29tL3Blcm5pZW1hbm4vcG5Db3JlLmdpdCNtYWluIiwiLS0iLCJwbi1jb3JlIl19)
 
-Or use `cursor://` in-app: `cursor://anysphere.cursor-deeplink/mcp/install?name=pn-core&config=eyJjb21tYW5kIjoiY21kIiwiYXJncyI6WyIvYyIsIm5weCIsIi15IiwiLS1wYWNrYWdlPWdpdCtodHRwczovL2dpdGh1Yi5jb20vcGVybmllbWFubi9wbkNvcmUuZ2l0I21haW4iLCItLSIsIm5vZGUiLCJwYWNrYWdlcy9wbi1jb3JlLW1jcC9kaXN0L2luZGV4LmpzIl19`
+Or use `cursor://` in-app: `cursor://anysphere.cursor-deeplink/mcp/install?name=pn-core&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIi0tcGFja2FnZT1naXQraHR0cHM6Ly9naXRodWIuY29tL3Blcm5pZW1hbm4vcG5Db3JlLmdpdCNtYWluIiwiLS0iLCJwbi1jb3JlIl19`
 
-Default uses `cmd` + `npx --package` + `node path` so the server runs without relying on the `pn-core` bin name; this works on Windows. Run `node scripts/mcp-deeplink.mjs` from repo root to regenerate links if the config changes.
+Default uses `npx --package` + the **`pn-core` bin** (via `-- pn-core`) so npx resolves the entry inside the install tree. Do **not** use `node packages/pn-core-mcp/dist/index.js` in npx configs — that path is relative to the MCP host’s working directory, not the package. Run `npm run mcp-deeplink` from repo root to regenerate links if the config changes.
 
 **Manual MCP configuration**
 
@@ -20,18 +20,18 @@ Add to your MCP config (e.g. `~/.cursor/mcp.json` or Cursor Settings → MCP):
 {
   "mcpServers": {
     "pn-core": {
-      "command": "cmd",
-      "args": ["/c", "npx", "-y", "--package=git+https://github.com/perniemann/pnCore.git#main", "--", "node", "packages/pn-core-mcp/dist/index.js"]
+      "command": "npx",
+      "args": ["-y", "--package=git+https://github.com/perniemann/pnCore.git#main", "--", "pn-core"]
     }
   }
 }
 ```
 
-**Mac/Linux:** Use `"command": "npx"` with the same `args` as above (still include `--package=git+…` and the trailing `node packages/pn-core-mcp/dist/index.js`).
+**Windows:** if MCP cannot launch `npx` directly, use `"command": "cmd"` with `"/c"` before `npx` in `args` (keep the same trailing `-- pn-core`).
 
 ### Windows: if you still see `'pn-core' is not recognized`
 
-If you use an older config that runs `npx -y git+...` without `--package` and `node path`, npx installs the repo and tries to run the package bin by **name** (`pn-core`). On Windows, npx does not add the install directory's `node_modules/.bin` to PATH when running that bin, so the shell reports **'pn-core' is not recognized**. The default config above avoids this by running `node packages/pn-core-mcp/dist/index.js` explicitly.
+Use the **`--package=git+…`** form with **`-- pn-core`** (as above). Older configs that ran `npx -y git+...` **without** `--package` tried to execute the bin name without putting the install’s `.bin` on PATH — that fails on Windows. Do **not** switch to `node packages/pn-core-mcp/dist/index.js`; that breaks on all platforms for the same CWD reason.
 
 **Reliable fix (clone + node path):** From this repo root run:
 
