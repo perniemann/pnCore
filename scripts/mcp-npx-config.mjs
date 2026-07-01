@@ -6,12 +6,11 @@
 export const PN_CORE_GIT_PACKAGE =
   "git+https://github.com/perniemann/pnCore.git#main";
 
-export const npxPnCoreArgs = [
-  "-y",
-  `--package=${PN_CORE_GIT_PACKAGE}`,
-  "--",
-  "pn-core",
-];
+export function npxPnCoreArgsForPackage(packageSpec = PN_CORE_GIT_PACKAGE) {
+  return ["-y", `--package=${packageSpec}`, "--", "pn-core"];
+}
+
+export const npxPnCoreArgs = npxPnCoreArgsForPackage();
 
 /** Cross-platform: npx on PATH (Mac, Linux, Windows). */
 export const mcpConfigNpx = {

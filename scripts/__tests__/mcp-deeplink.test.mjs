@@ -6,12 +6,15 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   encodeMcpConfig,
   mcpConfigNpx,
-  npxPnCoreArgs,
+  npxPnCoreArgsForPackage,
 } from "../mcp-npx-config.mjs";
+
+const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 test("one-click config uses pn-core bin, not cwd-relative node path", () => {
   assert.equal(mcpConfigNpx.command, "npx");
@@ -26,8 +29,9 @@ test("encoded config round-trips", () => {
   assert.deepEqual(decoded, mcpConfigNpx);
 });
 
-test("npx --package git install launches pn-core MCP", () => {
+test("npx --package local file install launches pn-core MCP", () => {
   const dir = mkdtempSync(join(tmpdir(), "pn-mcp-npx-"));
+  const packageSpec = `file:${repoRoot}`;
   try {
     const init = JSON.stringify({
       jsonrpc: "2.0",
@@ -39,7 +43,7 @@ test("npx --package git install launches pn-core MCP", () => {
         clientInfo: { name: "test", version: "1.0" },
       },
     });
-    const result = spawnSync("npx", npxPnCoreArgs, {
+    const result = spawnSync("npx", npxPnCoreArgsForPackage(packageSpec), {
       cwd: dir,
       input: `${init}\n`,
       encoding: "utf8",
