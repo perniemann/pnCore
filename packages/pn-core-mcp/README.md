@@ -33,22 +33,54 @@ Add to your MCP config (e.g. `~/.cursor/mcp.json` or Cursor Settings → MCP):
 
 Use the **`--package=git+…`** form with **`-- pn-core`** (as above). Older configs that ran `npx -y git+...` **without** `--package` tried to execute the bin name without putting the install’s `.bin` on PATH — that fails on Windows. Do **not** switch to `node packages/pn-core-mcp/dist/index.js`; that breaks on all platforms for the same CWD reason.
 
-**Reliable fix (clone + node path):** From this repo root run:
+**Do not** use `node packages/pn-core-mcp/dist/index.js` after `--` — that path is resolved from **Cursor's cwd** (often your home directory), not the npx install, and fails with `Cannot find module '…\\Users\\you\\packages\\pn-core-mcp\\dist\\index.js'`.
+
+**Reliable fix (clone + node path — developers only):** From this repo root run:
 
 ```bash
 npm run build:mcp
-npm run mcp-config
+npm run mcp-config:dev
 ```
 
-Then reload Cursor. `mcp-config` writes your global `~/.cursor/mcp.json` (or `%USERPROFILE%\.cursor\mcp.json`) with `"command": "node"` and the absolute path to `packages/pn-core-mcp/dist/index.js`, so the server runs without using the `pn-core` binary name. This works in every Cursor window.
+Then reload Cursor. `mcp-config:dev` writes your global `~/.cursor/mcp.json` (or `%USERPROFILE%\.cursor\mcp.json`) with `"command": "node"` and the absolute path to `packages/pn-core-mcp/dist/index.js`. **This path is machine-specific** — do not copy to other PCs. For portable install use the **one-click deeplink** or README MCP JSON.
 
-**Stable Node binary:** Cursor uses whatever `node` is first on PATH. To pin Node 22, set **`PNCORE_MCP_NODE`** to the full path to `node.exe`, then run `npm run mcp-config` — the written `command` will be that path.
+**Stable Node binary:** Cursor uses whatever `node` is first on PATH. To pin Node 22, set **`PNCORE_MCP_NODE`** to the full path to `node.exe`, then run `npm run mcp-config:dev` — the written `command` will be that path.
 
 **If MCP logs `ERR_UNSUPPORTED_DIR_IMPORT` / `ERR_MODULE_NOT_FOUND` … `zod/v3` or `zod/v4`:** Use **Node 22** (`PNCORE_MCP_NODE` or `npm run mcp-pin`). From repo root run **`npm run build:mcp`** (`npm dedupe` + **`scripts/prune-sdk-nested-zod.mjs`** on **`prebuild`/`prestart`**). **`src/fix-sdk-zod-runtime.ts`** runs again at MCP startup so **`node dist/index.js`** rewires **`sdk/node_modules/zod`** to the hoisted package (junction/symlink or copy) when npm leaves a broken nested tree.
 
 **Vitest:** `vitest-zod-setup.ts` runs first so MCP client imports in tests hit the same fix before the SDK loads.
 
-**Manual alternative:** Clone the repo, run `npm run build:mcp`, then set MCP config to `"command": "node"`, `"args": ["X:\\path\\to\\pnCore\\packages\\pn-core-mcp\\dist\\index.js"]` (use your actual path).
+**Manual alternative (dev only):** Clone the repo, run `npm run build:mcp`, then set MCP config to `"command": "node"`, `"args": ["X:\\path\\to\\pnCore\\packages\\pn-core-mcp\\dist\\index.js"]` (use your actual path). For portable install use the **one-click deeplink** or README MCP JSON — no clone required.
+
+### Troubleshooting: MCP won't connect in Cursor
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| **pn-core** shows **errored** / no tools | First npx git fetch takes **>60s**; Cursor MCP times out | Pre-warm once, then reload MCP (see below) |
+| `Cannot find module '…\\packages\\pn-core-mcp\\dist\\index.js'` | Broken config uses **relative `node packages/…` path** from wrong cwd | One-click install or README JSON with `-- pn-core` (not `node packages/...`) |
+| Works on one PC, fails on another | `mcp.json` has an **absolute local path** (e.g. `X:\pnCore\...`) | One-click install or README MCP JSON |
+| Module / zod errors in MCP log | **Node &lt; 22** or wrong major on PATH | Install Node 22+; set `PNCORE_MCP_NODE` to Node 22 binary |
+| `'pn-core' is not recognized` (Windows) | Old config without `--package=git+…` | Use current npx + `-- pn-core` config |
+
+**Pre-warm npx (once per machine if first connect times out):**
+
+Windows (PowerShell):
+
+```powershell
+cmd /c "npx -y --package=git+https://github.com/perniemann/pnCore.git#main -- pn-core"
+```
+
+Mac/Linux:
+
+```bash
+npx -y --package=git+https://github.com/perniemann/pnCore.git#main -- pn-core
+```
+
+The process sits idle (stdio MCP — no output is normal). Press Ctrl+C. npx cache is warm; reload **pn-core** in Cursor Settings → MCP.
+
+**Verify config:** from a pnCore clone run `npm run check:mcp` (flags non-portable paths) or `npm run check:mcp -- --smoke` (live connect + `health`).
+
+**CI:** `npm run smoke:npx-mcp` exercises the same npx git install path with cold/warm startup budgets.
 
 ## Scripts
 
@@ -59,7 +91,7 @@ From this package or repo root:
 | `npm run build` | Compile TypeScript to `dist/`. |
 | `npm run start` | Run the MCP server (`node dist/index.js`). |
 
-From repo root only: `npm run build:mcp`, `npm run sync:content`, `npm run mcp-config` — see [repo README](../../README.md#scripts).
+From repo root only: `npm run build:mcp`, `npm run sync:content`, `npm run mcp-config:dev` (local clone) — see [repo README](../../README.md#scripts).
 
 ## Content (canonical)
 

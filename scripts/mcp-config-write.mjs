@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 /**
- * Writes pn-core MCP entry with node + path to the user's global Cursor MCP config.
- * Use when cmd+npx fails on Windows with 'pn-core' is not recognized.
+ * DEV ONLY — writes pn-core MCP with absolute local node + dist path (not portable).
+ * For end users use the one-click deeplink or README MCP JSON.
+ *
  * Run from repo root after: npm run build:mcp
  * Usage: node scripts/mcp-config-write.mjs
+ *        npm run mcp-config:dev
  *
  * Picks Node matching `.nvmrc` (or root engines): current process.execPath when major matches,
  * else NVM_HOME / NVM_DIR installs, else `"node"` on PATH — unless **PNCORE_MCP_NODE** is set
@@ -48,7 +50,9 @@ config.mcpServers["pn-core"] = {
 
 mkdirSync(dirname(mcpPath), { recursive: true });
 writeFileSync(mcpPath, JSON.stringify(config, null, 2), "utf8");
-console.log("Wrote pn-core (node + path) to", mcpPath);
+console.log("Wrote pn-core DEV entry (local node + path) to", mcpPath);
 console.log("Node command:", nodeCmd, `(${pinnedBy})`);
+console.warn("This path is machine-specific — do not copy to other PCs.");
+console.warn("Portable install: one-click deeplink or README MCP JSON (npx + `-- pn-core`).");
 if (warn) console.warn(warn);
 console.log("Reload Cursor (or the MCP server) for the change to take effect.");
