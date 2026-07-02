@@ -2,11 +2,7 @@
  * Portable vs dev MCP config classification and helpers.
  * Canonical npx launch shapes live in mcp-npx-config.mjs — do not duplicate args here.
  */
-import {
-  npxPnCoreArgs,
-  npxPnCoreArgsForPackage,
-  PN_CORE_GIT_PACKAGE,
-} from "./mcp-npx-config.mjs";
+import { npxPnCoreArgs, npxPnCoreArgsForPackage, PN_CORE_GIT_PACKAGE } from "./mcp-npx-config.mjs";
 
 export const PNCORE_GIT_PACKAGE = PN_CORE_GIT_PACKAGE;
 
@@ -21,10 +17,7 @@ export function portableMcpServerEntry(platform = process.platform) {
 }
 
 /** @param {string} packageSpec @param {NodeJS.Platform} [platform] */
-export function portableMcpServerEntryForPackage(
-  packageSpec,
-  platform = process.platform
-) {
+export function portableMcpServerEntryForPackage(packageSpec, platform = process.platform) {
   const tail = npxPnCoreArgsForPackage(packageSpec);
   if (platform === "win32") {
     return { command: "cmd", args: ["/c", "npx", ...tail] };
