@@ -3,9 +3,8 @@
  * Canonical npx launch shapes live in mcp-npx-config.mjs — do not duplicate args here.
  */
 import {
-  mcpConfigNpx,
-  mcpConfigWindowsCmd,
   npxPnCoreArgs,
+  npxPnCoreArgsForPackage,
   PN_CORE_GIT_PACKAGE,
 } from "./mcp-npx-config.mjs";
 
@@ -18,7 +17,19 @@ export const PORTABLE_PN_CORE_BINS = ["pn-core", "pn-core-mcp"];
 
 /** @param {NodeJS.Platform} [platform] */
 export function portableMcpServerEntry(platform = process.platform) {
-  return platform === "win32" ? { ...mcpConfigWindowsCmd } : { ...mcpConfigNpx };
+  return portableMcpServerEntryForPackage(PN_CORE_GIT_PACKAGE, platform);
+}
+
+/** @param {string} packageSpec @param {NodeJS.Platform} [platform] */
+export function portableMcpServerEntryForPackage(
+  packageSpec,
+  platform = process.platform
+) {
+  const tail = npxPnCoreArgsForPackage(packageSpec);
+  if (platform === "win32") {
+    return { command: "cmd", args: ["/c", "npx", ...tail] };
+  }
+  return { command: "npx", args: tail };
 }
 
 /**
