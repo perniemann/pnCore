@@ -9,10 +9,7 @@
  */
 import { writeFileSync, readFileSync, mkdirSync, existsSync } from "fs";
 import { join, dirname } from "path";
-import { fileURLToPath } from "url";
 import { portableMcpServerEntry, warmCacheShellCommand } from "./mcp-install-config.mjs";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const home = process.env.USERPROFILE || process.env.HOME || process.env.CURSOR_USER_DATA_DIR;
 if (!home) {
