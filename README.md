@@ -42,7 +42,7 @@ Or add manually to `~/.cursor/mcp.json`:
 }
 ```
 
-**Windows:** if `npx` fails from MCP settings, use `"command": "cmd"` with `"/c"` before `npx` in `args` (same trailing `-- pn-core`). Config options, path parameters, and troubleshooting: [packages/pn-core-mcp/README.md](packages/pn-core-mcp/README.md).
+**Windows:** if `npx` fails from MCP settings, use `"command": "cmd"` with `"/c"` before `npx` in `args` (same trailing `-- pn-core`). Config options and troubleshooting: [packages/pn-core-mcp/README.md](packages/pn-core-mcp/README.md).
 
 ### Cursor — Plugin
 
@@ -60,16 +60,18 @@ Copies commands, rules, skills, agents, config, and hooks into `.cursor/` and `.
 
 Use the same MCP JSON above. In Claude Code, open Settings → MCP Servers, paste the block, and enable it. See [Anthropic's MCP documentation](https://docs.anthropic.com/en/docs/claude-code/mcp).
 
-### Clone and develop locally
+### Clone and develop locally (pnCore contributors only)
 
 ```bash
 git clone https://github.com/perniemann/pnCore.git
 cd pnCore
-npm run setup           # install deps + build MCP
-npm run mcp-config      # write ~/.cursor/mcp.json with absolute node path
+npm run setup              # install deps + build MCP
+npm run mcp-config:dev     # DEV ONLY: local absolute node path (this machine)
 ```
 
-Reload Cursor after `mcp-config`. After upgrades, re-run `npm run build:mcp` and reload. The server uses stdio transport only.
+For portable install on any machine, use the **one-click deeplink** or MCP JSON above — not `mcp-config:dev`.
+
+Reload Cursor after changing MCP config. After upgrades on a dev checkout, re-run `npm run build:mcp` and reload. The server uses stdio transport only.
 
 ---
 
@@ -179,9 +181,12 @@ From repo root (Node 22+):
 | `npm run build:mcp` | Compile `packages/pn-core-mcp` |
 | `npm run sync:content` | Sync canonical `content/` → `plugins/pnCore/` |
 | `npm run validate` | Format check + plugin/workflow/skill validators |
-| `npm run test:full` | CI parity: lint, sync, build, coverage, script tests, validate |
-| `npm run mcp-config` | Write `~/.cursor/mcp.json` with absolute `node` path |
-| `npm run mcp-pin` | Rebuild MCP and refresh global MCP config |
+| `npm run test:full` | CI parity: lint, sync, build, coverage, script tests, npx smoke, validate |
+| `npm run mcp-config:portable` | Contributor convenience: write npx git entry to `~/.cursor/mcp.json` |
+| `npm run mcp-config:dev` | DEV ONLY: local absolute `node` path for this clone |
+| `npm run mcp-pin` | Rebuild MCP and refresh dev MCP config |
+| `npm run check:mcp` | Validate pn-core MCP config (flags non-portable paths) |
+| `npm run smoke:npx-mcp` | Smoke test npx git install connect + health |
 | `npm run bench` | CPU baseline check (`bench:write` to persist) |
 | `npm run measure-tokens` | Token budget capture (`measure-tokens:write` to persist) |
 | `npm run dashboard` | Local metrics dashboard at `http://localhost:4173/` |

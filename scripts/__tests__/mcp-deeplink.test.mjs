@@ -44,7 +44,9 @@ test("npx --package local file install launches pn-core MCP", () => {
       input: `${init}\n`,
       encoding: "utf8",
       timeout: 120_000,
+      shell: process.platform === "win32",
     });
+    assert.equal(result.error, undefined, result.error?.message);
     assert.equal(result.status, 0, result.stderr || result.stdout);
     const line = result.stdout
       .trim()
