@@ -101,4 +101,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
-        run: gh pr merge ${{ github.event.pull_request.number }} --squash --delete-branch
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          title=$(gh pr view "$PR" --json title -q .title)
+          gh pr merge "$PR" --squash --delete-branch --subject "$title" --body ""

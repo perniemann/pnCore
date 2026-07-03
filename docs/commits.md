@@ -14,7 +14,7 @@ Cursor can append lines such as `Made-with: Cursor` or `Co-authored-by: … curs
 The check scans **every commit** in the pull request range (`base..head`) or in the pushed batch (`before..after`). Any commit whose **message body** contains a matching line fails the job. Common cases:
 
 1. **Agent-created commits** — Cursor injected the trailer after your hook ran, or `core.hooksPath` was never set in that clone.
-2. **Squash merge to `main`** — GitHub’s default squash text can repeat bodies from squashed commits; if any of them contained `Made-with:`, the **squash commit** fails the push check. Edit the squash message before confirming the merge.
+2. **Squash merge to `main`** — GitHub’s default squash text can repeat bodies from squashed commits; if any of them contained `Made-with:` or `Co-authored-by: Cursor Agent <cursoragent@cursor.com>`, the **squash commit** fails the push check. Edit the squash message before confirming the merge, or rely on [pr-automerge.yml](../.github/workflows/pr-automerge.yml) (`--subject` only, empty body).
 
 **Defense in depth:** repo hook (strip) + **Cursor project rule** `.cursor/rules/pn-no-cursor-commit-trailers.mdc` (`alwaysApply: true`) + this CI job. The rule stops the model from proposing or keeping those lines; the hook catches the editor; CI catches whatever still lands on the branch.
 
