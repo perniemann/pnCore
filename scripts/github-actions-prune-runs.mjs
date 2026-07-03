@@ -141,9 +141,26 @@ async function main() {
   const remove = logsOnly ? deleteRunLogs : deleteRun;
   const verb = logsOnly ? "Deleted logs for run" : "Deleted run";
 
+  let okCount = 0;
+  let failCount = 0;
+
   for (const run of toPrune) {
     const ok = await remove(run.id);
-    if (ok) console.log(`${verb} ${run.id} (${run.name} #${run.run_number})`);
+    if (ok) {
+      okCount++;
+      console.log(`${verb} ${run.id} (${run.name} #${run.run_number})`);
+    } else {
+      failCount++;
+    }
+  }
+
+  console.log(`Done: ${okCount} pruned, ${failCount} failed, ${toKeep.size} kept.`);
+  if (failCount > 0) {
+    console.error(
+      "Some deletions failed (often missing actions:write on the token). " +
+        "Run via Actions → Prune Actions history, or use a PAT with Actions read/write."
+    );
+    process.exit(1);
   }
 }
 
