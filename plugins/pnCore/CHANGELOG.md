@@ -4,9 +4,25 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-07-03
+
+### Added
+
+- First quarterly documentation audit: [docs/refs/audit-2026-Q3.md](../../docs/refs/audit-2026-Q3.md) per ADR-0002.
+- `scripts/check-doc-inventory.mjs` — README catalog counts validated against filesystem in `npm run validate`.
+- `workflow-state-schema.md` sections for `prompt_optimize`, `engine_feature`, `godot_feature`, `feature_program`, and `implementation_tournament`.
+
+### Changed
+
+- Catalog alignment: **167** skills, **43** commands (25 visible + 18 palette-hidden), **18** workflow types, 24 MCP tools, 9 public + 6 internal agents.
+- README workflow table, [docs/mcp-usage-guide.md](../../docs/mcp-usage-guide.md), [docs/plugin-reference.md](../../docs/plugin-reference.md), [docs/how-to-use-guide.md](../../docs/how-to-use-guide.md), and `pn-guide` updated for `implementation_tournament`, `feature_program`, and `pn-best-of-n`.
+- ADR-0006 amended: P2 `implementation_tournament` shipped (flag-gated); skill-only path when `bestOfN.enabled` is false.
+- `docs/refs/context-index.json` `last_reviewed` updated; `quarterly_audit` pointer added (schema 1.2.0).
+
 ### Fixed
 
-- MCP one-click install deeplink: use `npx --package … -- pn-core` instead of `cmd` + `node packages/pn-core-mcp/dist/index.js`. The old path was relative to the MCP host working directory (broken on Linux/Mac and empty project folders); the badge now works cross-platform.
+- `workflow_step` tool description: `visual_tweak` step count 5 → 4 (matches `workflows.ts`).
+- MCP one-click install deeplink: use `npx --package … -- pn-core` instead of `cmd` + relative `node` path (cross-platform).
 
 ## [0.14.6] - 2026-06-22
 

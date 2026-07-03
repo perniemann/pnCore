@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 import {
   hasChangelogEntry,
   isReleasePath,
+  readRootVersion,
   validateChangelogPolicy,
 } from "../validate-changelog-lib.mjs";
 import {
@@ -34,10 +35,11 @@ test("hasChangelogEntry accepts pn-documentation format", () => {
 });
 
 test("validateChangelogPolicy requires bump for release-path changes", () => {
+  const headVersion = readRootVersion(repoRoot);
   const { errors } = validateChangelogPolicy({
     repoRoot,
     changedFiles: ["packages/pn-core-mcp/content/foo.md"],
-    baseVersion: "0.14.6",
+    baseVersion: headVersion,
   });
   assert.ok(errors.some((e) => e.includes("version bump")));
 });

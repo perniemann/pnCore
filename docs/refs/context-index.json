@@ -1,13 +1,14 @@
 {
-  "version": "1.1.0",
-  "last_reviewed": "2026-04-07",
+  "version": "1.2.0",
+  "last_reviewed": "2026-07-03",
   "intent_source": "prd",
   "pointers": {
     "prd": null,
     "discovery": null,
     "workspace": "AGENTS.md",
     "product": "docs/plugin-reference.md",
-    "workflow_state_schema": "packages/pn-core-mcp/content/reference/workflow-state-schema.md"
+    "workflow_state_schema": "packages/pn-core-mcp/content/reference/workflow-state-schema.md",
+    "quarterly_audit": "docs/refs/audit-2026-Q3.md"
   },
   "owned_paths": [
     "plugins/pnCore/",

@@ -1,6 +1,6 @@
 # pn-core-mcp
 
-MCP server for [pnCore](https://github.com/perniemann/pnCore) **0.14.6**: same skills, agents, commands, and rules as the Cursor plugin, plus **`workflow_step`** and related tools. Use from any MCP client to run orchestration, discovery, skeptic, audits, assets, and other pnCore workflows without installing the plugin.
+MCP server for [pnCore](https://github.com/perniemann/pnCore) **0.15.0**: same skills, agents, commands, and rules as the Cursor plugin, plus **`workflow_step`** and related tools. Use from any MCP client to run orchestration, discovery, skeptic, audits, assets, and other pnCore workflows without installing the plugin.
 
 ## Installation
 
