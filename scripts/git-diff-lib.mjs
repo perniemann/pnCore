@@ -19,6 +19,39 @@ function prRange(baseRaw, headRaw) {
   return `${mb}..${headRaw}`;
 }
 
+function isValidRevRange(range) {
+  try {
+    git(["rev-list", "-1", range]);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** @param {string} before @param {string} after */
+function pushRange(before, after) {
+  if (!before || /^0+$/.test(before)) {
+    try {
+      const om = git(["rev-parse", "origin/main"]);
+      const range = `${om}..${after}`;
+      if (isValidRevRange(range)) return range;
+    } catch {
+      /* fall through */
+    }
+  } else {
+    const range = `${before}..${after}`;
+    if (isValidRevRange(range)) return range;
+  }
+  try {
+    const parent = git(["rev-parse", `${after}^`]);
+    const range = `${parent}..${after}`;
+    if (isValidRevRange(range)) return range;
+  } catch {
+    /* fall through */
+  }
+  return null;
+}
+
 /**
  * @returns {{ range: string | null, skip: boolean, reason?: string }}
  */
@@ -40,15 +73,9 @@ export function resolveDiffRange() {
     const before = (process.env.BEFORE ?? "").trim();
     const after = process.env.AFTER?.trim();
     if (after) {
-      if (!before || /^0+$/.test(before)) {
-        try {
-          const om = git(["rev-parse", "origin/main"]);
-          return { range: `${om}..${after}`, skip: false };
-        } catch {
-          return { range: null, skip: true, reason: "no origin/main for push" };
-        }
-      }
-      return { range: `${before}..${after}`, skip: false };
+      const range = pushRange(before, after);
+      if (range) return { range, skip: false };
+      return { range: null, skip: true, reason: "invalid push range (force-push without parent?)" };
     }
     if (inActions) {
       return { range: null, skip: true, reason: "no BEFORE/AFTER in Actions push" };

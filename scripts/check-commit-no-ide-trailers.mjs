@@ -110,8 +110,16 @@ let shas;
 try {
   shas = git(["rev-list", "--reverse", range]).split(/\r?\n/).filter(Boolean);
 } catch (e) {
-  console.error("check-commit-no-ide-trailers: git rev-list failed", e?.message ?? e);
-  process.exit(1);
+  const after = (process.env.AFTER ?? "").trim();
+  if (process.env.GITHUB_EVENT_NAME === "push" && after) {
+    console.warn(
+      `check-commit-no-ide-trailers: invalid range ${range}; scanning ${after} only (rewritten history?)`
+    );
+    shas = [after];
+  } else {
+    console.error("check-commit-no-ide-trailers: git rev-list failed", e?.message ?? e);
+    process.exit(1);
+  }
 }
 
 const bad = [];
