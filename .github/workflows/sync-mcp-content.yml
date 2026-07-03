@@ -46,6 +46,7 @@ on:
       - '.github/workflows/pn-gates.yml'
       - '.github/workflows/pn-pr-review.yml'
       - '.github/workflows/pr-automerge.yml'
+      - '.github/workflows/prune-actions-history.yml'
   # Every PR runs full CI so Dependabot auto-merge can gate on test:full (see dependabot-automerge.yml).
   pull_request:
     branches: [main]

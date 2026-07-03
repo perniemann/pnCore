@@ -1,0 +1,39 @@
+# Prune old GitHub Actions runs (keeps latest run per workflow).
+# Trigger manually when the Actions UI history gets noisy.
+name: Prune Actions history
+
+on:
+  workflow_dispatch:
+    inputs:
+      logs_only:
+        description: "Delete log archives only (keep run entries in UI)"
+        type: boolean
+        default: false
+      dry_run:
+        description: "List runs that would be pruned without deleting"
+        type: boolean
+        default: false
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: "22"
+
+      - name: Prune workflow runs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          args=()
+          if [ "${{ inputs.logs_only }}" = "true" ]; then args+=(--logs-only); fi
+          if [ "${{ inputs.dry_run }}" = "true" ]; then args+=(--dry-run); fi
+          node scripts/github-actions-prune-runs.mjs "${args[@]}"

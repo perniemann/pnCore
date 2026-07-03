@@ -77,4 +77,8 @@ Three workflows gate merges to `main`:
 - **Labels:** `pn-ready` / `pn-blocked` are set by the review workflow from deterministic findings; Cloud Agent may update them after semantic review. Add **`automerge`** when you want squash-merge after all checks pass.
 - **Dependabot:** patch/minor/group PRs still use [dependabot-automerge.yml](../.github/workflows/dependabot-automerge.yml) (no `automerge` label required).
 
+### Prune Actions history
+
+When the Actions tab accumulates hundreds of runs (especially during PR/automerge churn), run **Actions → Prune Actions history → Run workflow** (or locally: `GITHUB_TOKEN=... npm run prune:actions`). The job keeps the **latest run per workflow** and deletes the rest. Use workflow input **logs only** if you want to drop log archives but keep run rows in the UI.
+
 **If a trailer already landed:** amend or rebase to drop the body line, or rewrite with `git filter-branch` / `git rebase -i` as appropriate.

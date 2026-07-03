@@ -19,6 +19,8 @@
     "check:ac-traceability": "node scripts/check-ac-traceability.mjs",
     "check:changelog": "node scripts/validate-changelog.mjs",
     "check:doc-structure": "node scripts/validate-doc-structure.mjs",
+    "prune:actions": "node scripts/github-actions-prune-runs.mjs",
+    "prune:actions:dry-run": "node scripts/github-actions-prune-runs.mjs --dry-run",
     "check:embedded-studio-urls": "node scripts/check-embedded-studio-urls.mjs",
     "test": "npm run test --prefix packages/pn-core-mcp",
     "test:coverage": "npm run test:coverage --prefix packages/pn-core-mcp",
