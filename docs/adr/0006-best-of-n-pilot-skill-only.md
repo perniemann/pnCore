@@ -7,7 +7,7 @@ updated: 2026-06-30
 
 ## Status
 
-Accepted
+Accepted — **P2 delivered** (2026-06). `implementation_tournament` workflow ships behind `bestOfN.enabled` (default `false`). Skill-only path remains valid when the flag is off.
 
 ## Context
 
@@ -17,7 +17,7 @@ P1 shipped `pn-best-of-n` skill, `best-of-n.contract.json`, and parallel review 
 
 ## Decision
 
-**Proceed to P2 planning** only after this ADR; keep tournaments **skill-only** until P2 lands `implementation_tournament` / `PNCORE_FEATURES.bestOfN`.
+**P1 pilot complete.** **P2 shipped:** `workflow_step('implementation_tournament', …)` when `bestOfN.enabled` is true in `pn-core://config/features.json` or `PNCORE_FEATURES`. When the flag is off, use `get_skill('pn-best-of-n')` or `/pn-best-of-n` (skill-only path).
 
 **P1 pilot artifacts (canonical):**
 

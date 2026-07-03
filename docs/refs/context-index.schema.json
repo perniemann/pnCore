@@ -49,6 +49,10 @@
         "workflow_state_schema": {
           "type": ["string", "null"],
           "description": "Normative workflow state schema path"
+        },
+        "quarterly_audit": {
+          "type": ["string", "null"],
+          "description": "Latest quarterly skill/rule audit note (ADR-0002)"
         }
       }
     },

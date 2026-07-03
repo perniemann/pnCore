@@ -335,6 +335,102 @@ Steps 0, 1, 2, 3, 5 are `gate: "human"`. Steps 4 and 6 are `gate: "model"`. Step
 
 ---
 
+## Prompt-optimize workflow (workflowType: "prompt_optimize")
+
+| Step | requiredFromState (to enter step) | State keys produced |
+|------|----------------------------------|---------------------|
+| 0 | (none) | promptSpec |
+| 1 | promptSpec | draft, notes, usage, reviewComplete |
+| 2 | draft, reviewComplete | (final prompt; no new keys) |
+
+**State shape (prompt_optimize):** `{ promptSpec?, draft?, notes?, usage?, reviewComplete?, userFeedback? }`
+
+- **promptSpec:** object — questionnaire output from `pn-prompt-optimize` (goal, audience, constraints, success criteria).
+- **reviewComplete:** gate record from `workflow_confirm` after user reviews the draft at step 1.
+- **userFeedback:** optional string — when provided at step 2, revise draft before final output.
+
+---
+
+## Engine-feature workflow (workflowType: "engine_feature")
+
+Unified entry for UE and Godot. Pass **`state.engine`**: `"unreal"` or `"godot"`. The server routes to `unreal_feature` or `godot_feature` step definitions. Deprecated direct types `unreal_feature` and `godot_feature` remain as aliases.
+
+| Step | requiredFromState (to enter step) | State keys produced |
+|------|----------------------------------|---------------------|
+| 0 | `engine` | discoverySpec, ueVersion/ueMcpServer **or** godotVersion/godotMcpServer |
+| 1 | discoverySpec + version + mcpServer | apiProbe, plan, skepticPassed, skepticVerdict |
+| 2 | plan, skepticPassed, skepticVerdict | buildComplete |
+| 3 | buildComplete | skepticOutputPassed, skepticOutputVerdict |
+| 4 | skepticOutputPassed, skepticOutputVerdict | (summary; no new keys) |
+
+**State shape (engine_feature):** same as `unreal_feature` or `godot_feature` depending on `engine`. See those sections for field definitions and iteration-cap behavior.
+
+---
+
+## Godot-feature workflow (workflowType: "godot_feature")
+
+Alias for `engine_feature` with `engine: "godot"`. State shape mirrors `unreal_feature` with Godot-specific keys.
+
+| Step | requiredFromState (to enter step) | State keys produced |
+|------|----------------------------------|---------------------|
+| 0 | (none) | discoverySpec, godotVersion, godotMcpServer |
+| 1 | discoverySpec, godotVersion, godotMcpServer | apiProbe, plan, skepticPassed, skepticVerdict |
+| 2 | plan, skepticPassed, skepticVerdict | buildComplete |
+| 3 | buildComplete | skepticOutputPassed, skepticOutputVerdict |
+| 4 | skepticOutputPassed, skepticOutputVerdict | (summary; no new keys) |
+
+**State shape (godot_feature):** `{ request?, discoverySpec?, godotVersion?, godotMcpServer?, apiProbe?, plan?, skepticPassed?, skepticVerdict?, buildComplete?, skepticOutputPassed?, skepticOutputVerdict?, iterationCount?, iterationCapApproved? }`
+
+- **godotVersion:** string — e.g. `"4.4"`.
+- **godotMcpServer:** string — chosen server id per `pn-godot-mcp` matrix.
+- **iterationCount / iterationCapApproved:** same iteration-cap pattern as `design` and `unreal_feature` at step 3.
+
+---
+
+## Feature-program workflow (workflowType: "feature_program")
+
+Requires **`featureProgram: true`** in `pn-core://config/features.json` or `PNCORE_FEATURES`. Multi-slice hierarchical orchestration with worktree isolation.
+
+| Step | requiredFromState (to enter step) | State keys produced |
+|------|----------------------------------|---------------------|
+| 0 | (none) | discoveryPath, programSlug, programBranch |
+| 1 | discoveryPath, programSlug | slices, contractsPath, worktreesConfigPath |
+| 2 | slices, contractsPath | slices (with planArtifactPath, planSummary), slicesPlanned |
+| 3 | slices, slicesPlanned | slices (updated), taskResults |
+| 4 | slices, taskResults | mergeComplete, mergedSlices |
+| 5 | mergeComplete | (summary; no new keys) |
+
+**State shape (feature_program):** `{ discoveryPath?, programSlug?, programBranch?, slices?, contractsPath?, worktreesConfigPath?, slicesPlanned?, taskResults?, mergeQueueOrder?, mergeComplete?, mergedSlices? }`
+
+- **slices:** array — each slice: `{ id, title, ownedPaths, dependsOn, contractsProduced, contractsConsumed, planArtifactPath?, planSummary?, verifierReport?, worktreePath?, branch?, status?, runId? }`.
+- **contractsPath:** string — `docs/refs/contracts/<programSlug>/`.
+- **taskResults:** Record<string, string> — one summary per slice id after step 3.
+- **Single-slice hard exit:** step 1 returns stop instruction when only one slice — use `full_dev` instead.
+
+---
+
+## Implementation-tournament workflow (workflowType: "implementation_tournament")
+
+Requires **`bestOfN.enabled: true`** in `pn-core://config/features.json` or `PNCORE_FEATURES`. Competing implementations via isolated worktrees.
+
+| Step | requiredFromState (to enter step) | State keys produced |
+|------|----------------------------------|---------------------|
+| 0 | (none) | specSummary, verifyCommands, tournamentN, scopeConfirmed |
+| 1 | specSummary, verifyCommands, scopeConfirmed | candidates, objectiveGateResults |
+| 2 | objectiveGateResults | selectedCandidate (single survivor) **or** advance to judge |
+| 3 | objectiveGateResults | selectedCandidate, judgeComplete, auditPath |
+| 4 | selectedCandidate, judgeComplete | mergeComplete, taskResults |
+| 5 | mergeComplete, selectedCandidate | (hands off to `full_dev` step 5) |
+
+**State shape (implementation_tournament):** `{ specSummary?, verifyCommands?, tournamentN?, scopeConfirmed?, candidates?, objectiveGateResults?, selectedCandidate?, judgeComplete?, auditPath?, mergeComplete?, taskResults?, plan?, skepticPassed?, planArtifactPath?, planSummary?, discoverySpec?, tournamentHandoff? }`
+
+- **verifyCommands:** `{ cmd: string, exit: number }[]` — objective gates (e.g. `npm test`, `npm run lint`).
+- **tournamentN:** `2` or `3` — parallel builder count.
+- **auditPath:** string — `docs/audits/best-of-n-YYYY-MM-DD-<slug>.json` per `best-of-n.contract.json`.
+- **Step 5 handoff:** calls `workflow_step("full_dev", 5, { tournamentHandoff: true, ... })` for review through full_dev step 6.
+
+---
+
 ## Persistence and resume
 
 - State is client-held by default. To persist: use optional tools `workflow_state_save` and `workflow_state_load` with a path (e.g. `.pncore/workflow-state.json` in the workspace), or persist the state object yourself and pass it to the next session.

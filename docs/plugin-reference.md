@@ -1,6 +1,6 @@
 ---
 title: pnCore plugin reference
-updated: 2026-06-16
+updated: 2026-07-03
 ---
 
 # pnCore plugin reference
@@ -35,7 +35,7 @@ The orchestrator and full dev loop route work to specialists. n8n and web3 have 
 
 ## Rules and skills (inventory)
 
-Rules live as `.mdc` files under `content/rules/` (always-apply or glob-scoped for stacks, CI, n8n, web3, gamedev, design, and tooling). **pn-aesthetics-baseline** is always-apply: enforces the non-generic UI floor and `.pncore-design.md` / `pn-core://reference/aesthetics-baseline.md` alignment for user-facing surfaces. Skills live under `content/skills/<category>/` with categories: **frontend**, **media**, **backend**, **ci**, **review**, **gamedev**, **orchestration**, **pm**, **plugin**, **discipline**, **integrations**, **learning**, **marketing**, **support**. Backend skills ship a shared reference layer at `skills/backend/reference/` (`api-design.md`, `database-patterns.md`, `security-patterns.md`, `error-handling.md`).
+Rules live as `.mdc` files under `content/rules/` (always-apply or glob-scoped for stacks, CI, n8n, web3, gamedev, design, and tooling). **pn-aesthetics-baseline** is always-apply: enforces the non-generic UI floor and `.pncore-design.md` / `pn-core://reference/aesthetics-baseline.md` alignment for user-facing surfaces. Skills live under `content/skills/<category>/` with categories: **frontend**, **media**, **backend**, **ci**, **review**, **gamedev**, **orchestration**, **pm**, **plugin**, **discipline**, **integrations**, **learning**, **marketing**, **support**, **fsi**. Backend skills ship a shared reference layer at `skills/backend/reference/` (`api-design.md`, `database-patterns.md`, `security-patterns.md`, `error-handling.md`).
 
 Use **`list_rules`** / **`get_rule`** and **`list_skills`** / **`get_skill`** for exact ids and full text. **Note:** **`pn-design-system`** exists as both a rule (CSS/SCSS token enforcement) and a skill (establish or audit design systems). See [agents-md-guide](agents-md-guide.md) for hard constraints vs learned preferences.
 
@@ -69,7 +69,7 @@ Orchestration includes **pn-cultural-heritage-research** for tiered museum and a
 
 ## Commands
 
-Roughly **24** user-entry commands ship under **`plugins/pnCore/.cursor/commands/`** (the Cursor slash palette). Another **17** surgical commands live canonical-only under **`packages/pn-core-mcp/content/commands/`** with frontmatter `slash: false` — reachable via **`get_command("<id>")`** but not shown in the `/` palette. Static counts drift; use **`list_commands`** for the canonical inventory (returns all ~41) and `Get-ChildItem plugins/pnCore/.cursor/commands/*.md | Measure-Object` for the live palette count. The split is enforced by [`scripts/command-slash-filter.mjs`](../scripts/command-slash-filter.mjs) and capped by the soft limit in [`scripts/validate-plugin-lib.mjs`](../scripts/validate-plugin-lib.mjs).
+Roughly **25** user-entry commands ship under **`plugins/pnCore/.cursor/commands/`** (the Cursor slash palette). Another **18** surgical commands live canonical-only under **`packages/pn-core-mcp/content/commands/`** with frontmatter `slash: false` — reachable via **`get_command("<id>")`** but not shown in the `/` palette. Static counts drift; use **`list_commands`** for the canonical inventory (returns all 43) and `Get-ChildItem plugins/pnCore/.cursor/commands/*.md | Measure-Object` for the live palette count. The split is enforced by [`scripts/command-slash-filter.mjs`](../scripts/command-slash-filter.mjs) and capped by the soft limit in [`scripts/validate-plugin-lib.mjs`](../scripts/validate-plugin-lib.mjs).
 
 ### Core workflow (12)
 
@@ -92,6 +92,7 @@ Roughly **24** user-entry commands ship under **`plugins/pnCore/.cursor/commands
 - **pn-design-variants** — Parallel sub-agents each constrained to a radically different design approach, then compare. Based on "Design It Twice." Use before committing to a UI layout, component API, module interface, or architecture choice.
 - **pn-pressure-test** — Startup idea pressure-test (verdict, scorecard, fatal flaws, competition-as-behavior, first-customer moves, ~2-week MVP test). Not for implementation plans; use pn-skeptic / pn-grill for those.
 - **pn-program** — Multi-slice hierarchical orchestration (`feature_program` workflow; preview behind `featureProgram: true`). Prefer `workflow_step("feature_program", …)` when MCP available.
+- **pn-best-of-n** — Competing implementations tournament (2–3 isolated worktrees, objective gates, premium judge). Skill-only when `bestOfN.enabled` is false; prefer `workflow_step("implementation_tournament", …)` when the flag is on.
 - **pn-retro** — Manual session retrospective; blameless reports under `docs/refs/retros/`.
 - **pn-prompt-optimize** — Refine and stress-test a prompt or instruction. Prefer `workflow_step("prompt_optimize", …)` when MCP available.
 

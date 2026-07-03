@@ -1,6 +1,6 @@
 ---
 title: How to use pnCore
-updated: 2026-05-15
+updated: 2026-07-03
 ---
 
 # How to use pnCore
@@ -33,6 +33,9 @@ Deeper orientation: [Plugin reference](plugin-reference.md).
 - **Stress-test a plan** — `/pn-grill` or "Grill me on this plan before we build." One question at a time, recommended answer per question.
 - **Pressure-test a startup idea** — `/pn-pressure-test` or `get_skill("pn-pressure-test")`. Single-pass verdict (Strong / Weak / Pivot), scorecard, fatal flaws, MVP wedge. Targets the **business thesis**, not a coding plan (`pn-skeptic` / `pn-grill` stay on implementation plans).
 - **Explore design options** — `/pn-design-variants` or "Generate 3 radically different designs." Parallel sub-agents.
+- **Competing implementations** — `/pn-best-of-n` or `workflow_step("implementation_tournament", 0, {})` when `bestOfN.enabled: true`. Not for auth/security — use review panel per `pn-build-gate`.
+- **Multi-slice program** — `/pn-program` or `workflow_step("feature_program", 0, {})` when ≥2 independent vertical slices and `featureProgram: true`.
+- **Optimize a prompt** — `/pn-prompt-optimize` or `workflow_step("prompt_optimize", 0, {})`.
 - **Define domain vocabulary** — "Run pn-domain-language" or "Extract our ubiquitous language." DDD-style glossary.
 - **Curate agent context** — `get_skill("pn-context-engineering")` when output drifts, you switch tasks, or you need a smaller, correct context window.
 - **Vendor-doc-backed code** — `get_skill("pn-source-driven-implementation")` when framework or library behavior must match official docs for the versions in your lockfile.

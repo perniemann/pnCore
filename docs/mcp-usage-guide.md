@@ -1,6 +1,6 @@
 ---
 title: "pn-core MCP: analysis and usage guide"
-updated: 2026-06-16
+updated: 2026-07-03
 ---
 
 # pn-core MCP: Analysis and Usage Guide
@@ -18,7 +18,7 @@ pn-core is the **MCP server** for the pnCore plugin pack. It exposes skills, age
 | Tool | Purpose | Who uses it |
 |------|---------|-------------|
 | `health` | Status, version, **`calendarDateUtc`** / **`timestampUtc`** (server clock, UTC), capability summary | Gateways, probes, **dating changelogs or "as of" lines** |
-| `list_workflow_types` | List workflow types and step counts: `project_kickoff`, `design`, `full_dev`, `prompt_optimize`, `frontend_audit`, `backend_audit`, `image_create`, `visual_tweak`, `game_feature`, `svg_create`, `engine_feature`, `unreal_feature`, `godot_feature`, `fsi_analyst_draft`, `business_strategy`, `media_director`, `feature_program` | AI (discoverability) |
+| `list_workflow_types` | List workflow types and step counts: `project_kickoff`, `design`, `full_dev`, `prompt_optimize`, `frontend_audit`, `backend_audit`, `image_create`, `visual_tweak`, `game_feature`, `svg_create`, `engine_feature`, `unreal_feature`, `godot_feature`, `fsi_analyst_draft`, `business_strategy`, `media_director`, `feature_program`, `implementation_tournament` | AI (discoverability) |
 | `suggest_model_tier` | Suggested LLM model tier for a workflow step (`fast` / `standard` / `premium` / `premium_thinking`); omit `step` for the full per-step table | AI |
 | `list_skills` | List skill ids + descriptions | AI |
 | `get_skill` | Load full markdown of a skill by id | AI |
@@ -74,6 +74,8 @@ When `workflow_step` is available, use it for build/design flows instead of load
 | `fsi_analyst_draft` | 0–5 | Scope → sources + assumptions → draft (deliverable-typed FSI skill) → QC + skeptic → mandatory analyst sign-off (human gate) → delivery summary |
 | `business_strategy` | 0–8 | Framing → codebase intake (conditional) → evidence → strategic frame → grill → pressure-test (Strong / Weak / Pivot, iteration cap=2) → conditional skeptic → verdict lock → HTML + markdown brief |
 | `media_director` | 0–6 | Intent → adaptive grill (blank / <10-char / contradictory triggers) → creative brief (`docs/media/<slug>-brief.md`) → plan + pipeline + skeptic → produce → human review → delivery summary |
+| `feature_program` | 0–5 | Program discovery → slice decomposition + contracts + worktrees → per-slice plans + skeptic → parallel slice `full_dev` in worktrees → verifier + merge queue → program review (`featureProgram: true`) |
+| `implementation_tournament` | 0–5 | Scope + verify gates → parallel fan-out (N=2–3 worktrees) → objective elimination → premium judge → merge winner → hand off to `full_dev` step 5 (`bestOfN.enabled: true`) |
 
 `list_workflow_types` reports a **steps** count per workflow; **`step`** passed to `workflow_step` is **0-based** through **`steps − 1`** (inclusive), matching the indices in this table.
 

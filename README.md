@@ -2,7 +2,7 @@
   <img src="plugins/pnCore/assets/pn-logo.svg" width="256" alt="pnCore" />
 </p>
 
-# pnCore — v0.14.6
+# pnCore — v0.15.0
 
 **pnCore** is an orchestration pack and MCP server for AI-assisted software delivery in Cursor. It ships structured workflows — discovery, planning, skeptic challenge, design, audits, asset creation, and delivery — backed by skills, agents, rules, and a deterministic `workflow_step` engine. It is not a generic prompt pack.
 
@@ -13,7 +13,7 @@ One product, two surfaces:
 
 Canonical content lives in `packages/pn-core-mcp/content/` and syncs into the plugin via `npm run sync:content`. Edit canonical files only; never hand-edit the plugin copy.
 
-**Catalog:** 166 skills, 9 public agents + 6 internal orchestration agents, ~24 visible slash commands + ~17 palette-hidden surgical commands (41 command files total), 24 MCP tools, 17 workflow types, plus `pn-core://` resources and prompts. Live inventory: `list_skills`, `list_agents`, `list_commands`, `list_rules`, `list_workflow_types`. Surgical commands (`pn-audit-*`, `pn-typeset`, `pn-colorize`, …) are hidden from `/` via frontmatter `slash: false`; reach them with `get_command("<id>")` or through umbrella commands (`pn-frontend-audit`, `pn-backend-audit`, `pn-visual-tweak`, `pn-polish`, `pn-design`).
+**Catalog:** 167 skills, 9 public agents + 6 internal orchestration agents, 25 visible slash commands + 18 palette-hidden surgical commands (43 command files total), 24 MCP tools, 18 workflow types, plus `pn-core://` resources and prompts. Live inventory: `list_skills`, `list_agents`, `list_commands`, `list_rules`, `list_workflow_types`. Surgical commands (`pn-audit-*`, `pn-typeset`, `pn-colorize`, …) are hidden from `/` via frontmatter `slash: false`; reach them with `get_command("<id>")` or through umbrella commands (`pn-frontend-audit`, `pn-backend-audit`, `pn-visual-tweak`, `pn-polish`, `pn-design`).
 
 **Best fit:** Teams building with Cursor on React, Astro, Next.js, vanilla web, Node backends, Three.js / Babylon / gamedev, n8n, and web3. **Limited support** for Vue, Svelte, Angular, and Unity. See [docs/plugin-reference.md](docs/plugin-reference.md) for the full inventory.
 
@@ -108,6 +108,7 @@ Copy-paste prompts and scenario flows: [docs/how-to-use-guide.md](docs/how-to-us
 | `fsi_analyst_draft` | Financial-services deliverable with mandatory human sign-off | — | `workflow_step("fsi_analyst_draft", 0, {})` |
 | `business_strategy` | Evidence-led strategy → HTML + markdown brief | `/pn-strategy` | `workflow_step("business_strategy", 0, {})` |
 | `media_director` | Gated generative-media: brief → plan → produce → review | — | `workflow_step("media_director", 0, {})` |
+| `implementation_tournament` | Competing implementations in isolated worktrees (2–3 paths, objective gates, premium judge) | `/pn-best-of-n` (`bestOfN.enabled: true`) | `workflow_step("implementation_tournament", 0, {})` |
 
 Call `list_workflow_types` for live step counts and descriptions.
 

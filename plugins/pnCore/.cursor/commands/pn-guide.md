@@ -9,7 +9,7 @@ description: Show all pnCore capabilities — commands, agents, and recommended 
 
 Show the user what pnCore can do and recommend the right starting point.
 
-> **Slash palette is intentionally short.** Up to 21 user-entry commands appear under `/pn-…`. Another 18 palette-hidden commands (`pn-frontend-redo`, `pn-audit-*`, `pn-typeset`/`pn-colorize`/…) live canonical-only and are reachable via `get_command("<id>")` or as substeps of the visible umbrellas. See [Advanced — palette-hidden](#advanced--palette-hidden) at the bottom of this guide.
+> **Slash palette:** **25** user-entry commands appear under `/pn-…`. Another **18** palette-hidden commands (`pn-frontend-redo`, `pn-audit-*`, `pn-typeset`/`pn-colorize`/…) live canonical-only and are reachable via `get_command("<id>")` or as substeps of the visible umbrellas. See [Advanced — palette-hidden](#advanced--palette-hidden) at the bottom of this guide.
 
 ## Step 1: Identify context
 
@@ -51,6 +51,7 @@ Use `ask_question` when available:
 **Build:**
 - **pn-build** — Full dev cycle with specialist routing (features, apps, large changes)
 - **pn-program** — Multi-slice feature program (worktree isolation, contract locking, sequential merge) — when ≥2 independent vertical slices and `featureProgram: true` in `features.json`
+- **pn-best-of-n** — Competing implementations tournament (2–3 worktrees, objective gates, premium judge); MCP workflow when `bestOfN.enabled: true`
 - **pn-design** — UI and visual design build with typography/color/layout substeps
 - **pn-design-dna** — Design with cinematic studio DNA (portfolio, reel, lab surfaces)
 - **pn-preflight** — Marketing UI ship gate (Design Read + dials + PASS/FAIL checklist)
@@ -64,6 +65,8 @@ Use `ask_question` when available:
 **Challenge / verify:**
 - **pn-grill** — Interactive Socratic plan stress-test (one question at a time)
 - **pn-pressure-test** — Startup / product idea verdict (not for code plans — use pn-grill)
+- **pn-skeptic** — Fast automated plan challenge (single-pass; use pn-grill for dialogue)
+- **pn-prompt-optimize** — Refine and stress-test a prompt or instruction
 
 **Audit (umbrellas):**
 - **pn-frontend-audit** — Chains the 5 frontend audit surgical commands; scored roadmap
