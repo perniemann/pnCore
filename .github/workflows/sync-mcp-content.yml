@@ -38,6 +38,14 @@ on:
       - 'scripts/validate-skill-security.mjs'
       - 'scripts/strip-commit-trailers.mjs'
       - 'docs/commits.md'
+      - 'scripts/validate-changelog.mjs'
+      - 'scripts/validate-doc-structure.mjs'
+      - 'scripts/run-pn-gates.mjs'
+      - 'scripts/git-diff-lib.mjs'
+      - 'scripts/pn-pr-review-gate.mjs'
+      - '.github/workflows/pn-gates.yml'
+      - '.github/workflows/pn-pr-review.yml'
+      - '.github/workflows/pr-automerge.yml'
   # Every PR runs full CI so Dependabot auto-merge can gate on test:full (see dependabot-automerge.yml).
   pull_request:
     branches: [main]

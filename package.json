@@ -17,6 +17,8 @@
     "check:context-index": "node scripts/check-context-index.mjs",
     "migrate:context-index": "node scripts/migrate-context-index.mjs",
     "check:ac-traceability": "node scripts/check-ac-traceability.mjs",
+    "check:changelog": "node scripts/validate-changelog.mjs",
+    "check:doc-structure": "node scripts/validate-doc-structure.mjs",
     "check:embedded-studio-urls": "node scripts/check-embedded-studio-urls.mjs",
     "test": "npm run test --prefix packages/pn-core-mcp",
     "test:coverage": "npm run test:coverage --prefix packages/pn-core-mcp",

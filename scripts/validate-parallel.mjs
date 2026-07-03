@@ -16,6 +16,8 @@ const root = join(__dir, "..");
 
 const PARALLEL_SCRIPTS = [
   "scripts/validate-version.mjs",
+  "scripts/validate-changelog.mjs",
+  "scripts/validate-doc-structure.mjs",
   "scripts/validate-template.mjs",
   "scripts/validate-specialists.mjs",
   "scripts/validate-stacks.mjs",

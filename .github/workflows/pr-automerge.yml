@@ -1,11 +1,10 @@
-# Squash-merge Dependabot patch/minor/group PRs after CI passes.
-# Private repos without branch protection: we poll checks and merge directly
-# (not gh pr merge --auto, which would merge immediately with no required checks).
-name: Dependabot auto-merge
+# Squash-merge PRs labeled automerge after CI + pn-gates + pn-review pass.
+# Opt-in only; skips semver-major version bumps (manual review).
+name: PR auto-merge
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, labeled]
 
 permissions:
   contents: write
@@ -14,20 +13,33 @@ permissions:
 jobs:
   automerge:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    if: |
+      github.event.pull_request.user.login != 'dependabot[bot]' &&
+      contains(github.event.pull_request.labels.*.name, 'automerge')
     steps:
-      - name: Dependabot metadata
-        id: metadata
-        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
-      - name: Skip major semver bumps
-        if: steps.metadata.outputs.update-type == 'version-update:semver-major'
-        run: echo "Major update — manual review required."
+      - name: Skip semver-major version bumps
+        id: major
+        run: |
+          set -euo pipefail
+          base="${{ github.event.pull_request.base.sha }}"
+          head="${{ github.event.pull_request.head.sha }}"
+          base_ver=$(git show "${base}:package.json" | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>console.log(JSON.parse(d).version))")
+          head_ver=$(git show "${head}:package.json" | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>console.log(JSON.parse(d).version))")
+          base_major=${base_ver%%.*}
+          head_major=${head_ver%%.*}
+          if [ "$base_major" != "$head_major" ]; then
+            echo "Semver-major bump (${base_ver} → ${head_ver}) — manual review required."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Wait for CI (excluding this workflow)
-        if: steps.metadata.outputs.update-type != 'version-update:semver-major'
+        if: steps.major.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
@@ -39,7 +51,7 @@ jobs:
             if ! mapfile -t rows < <(
               gh pr checks "$PR" --json name,bucket,workflow -q '.[] | [.name,.bucket,.workflow] | @tsv' 2>/dev/null
             ); then
-              echo "gh pr checks failed (no git repo context); retrying... (${attempt}/40)"
+              echo "gh pr checks failed; retrying... (${attempt}/40)"
               sleep 30
               continue
             fi
@@ -52,7 +64,7 @@ jobs:
             failed=""
             for row in "${rows[@]}"; do
               IFS=$'\t' read -r name bucket workflow <<< "$row"
-              if [[ "$workflow" == *"Dependabot auto-merge"* ]]; then
+              if [[ "$workflow" == *"PR auto-merge"* ]]; then
                 continue
               fi
               case "$bucket" in
@@ -66,7 +78,7 @@ jobs:
             fi
             if [[ "$pending" -eq 0 ]]; then
               for check in "${required_checks[@]}"; do
-                bucket=$(gh pr checks "$PR" --name "$check" --json bucket -q '.[0].bucket')
+                bucket=$(gh pr checks "$PR" --name "$check" --json bucket -q '.[0].bucket' 2>/dev/null || echo "missing")
                 if [[ "$bucket" != "pass" ]]; then
                   echo "Required check not passing yet: ${check} (${bucket})"
                   pending=1
@@ -85,7 +97,7 @@ jobs:
           exit 1
 
       - name: Squash merge
-        if: steps.metadata.outputs.update-type != 'version-update:semver-major'
+        if: steps.major.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
