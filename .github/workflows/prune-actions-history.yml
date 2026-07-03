@@ -3,6 +3,9 @@
 name: Prune Actions history
 
 on:
+  schedule:
+    # Weekly cleanup — keeps latest run per workflow, drops log/storage churn.
+    - cron: "0 4 * * 0"
   workflow_dispatch:
     inputs:
       logs_only:
