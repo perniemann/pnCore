@@ -9,6 +9,7 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { walkCommandFiles, listTopLevelVisibleCommands } from "./command-slash-filter.mjs";
 
 export function runValidation(pluginRoot) {
   const errors = [];
@@ -138,39 +139,41 @@ export function runValidation(pluginRoot) {
     }
   }
 
-  // --- Frontmatter: commands
-  // Soft cap on slash-palette size: pnCore v1 target is 19 visible (±2 for
-  // optional pn-program / pn-retro). Warn above SOFT_CAP, fail above HARD_CAP.
-  // Demote excess commands via frontmatter `slash: false` (see
-  // scripts/command-slash-filter.mjs and the slash-command UX consolidation
-  // plan).
-  const SOFT_CAP = 21;
-  const HARD_CAP = 25;
+  // --- Frontmatter: commands (ADR-0008 pn submenu)
+  // Top-level palette: pn.md stub only. Leaves live under pn/{category}/.
+  const TOP_LEVEL_HARD = 2;
+  const LEAF_SOFT_CAP = 35;
+  const LEAF_HARD_CAP = 45;
   const commandsDir = manifest.commands
     ? path.join(pluginRoot, manifest.commands)
     : path.join(pluginRoot, "commands");
   if (fs.existsSync(commandsDir) && fs.statSync(commandsDir).isDirectory()) {
-    const files = fs
-      .readdirSync(commandsDir)
-      .filter((f) => f.endsWith(".md") || f.endsWith(".txt"));
-    for (const file of files) {
-      const content = fs.readFileSync(path.join(commandsDir, file), "utf8");
+    let leafCount = 0;
+    for (const { rel, abs } of walkCommandFiles(commandsDir)) {
+      if (!rel.endsWith(".md") && !rel.endsWith(".txt")) continue;
+      leafCount++;
+      const content = fs.readFileSync(abs, "utf8");
       const fm = parseFrontmatter(content);
-      if (!fm) err(`Command missing YAML frontmatter: commands/${file}`);
+      if (!fm) err(`Command missing YAML frontmatter: commands/${rel}`);
       else {
-        if (!fm.name) err(`Command missing 'name' in frontmatter: commands/${file}`);
-        if (!fm.description) err(`Command missing 'description' in frontmatter: commands/${file}`);
+        if (!fm.name) err(`Command missing 'name' in frontmatter: commands/${rel}`);
+        if (!fm.description) err(`Command missing 'description' in frontmatter: commands/${rel}`);
       }
     }
-    if (files.length > HARD_CAP) {
+    const topLevel = listTopLevelVisibleCommands(commandsDir);
+    if (topLevel.length > TOP_LEVEL_HARD) {
       err(
-        `Slash-palette overflow: ${files.length} command files in ${commandsDir} exceeds hard cap of ${HARD_CAP}. ` +
-          `Demote infrequent ids via frontmatter 'slash: false' (see scripts/command-slash-filter.mjs).`
+        `Slash-palette top-level overflow: ${topLevel.length} files at ${commandsDir} root exceeds cap of ${TOP_LEVEL_HARD}. ` +
+          `Only pn.md should sit at root; move leaves under pn/.`
       );
-    } else if (files.length > SOFT_CAP) {
+    }
+    if (leafCount > LEAF_HARD_CAP) {
+      err(
+        `Slash-palette leaf overflow: ${leafCount} visible command files under ${commandsDir} exceeds hard cap of ${LEAF_HARD_CAP}.`
+      );
+    } else if (leafCount > LEAF_SOFT_CAP) {
       process.stderr.write(
-        `[plugin-validate] WARN: ${files.length} visible slash commands exceeds soft cap of ${SOFT_CAP}. ` +
-          `Consider demoting advanced ids via frontmatter 'slash: false'.\n`
+        `[plugin-validate] WARN: ${leafCount} visible command leaves exceeds soft cap of ${LEAF_SOFT_CAP}.\n`
       );
     }
   }

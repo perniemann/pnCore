@@ -7,6 +7,11 @@
 import { readdirSync, existsSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
+import {
+  walkCommandFiles,
+  commandIdFromFile,
+  commandStemFromRel,
+} from "./command-slash-filter.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, "..");
@@ -41,6 +46,13 @@ export function* walkSkills(root) {
 export function listMdIds(root, dir) {
   const full = join(root, dir);
   if (!existsSync(full)) return [];
+  if (dir === "commands") {
+    const ids = new Set();
+    for (const { rel, abs } of walkCommandFiles(full)) {
+      ids.add(commandIdFromFile(abs) ?? commandStemFromRel(rel));
+    }
+    return [...ids];
+  }
   return readdirSync(full)
     .filter((f) => f.endsWith(".md") || f.endsWith(".mdc"))
     .map((f) => f.replace(/\.(md|mdc)$/, ""));

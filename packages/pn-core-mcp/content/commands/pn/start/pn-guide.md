@@ -9,7 +9,7 @@ description: Show all pnCore capabilities — commands, agents, and recommended 
 
 Show the user what pnCore can do and recommend the right starting point.
 
-> **Slash palette:** **25** user-entry commands appear under `/pn-…`. Another **18** palette-hidden commands (`pn-frontend-redo`, `pn-audit-*`, `pn-typeset`/`pn-colorize`/…) live canonical-only and are reachable via `get_command("<id>")` or as substeps of the visible umbrellas. See [Advanced — palette-hidden](#advanced--palette-hidden) at the bottom of this guide.
+> **Slash palette:** Open **`/pn`** in Cursor IDE for the pnCore submenu (**27** leaves in start/build/design/pm/audit/challenge/ship). Top-level **`/pn`** stub routes on CLI. **28** visible palette files total. Another **18** palette-hidden surgical commands remain canonical-only.
 
 ## Step 1: Identify context
 
@@ -41,44 +41,50 @@ Use `ask_question` when available:
 
 ## Step 3: Full map (for option 8 or when helpful)
 
-### Visible slash commands (palette)
+### Visible slash commands (under `/pn` submenu)
 
-**Start here:**
+**Start (`pn/start/`):**
+- **pn-guide** — This orientation command
 - **pn-new** — Start a new project from scratch
 - **pn-setup** — Configure pnCore for an existing project
-- **pn-guide** — This orientation command
 
-**Build:**
-- **pn-build** — Full dev cycle with specialist routing (features, apps, large changes)
-- **pn-program** — Multi-slice feature program (worktree isolation, contract locking, sequential merge) — when ≥2 independent vertical slices and `featureProgram: true` in `features.json`
-- **pn-best-of-n** — Competing implementations tournament (2–3 worktrees, objective gates, premium judge); MCP workflow when `bestOfN.enabled: true`
-- **pn-design** — UI and visual design build with typography/color/layout substeps
-- **pn-design-dna** — Design with cinematic studio DNA (portfolio, reel, lab surfaces)
-- **pn-preflight** — Marketing UI ship gate (Design Read + dials + PASS/FAIL checklist)
-- **pn-design-variants** — Explore 3+ radically different design approaches in parallel, then compare
-- **pn-assets** — Create visual assets (SVG, raster, logos, placeholders) — single entry for image / SVG / placeholder
-
-**Targeted design edits:**
-- **pn-visual-tweak** — Bounded change router (typography, color, layout, motion, background, assets)
-- **pn-polish** — Pre-ship design quality pass across all dimensions
-
-**Challenge / verify:**
-- **pn-grill** — Interactive Socratic plan stress-test (one question at a time)
-- **pn-pressure-test** — Startup / product idea verdict (not for code plans — use pn-grill)
-- **pn-skeptic** — Fast automated plan challenge (single-pass; use pn-grill for dialogue)
-- **pn-prompt-optimize** — Refine and stress-test a prompt or instruction
-
-**Audit (umbrellas):**
-- **pn-frontend-audit** — Chains the 5 frontend audit surgical commands; scored roadmap
-- **pn-backend-audit** — Chains the 5 backend audit surgical commands; scored roadmap
-
-**Strategy / docs / finish:**
-- **pn-strategy** — Business-strategy entry: framing → grill → pressure-test → HTML + markdown brief
-- **pn-document** — Format, validate, or generate project docs
-- **pn-review** — Quality + performance review with deslop
+**Build (`pn/build/`):**
+- **pn-build** — Full dev cycle with specialist routing
+- **pn-program** — Multi-slice program (worktrees; `featureProgram: true`)
+- **pn-best-of-n** — Competing implementations tournament
 - **pn-deliver** — Verify against acceptance criteria, package for handoff
-- **pn-retro** — Session retrospective (blameless; manual v1)
-- **pn-video-lint** — Lint generated video / motion deliverables
+
+**Design (`pn/design/`):**
+- **pn-design** — UI build with typography/color/layout substeps
+- **pn-design-dna** — Cinematic studio DNA surfaces
+- **pn-design-variants** — Explore divergent design approaches
+- **pn-preflight** — Marketing UI pre-ship gate
+- **pn-visual-tweak** — Bounded visual edit router
+- **pn-polish** — Pre-ship design quality pass
+- **pn-assets** — Create visual assets (SVG, raster, logos)
+
+**Product management (`pn/pm/`):**
+- **pn-create-prd** — PRD / product spec
+- **pn-user-stories** — Backlog items (3 C's, INVEST)
+- **pn-strategy** — Business strategy workflow
+- **pn-pressure-test** — Startup idea verdict
+- **pn-document** — Format or generate project docs
+
+**Audit (`pn/audit/`):**
+- **pn-frontend-audit** — Frontend audit umbrella
+- **pn-backend-audit** — Backend audit umbrella
+
+**Challenge (`pn/challenge/`):**
+- **pn-grill** — Interactive Socratic plan stress-test
+- **pn-skeptic** — Fast automated plan challenge
+- **pn-prompt-optimize** — Refine a prompt or instruction
+
+**Ship (`pn/ship/`):**
+- **pn-review** — Code quality + performance review
+- **pn-retro** — Session retrospective (manual v1)
+- **pn-video-lint** — Pre-render video checklist
+
+**pi.dev:** Flat `/pn-build` etc. from `plugins/pnCore/prompts/` (no submenu — see ADR-0008).
 
 ### Advanced — palette-hidden
 

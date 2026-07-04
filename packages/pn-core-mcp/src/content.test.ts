@@ -1,4 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import { utimesSync } from "fs";
 import { randomUUID } from "crypto";
 import {
   listSkills,
@@ -56,6 +57,16 @@ describe("content contract", () => {
       expect(filtered.length).toBeLessThan(all.length);
       for (const s of filtered) {
         expect(s.category).toBe(cat);
+      }
+    });
+
+    it("filters by category case-insensitively", () => {
+      const all = listSkills();
+      const cat = all[0].category;
+      const filtered = listSkills({ category: cat.toUpperCase() });
+      expect(filtered.length).toBeGreaterThan(0);
+      for (const s of filtered) {
+        expect(s.category.toLowerCase()).toBe(cat.toLowerCase());
       }
     });
 
@@ -125,6 +136,37 @@ describe("content contract", () => {
         expect(c).toHaveProperty("description");
       }
     });
+
+    it("includes menuPath for nested commands", () => {
+      const commands = listCommands();
+      const build = commands.find((c) => c.id === "pn-build");
+      expect(build).toBeDefined();
+      expect(build!.menuPath).toMatch(/^pn\//);
+    });
+
+    it("includes palette-hidden commands", () => {
+      const commands = listCommands();
+      const hidden = commands.find((c) => c.id === "pn-audit-api");
+      expect(hidden).toBeDefined();
+      expect(hidden!.menuPath).toBe("pn-audit-api");
+    });
+
+    it("includes pn router stub with menuPath pn", () => {
+      const commands = listCommands();
+      const router = commands.find((c) => c.id === "pn");
+      expect(router).toBeDefined();
+      expect(router!.menuPath).toBe("pn");
+    });
+
+    it("getCommand resolves every listed command id", () => {
+      const commands = listCommands();
+      expect(commands.length).toBeGreaterThan(40);
+      for (const c of commands) {
+        const content = getCommand(c.id);
+        expect(content).toBeTypeOf("string");
+        expect(content!.length).toBeGreaterThan(0);
+      }
+    });
   });
 
   describe("getCommand", () => {
@@ -135,6 +177,102 @@ describe("content contract", () => {
         expect(content === null || typeof content === "string").toBe(true);
       }
       expect(getCommand("__nonexistent__")).toBeNull();
+    });
+
+    it("resolves nested pn/ menu paths by id", () => {
+      const content = getCommand("pn-build");
+      expect(content).toBeTypeOf("string");
+      expect(content).toContain("pn-build");
+    });
+  });
+
+  describe("content cold cache", () => {
+    afterEach(() => {
+      vi.resetModules();
+    });
+
+    it("getCommand resolves nested id without prior listCommands", async () => {
+      const { getCommand } = await import("./content.js");
+      const content = getCommand("pn-build");
+      expect(content).toBeTypeOf("string");
+      expect(content).toContain("pn-build");
+    });
+
+    it("getAgent loads file on cache miss without prior listAgents", async () => {
+      const { getAgent } = await import("./content.js");
+      const content = getAgent("pn-frontend-developer");
+      expect(content).toBeTypeOf("string");
+      expect(content!.length).toBeGreaterThan(0);
+    });
+
+    it("getRule loads file on cache miss without prior listRules", async () => {
+      const { getRule } = await import("./content.js");
+      const content = getRule("pn-build-gate");
+      expect(content).toBeTypeOf("string");
+      expect(content!.length).toBeGreaterThan(0);
+    });
+
+    it("getSkill loads file on cache miss without prior listSkills", async () => {
+      const { getSkill } = await import("./content.js");
+      const content = getSkill("pn-discovery-questionnaire");
+      expect(content).toBeTypeOf("string");
+      expect(content!.length).toBeGreaterThan(0);
+    });
+
+    it("getCommand resolves palette-hidden command by id", async () => {
+      const { getCommand } = await import("./content.js");
+      const content = getCommand("pn-audit-api");
+      expect(content).toBeTypeOf("string");
+      expect(content).toContain("pn-audit-api");
+    });
+
+    it("getCommand resolves pn router stub", async () => {
+      const { getCommand } = await import("./content.js");
+      const content = getCommand("pn");
+      expect(content).toBeTypeOf("string");
+      expect(content).toContain("pnCore command menu");
+    });
+
+    it("getCommand caches resolved content on repeat lookup", async () => {
+      const { getCommand } = await import("./content.js");
+      const first = getCommand("pn-build");
+      const second = getCommand("pn-build");
+      expect(first).toBe(second);
+    });
+
+    it("getCommand returns from preload cache after listCommands", async () => {
+      const { listCommands, getCommand } = await import("./content.js");
+      listCommands();
+      const content = getCommand("pn-build");
+      expect(content).toContain("pn-build");
+    });
+
+    it("getAgent returns cached content on second call", async () => {
+      const { getAgent } = await import("./content.js");
+      const first = getAgent("pn-frontend-developer");
+      const second = getAgent("pn-frontend-developer");
+      expect(first).toBe(second);
+    });
+
+    it("listCommands refreshes after cache TTL expires", async () => {
+      vi.useFakeTimers();
+      const { listCommands } = await import("./content.js");
+      const first = listCommands();
+      expect(first.length).toBeGreaterThan(0);
+      vi.advanceTimersByTime(61_000);
+      const second = listCommands();
+      expect(second.length).toBe(first.length);
+      vi.useRealTimers();
+    });
+
+    it("listCommands refreshes when content directory mtime changes", async () => {
+      const { listCommands, contentRoot } = await import("./content.js");
+      const first = listCommands();
+      expect(first.length).toBeGreaterThan(0);
+      const now = new Date();
+      utimesSync(contentRoot, now, now);
+      const second = listCommands();
+      expect(second.length).toBe(first.length);
     });
   });
 

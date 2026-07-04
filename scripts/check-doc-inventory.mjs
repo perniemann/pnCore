@@ -43,7 +43,7 @@ const actual = {
 
 const readme = readFileSync(readmePath, "utf8");
 const catalogLine = readme.match(
-  /\*\*Catalog:\*\* (\d+) skills.*?(\d+) visible slash commands \+ (\d+) palette-hidden.*?(\d+) command files total\).*?(\d+) workflow types/
+  /\*\*Catalog:\*\* (\d+) skills.*?(\d+) visible slash palette files.*?(\d+) palette-hidden.*?(\d+) command files total\).*?(\d+) workflow types/
 );
 
 if (!catalogLine) {
