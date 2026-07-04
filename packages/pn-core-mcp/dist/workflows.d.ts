@@ -43,7 +43,11 @@ export interface WorkflowStepResult {
      */
     suggestedModelTier?: SuggestedModelTier;
 }
+/** Internal engine step keys — not exposed on workflowTypeEnum. */
+export declare const INTERNAL_ENGINE_WORKFLOW_TYPES: readonly ["unreal_feature", "godot_feature"];
 export declare const workflowSteps: Record<WorkflowType, StepDef[]>;
+/** Workflow types exposed via MCP tools (workflowTypeEnum). */
+export declare const PUBLIC_WORKFLOW_TYPES: WorkflowType[];
 /**
  * Resolve the model tier for a (workflowType, step) pair, applying per-step
  * overrides and global tier aliases from features.json / PNCORE_FEATURES.

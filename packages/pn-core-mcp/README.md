@@ -1,6 +1,6 @@
 # pn-core-mcp
 
-MCP server for [pnCore](https://github.com/perniemann/pnCore) **0.15.1**: same skills, agents, commands, and rules as the Cursor plugin, plus **`workflow_step`** and related tools. Use from any MCP client to run orchestration, discovery, skeptic, audits, assets, and other pnCore workflows without installing the plugin.
+MCP server for [pnCore](https://github.com/perniemann/pnCore) **0.16.0**: same skills, agents, commands, and rules as the Cursor plugin, plus **`workflow_step`** and related tools. Use from any MCP client to run orchestration, discovery, skeptic, audits, assets, and other pnCore workflows without installing the plugin.
 
 ## Installation
 
@@ -213,7 +213,6 @@ MCP resources expose config and reference content by URI. When your workspace do
 | `pn-core://reference/workflow-state-schema.md` | Workflow state schema and task contract for persistence/resume and parallel execution |
 | `pn-core://reference/best-practices.md` | Best practices checklist (a11y, security, performance, design, orchestration, mobile, WebXR) |
 | `pn-core://reference/aesthetics-baseline.md` | Distinctive UI checklist, inspiration presets, optional `<frontend_aesthetics>` block for CLAUDE.md |
-| `pn-core://reference/best-practice-2026-03.md` | Compatibility URI — same file as `best-practices.md` |
 | `pn-core://reference/human-facing-artifacts.md` | HTML vs canvas vs markdown for subset workflow outputs; dual digest for orchestration; example gallery link |
 | `pn-core://reference/discovery-and-plan-format.md` | Format reference for discovery specs and plans |
 | `pn-core://reference/schemas/delivery_pack.contract.json` | Delivery pack contract for pn-deliver |
@@ -281,7 +280,7 @@ See `pn-core://reference/RUNBOOK.md` for the full reference.
 
 ## Engine feature (Unreal / Godot)
 
-Use `workflow_step("engine_feature", 0, { engine: "unreal" })` or `{ engine: "godot" }` as the unified entry point for game-engine feature workflows. The old types `unreal_feature` and `godot_feature` still work for at least two minor releases and emit a deprecation note in the instruction.
+Use `workflow_step("engine_feature", 0, { engine: "unreal" })` or `{ engine: "godot" }` as the entry point for game-engine feature workflows. Direct `unreal_feature` and `godot_feature` workflow types are not supported.
 
 ## Plugin vs MCP
 

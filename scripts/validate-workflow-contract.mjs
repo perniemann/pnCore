@@ -203,25 +203,26 @@ if (!("error" in d4approved)) {
   passed++;
 } else failed++;
 
-// unreal_feature step 0: no state required
-const uf0 = getWorkflowStep("unreal_feature", 0, {});
-assert(!("error" in uf0), "unreal_feature step 0 should not error");
+// engine_feature (unreal) step 0: requires state.engine
+const uf0 = getWorkflowStep("engine_feature", 0, { engine: "unreal" });
+assert(!("error" in uf0), "engine_feature unreal step 0 should not error");
 if (!("error" in uf0)) {
-  assert(uf0.nextStep === 1, "unreal_feature step 0 nextStep is 1");
-  assert(uf0.gate === "human", "unreal_feature step 0 gate is human");
+  assert(uf0.nextStep === 1, "engine_feature unreal step 0 nextStep is 1");
+  assert(uf0.gate === "human", "engine_feature unreal step 0 gate is human");
   passed++;
 } else failed++;
 
-// unreal_feature step 3: fresh (no skepticOutputPassed) → proceeds to step 4
-const uf3fresh = getWorkflowStep("unreal_feature", 3, { buildComplete: true });
-assert(!("error" in uf3fresh), "unreal_feature step 3 fresh should not error");
+// engine_feature (unreal) step 3: fresh (no skepticOutputPassed) → proceeds to step 4
+const uf3fresh = getWorkflowStep("engine_feature", 3, { engine: "unreal", buildComplete: true });
+assert(!("error" in uf3fresh), "engine_feature unreal step 3 fresh should not error");
 if (!("error" in uf3fresh)) {
-  assert(uf3fresh.nextStep === 4, "unreal_feature step 3 fresh nextStep is 4");
+  assert(uf3fresh.nextStep === 4, "engine_feature unreal step 3 fresh nextStep is 4");
   passed++;
 } else failed++;
 
-// unreal_feature step 3: skeptic failed, iterationCount:0 → loop-back to step 2
-const uf3fail0 = getWorkflowStep("unreal_feature", 3, {
+// engine_feature (unreal) step 3: skeptic failed, iterationCount:0 → loop-back to step 2
+const uf3fail0 = getWorkflowStep("engine_feature", 3, {
+  engine: "unreal",
   buildComplete: true,
   skepticOutputPassed: false,
   skepticOutputVerdict: "Lumen quality incorrect",
@@ -229,19 +230,20 @@ const uf3fail0 = getWorkflowStep("unreal_feature", 3, {
 });
 assert(
   !("error" in uf3fail0),
-  "unreal_feature step 3 skeptic fail iter 0 should return loop-back, not error"
+  "engine_feature unreal step 3 skeptic fail iter 0 should return loop-back, not error"
 );
 if (!("error" in uf3fail0)) {
-  assert(uf3fail0.nextStep === 2, "unreal_feature step 3 skeptic fail iter 0 nextStep is 2");
+  assert(uf3fail0.nextStep === 2, "engine_feature unreal step 3 skeptic fail iter 0 nextStep is 2");
   assert(
     uf3fail0.instruction.includes("iterationCount: 1"),
-    "unreal_feature step 3 skeptic fail iter 0 instruction contains iterationCount: 1"
+    "engine_feature unreal step 3 skeptic fail iter 0 instruction contains iterationCount: 1"
   );
   passed++;
 } else failed++;
 
-// unreal_feature step 3: skeptic failed, iterationCount:2 → cap error requiring approval
-const uf3cap = getWorkflowStep("unreal_feature", 3, {
+// engine_feature (unreal) step 3: skeptic failed, iterationCount:2 → cap error requiring approval
+const uf3cap = getWorkflowStep("engine_feature", 3, {
+  engine: "unreal",
   buildComplete: true,
   skepticOutputPassed: false,
   skepticOutputVerdict: "still failing",
@@ -249,18 +251,19 @@ const uf3cap = getWorkflowStep("unreal_feature", 3, {
 });
 assert(
   "error" in uf3cap,
-  "unreal_feature step 3 skeptic fail iter 2 should require approval (error)"
+  "engine_feature unreal step 3 skeptic fail iter 2 should require approval (error)"
 );
 if ("error" in uf3cap) {
   assert(
     uf3cap.error.includes("approval_checkpoint"),
-    "unreal_feature step 3 cap error mentions approval_checkpoint"
+    "engine_feature unreal step 3 cap error mentions approval_checkpoint"
   );
   passed++;
 } else failed++;
 
-// unreal_feature step 3: cap approved → loop-back continues
-const uf3approved = getWorkflowStep("unreal_feature", 3, {
+// engine_feature (unreal) step 3: cap approved → loop-back continues
+const uf3approved = getWorkflowStep("engine_feature", 3, {
+  engine: "unreal",
   buildComplete: true,
   skepticOutputPassed: false,
   skepticOutputVerdict: "still failing",
@@ -270,10 +273,10 @@ const uf3approved = getWorkflowStep("unreal_feature", 3, {
 });
 assert(
   !("error" in uf3approved),
-  "unreal_feature step 3 cap approved should return loop-back, not error"
+  "engine_feature unreal step 3 cap approved should return loop-back, not error"
 );
 if (!("error" in uf3approved)) {
-  assert(uf3approved.nextStep === 2, "unreal_feature step 3 cap approved nextStep is 2");
+  assert(uf3approved.nextStep === 2, "engine_feature unreal step 3 cap approved nextStep is 2");
   passed++;
 } else failed++;
 

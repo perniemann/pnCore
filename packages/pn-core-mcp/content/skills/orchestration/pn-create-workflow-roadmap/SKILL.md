@@ -24,7 +24,7 @@ Generate `docs/WORKFLOW.md` — a project execution guide that maps every phase 
 - **Plan document:** `docs/plans/YYYY-MM-DD-<feature>.md` (required)
 - **Discovery spec:** `docs/discovery/YYYY-MM-DD-<slug>.md` (required)
 - **Prior-art research:** `docs/research/YYYY-MM-DD-<slug>-prior-art.md` (when it exists)
-- **Ref docs:** Prefer `docs/refs/PRD.md`, `docs/refs/DESIGN-DOC.md`, etc.; legacy flat `docs/PRD.md` when that is what exists
+- **Ref docs:** Prefer `docs/refs/PRD.md`, `docs/refs/DESIGN-DOC.md`, etc.
 
 ## Instructions
 

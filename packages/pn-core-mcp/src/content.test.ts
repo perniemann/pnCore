@@ -347,11 +347,9 @@ describe("content contract", () => {
       expect(r!.mimeType).toBe("text/markdown");
     });
 
-    it("legacy best-practice-2026-03 URI returns same body as canonical", () => {
-      const canonical = getResource("pn-core://reference/best-practices.md");
+    it("unknown dated best-practices URI returns null", () => {
       const legacy = getResource("pn-core://reference/best-practice-2026-03.md");
-      expect(legacy).not.toBeNull();
-      expect(legacy!.text).toBe(canonical!.text);
+      expect(legacy).toBeNull();
     });
 
     it("returns aesthetics-baseline markdown", () => {

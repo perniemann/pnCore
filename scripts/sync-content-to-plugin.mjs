@@ -25,6 +25,7 @@ import {
 import { join, dirname, basename } from "path";
 import { fileURLToPath } from "url";
 import { partitionCommands } from "./command-slash-filter.mjs";
+import { ensureRootPiManifest } from "./pi-package-manifest.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, "..");
@@ -160,5 +161,7 @@ for (const cfg of ["specialists.json", "stacks.json"]) {
     console.log(`Synced content/config/${cfg} -> config/${cfg}`);
   }
 }
+
+ensureRootPiManifest(repoRoot);
 
 console.log("Sync complete. Canonical source: packages/pn-core-mcp/content/");

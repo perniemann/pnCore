@@ -56,7 +56,7 @@ function parseLines(filePath) {
     }
     return lines;
 }
-/** Append a new issue line; returns the ticket id. */
+/** Append a new issue line; returns the ticket id. runId is required. */
 export function issueHumanGateTicket(filePath, workflowType, step, runId) {
     const ticket = randomUUID();
     const line = {
@@ -66,7 +66,7 @@ export function issueHumanGateTicket(filePath, workflowType, step, runId) {
         workflowType,
         step,
         ticket,
-        ...(runId != null && runId !== "" ? { runId } : {}),
+        runId,
     };
     appendFileSync(filePath, JSON.stringify(line) + "\n", "utf-8");
     return ticket;
@@ -105,10 +105,10 @@ export function validateAndConsumeHumanGateTicket(filePath, workflowType, step, 
         const ts = Date.parse(L.ts);
         if (Number.isNaN(ts) || now - ts > TICKET_TTL_MS)
             continue;
-        if (L.runId != null && L.runId !== "") {
-            if (runIdFromState == null || runIdFromState === "" || runIdFromState !== L.runId) {
-                continue;
-            }
+        if (L.runId == null || L.runId === "")
+            continue;
+        if (runIdFromState == null || runIdFromState === "" || runIdFromState !== L.runId) {
+            continue;
         }
         found = L;
         break;

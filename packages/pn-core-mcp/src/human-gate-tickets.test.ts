@@ -30,10 +30,19 @@ describe("human-gate-tickets runId", () => {
     expect(r.ok).toBe(false);
   });
 
-  it("consumes legacy ticket without runId with any state runId", () => {
+  it("rejects ticket without runId", () => {
     const p = freshFile();
-    const ticket = issueHumanGateTicket(p, "full_dev", 1);
-    expect(validateAndConsumeHumanGateTicket(p, "full_dev", 1, ticket, "anything").ok).toBe(true);
+    const raw = JSON.stringify({
+      v: 1,
+      type: "issue",
+      ts: new Date().toISOString(),
+      workflowType: "full_dev",
+      step: 1,
+      ticket: "no-run-id-ticket",
+    });
+    appendFileSync(p, raw + "\n", "utf-8");
+    const r = validateAndConsumeHumanGateTicket(p, "full_dev", 1, "no-run-id-ticket", "run-x");
+    expect(r.ok).toBe(false);
   });
 });
 
@@ -115,9 +124,9 @@ describe("validateAndConsumeHumanGateTicket edge cases", () => {
 
   it("rejects replay (consume same ticket twice -> INVALID_STATE)", () => {
     const p = freshFile();
-    const ticket = issueHumanGateTicket(p, "full_dev", 1);
-    expect(validateAndConsumeHumanGateTicket(p, "full_dev", 1, ticket).ok).toBe(true);
-    const second = validateAndConsumeHumanGateTicket(p, "full_dev", 1, ticket);
+    const ticket = issueHumanGateTicket(p, "full_dev", 1, "run-test");
+    expect(validateAndConsumeHumanGateTicket(p, "full_dev", 1, ticket, "run-test").ok).toBe(true);
+    const second = validateAndConsumeHumanGateTicket(p, "full_dev", 1, ticket, "run-test");
     expect(second.ok).toBe(false);
     if (!second.ok) {
       expect(second.code).toBe("INVALID_STATE");
@@ -127,7 +136,7 @@ describe("validateAndConsumeHumanGateTicket edge cases", () => {
 
   it("rejects when workflowType differs from issued ticket", () => {
     const p = freshFile();
-    const ticket = issueHumanGateTicket(p, "full_dev", 1);
+    const ticket = issueHumanGateTicket(p, "full_dev", 1, "run-test");
     const r = validateAndConsumeHumanGateTicket(p, "frontend_audit", 1, ticket);
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.code).toBe("APPROVAL_REQUIRED");
@@ -135,7 +144,7 @@ describe("validateAndConsumeHumanGateTicket edge cases", () => {
 
   it("rejects when step differs from issued ticket", () => {
     const p = freshFile();
-    const ticket = issueHumanGateTicket(p, "full_dev", 1);
+    const ticket = issueHumanGateTicket(p, "full_dev", 1, "run-test");
     const r = validateAndConsumeHumanGateTicket(p, "full_dev", 2, ticket);
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.code).toBe("APPROVAL_REQUIRED");
@@ -151,6 +160,7 @@ describe("validateAndConsumeHumanGateTicket edge cases", () => {
       workflowType: "full_dev",
       step: 1,
       ticket,
+      runId: "run-stale",
     };
     appendFileSync(p, JSON.stringify(stale) + "\n", "utf-8");
     const r = validateAndConsumeHumanGateTicket(p, "full_dev", 1, ticket);
@@ -161,8 +171,8 @@ describe("validateAndConsumeHumanGateTicket edge cases", () => {
   it("skips corrupt JSONL lines and still consumes the valid ticket after them", () => {
     const p = freshFile();
     appendFileSync(p, "not-json\n{partial broken\n", "utf-8");
-    const ticket = issueHumanGateTicket(p, "full_dev", 1);
-    expect(validateAndConsumeHumanGateTicket(p, "full_dev", 1, ticket).ok).toBe(true);
+    const ticket = issueHumanGateTicket(p, "full_dev", 1, "run-test");
+    expect(validateAndConsumeHumanGateTicket(p, "full_dev", 1, ticket, "run-test").ok).toBe(true);
   });
 
   it("returns APPROVAL_REQUIRED when ticket file does not exist", () => {

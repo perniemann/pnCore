@@ -2,7 +2,7 @@
 
 Cross-cutting checklist for design, full_dev, and frontend_audit workflows. Covers a11y, security, performance, design, orchestration, optional cost control, mobile, and WebXR. **Update this document as standards evolve** — it is not tied to a calendar version.
 
-**Resource:** `pn-core://reference/best-practices.md`. The compatibility URI `pn-core://reference/best-practice-2026-03.md` resolves to the same file.
+**Resource:** `pn-core://reference/best-practices.md`.
 
 ## 1. A11y
 

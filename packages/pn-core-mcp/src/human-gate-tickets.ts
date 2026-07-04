@@ -24,7 +24,7 @@ export type TicketLineIssue = {
   workflowType: WorkflowType;
   step: number;
   ticket: string;
-  runId?: string;
+  runId: string;
 };
 
 export type TicketLineConsumed = {
@@ -90,12 +90,12 @@ function parseLines(filePath: string): TicketLine[] {
   return lines;
 }
 
-/** Append a new issue line; returns the ticket id. */
+/** Append a new issue line; returns the ticket id. runId is required. */
 export function issueHumanGateTicket(
   filePath: string,
   workflowType: WorkflowType,
   step: number,
-  runId?: string
+  runId: string
 ): string {
   const ticket = randomUUID();
   const line: TicketLineIssue = {
@@ -105,7 +105,7 @@ export function issueHumanGateTicket(
     workflowType,
     step,
     ticket,
-    ...(runId != null && runId !== "" ? { runId } : {}),
+    runId,
   };
   appendFileSync(filePath, JSON.stringify(line) + "\n", "utf-8");
   return ticket;
@@ -153,10 +153,9 @@ export function validateAndConsumeHumanGateTicket(
     if (L.workflowType !== workflowType || L.step !== step) continue;
     const ts = Date.parse(L.ts);
     if (Number.isNaN(ts) || now - ts > TICKET_TTL_MS) continue;
-    if (L.runId != null && L.runId !== "") {
-      if (runIdFromState == null || runIdFromState === "" || runIdFromState !== L.runId) {
-        continue;
-      }
+    if (L.runId == null || L.runId === "") continue;
+    if (runIdFromState == null || runIdFromState === "" || runIdFromState !== L.runId) {
+      continue;
     }
     found = L;
     break;

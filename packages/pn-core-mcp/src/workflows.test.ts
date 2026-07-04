@@ -125,6 +125,7 @@ describe("workflows contract", () => {
       assertWorkflowStepResultShape(result);
       const r = result as WorkflowStepResult;
       expect(r.instruction.toLowerCase()).toMatch(/unreal/i);
+      expect(r.instruction).not.toContain("Deprecation");
     });
 
     it("engine_feature step 0 routes to godot steps when state.engine=godot", () => {
@@ -132,20 +133,6 @@ describe("workflows contract", () => {
       assertWorkflowStepResultShape(result);
       const r = result as WorkflowStepResult;
       expect(r.instruction.toLowerCase()).toMatch(/godot/i);
-    });
-
-    it("unreal_feature step 0 emits deprecation note when state.engine not set", () => {
-      const result = getWorkflowStep("unreal_feature", 0, {});
-      assertWorkflowStepResultShape(result);
-      const r = result as WorkflowStepResult;
-      expect(r.instruction).toContain("Deprecation");
-    });
-
-    it("unreal_feature step 0 does NOT emit deprecation note when called via engine_feature routing", () => {
-      const result = getWorkflowStep("engine_feature", 0, { engine: "unreal" });
-      assertWorkflowStepResultShape(result);
-      const r = result as WorkflowStepResult;
-      expect(r.instruction).not.toContain("Deprecation");
     });
 
     it("every registered workflow has at least one step (powers list_workflow_types)", () => {
@@ -388,9 +375,9 @@ describe("workflows contract", () => {
       expect(r.instruction).toContain("pn-skeptic-challenge");
     });
 
-    // unreal_feature step 3 iteration cap
-    it("unreal_feature step 0 returns valid discovery instruction", () => {
-      const result = getWorkflowStep("unreal_feature", 0, {});
+    // engine_feature (unreal) step 3 iteration cap
+    it("engine_feature unreal step 0 returns valid discovery instruction", () => {
+      const result = getWorkflowStep("engine_feature", 0, { engine: "unreal" });
       assertWorkflowStepResultShape(result);
       const r = result as WorkflowStepResult;
       expect(r.nextStep).toBe(1);
@@ -399,7 +386,8 @@ describe("workflows contract", () => {
     });
 
     it("unreal_feature step 3 fresh (no skepticOutputPassed) returns nextStep:4", () => {
-      const result = getWorkflowStep("unreal_feature", 3, {
+      const result = getWorkflowStep("engine_feature", 3, {
+        engine: "unreal",
         buildComplete: true,
       });
       assertWorkflowStepResultShape(result);
@@ -408,7 +396,8 @@ describe("workflows contract", () => {
     });
 
     it("unreal_feature step 3 with skepticOutputPassed:false, iterationCount:0 returns nextStep:2 loop-back", () => {
-      const result = getWorkflowStep("unreal_feature", 3, {
+      const result = getWorkflowStep("engine_feature", 3, {
+        engine: "unreal",
         buildComplete: true,
         skepticOutputPassed: false,
         skepticOutputVerdict: "Lumen GI incorrect",
@@ -418,12 +407,13 @@ describe("workflows contract", () => {
       const r = result as WorkflowStepResult;
       expect(r.nextStep).toBe(2);
       expect(r.done).toBeFalsy();
-      expect(r.instruction).toContain('workflow_step("unreal_feature", 2');
+      expect(r.instruction).toContain('workflow_step("engine_feature", 2');
       expect(r.instruction).toContain("iterationCount: 1");
     });
 
     it("unreal_feature step 3 with iterationCount:1 failing returns nextStep:2 (iteration 2)", () => {
-      const result = getWorkflowStep("unreal_feature", 3, {
+      const result = getWorkflowStep("engine_feature", 3, {
+        engine: "unreal",
         buildComplete: true,
         skepticOutputPassed: false,
         skepticOutputVerdict: "Nanite fallback still present",
@@ -436,7 +426,8 @@ describe("workflows contract", () => {
     });
 
     it("unreal_feature step 3 with iterationCount:2 failing without approval returns error requiring approval_checkpoint", () => {
-      const result = getWorkflowStep("unreal_feature", 3, {
+      const result = getWorkflowStep("engine_feature", 3, {
+        engine: "unreal",
         buildComplete: true,
         skepticOutputPassed: false,
         skepticOutputVerdict: "still failing",
@@ -448,7 +439,8 @@ describe("workflows contract", () => {
     });
 
     it("unreal_feature step 3 with iterationCount:2, iterationCapApproved:true returns nextStep:2", () => {
-      const result = getWorkflowStep("unreal_feature", 3, {
+      const result = getWorkflowStep("engine_feature", 3, {
+        engine: "unreal",
         buildComplete: true,
         skepticOutputPassed: false,
         skepticOutputVerdict: "still failing",
@@ -463,7 +455,8 @@ describe("workflows contract", () => {
     });
 
     it("unreal_feature step 3 with skepticOutputPassed:true proceeds normally to step 4", () => {
-      const result = getWorkflowStep("unreal_feature", 3, {
+      const result = getWorkflowStep("engine_feature", 3, {
+        engine: "unreal",
         buildComplete: true,
         skepticOutputPassed: true,
         skepticOutputVerdict: "render-verify passed",
@@ -1359,7 +1352,7 @@ describe("workflows contract", () => {
       });
     });
 
-    describe("godot_feature step 3 (skeptic-output failed)", () => {
+    describe("engine_feature godot step 3 (skeptic-output failed)", () => {
       const baseState = {
         engine: "godot",
         buildComplete: true,
@@ -1368,7 +1361,7 @@ describe("workflows contract", () => {
       };
 
       it("returns instruction with nextStep 2 and human gate when below cap", () => {
-        const r = getWorkflowStep("godot_feature", 3, {
+        const r = getWorkflowStep("engine_feature", 3, {
           ...baseState,
           iterationCount: 1,
         });
@@ -1381,7 +1374,7 @@ describe("workflows contract", () => {
       });
 
       it("returns approval-required error when iteration cap is reached without approval", () => {
-        const r = getWorkflowStep("godot_feature", 3, {
+        const r = getWorkflowStep("engine_feature", 3, {
           ...baseState,
           iterationCount: 2,
         });
@@ -1389,11 +1382,11 @@ describe("workflows contract", () => {
         const e = (r as { error: string }).error;
         expect(e).toContain("approval_checkpoint");
         expect(e).toContain("pncoreHumanGateTicket");
-        expect(e).toContain("godot_feature");
+        expect(e).toContain("engine_feature");
       });
 
       it("bypasses cap when iterationCapApproved is true", () => {
-        const r = getWorkflowStep("godot_feature", 3, {
+        const r = getWorkflowStep("engine_feature", 3, {
           ...baseState,
           iterationCount: 2,
           iterationCapApproved: true,

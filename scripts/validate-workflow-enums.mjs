@@ -2,6 +2,7 @@
 /**
  * Validates workflowType consistency: canonical z.enum in index.ts (workflowTypeEnum)
  * is used by workflow_step, report_usage, gate_log_append, and matches workflows.ts.
+ * Internal-only engine types (unreal_feature, godot_feature) may exist in workflows.ts only.
  */
 
 import { readFileSync } from "fs";
@@ -12,6 +13,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, "..");
 const indexPath = join(repoRoot, "packages", "pn-core-mcp", "src", "index.ts");
 const workflowsPath = join(repoRoot, "packages", "pn-core-mcp", "src", "workflows.ts");
+
+const INTERNAL_ONLY = new Set(["unreal_feature", "godot_feature"]);
 
 const src = readFileSync(indexPath, "utf-8").replace(/\r\n/g, "\n");
 const wfSrc = readFileSync(workflowsPath, "utf-8").replace(/\r\n/g, "\n");
@@ -40,18 +43,50 @@ if (!unionList || unionList.length === 0) {
   process.exit(1);
 }
 
-const e = [...enumList].sort();
-const u = [...unionList].sort();
-const unionMismatch =
-  e.length !== u.length || e.some((v, i) => v !== u[i]) || u.some((v, i) => v !== e[i]);
+const enumSet = new Set(enumList);
+const unionSet = new Set(unionList);
 
-if (unionMismatch) {
+for (const t of enumList) {
+  if (!unionSet.has(t)) {
+    console.error(
+      `validate-workflow-enums: workflowTypeEnum entry "${t}" missing from WorkflowType union`
+    );
+    process.exit(1);
+  }
+}
+
+const internalInUnion = [...INTERNAL_ONLY].filter((t) => unionSet.has(t));
+if (internalInUnion.length !== INTERNAL_ONLY.size) {
+  console.error("validate-workflow-enums: expected internal engine types in WorkflowType union:", [
+    ...INTERNAL_ONLY,
+  ]);
+  process.exit(1);
+}
+
+for (const t of enumList) {
+  if (INTERNAL_ONLY.has(t)) {
+    console.error(
+      `validate-workflow-enums: internal-only type "${t}" must not appear in workflowTypeEnum`
+    );
+    process.exit(1);
+  }
+}
+
+const publicUnion = unionList.filter((t) => !INTERNAL_ONLY.has(t));
+if (publicUnion.length !== enumList.length || publicUnion.some((t) => !enumSet.has(t))) {
   console.error(
-    "validate-workflow-enums: workflowTypeEnum in index.ts differs from WorkflowType in workflows.ts:"
+    "validate-workflow-enums: public WorkflowType members must match workflowTypeEnum exactly"
   );
   console.error("  index.ts:", enumList);
-  console.error("  workflows.ts:", unionList);
+  console.error("  workflows.ts (public):", publicUnion);
   process.exit(1);
+}
+
+for (const t of INTERNAL_ONLY) {
+  if (!wfSrc.includes(`${t}: withHandoff(`) && !wfSrc.includes(`${t}:`)) {
+    console.error(`validate-workflow-enums: internal type "${t}" missing from workflowSteps`);
+    process.exit(1);
+  }
 }
 
 for (const marker of [

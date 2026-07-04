@@ -33,7 +33,7 @@ When the user requests to **build**, **design**, **scaffold**, **add feature**, 
 |-----------|--------|
 | User says "onboard" or "analyze codebase" | `get_command("pn-setup")` |
 | Existing project code + no `project-context.mdc` + add/refactor/extend request | Ask: "Run pn-setup to create project context first?" Yes → `get_command("pn-setup")`; No → treat as new project |
-| New project, no `docs/refs/PRD.md` (or legacy `docs/PRD.md`), no `.ref/` | Ask: "No docs found. Create project doc set first?" Yes → `workflow_step("project_kickoff", 0, {})` or `get_command("pn-new")` Involved; No → `get_command("pn-new")` |
+| New project, no `docs/refs/PRD.md`, no `.ref/` | Ask: "No docs found. Create project doc set first?" Yes → `workflow_step("project_kickoff", 0, {})` or `get_command("pn-new")` Involved; No → `get_command("pn-new")` |
 | `project-context.mdc` + plan exist, design-only | `workflow_step("design", 0, { request })` or `get_command("pn-design")` |
 | `project-context.mdc` + plan exist, full-stack | `workflow_step("full_dev", 0, { request, intent? })` or `get_command("pn-build")` |
 

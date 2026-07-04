@@ -28,6 +28,7 @@ const PARALLEL_SCRIPTS = [
   "scripts/check-context-index.mjs",
   "scripts/check-ac-traceability.mjs",
   "scripts/check-commit-no-ide-trailers.mjs",
+  "scripts/check-no-legacy-names.mjs",
   "scripts/check-content-plugin-sync.mjs",
   "scripts/validate-integration-skill-sections.mjs",
   "scripts/validate-assets.mjs",

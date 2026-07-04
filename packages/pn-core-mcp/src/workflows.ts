@@ -1109,6 +1109,9 @@ const featureProgramSteps: StepDef[] = [
 // visual_tweak, game_feature, svg_create) are short, atomic, or single-artifact
 // flows where the handoff log adds noise without recovery value. Add withHandoff()
 // when a new workflow has >=4 steps OR spans multiple sessions.
+/** Internal engine step keys — not exposed on workflowTypeEnum. */
+export const INTERNAL_ENGINE_WORKFLOW_TYPES = ["unreal_feature", "godot_feature"] as const;
+
 export const workflowSteps: Record<WorkflowType, StepDef[]> = {
   design: withHandoff(designSteps),
   full_dev: withHandoff(fullDevSteps),
@@ -1130,6 +1133,11 @@ export const workflowSteps: Record<WorkflowType, StepDef[]> = {
   feature_program: withHandoff(featureProgramSteps),
   implementation_tournament: withHandoff(implementationTournamentSteps),
 };
+
+/** Workflow types exposed via MCP tools (workflowTypeEnum). */
+export const PUBLIC_WORKFLOW_TYPES = (Object.keys(workflowSteps) as WorkflowType[]).filter(
+  (t) => !(INTERNAL_ENGINE_WORKFLOW_TYPES as readonly string[]).includes(t)
+);
 
 /**
  * Resolve the model tier for a (workflowType, step) pair, applying per-step
@@ -1222,7 +1230,6 @@ export function getWorkflowStep(
   state: Record<string, unknown>
 ): WorkflowStepResult | { error: string } {
   // engine_feature: routes to unreal_feature or godot_feature based on state.engine.
-  // Callers using deprecated unreal_feature/godot_feature directly receive a deprecation note.
   if (workflowType === "engine_feature") {
     const engine = state.engine as string | undefined;
     if (engine !== "unreal" && engine !== "godot") {
@@ -1233,18 +1240,6 @@ export function getWorkflowStep(
     }
     // Delegate to underlying engine type without emitting a deprecation note.
     return getWorkflowStep((engine + "_feature") as WorkflowType, step, state);
-  }
-
-  // Deprecation aliases (emit note only when state.engine is not already set, i.e. direct legacy call).
-  if (
-    (workflowType === "unreal_feature" || workflowType === "godot_feature") &&
-    state.engine === undefined
-  ) {
-    const engine = workflowType === "unreal_feature" ? "unreal" : "godot";
-    const result = getWorkflowStep(workflowType, step, { ...state, engine });
-    if ("error" in result) return result;
-    const note = `[Deprecation (2 releases): use workflowType 'engine_feature' with state.engine: '${engine}'] `;
-    return { ...result, instruction: note + result.instruction };
   }
 
   const steps = workflowSteps[workflowType];
@@ -1521,14 +1516,14 @@ export function getWorkflowStep(
     const capApproved = state.iterationCapApproved === true;
     if (iterCount >= 2 && !capApproved) {
       return {
-        error: `Unreal_feature iteration cap reached (iterationCount: ${iterCount}). The skeptic-on-output has failed ${iterCount} time(s) without resolution. Call approval_checkpoint with workflow_type: "unreal_feature", workflow_step: 3 to get a pncoreHumanGateTicket, then call workflow_step again with state including iterationCapApproved: true and the ticket. This aligns with the 3 failed attempts rule in pn-skeptic-challenge (iterationCount 2 = 3 build attempts: initial + first retry + second retry after approval).`,
+        error: `Engine_feature (unreal) iteration cap reached (iterationCount: ${iterCount}). The skeptic-on-output has failed ${iterCount} time(s) without resolution. Call approval_checkpoint with workflow_type: "engine_feature", workflow_step: 3, and run_id to get a pncoreHumanGateTicket, then call workflow_step again with state including engine: "unreal", iterationCapApproved: true, and the ticket. This aligns with the 3 failed attempts rule in pn-skeptic-challenge (iterationCount 2 = 3 build attempts: initial + first retry + second retry after approval).`,
       };
     }
     const nextCount = iterCount + 1;
     return withTierHint(
       {
         instruction:
-          `Skeptic on output failed (iteration ${nextCount} of 2 before approval required). Address the issues listed in skepticOutputVerdict. Return to build: call workflow_step("unreal_feature", 2, state) with the existing plan/skepticPassed/skepticVerdict fields, clear buildComplete from state, and set iterationCount: ${nextCount}. After rebuilding, run get_skill("pn-render-verify") with the UE 5.7 appendix, then run get_skill("pn-skeptic-challenge") post-build, then call workflow_step("unreal_feature", 3, state) with the new skepticOutputPassed and skepticOutputVerdict.` +
+          `Skeptic on output failed (iteration ${nextCount} of 2 before approval required). Address the issues listed in skepticOutputVerdict. Return to build: call workflow_step("engine_feature", 2, { ...state, engine: "unreal" }) with the existing plan/skepticPassed/skepticVerdict fields, clear buildComplete from state, and set iterationCount: ${nextCount}. After rebuilding, run get_skill("pn-render-verify") with the UE 5.7 appendix, then run get_skill("pn-skeptic-challenge") post-build, then call workflow_step("engine_feature", 3, { ...state, engine: "unreal" }) with the new skepticOutputPassed and skepticOutputVerdict.` +
           HANDOFF_AFTER_STEP,
         nextStep: 2,
         requiredInputs: def.requiredFromState,
@@ -1854,14 +1849,14 @@ export function getWorkflowStep(
     const capApproved = state.iterationCapApproved === true;
     if (iterCount >= 2 && !capApproved) {
       return {
-        error: `Godot_feature iteration cap reached (iterationCount: ${iterCount}). The skeptic-on-output has failed ${iterCount} time(s) without resolution. Call approval_checkpoint with workflow_type: "godot_feature", workflow_step: 3 to get a pncoreHumanGateTicket, then call workflow_step again with state including iterationCapApproved: true and the ticket. This aligns with the 3 failed attempts rule in pn-skeptic-challenge (iterationCount 2 = 3 build attempts: initial + first retry + second retry after approval).`,
+        error: `Engine_feature (godot) iteration cap reached (iterationCount: ${iterCount}). The skeptic-on-output has failed ${iterCount} time(s) without resolution. Call approval_checkpoint with workflow_type: "engine_feature", workflow_step: 3, and run_id to get a pncoreHumanGateTicket, then call workflow_step again with state including engine: "godot", iterationCapApproved: true, and the ticket. This aligns with the 3 failed attempts rule in pn-skeptic-challenge (iterationCount 2 = 3 build attempts: initial + first retry + second retry after approval).`,
       };
     }
     const nextCount = iterCount + 1;
     return withTierHint(
       {
         instruction:
-          `Skeptic on output failed (iteration ${nextCount} of 2 before approval required). Address the issues listed in skepticOutputVerdict. Return to build: call workflow_step("godot_feature", 2, state) with the existing plan/skepticPassed/skepticVerdict fields, clear buildComplete from state, and set iterationCount: ${nextCount}. After rebuilding, run get_skill("pn-render-verify") with the Godot appendix, then run get_skill("pn-skeptic-challenge") post-build, then call workflow_step("godot_feature", 3, state) with the new skepticOutputPassed and skepticOutputVerdict.` +
+          `Skeptic on output failed (iteration ${nextCount} of 2 before approval required). Address the issues listed in skepticOutputVerdict. Return to build: call workflow_step("engine_feature", 2, { ...state, engine: "godot" }) with the existing plan/skepticPassed/skepticVerdict fields, clear buildComplete from state, and set iterationCount: ${nextCount}. After rebuilding, run get_skill("pn-render-verify") with the Godot appendix, then run get_skill("pn-skeptic-challenge") post-build, then call workflow_step("engine_feature", 3, { ...state, engine: "godot" }) with the new skepticOutputPassed and skepticOutputVerdict.` +
           HANDOFF_AFTER_STEP,
         nextStep: 2,
         requiredInputs: def.requiredFromState,

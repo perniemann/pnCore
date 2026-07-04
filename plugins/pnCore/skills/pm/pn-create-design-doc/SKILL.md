@@ -87,7 +87,7 @@ Create a DESIGN document that captures vision, aesthetic direction, information 
 
 ## Output
 
-- DESIGN doc at **`docs/refs/DESIGN-DOC.md`** (or legacy `docs/DESIGN.md` when applicable)
+- DESIGN doc at **`docs/refs/DESIGN-DOC.md`**
 - File path reported to user
 - Gate: "Design doc complete. Proceed?" Use ask_question or workflow_confirm when available.
 

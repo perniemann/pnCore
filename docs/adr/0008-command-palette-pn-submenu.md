@@ -27,8 +27,9 @@ Cursor IDE 2.6+ recursively scans `.cursor/commands/` subfolders; Cursor CLI rea
 ### Pi (secondary)
 
 1. Sync visible command bodies to **flat** `plugins/pnCore/prompts/pn-*.md` (basename only).
-2. Ship `plugins/pnCore/package.json` with `"keywords": ["pi-package"]` and `"pi": { "prompts": ["./prompts"], "skills": ["./skills"] }`.
-3. Document: Pi users get `/pn-build` etc. in a flat list; no `pn` submenu.
+2. Ship `plugins/pnCore/package.json` with `"keywords": ["pi-package"]` and `"pi": { "prompts": ["./prompts"], "skills": ["./skills"] }` for `pi install ./plugins/pnCore`.
+3. Ship **root** `package.json` with `"pi": { "prompts": ["./plugins/pnCore/prompts"], "skills": ["./plugins/pnCore/skills"] }` so `pi install git:github.com/perniemann/pnCore` resolves prompts (monorepo layout).
+4. Document: Pi users get `/pn-build` etc. in a flat list; no `pn` submenu.
 
 ### Categories (v1)
 

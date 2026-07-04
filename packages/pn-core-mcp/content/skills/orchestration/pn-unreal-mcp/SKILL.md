@@ -7,11 +7,11 @@ description: Compare and select a UE 5.7-compatible MCP server for editor automa
 
 ## Mission
 
-Survey the available third-party MCP servers that drive the Unreal Engine editor via a C++ Automation Bridge. Present the comparison matrix to the user, collect their use-case priorities, and recommend a server (or confirm their choice). Output an `install_plan` with the chosen server's install snippet and tool mapping so that `unreal_feature` step 1 (api-probe) can verify coverage before building.
+Survey the available third-party MCP servers that drive the Unreal Engine editor via a C++ Automation Bridge. Present the comparison matrix to the user, collect their use-case priorities, and recommend a server (or confirm their choice). Output an `install_plan` with the chosen server's install snippet and tool mapping so that `engine_feature` step 1 (api-probe) can verify coverage before building.
 
 ## When to use
 
-- At `unreal_feature` step 0 (Discovery): load this skill to present the server comparison before the user commits to a tool surface.
+- At `engine_feature` step 0 with `state.engine: "unreal"` (Discovery): load this skill to present the server comparison before the user commits to a tool surface.
 - When the user mentions "UE MCP", "Unreal MCP server", or asks which MCP to use for Unreal automation.
 - When diagnosing tool-coverage gaps mid-workflow (return here to re-evaluate).
 

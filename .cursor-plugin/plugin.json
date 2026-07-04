@@ -1,7 +1,7 @@
 {
   "name": "pn-core",
   "displayName": "pnCore",
-  "version": "0.15.1",
+  "version": "0.16.0",
   "description": "Rules, skills, and agents for frontend (React, Astro, Next, vanilla) and 3D (Three.js, shaders, R3F). Includes CI, n8n, web3, Blender, Unreal. Built for team workflows with a minimal, consistent structure.",
   "author": {
     "name": "perniemann",

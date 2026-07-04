@@ -2,7 +2,7 @@
   <img src="plugins/pnCore/assets/pn-logo.svg" width="256" alt="pnCore" />
 </p>
 
-# pnCore — v0.15.1
+# pnCore — v0.16.0
 
 **pnCore** is an orchestration pack and MCP server for AI-assisted software delivery in Cursor. It ships structured workflows — discovery, planning, skeptic challenge, design, audits, asset creation, and delivery — backed by skills, agents, rules, and a deterministic `workflow_step` engine. It is not a generic prompt pack.
 
@@ -13,7 +13,7 @@ One product, two surfaces:
 
 Canonical content lives in `packages/pn-core-mcp/content/` and syncs into the plugin via `npm run sync:content`. Edit canonical files only; never hand-edit the plugin copy.
 
-**Catalog:** 167 skills, 9 public agents + 6 internal orchestration agents, 28 visible slash palette files (27 under **`pn`** submenu + **`/pn`** stub) + 18 palette-hidden surgical commands (46 command files total), 24 MCP tools, 18 workflow types, plus `pn-core://` resources and prompts.
+**Catalog:** 167 skills, 9 public agents + 6 internal orchestration agents, 28 visible slash palette files (27 under **`pn`** submenu + **`/pn`** stub) + 18 palette-hidden surgical commands (46 command files total), 24 MCP tools, 16 workflow types, plus `pn-core://` resources and prompts.
 
 **Best fit:** Teams building with Cursor on React, Astro, Next.js, vanilla web, Node backends, Three.js / Babylon / gamedev, n8n, and web3. **Limited support** for Vue, Svelte, Angular, and Unity. See [docs/plugin-reference.md](docs/plugin-reference.md) for the full inventory.
 
@@ -55,6 +55,24 @@ npx github:perniemann/pnCore plugin-install
 Copies commands, rules, skills, agents, config, and hooks into `.cursor/` and `.cursor-plugin/`. Reload Cursor, then run `/pn-new`.
 
 > **MCP or plugin?** Use the MCP for cross-client orchestration and headless workflows. Add the plugin when you want the native Cursor experience (slash palette, rules, agents, stop hook). Details: [Plugin vs MCP](packages/pn-core-mcp/README.md#plugin-vs-mcp).
+
+### pi.dev (Pi coding agent)
+
+Install pnCore as a [Pi package](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/packages.md) for flat slash prompt templates (`/pn-build`, `/pn-design`, …) and skills:
+
+```bash
+pi install git:github.com/perniemann/pnCore@main
+```
+
+From a local clone (contributors):
+
+```bash
+pi install ./plugins/pnCore    # plugin subfolder only
+# or, from repo root after npm run sync:content:
+pi install .
+```
+
+**Note:** Pi has no nested `/pn` submenu — commands appear as a flat list. Type `/pn` for the orientation router, or `/pn-build` etc. directly. Pair with the pn-core MCP (`get_command`, `workflow_step`) for full orchestration. See [ADR-0008](docs/adr/0008-command-palette-pn-submenu.md).
 
 ### Claude Code
 

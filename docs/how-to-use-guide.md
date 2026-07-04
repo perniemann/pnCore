@@ -172,9 +172,7 @@ Indices are **inclusive** (each row matches `list_workflow_types` step counts in
 | `visual_tweak` | 0–3 | Clarify target → Plan confirmation → Implement → Summary |
 | `game_feature` | 0–4 | Questionnaire → Plan+Skeptic → Implement → Skeptic on output → Summary |
 | `svg_create` | 0–4 | Questionnaire → Spec save + confirmation → Generate SVG → Skeptic on output → Summary |
-| `engine_feature` | 0–4 | Unified UE / Godot entry — routes to `unreal_feature` or `godot_feature` via `state.engine` |
-| `unreal_feature` | 0–4 | UE 5.7 feature: MCP server pick → api-probe + plan → build → render-verify + skeptic on output (iteration cap) → Summary |
-| `godot_feature` | 0–4 | Godot 4.x feature: MCP server pick → api-probe + plan → build → render-verify + skeptic on output (iteration cap) → Summary |
+| `engine_feature` | 0–4 | Unified UE / Godot entry — set `state.engine` to `"unreal"` or `"godot"` |
 | `fsi_analyst_draft` | 0–5 | Scope → sources + assumptions → draft → QC + skeptic → mandatory analyst sign-off → delivery summary |
 | `business_strategy` | 0–8 | Framing → codebase intake (conditional) → evidence → strategic frame → grill → pressure-test (Strong / Weak / Pivot) → conditional skeptic → verdict lock → HTML + markdown brief |
 | `media_director` | 0–6 | Intent → adaptive grill → creative brief → plan + pipeline + skeptic → produce → human review → delivery |

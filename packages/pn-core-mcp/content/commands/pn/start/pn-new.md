@@ -13,7 +13,7 @@ description: Start a new project — analyzes references, selects build intent (
 
 ## Step 0: References (Step 0 of 2)
 
-**Refs provided in initial prompt — skip the question.** Consider refs as provided when any of: attached files (pitch deck, requirements doc, screenshot, Figma export, etc.); pasted or mentioned URLs; explicit mention ("here's my pitch deck"); or workspace has **`docs/refs/PRD.md`** (or legacy `docs/PRD.md`) or `.ref/` with relevant docs. When refs are provided: **do not ask** "Do you have references?" — treat as Yes and proceed.
+**Refs provided in initial prompt — skip the question.** Consider refs as provided when any of: attached files (pitch deck, requirements doc, screenshot, Figma export, etc.); pasted or mentioned URLs; explicit mention ("here's my pitch deck"); or workspace has **`docs/refs/PRD.md`** or `.ref/` with relevant docs. When refs are provided: **do not ask** "Do you have references?" — treat as Yes and proceed.
 
 **Otherwise** ask: "Do you have references to analyze? (e.g. pitch deck, requirements doc, repo, Figma link, inspiration)"
 

@@ -4,6 +4,25 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-07-04
+
+### Breaking
+
+- Removed pnCursor-era local state: `.pncursor/` gitignore entries; use `.pncore/` only.
+- **`run_id` only** — `pncoreRunId` state field no longer accepted.
+- **`pn-core://reference/best-practices.md`** only — dated `best-practice-2026-03` URI no longer resolves.
+- **`engine_feature` only** for UE/Godot — public `unreal_feature` / `godot_feature` workflow types removed from MCP enum.
+- Human-gate tickets require **`run_id`** on issue (`approval_checkpoint`) and matching state on consume.
+- Project doc discovery uses **`docs/refs/`** only (no flat `docs/PRD.md` fallbacks in rules/commands).
+
+### Added
+
+- **`scripts/check-no-legacy-names.mjs`** — CI guard against reintroducing pnCursor names and removed compat shims.
+
+### Fixed
+
+- **pi.dev git install:** root `package.json` now exposes `pi.prompts` / `pi.skills` pointing at `plugins/pnCore/` so `pi install git:github.com/perniemann/pnCore` loads slash prompt templates. Sync and `check-content-plugin-sync` enforce manifest + flat `prompts/` parity.
+
 ## [0.15.1] - 2026-07-04
 
 ### Added
