@@ -4,7 +4,7 @@ Canonical schema for the state object passed to `workflow_step`. Clients may per
 
 ## Correlation: `run_id`
 
-- **`run_id`** (or legacy **`pncoreRunId`**): UUID string. On the first `workflow_step` call per run, if omitted, the server generates one and returns **`run_id`** on the JSON response. **Echo the same value** on every later `workflow_step`, `report_usage`, `gate_log_append`, and on `approval_checkpoint` when tying tickets to the run.
+- **`run_id`**: UUID string. On the first `workflow_step` call per run, if omitted, the server generates one and returns **`run_id`** on the JSON response. **Echo the same value** on every later `workflow_step`, `report_usage`, `gate_log_append`, and on `approval_checkpoint` when issuing or consuming human-gate tickets.
 - **`.pncore/workflow-runs.jsonl`** lines include **`runId`** when run logging is enabled.
 
 ## Design workflow (workflowType: "design")
@@ -180,23 +180,37 @@ When `workflow_step` returns `parallel: true` and `tasks`:
 
 ---
 
-## Unreal-feature workflow (workflowType: "unreal_feature")
+## Engine-feature workflow (workflowType: `"engine_feature"`)
+
+Unified entry for UE and Godot. Pass **`state.engine`**: `"unreal"` or `"godot"`.
 
 | Step | requiredFromState (to enter step) | State keys produced |
 |------|----------------------------------|---------------------|
-| 0 | (none) | discoverySpec, ueVersion, ueMcpServer |
-| 1 | discoverySpec, ueVersion, ueMcpServer | apiProbe, plan, skepticPassed, skepticVerdict |
+| 0 | `engine` | discoverySpec, ueVersion/ueMcpServer **or** godotVersion/godotMcpServer |
+| 1 | discoverySpec + version + mcpServer | apiProbe, plan, skepticPassed, skepticVerdict |
 | 2 | plan, skepticPassed, skepticVerdict | buildComplete |
 | 3 | buildComplete | skepticOutputPassed, skepticOutputVerdict |
 | 4 | skepticOutputPassed, skepticOutputVerdict | (summary; no new keys) |
 
-**State shape (unreal_feature):** `{ request?, discoverySpec?, ueVersion?, ueMcpServer?, apiProbe?, plan?, skepticPassed?, skepticVerdict?, buildComplete?, skepticOutputPassed?, skepticOutputVerdict?, iterationCount?, iterationCapApproved? }`
+**Shared state keys:** `{ request?, engine, discoverySpec?, apiProbe?, plan?, skepticPassed?, skepticVerdict?, buildComplete?, skepticOutputPassed?, skepticOutputVerdict?, iterationCount?, iterationCapApproved? }`
 
-- **ueVersion:** string — UE version string (e.g. `"5.7"`). Used to scope api-probe targets.
-- **ueMcpServer:** string — chosen MCP server id (e.g. `"ChiR24"`, `"remi"`, `"Sallah"`, `"kangnam"`, `"jim"`, `"StraySpark"`). Determines tool-name surface for the build step.
-- **apiProbe:** object — structured output from `pn-api-probe` (runtime_version, available_apis, deprecated_apis, version_gaps, recommendation). Used to ground the plan in confirmed 5.7 API surface.
-- **iterationCount:** `number` — incremented each time step 3 returns `nextStep: 2` (skeptic-on-output failed, loop back to build). Tracks the number of unsuccessful skeptic-on-output cycles. Align with the "3 failed attempts rule" in `pn-skeptic-challenge`: 2 unsuccessful skeptic-output cycles ≈ 3 build attempts (initial + first retry + second retry after approval).
-- **iterationCapApproved:** `true` — set after a successful `approval_checkpoint` call when `iterationCount >= 2`. Pass this alongside `pncoreHumanGateTicket` to unblock further iteration. Each additional cycle requires a new approval checkpoint.
+- **iterationCount:** `number` — incremented each time step 3 returns `nextStep: 2` (skeptic-on-output failed). Align with the "3 failed attempts rule" in `pn-skeptic-challenge`.
+- **iterationCapApproved:** `true` — set after a successful `approval_checkpoint` (with matching **`run_id`**) when `iterationCount >= 2`.
+
+### Unreal (`engine: "unreal"`)
+
+**Additional keys:** `ueVersion`, `ueMcpServer`
+
+- **ueVersion:** string — UE version (e.g. `"5.7"`).
+- **ueMcpServer:** string — chosen MCP server id per `pn-unreal-mcp`.
+- **apiProbe:** object — output from `pn-api-probe` scoped to the UE version.
+
+### Godot (`engine: "godot"`)
+
+**Additional keys:** `godotVersion`, `godotMcpServer`
+
+- **godotVersion:** string — e.g. `"4.4"`.
+- **godotMcpServer:** string — chosen server id per `pn-godot-mcp`.
 
 ---
 
@@ -348,42 +362,6 @@ Steps 0, 1, 2, 3, 5 are `gate: "human"`. Steps 4 and 6 are `gate: "model"`. Step
 - **promptSpec:** object — questionnaire output from `pn-prompt-optimize` (goal, audience, constraints, success criteria).
 - **reviewComplete:** gate record from `workflow_confirm` after user reviews the draft at step 1.
 - **userFeedback:** optional string — when provided at step 2, revise draft before final output.
-
----
-
-## Engine-feature workflow (workflowType: "engine_feature")
-
-Unified entry for UE and Godot. Pass **`state.engine`**: `"unreal"` or `"godot"`. The server routes to `unreal_feature` or `godot_feature` step definitions. Deprecated direct types `unreal_feature` and `godot_feature` remain as aliases.
-
-| Step | requiredFromState (to enter step) | State keys produced |
-|------|----------------------------------|---------------------|
-| 0 | `engine` | discoverySpec, ueVersion/ueMcpServer **or** godotVersion/godotMcpServer |
-| 1 | discoverySpec + version + mcpServer | apiProbe, plan, skepticPassed, skepticVerdict |
-| 2 | plan, skepticPassed, skepticVerdict | buildComplete |
-| 3 | buildComplete | skepticOutputPassed, skepticOutputVerdict |
-| 4 | skepticOutputPassed, skepticOutputVerdict | (summary; no new keys) |
-
-**State shape (engine_feature):** same as `unreal_feature` or `godot_feature` depending on `engine`. See those sections for field definitions and iteration-cap behavior.
-
----
-
-## Godot-feature workflow (workflowType: "godot_feature")
-
-Alias for `engine_feature` with `engine: "godot"`. State shape mirrors `unreal_feature` with Godot-specific keys.
-
-| Step | requiredFromState (to enter step) | State keys produced |
-|------|----------------------------------|---------------------|
-| 0 | (none) | discoverySpec, godotVersion, godotMcpServer |
-| 1 | discoverySpec, godotVersion, godotMcpServer | apiProbe, plan, skepticPassed, skepticVerdict |
-| 2 | plan, skepticPassed, skepticVerdict | buildComplete |
-| 3 | buildComplete | skepticOutputPassed, skepticOutputVerdict |
-| 4 | skepticOutputPassed, skepticOutputVerdict | (summary; no new keys) |
-
-**State shape (godot_feature):** `{ request?, discoverySpec?, godotVersion?, godotMcpServer?, apiProbe?, plan?, skepticPassed?, skepticVerdict?, buildComplete?, skepticOutputPassed?, skepticOutputVerdict?, iterationCount?, iterationCapApproved? }`
-
-- **godotVersion:** string — e.g. `"4.4"`.
-- **godotMcpServer:** string — chosen server id per `pn-godot-mcp` matrix.
-- **iterationCount / iterationCapApproved:** same iteration-cap pattern as `design` and `unreal_feature` at step 3.
 
 ---
 

@@ -1,6 +1,6 @@
 {
   "name": "pn-core",
-  "version": "0.15.1",
+  "version": "0.16.0",
   "description": "pnCore — MCP server, skills, agents, commands, rules",
   "private": true,
   "type": "module",
@@ -67,5 +67,16 @@
     "eslint": "^10.6.0",
     "prettier": "^3.9.3",
     "typescript-eslint": "^8.62.0"
+  },
+  "keywords": [
+    "pi-package"
+  ],
+  "pi": {
+    "prompts": [
+      "./plugins/pnCore/prompts"
+    ],
+    "skills": [
+      "./plugins/pnCore/skills"
+    ]
   }
 }

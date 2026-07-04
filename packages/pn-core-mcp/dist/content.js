@@ -7,10 +7,6 @@ export const contentRoot = process.env.PNCORE_CONTENT_PATH
     ? resolve(process.env.PNCORE_CONTENT_PATH)
     : resolve(join(currentDir, "..", "content"));
 const contentRootResolved = resolve(contentRoot);
-/** Legacy `pn-core://` URIs that resolve to the canonical resource URI */
-const RESOURCE_URI_ALIASES = {
-    "pn-core://reference/best-practice-2026-03.md": "pn-core://reference/best-practices.md",
-};
 // Mtime-based cache: invalidate when content dirs change (per MCP best practice: cache read-heavy ops)
 const CACHE_TTL_MS = 60_000;
 const cache = {
@@ -461,12 +457,10 @@ export const resourceDefs = [
 ];
 export function getResource(uri) {
     invalidateIfStale();
-    const canonicalUri = RESOURCE_URI_ALIASES[uri] ?? uri;
-    const cached = cache.resources.get(canonicalUri) ??
-        (canonicalUri !== uri ? cache.resources.get(uri) : undefined);
+    const cached = cache.resources.get(uri);
     if (cached !== undefined)
         return cached;
-    const entry = resourceDefs.find((r) => r.uri === canonicalUri);
+    const entry = resourceDefs.find((r) => r.uri === uri);
     if (!entry)
         return null;
     const fullPath = resolve(contentRoot, entry.path);
@@ -477,8 +471,6 @@ export function getResource(uri) {
         return null;
     const text = readFileSync(fullPath, "utf-8");
     const result = { text, mimeType: entry.mimeType };
-    cache.resources.set(canonicalUri, result);
-    if (canonicalUri !== uri)
-        cache.resources.set(uri, result);
+    cache.resources.set(uri, result);
     return result;
 }

@@ -10,7 +10,7 @@ export type TicketLineIssue = {
     workflowType: WorkflowType;
     step: number;
     ticket: string;
-    runId?: string;
+    runId: string;
 };
 export type TicketLineConsumed = {
     v: 1;
@@ -24,8 +24,8 @@ export type TicketLine = TicketLineIssue | TicketLineConsumed;
  *  typos from silently disabling enforcement on intended workflows. */
 export declare function parseRequiredApprovalWorkflows(raw: string | undefined): Set<WorkflowType> | null;
 export declare function workflowRequiresHumanGateApproval(required: Set<WorkflowType> | null, workflowType: WorkflowType): boolean;
-/** Append a new issue line; returns the ticket id. */
-export declare function issueHumanGateTicket(filePath: string, workflowType: WorkflowType, step: number, runId?: string): string;
+/** Append a new issue line; returns the ticket id. runId is required. */
+export declare function issueHumanGateTicket(filePath: string, workflowType: WorkflowType, step: number, runId: string): string;
 export type ConsumeResult = {
     ok: true;
 } | {

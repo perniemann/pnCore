@@ -70,7 +70,7 @@ Create a DOMAIN document (or game-design-doc style) that captures core loop, pro
 
 ## Output
 
-- DOMAIN doc at **`docs/refs/DOMAIN-DOC.md`** when created (or legacy `docs/DOMAIN.md`)
+- DOMAIN doc at **`docs/refs/DOMAIN-DOC.md`** when created
 - Or: "Scope does not include mechanics. DOMAIN doc not needed." when skipped
 - Gate: "Domain doc complete. Proceed?" when created. Use ask_question or workflow_confirm when available.
 

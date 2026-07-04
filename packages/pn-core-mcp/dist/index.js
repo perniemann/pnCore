@@ -9,7 +9,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { McpError } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import { listSkills, getSkill, listAgents, listInternalAgents, getAgent, listCommands, getCommand, listRules, getRule, resourceDefs, getResource, } from "./content.js";
-import { getWorkflowStep, resolveStepTier, workflowSteps } from "./workflows.js";
+import { getWorkflowStep, PUBLIC_WORKFLOW_TYPES, resolveStepTier, workflowSteps, } from "./workflows.js";
 import { resolveRoleTier } from "./model-tiers.js";
 import { loadPaperclipConfig, resolvePaperclipIssueId, parsePaperclipResponse, } from "./paperclip.js";
 import { evaluateApprovalCheckpoint } from "./approval-checkpoint.js";
@@ -125,8 +125,6 @@ const workflowTypeEnum = z.enum([
     "game_feature",
     "svg_create",
     "engine_feature",
-    "unreal_feature",
-    "godot_feature",
     "fsi_analyst_draft",
     "business_strategy",
     "media_director",
@@ -219,7 +217,7 @@ regTool("health", "Lightweight health check. Returns status, version, server cal
 });
 regTool("list_workflow_types", "List available workflow types and their step counts. Use for discoverability before calling workflow_step.", {}, { readOnlyHint: true, destructiveHint: false, idempotentHint: true }, async () => {
     // Derive from workflowSteps (single source of truth) so new workflows can't drift out of sync.
-    const table = Object.fromEntries(Object.entries(workflowSteps).map(([k, v]) => [k, { steps: v.length }]));
+    const table = Object.fromEntries(PUBLIC_WORKFLOW_TYPES.map((k) => [k, { steps: workflowSteps[k].length }]));
     return textContent(JSON.stringify(table));
 });
 regTool("suggest_model_tier", "Return the suggested LLM model tier for a workflow step or subagent role. Omit `step` to get the full per-step table for the workflow. When `role` is set (explorer | builder | judge | checker), returns the tier for that subagent kind and ignores step. Tiers: fast | standard | premium | premium_thinking. Suggestions reflect cognitive demand and incorporate modelTierOverrides / tierAliases from features.json or PNCORE_FEATURES.", {
@@ -433,7 +431,7 @@ for (const { listName, getName, listDesc, getDesc, idDesc, notFoundLabel, list, 
 }
 // Deterministic workflow engine: control flow in tool, not prompts. Model assists each step.
 regTool("workflow_step", "Get the next instruction for a workflow step. Call this at workflow start and after completing each step. The tool validates state and returns a single instruction. Control flow is deterministic; the model cannot advance without valid state. Stateless: you supply full state on each call. When PNCORE_REQUIRE_APPROVAL_FOR_WORKFLOWS lists this workflowType and the step gate is human, state must include pncoreHumanGateTicket from approval_checkpoint (see MCP README).", {
-    workflowType: workflowTypeEnum.describe("Workflow type: design (6), full_dev (7), project_kickoff (8), prompt_optimize (3), frontend_audit (3), backend_audit (7), image_create (4), visual_tweak (4), game_feature (5), svg_create (5), engine_feature (5; requires state.engine: 'unreal'|'godot'), unreal_feature (5; deprecated alias for engine_feature), godot_feature (5; deprecated alias for engine_feature), fsi_analyst_draft (6), media_director (7), feature_program (6; requires featureProgram: true), implementation_tournament (6; requires bestOfN.enabled: true)"),
+    workflowType: workflowTypeEnum.describe("Workflow type: design (6), full_dev (7), project_kickoff (8), prompt_optimize (3), frontend_audit (3), backend_audit (7), image_create (4), visual_tweak (4), game_feature (5), svg_create (5), engine_feature (5; requires state.engine: 'unreal'|'godot'), fsi_analyst_draft (6), media_director (7), feature_program (6; requires featureProgram: true), implementation_tournament (6; requires bestOfN.enabled: true)"),
     step: z.number().int().min(0).describe("Current step number (0 = start)"),
     state: z
         .record(z.string(), z.unknown())
@@ -786,7 +784,7 @@ regTool("approval_checkpoint", "Hard approval gate: returns success only if appr
     run_id: z
         .string()
         .optional()
-        .describe("Optional. When issuing a human-gate ticket, ties the ticket to this workflow run_id; workflow_step state must echo the same run_id when consuming."),
+        .describe("Required when issuing a human-gate ticket (workflow_type + workflow_step). Ties the ticket to this workflow run_id; workflow_step state must echo the same run_id when consuming."),
 }, { readOnlyHint: false, destructiveHint: false, idempotentHint: false }, async ({ approval_token, action_label, workflow_type, workflow_step, run_id }) => {
     const hasWf = workflow_type !== undefined;
     const hasStep = workflow_step !== undefined;
@@ -799,6 +797,9 @@ regTool("approval_checkpoint", "Hard approval gate: returns success only if appr
         return mcpError(d.code, d.error, { action_label: d.action_label });
     }
     if (hasWf && workflow_type !== undefined && workflow_step !== undefined) {
+        if (run_id === undefined || run_id.trim() === "") {
+            return mcpError("INVALID_STATE", "run_id is required when issuing a human-gate ticket (workflow_type + workflow_step).", { workflow_type, workflow_step });
+        }
         const ticketsSafe = resolveSafePath(defaultHumanGateTicketsPath);
         if ("error" in ticketsSafe) {
             return mcpError("PATH_TRAVERSAL", ticketsSafe.error, { path: defaultHumanGateTicketsPath });
@@ -807,7 +808,7 @@ regTool("approval_checkpoint", "Hard approval gate: returns success only if appr
         const dir = dirname(ticketsPath);
         if (!existsSync(dir))
             mkdirSync(dir, { recursive: true });
-        const pncoreHumanGateTicket = issueHumanGateTicket(ticketsPath, workflow_type, workflow_step, run_id);
+        const pncoreHumanGateTicket = issueHumanGateTicket(ticketsPath, workflow_type, workflow_step, run_id.trim());
         return textContent(JSON.stringify({
             ...result.data,
             pncoreHumanGateTicket,

@@ -7,9 +7,10 @@
  * Usage: node scripts/check-content-plugin-sync.mjs (from repo root)
  */
 import { readdirSync, readFileSync, existsSync } from "fs";
-import { join, dirname } from "path";
+import { join, dirname, basename } from "path";
 import { fileURLToPath } from "url";
-import { isCommandHiddenFromSlash } from "./command-slash-filter.mjs";
+import { isCommandHiddenFromSlash, partitionCommands } from "./command-slash-filter.mjs";
+import { validateRootPiManifest } from "./pi-package-manifest.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, "..");
@@ -137,6 +138,48 @@ function main() {
   if (singleFileFails.length) {
     console.error("check-content-plugin-sync: root file(s) out of sync with canonical:");
     for (const msg of singleFileFails) console.error(" ", msg);
+    process.exit(1);
+  }
+
+  // Pi.dev: flat prompts/ must mirror visible command bodies (basename only)
+  const commandsSrc = join(mcpContent, "commands");
+  const promptsDir = join(pluginRoot, "prompts");
+  const promptFails = [];
+  if (existsSync(commandsSrc)) {
+    const { visible } = partitionCommands(commandsSrc);
+    const expected = new Map();
+    for (const rel of visible) {
+      if (!rel.endsWith(".md")) continue;
+      expected.set(basename(rel), readFileSync(join(commandsSrc, rel)));
+    }
+    const actual = new Map();
+    if (existsSync(promptsDir)) {
+      for (const name of readdirSync(promptsDir)) {
+        if (!name.endsWith(".md")) continue;
+        actual.set(name, readFileSync(join(promptsDir, name)));
+      }
+    }
+    for (const [name, buf] of expected) {
+      if (!actual.has(name))
+        promptFails.push(`prompts/${name}: missing (run: npm run sync:content)`);
+      else if (!buf.equals(actual.get(name)))
+        promptFails.push(`prompts/${name}: out of sync with canonical command`);
+    }
+    for (const name of actual.keys()) {
+      if (!expected.has(name))
+        promptFails.push(`prompts/${name}: extra file not in visible commands`);
+    }
+  }
+  if (promptFails.length) {
+    console.error("check-content-plugin-sync: Pi prompts/ out of sync:");
+    for (const msg of promptFails) console.error(" ", msg);
+    process.exit(1);
+  }
+
+  const piManifestFails = validateRootPiManifest(repoRoot);
+  if (piManifestFails.length) {
+    console.error("check-content-plugin-sync: root pi-package manifest invalid:");
+    for (const msg of piManifestFails) console.error(" ", msg);
     process.exit(1);
   }
 

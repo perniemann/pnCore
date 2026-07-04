@@ -7,11 +7,11 @@ description: Compare and select a Godot 4.x-compatible MCP server for editor aut
 
 ## Mission
 
-Survey the available third-party MCP servers that drive the Godot Engine editor or runtime. Present the comparison matrix to the user, collect their use-case priorities, and recommend a server (or confirm their choice). Output an `install_plan` with the chosen server's install snippet and tool mapping so that `godot_feature` step 1 (api-probe) can verify coverage before building.
+Survey the available third-party MCP servers that drive the Godot Engine editor or runtime. Present the comparison matrix to the user, collect their use-case priorities, and recommend a server (or confirm their choice). Output an `install_plan` with the chosen server's install snippet and tool mapping so that `engine_feature` step 1 (api-probe) can verify coverage before building.
 
 ## When to use
 
-- At `godot_feature` step 0 (Discovery): load this skill to present the server comparison before the user commits to a tool surface.
+- At `engine_feature` step 0 with `state.engine: "godot"` (Discovery): load this skill to present the server comparison before the user commits to a tool surface.
 - When the user mentions "Godot MCP", "Godot MCP server", or asks which MCP to use for Godot automation.
 - When diagnosing tool-coverage gaps mid-workflow (return here to re-evaluate).
 

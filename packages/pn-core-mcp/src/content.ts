@@ -9,11 +9,6 @@ export const contentRoot = process.env.PNCORE_CONTENT_PATH
   : resolve(join(currentDir, "..", "content"));
 const contentRootResolved = resolve(contentRoot);
 
-/** Legacy `pn-core://` URIs that resolve to the canonical resource URI */
-const RESOURCE_URI_ALIASES: Record<string, string> = {
-  "pn-core://reference/best-practice-2026-03.md": "pn-core://reference/best-practices.md",
-};
-
 export interface SkillEntry {
   id: string;
   name: string;
@@ -511,12 +506,9 @@ export const resourceDefs: {
 
 export function getResource(uri: string): { text: string; mimeType: string } | null {
   invalidateIfStale();
-  const canonicalUri = RESOURCE_URI_ALIASES[uri] ?? uri;
-  const cached =
-    cache.resources.get(canonicalUri) ??
-    (canonicalUri !== uri ? cache.resources.get(uri) : undefined);
+  const cached = cache.resources.get(uri);
   if (cached !== undefined) return cached;
-  const entry = resourceDefs.find((r) => r.uri === canonicalUri);
+  const entry = resourceDefs.find((r) => r.uri === uri);
   if (!entry) return null;
   const fullPath = resolve(contentRoot, entry.path);
   if (!fullPath.startsWith(contentRootResolved + sep) && fullPath !== contentRootResolved) {
@@ -525,7 +517,6 @@ export function getResource(uri: string): { text: string; mimeType: string } | n
   if (!existsSync(fullPath)) return null;
   const text = readFileSync(fullPath, "utf-8");
   const result = { text, mimeType: entry.mimeType };
-  cache.resources.set(canonicalUri, result);
-  if (canonicalUri !== uri) cache.resources.set(uri, result);
+  cache.resources.set(uri, result);
   return result;
 }

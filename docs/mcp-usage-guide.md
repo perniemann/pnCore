@@ -18,7 +18,7 @@ pn-core is the **MCP server** for the pnCore plugin pack. It exposes skills, age
 | Tool | Purpose | Who uses it |
 |------|---------|-------------|
 | `health` | Status, version, **`calendarDateUtc`** / **`timestampUtc`** (server clock, UTC), capability summary | Gateways, probes, **dating changelogs or "as of" lines** |
-| `list_workflow_types` | List workflow types and step counts: `project_kickoff`, `design`, `full_dev`, `prompt_optimize`, `frontend_audit`, `backend_audit`, `image_create`, `visual_tweak`, `game_feature`, `svg_create`, `engine_feature`, `unreal_feature`, `godot_feature`, `fsi_analyst_draft`, `business_strategy`, `media_director`, `feature_program`, `implementation_tournament` | AI (discoverability) |
+| `list_workflow_types` | List workflow types and step counts: `project_kickoff`, `design`, `full_dev`, `prompt_optimize`, `frontend_audit`, `backend_audit`, `image_create`, `visual_tweak`, `game_feature`, `svg_create`, `engine_feature`, `fsi_analyst_draft`, `business_strategy`, `media_director`, `feature_program`, `implementation_tournament` | AI (discoverability) |
 | `suggest_model_tier` | Suggested LLM model tier for a workflow step (`fast` / `standard` / `premium` / `premium_thinking`); omit `step` for the full per-step table | AI |
 | `list_skills` | List skill ids + descriptions | AI |
 | `get_skill` | Load full markdown of a skill by id | AI |
@@ -68,9 +68,7 @@ When `workflow_step` is available, use it for build/design flows instead of load
 | `visual_tweak` | 0–3 | Target → Plan → Implement → Summary |
 | `game_feature` | 0–4 | Questionnaire → Plan+Skeptic → Implement → Skeptic on output → Summary |
 | `svg_create` | 0–4 | Questionnaire → Spec + confirmation → Generate → Skeptic on output → Summary |
-| `engine_feature` | 0–4 | Unified UE / Godot entry — routes to `unreal_feature` or `godot_feature` via `state.engine`. Old direct types remain as 2-release deprecation aliases. |
-| `unreal_feature` | 0–4 | UE version + MCP server pick (pn-unreal-mcp) → api-probe + plan + skeptic → Build via chosen UE MCP server → render-verify (UE 5.7 appendix) + skeptic on output → Summary |
-| `godot_feature` | 0–4 | Godot version + MCP server pick (pn-godot-mcp) → api-probe + plan + skeptic → Build via chosen Godot MCP server → render-verify (Godot appendix) + skeptic on output → Summary |
+| `engine_feature` | 0–4 | Unified UE / Godot entry — set `state.engine` to `"unreal"` or `"godot"`; MCP server pick → api-probe + plan + skeptic → build → render-verify + skeptic on output (iteration cap) → Summary |
 | `fsi_analyst_draft` | 0–5 | Scope → sources + assumptions → draft (deliverable-typed FSI skill) → QC + skeptic → mandatory analyst sign-off (human gate) → delivery summary |
 | `business_strategy` | 0–8 | Framing → codebase intake (conditional) → evidence → strategic frame → grill → pressure-test (Strong / Weak / Pivot, iteration cap=2) → conditional skeptic → verdict lock → HTML + markdown brief |
 | `media_director` | 0–6 | Intent → adaptive grill (blank / <10-char / contradictory triggers) → creative brief (`docs/media/<slug>-brief.md`) → plan + pipeline + skeptic → produce → human review → delivery summary |
@@ -81,7 +79,7 @@ When `workflow_step` is available, use it for build/design flows instead of load
 
 **`design` workflow — failed skeptic-on-output:** At step **4** (skeptic on output), if the client calls `workflow_step("design", 4, state)` with **`skepticOutputPassed: false`**, the tool returns **`nextStep: 3`** and an instruction to increment **`iterationCount`** in state and rebuild. When **`iterationCount >= 2`** and skeptic still fails without **`iterationCapApproved: true`**, the tool returns an **`error`** directing the client to **`approval_checkpoint`** (then pass **`pncoreHumanGateTicket`** and **`iterationCapApproved: true`** on the next attempt). See **`pn-core://reference/workflow-state-schema.md`**. Command **`pn-design`** references skills **`pn-api-probe`** (optional, before plan) and **`pn-render-verify`** (before skeptic for visual artifacts).
 
-**`unreal_feature` workflow — failed skeptic-on-output:** Same iteration-cap pattern as `design`, applied at step **3** (render-verify + skeptic on output). When `skepticOutputPassed: false`, the tool returns **`nextStep: 2`** with an instruction to increment `iterationCount` and rebuild via the chosen UE MCP server. When `iterationCount >= 2` without `iterationCapApproved: true`, the tool returns an error requiring `approval_checkpoint` with `workflow_type: "unreal_feature", workflow_step: 3`. Step 0 loads **`pn-unreal-mcp`** to compare and pick the UE MCP server; step 1 runs **`pn-api-probe`** with the UE 5.7 probe targets (Python module, EditorScriptingUtilities drift, K2Node deprecations); step 3 runs **`pn-render-verify`** with the UE 5.7 appendix (Lumen, Nanite, Blueprint compile, World Partition, MetaSounds, Niagara, PIE-vs-standalone traps).
+**`engine_feature` workflow — failed skeptic-on-output:** Same iteration-cap pattern as `design`, applied at step **3** (render-verify + skeptic on output). When `skepticOutputPassed: false`, the tool returns **`nextStep: 2`** with an instruction to increment `iterationCount` and rebuild via the chosen engine MCP server. When `iterationCount >= 2` without `iterationCapApproved: true`, the tool returns an error requiring `approval_checkpoint` with `workflow_type: "engine_feature", workflow_step: 3`, and matching **`run_id`**. Step 0 loads **`pn-unreal-mcp`** or **`pn-godot-mcp`** depending on `state.engine`; step 1 runs **`pn-api-probe`**; step 3 runs **`pn-render-verify`** with the engine-specific appendix.
 
 **Usage:** Call `workflow_step(workflowType, step, state)` at start and after each step. The tool returns `instruction`, `nextStep`, `requiredInputs`, and `gate` (`human` = wait for user reply before next call). If state is missing required fields, the tool returns an error: "Complete step N first." Users say natural-language prompts like "Build X. Use the design workflow." or "Audit this frontend with the frontend audit workflow."; the model translates to tool calls.
 
@@ -104,7 +102,6 @@ Resources expose config and reference content that agents and commands refer to.
 | `pn-core://reference/workflow-state-schema.md` | Workflow state schema and task contract |
 | `pn-core://reference/best-practices.md` | Best practices checklist (a11y, security, performance, design, orchestration, mobile, WebXR) |
 | `pn-core://reference/aesthetics-baseline.md` | Distinctive UI dimension checklist, inspiration presets, optional `<frontend_aesthetics>` block for CLAUDE.md |
-| `pn-core://reference/best-practice-2026-03.md` | **Compatibility alias** — same resource as `best-practices.md` |
 | `pn-core://reference/delivery-tier-criteria.md` | MVP vs full delivery tier criteria; used by pn-verify-acceptance |
 | `pn-core://reference/parallel-rules.md` | File ownership and merge requirements for parallel specialist phases |
 | `pn-core://reference/human-facing-artifacts.md` | HTML vs canvas vs markdown for subset workflow deliverables; orchestration digest rule; example gallery link |

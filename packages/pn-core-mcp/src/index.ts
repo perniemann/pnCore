@@ -21,7 +21,12 @@ import {
   resourceDefs,
   getResource,
 } from "./content.js";
-import { getWorkflowStep, resolveStepTier, workflowSteps } from "./workflows.js";
+import {
+  getWorkflowStep,
+  PUBLIC_WORKFLOW_TYPES,
+  resolveStepTier,
+  workflowSteps,
+} from "./workflows.js";
 import { resolveRoleTier } from "./model-tiers.js";
 import {
   loadPaperclipConfig,
@@ -198,8 +203,6 @@ const workflowTypeEnum = z.enum([
   "game_feature",
   "svg_create",
   "engine_feature",
-  "unreal_feature",
-  "godot_feature",
   "fsi_analyst_draft",
   "business_strategy",
   "media_director",
@@ -327,7 +330,7 @@ regTool(
   async () => {
     // Derive from workflowSteps (single source of truth) so new workflows can't drift out of sync.
     const table = Object.fromEntries(
-      Object.entries(workflowSteps).map(([k, v]) => [k, { steps: v.length }])
+      PUBLIC_WORKFLOW_TYPES.map((k) => [k, { steps: workflowSteps[k].length }])
     );
     return textContent(JSON.stringify(table));
   }
@@ -622,7 +625,7 @@ regTool(
   "Get the next instruction for a workflow step. Call this at workflow start and after completing each step. The tool validates state and returns a single instruction. Control flow is deterministic; the model cannot advance without valid state. Stateless: you supply full state on each call. When PNCORE_REQUIRE_APPROVAL_FOR_WORKFLOWS lists this workflowType and the step gate is human, state must include pncoreHumanGateTicket from approval_checkpoint (see MCP README).",
   {
     workflowType: workflowTypeEnum.describe(
-      "Workflow type: design (6), full_dev (7), project_kickoff (8), prompt_optimize (3), frontend_audit (3), backend_audit (7), image_create (4), visual_tweak (4), game_feature (5), svg_create (5), engine_feature (5; requires state.engine: 'unreal'|'godot'), unreal_feature (5; deprecated alias for engine_feature), godot_feature (5; deprecated alias for engine_feature), fsi_analyst_draft (6), media_director (7), feature_program (6; requires featureProgram: true), implementation_tournament (6; requires bestOfN.enabled: true)"
+      "Workflow type: design (6), full_dev (7), project_kickoff (8), prompt_optimize (3), frontend_audit (3), backend_audit (7), image_create (4), visual_tweak (4), game_feature (5), svg_create (5), engine_feature (5; requires state.engine: 'unreal'|'godot'), fsi_analyst_draft (6), media_director (7), feature_program (6; requires featureProgram: true), implementation_tournament (6; requires bestOfN.enabled: true)"
     ),
     step: z.number().int().min(0).describe("Current step number (0 = start)"),
     state: z
@@ -1042,7 +1045,7 @@ regTool(
       .string()
       .optional()
       .describe(
-        "Optional. When issuing a human-gate ticket, ties the ticket to this workflow run_id; workflow_step state must echo the same run_id when consuming."
+        "Required when issuing a human-gate ticket (workflow_type + workflow_step). Ties the ticket to this workflow run_id; workflow_step state must echo the same run_id when consuming."
       ),
   },
   { readOnlyHint: false, destructiveHint: false, idempotentHint: false },
@@ -1064,6 +1067,13 @@ regTool(
     }
 
     if (hasWf && workflow_type !== undefined && workflow_step !== undefined) {
+      if (run_id === undefined || run_id.trim() === "") {
+        return mcpError(
+          "INVALID_STATE",
+          "run_id is required when issuing a human-gate ticket (workflow_type + workflow_step).",
+          { workflow_type, workflow_step }
+        );
+      }
       const ticketsSafe = resolveSafePath(defaultHumanGateTicketsPath);
       if ("error" in ticketsSafe) {
         return mcpError("PATH_TRAVERSAL", ticketsSafe.error, { path: defaultHumanGateTicketsPath });
@@ -1075,7 +1085,7 @@ regTool(
         ticketsPath,
         workflow_type,
         workflow_step,
-        run_id
+        run_id.trim()
       );
       return textContent(
         JSON.stringify({
