@@ -1,6 +1,6 @@
 ---
 name: pn-payment-integration
-description: Stripe, PayPal, Square integration. Checkout, subscriptions, webhooks, PCI compliance. Use when implementing payments, billing, or subscription features.
+description: "Stripe, PayPal, Square integration. Checkout, subscriptions, webhooks, PCI compliance. Use when implementing payments, billing, or subscription features."
 ---
 
 # Payment integration

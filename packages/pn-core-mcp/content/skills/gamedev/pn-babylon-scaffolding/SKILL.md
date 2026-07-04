@@ -1,6 +1,6 @@
 ---
 name: pn-babylon-scaffolding
-description: Scaffolds minimal Babylon.js scene: engine, canvas, scene, camera, lighting, first mesh. Use when starting a new 3D project or adding a scene. Reference pn-babylon-dev and pn-threejs-core for patterns.
+description: "Scaffolds minimal Babylon.js scene: engine, canvas, scene, camera, lighting, first mesh. Use when starting a new 3D project or adding a scene. Reference pn-babylon-dev and pn-threejs-core for patterns."
 ---
 
 # Babylon.js scaffolding

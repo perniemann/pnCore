@@ -1,6 +1,6 @@
 ---
 name: pn-ui-design-specs
-description: Design system specs, component handoff, tokens (color, typography, spacing). Use when creating design deliverables for developer handoff or establishing design foundations.
+description: "Design system specs, component handoff, tokens (color, typography, spacing). Use when creating design deliverables for developer handoff or establishing design foundations."
 ---
 
 # UI design specs

@@ -1,6 +1,6 @@
 ---
 name: pn-ship-checklist
-description: Pre-production gate — compose tests, security smoke, config, rollback, flags, and monitoring before release. Use before deploy or launch; links deeper skills instead of duplicating runbooks.
+description: "Pre-production gate — compose tests, security smoke, config, rollback, flags, and monitoring before release. Use before deploy or launch; links deeper skills instead of duplicating runbooks."
 ---
 
 # Ship checklist

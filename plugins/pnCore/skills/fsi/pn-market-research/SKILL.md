@@ -1,6 +1,6 @@
 ---
 name: pn-market-research
-description: Sector or theme market research. Define the market, map the competitive landscape, size the opportunity, identify structural drivers and headwinds, and output a structured industry overview with a peer summary table. Use for pitch context, coverage initiation, deal origination, or portfolio sector review.
+description: "Sector or theme market research. Define the market, map the competitive landscape, size the opportunity, identify structural drivers and headwinds, and output a structured industry overview with a peer summary table. Use for pitch context, coverage initiation, deal origination, or portfolio sector review."
 ---
 
 # Market research

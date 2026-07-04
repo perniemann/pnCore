@@ -1,6 +1,6 @@
 ---
 name: pn-orchestration-philosophy
-description: Defines orchestration rulebook: scope before build, prior art before invent, plan before code, zero-context handoff. Use when discovering requirements, researching prior art, or writing implementation plans. Aligns with requirements elicitation and WBS practices (current).
+description: "Defines orchestration rulebook: scope before build, prior art before invent, plan before code, zero-context handoff. Use when discovering requirements, researching prior art, or writing implementation plans. Aligns with requirements elicitation and WBS practices (current)."
 ---
 
 # Orchestration Philosophy

@@ -1,6 +1,6 @@
 ---
 name: pn-dcf-model
-description: Discounted cash flow valuation. Structure revenue and margin assumptions, build a free cash flow bridge, derive WACC, compute terminal value, and output an implied equity value range with sensitivity tables. Use standalone or as the second leg of a full valuation summary alongside pn-comps-analysis.
+description: "Discounted cash flow valuation. Structure revenue and margin assumptions, build a free cash flow bridge, derive WACC, compute terminal value, and output an implied equity value range with sensitivity tables. Use standalone or as the second leg of a full valuation summary alongside pn-comps-analysis."
 ---
 
 # DCF model

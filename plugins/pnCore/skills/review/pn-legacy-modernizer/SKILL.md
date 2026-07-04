@@ -1,6 +1,6 @@
 ---
 name: pn-legacy-modernizer
-description: Safe gradual modernization of legacy code. Strangler fig pattern, tests before refactor, backward compatibility. Use for framework migrations or technical debt reduction.
+description: "Safe gradual modernization of legacy code. Strangler fig pattern, tests before refactor, backward compatibility. Use for framework migrations or technical debt reduction."
 ---
 
 # Legacy modernizer

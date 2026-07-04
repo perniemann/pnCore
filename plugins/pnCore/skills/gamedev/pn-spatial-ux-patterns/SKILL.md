@@ -1,6 +1,6 @@
 ---
 name: pn-spatial-ux-patterns
-description: Spatial interaction design, AR/VR/XR UX patterns. Depth, scale, ergonomics, interaction zones, text legibility. Use for immersive interface design.
+description: "Spatial interaction design, AR/VR/XR UX patterns. Depth, scale, ergonomics, interaction zones, text legibility. Use for immersive interface design."
 ---
 
 # Spatial UX patterns

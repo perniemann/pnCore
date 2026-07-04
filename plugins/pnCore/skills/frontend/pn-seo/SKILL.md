@@ -1,6 +1,6 @@
 ---
 name: pn-seo
-description: Technical SEO for Next.js, Astro, and React apps. Covers metadata, Open Graph, JSON-LD structured data, sitemap, robots.txt, and Core Web Vitals as ranking signals. Use when optimising a site for search visibility.
+description: "Technical SEO for Next.js, Astro, and React apps. Covers metadata, Open Graph, JSON-LD structured data, sitemap, robots.txt, and Core Web Vitals as ranking signals. Use when optimising a site for search visibility."
 ---
 
 # Technical SEO

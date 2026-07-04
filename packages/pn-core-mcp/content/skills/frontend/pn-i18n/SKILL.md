@@ -1,6 +1,6 @@
 ---
 name: pn-i18n
-description: Internationalisation for Next.js, React, and Astro. Covers next-intl, react-i18next, ICU message format, locale routing, RTL layout, and pluralisation. Use when adding multi-language support or locale-aware formatting.
+description: "Internationalisation for Next.js, React, and Astro. Covers next-intl, react-i18next, ICU message format, locale routing, RTL layout, and pluralisation. Use when adding multi-language support or locale-aware formatting."
 ---
 
 # Internationalisation (i18n)

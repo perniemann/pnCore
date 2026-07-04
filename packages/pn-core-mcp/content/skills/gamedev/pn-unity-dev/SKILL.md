@@ -1,6 +1,6 @@
 ---
 name: pn-unity-dev
-description: Guides Unity development: C#, 2D Animation package, URP, asset pipelines, and scripting. Use when developing Unity projects, especially 2D games and animation workflows.
+description: "Guides Unity development: C#, 2D Animation package, URP, asset pipelines, and scripting. Use when developing Unity projects, especially 2D games and animation workflows."
 ---
 
 # Unity development skill

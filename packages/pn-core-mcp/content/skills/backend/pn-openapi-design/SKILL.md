@@ -1,6 +1,6 @@
 ---
 name: pn-openapi-design
-description: API-first design with OpenAPI 3.1. Contract-first workflow, zod-to-openapi, ts-to-openapi, spec validation, and client/server code generation. Use when designing, documenting, or reviewing HTTP APIs.
+description: "API-first design with OpenAPI 3.1. Contract-first workflow, zod-to-openapi, ts-to-openapi, spec validation, and client/server code generation. Use when designing, documenting, or reviewing HTTP APIs."
 ---
 
 # OpenAPI design

@@ -34,20 +34,39 @@ function* walkSkillMd(dir, base = "") {
     const full = join(dir, entry.name);
     const rel = base ? join(base, entry.name) : entry.name;
     if (entry.isDirectory()) yield* walkSkillMd(full, rel);
-    else if (entry.name === "SKILL.md") yield { path: full, rel: rel.replace(/\\/g, "/") };
+    else if (
+      entry.name === "SKILL.md" ||
+      (entry.name === "README.md" && rel.replace(/\\/g, "/") === "README.md")
+    )
+      yield { path: full, rel: rel.replace(/\\/g, "/") };
   }
 }
 
 function parseFrontmatter(content) {
   const m = content.match(/^---\r?\n([\s\S]*?)\r?\n---\s*/);
-  if (!m) return { meta: {}, body: content };
+  if (!m) return { meta: {}, body: content, rawLines: [] };
   const body = content.slice(m[0].length);
+  const rawLines = m[1].split(/\r?\n/);
   const meta = {};
-  for (const line of m[1].split(/\r?\n/)) {
+  for (const line of rawLines) {
     const kv = line.match(/^(\w+):\s*(.*)$/);
     if (kv) meta[kv[1].trim()] = kv[2].trim().replace(/^["']|["']$/g, "");
   }
-  return { meta, body };
+  return { meta, body, rawLines };
+}
+
+/** Unquoted colons in description break strict YAML parsers (e.g. pi.dev). */
+function descriptionLineYamlSafe(rawLines) {
+  for (const line of rawLines) {
+    const m = line.match(/^description:\s*(.*)$/);
+    if (!m) continue;
+    const raw = m[1].trim();
+    if (!raw) return true;
+    if ((raw.startsWith('"') && raw.endsWith('"')) || (raw.startsWith("'") && raw.endsWith("'")))
+      return true;
+    return !/[:#@`|>{[\]},&*!?]/.test(raw) && !raw.includes(": ");
+  }
+  return true;
 }
 
 function hasHeader(body, title) {
@@ -71,7 +90,7 @@ function main() {
   for (const { path, rel } of walkSkillMd(skillsRoot)) {
     total++;
     const content = readFileSync(path, "utf-8");
-    const { meta, body } = parseFrontmatter(content);
+    const { meta, body, rawLines } = parseFrontmatter(content);
 
     // Errors
     if (!meta.name || meta.name === "") {
@@ -80,7 +99,12 @@ function main() {
     if (!meta.description || meta.description === "") {
       errors.push(`${rel}: missing frontmatter 'description'`);
     }
-    if (!hasHeader(body, "When to use")) {
+    if (!descriptionLineYamlSafe(rawLines)) {
+      errors.push(
+        `${rel}: description must be quoted for YAML (inline ':' breaks pi.dev); use description: "..."`
+      );
+    }
+    if (!hasHeader(body, "When to use") && rel !== "README.md") {
       errors.push(`${rel}: missing '## When to use' section`);
     }
 

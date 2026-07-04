@@ -1,6 +1,6 @@
 ---
 name: pn-context-engineering
-description: Curate what the agent sees and when — rules vs specs vs task files vs errors vs history. Use when starting a session, switching tasks, output quality drops, or the agent ignores project conventions.
+description: "Curate what the agent sees and when — rules vs specs vs task files vs errors vs history. Use when starting a session, switching tasks, output quality drops, or the agent ignores project conventions."
 ---
 
 # Context engineering

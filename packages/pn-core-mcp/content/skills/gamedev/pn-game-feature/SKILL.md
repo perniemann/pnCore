@@ -1,6 +1,6 @@
 ---
 name: pn-game-feature
-description: Add an incremental game mechanic — questionnaire, plan, skeptic, implement. Use workflow_step("game_feature", 0, {}) when MCP available.
+description: "Add an incremental game mechanic — questionnaire, plan, skeptic, implement. Use workflow_step(\"game_feature\", 0, {}) when MCP available."
 ---
 
 # Game Feature

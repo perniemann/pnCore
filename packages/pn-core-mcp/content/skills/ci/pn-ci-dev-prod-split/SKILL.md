@@ -1,6 +1,6 @@
 ---
 name: pn-ci-dev-prod-split
-description: Scaffolds CI with dev/prod separation: deploy-dev (auto on push) and deploy-prod (manual only). Use when scaffolding CI or updating workflows; adapts to FTP, Vercel, Netlify, Cloudflare.
+description: "Scaffolds CI with dev/prod separation: deploy-dev (auto on push) and deploy-prod (manual only). Use when scaffolding CI or updating workflows; adapts to FTP, Vercel, Netlify, Cloudflare."
 ---
 
 # CI dev/prod split

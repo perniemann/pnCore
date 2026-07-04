@@ -1,6 +1,6 @@
 ---
 name: pn-ai-adoption-playbook
-description: Write an organizational AI adoption playbook — stakeholder alignment, phased rollout plan, change management communication, success metrics, and risk/rollback strategy. Use when a team or org is moving from AI experimentation to systematic deployment and needs a structured change management document.
+description: "Write an organizational AI adoption playbook — stakeholder alignment, phased rollout plan, change management communication, success metrics, and risk/rollback strategy. Use when a team or org is moving from AI experimentation to systematic deployment and needs a structured change management document."
 ---
 
 # AI Adoption Playbook Skill

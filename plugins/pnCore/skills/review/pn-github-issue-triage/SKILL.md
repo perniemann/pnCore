@@ -1,6 +1,6 @@
 ---
 name: pn-github-issue-triage
-description: Triage GitHub Issues using label state transitions via GitHub MCP (official github/github-mcp-server). Maintainer-facing — lists queues, recommends transitions, posts briefs and optional AI disclaimer. Use when triaging incoming Issues or preparing AFK-ready work.
+description: "Triage GitHub Issues using label state transitions via GitHub MCP (official github/github-mcp-server). Maintainer-facing — lists queues, recommends transitions, posts briefs and optional AI disclaimer. Use when triaging incoming Issues or preparing AFK-ready work."
 ---
 
 # GitHub issue triage

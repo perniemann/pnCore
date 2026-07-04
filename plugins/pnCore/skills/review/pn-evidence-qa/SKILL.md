@@ -1,6 +1,6 @@
 ---
 name: pn-evidence-qa
-description: Screenshot-based QA and visual proof for UI deliverables. Captures before/after states, cross-device views, and user journey evidence. Use for UI-heavy projects when visual verification is required.
+description: "Screenshot-based QA and visual proof for UI deliverables. Captures before/after states, cross-device views, and user journey evidence. Use for UI-heavy projects when visual verification is required."
 ---
 
 # Evidence QA

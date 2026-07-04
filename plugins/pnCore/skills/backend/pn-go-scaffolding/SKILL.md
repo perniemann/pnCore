@@ -1,6 +1,6 @@
 ---
 name: pn-go-scaffolding
-description: Scaffolds new Go API projects (Gin, Fiber, Echo, Chi) or handlers. Use when adding a new route/module; covers idiomatic project layout, env/secrets, error handling, and Go-specific conventions.
+description: "Scaffolds new Go API projects (Gin, Fiber, Echo, Chi) or handlers. Use when adding a new route/module; covers idiomatic project layout, env/secrets, error handling, and Go-specific conventions."
 ---
 
 # Go backend scaffolding

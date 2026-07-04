@@ -1,6 +1,6 @@
 ---
 name: pn-best-of-n
-description: Run 2–3 competing implementations of the same spec in isolated worktrees, eliminate failures via objective gates, then judge survivors with a separate premium-tier pass. Use for ambiguous algorithm/API/refactor choices with strong tests — not auth/security paths.
+description: "Run 2–3 competing implementations of the same spec in isolated worktrees, eliminate failures via objective gates, then judge survivors with a separate premium-tier pass. Use for ambiguous algorithm/API/refactor choices with strong tests — not auth/security paths."
 ---
 
 # Best-of-N (implementation tournament)

@@ -1,6 +1,6 @@
 ---
 name: pn-wireframe
-description: Produce a low-fidelity structural layout (information hierarchy, regions, components) from discovery spec before typography and tokens. Use when aligning on structure before high-fidelity design or build.
+description: "Produce a low-fidelity structural layout (information hierarchy, regions, components) from discovery spec before typography and tokens. Use when aligning on structure before high-fidelity design or build."
 ---
 
 # Wireframe skill

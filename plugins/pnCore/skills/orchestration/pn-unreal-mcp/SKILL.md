@@ -1,6 +1,6 @@
 ---
 name: pn-unreal-mcp
-description: Compare and select a UE 5.7-compatible MCP server for editor automation. Use at discovery time to pick the best server for your use case, then install and verify tool coverage before planning.
+description: "Compare and select a UE 5.7-compatible MCP server for editor automation. Use at discovery time to pick the best server for your use case, then install and verify tool coverage before planning."
 ---
 
 # pn-unreal-mcp

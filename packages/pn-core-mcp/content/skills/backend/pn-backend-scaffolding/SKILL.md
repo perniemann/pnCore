@@ -1,6 +1,6 @@
 ---
 name: pn-backend-scaffolding
-description: Scaffolds new API routes, modules, or services in Node (Express, Fastify, Hono) or similar. Use when adding a new route/module/service; covers project layout, env/secrets pattern, error-handling stub, and stack-specific conventions. Reference pn-node-api and pn-backend-philosophy for design rules.
+description: "Scaffolds new API routes, modules, or services in Node (Express, Fastify, Hono) or similar. Use when adding a new route/module/service; covers project layout, env/secrets pattern, error-handling stub, and stack-specific conventions. Reference pn-node-api and pn-backend-philosophy for design rules."
 ---
 
 # Backend scaffolding

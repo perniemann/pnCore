@@ -1,6 +1,6 @@
 ---
 name: pn-docs-sync
-description: Keeps README, CHANGELOG, and project docs in sync with code after feature or fix. Use after changes that affect API, env, setup, or scripts; before PR or delivery.
+description: "Keeps README, CHANGELOG, and project docs in sync with code after feature or fix. Use after changes that affect API, env, setup, or scripts; before PR or delivery."
 ---
 
 # Documentation sync

@@ -1,6 +1,6 @@
 ---
 name: pn-codebase-to-strategy
-description: Analyzes a repository and produces N≤3 candidate strategic angles, each with ICP, value proposition, monetization hypothesis, and file-level evidence references. Used by the business_strategy workflow step 1 (codebase/hybrid mode).
+description: "Analyzes a repository and produces N≤3 candidate strategic angles, each with ICP, value proposition, monetization hypothesis, and file-level evidence references. Used by the business_strategy workflow step 1 (codebase/hybrid mode)."
 ---
 
 # Codebase to Strategy

@@ -1,6 +1,6 @@
 ---
 name: pn-ci-triage
-description: Interprets CI failure logs and suggests fixes. Use when CI has failed and logs need to be interpreted: reading failure output, identifying failure type, and linking to docs.
+description: "Interprets CI failure logs and suggests fixes. Use when CI has failed and logs need to be interpreted: reading failure output, identifying failure type, and linking to docs."
 ---
 
 # CI triage skill

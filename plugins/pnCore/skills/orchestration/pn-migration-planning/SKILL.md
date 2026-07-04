@@ -1,6 +1,6 @@
 ---
 name: pn-migration-planning
-description: Plan upgrade paths for frameworks and packages (Next 14→15, React 18→19, Node, etc.). Use when upgrading major versions or migrating stacks.
+description: "Plan upgrade paths for frameworks and packages (Next 14→15, React 18→19, Node, etc.). Use when upgrading major versions or migrating stacks."
 ---
 
 # Migration planning

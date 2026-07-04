@@ -1,6 +1,6 @@
 ---
 name: pn-testing-strategy
-description: Testing strategy and pyramid. Unit/integration/E2E ratio, Vitest vs Playwright vs MSW, contract testing, and test-environment setup. Use when defining or reviewing a project's testing approach.
+description: "Testing strategy and pyramid. Unit/integration/E2E ratio, Vitest vs Playwright vs MSW, contract testing, and test-environment setup. Use when defining or reviewing a project's testing approach."
 ---
 
 # Testing strategy

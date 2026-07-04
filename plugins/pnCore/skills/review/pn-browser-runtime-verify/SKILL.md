@@ -1,6 +1,6 @@
 ---
 name: pn-browser-runtime-verify
-description: Verify browser apps with live runtime evidence — DOM, console, network, performance — via browser automation or DevTools-class tools when available. Use for UI bugs, regressions, hydration, or when static screenshots are insufficient.
+description: "Verify browser apps with live runtime evidence — DOM, console, network, performance — via browser automation or DevTools-class tools when available. Use for UI bugs, regressions, hydration, or when static screenshots are insufficient."
 ---
 
 # Browser runtime verification

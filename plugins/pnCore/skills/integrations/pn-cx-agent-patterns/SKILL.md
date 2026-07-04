@@ -1,6 +1,6 @@
 ---
 name: pn-cx-agent-patterns
-description: Design and build customer-facing AI agents — concierge-style service agents, agentic commerce flows (session memory, preference recall, multi-turn negotiation, delegated transaction execution), and hyper-personalized CX pipelines. Use when building customer support agents, shopping assistants, booking agents, or any user-facing autonomous workflow.
+description: "Design and build customer-facing AI agents — concierge-style service agents, agentic commerce flows (session memory, preference recall, multi-turn negotiation, delegated transaction execution), and hyper-personalized CX pipelines. Use when building customer support agents, shopping assistants, booking agents, or any user-facing autonomous workflow."
 ---
 
 # Customer-Experience Agent Patterns Skill

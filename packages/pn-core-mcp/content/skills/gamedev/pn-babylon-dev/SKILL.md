@@ -1,6 +1,6 @@
 ---
 name: pn-babylon-dev
-description: Guides Babylon.js scenes, cameras, lighting, asset loading, animation, and performance. Use when working on Babylon.js; covers scene structure, engine setup, GLTF loading, and disposal.
+description: "Guides Babylon.js scenes, cameras, lighting, asset loading, animation, and performance. Use when working on Babylon.js; covers scene structure, engine setup, GLTF loading, and disposal."
 ---
 
 # Babylon.js core skill

@@ -1,6 +1,6 @@
 ---
 name: pn-discovery-questionnaire
-description: Comprehensive pre-build discovery covering technical, security, design, and requirements. Runs before any scaffold or pn-build / full_dev workflow. Aligns with secure-by-design and requirements elicitation practices. Ask explicitly; never infer for security. Gate: do not proceed until user confirms spec.
+description: "Comprehensive pre-build discovery covering technical, security, design, and requirements. Runs before any scaffold or pn-build / full_dev workflow. Aligns with secure-by-design and requirements elicitation practices. Ask explicitly; never infer for security. Gate: do not proceed until user confirms spec."
 ---
 
 # Discovery questionnaire

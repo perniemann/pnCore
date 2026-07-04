@@ -1,6 +1,6 @@
 ---
 name: pn-documentation
-description: Canonical format authority for all project documentation. Use when creating or updating discovery specs, implementation plans, workflow roadmaps, prior-art research, SVG specs, README, CHANGELOG, or API docs. Ensures consistent formatting across the project.
+description: "Canonical format authority for all project documentation. Use when creating or updating discovery specs, implementation plans, workflow roadmaps, prior-art research, SVG specs, README, CHANGELOG, or API docs. Ensures consistent formatting across the project."
 ---
 
 # Documentation

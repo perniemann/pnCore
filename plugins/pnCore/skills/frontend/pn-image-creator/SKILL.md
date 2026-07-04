@@ -1,6 +1,6 @@
 ---
 name: pn-image-creator
-description: Questionnaire-driven image creation for high-quality PNG or SVG. Always grounds prompts in pn-cinematography-lighting and pn-image-prompt-engineering (camera, lighting, visual style). Gates on user confirmation before generation. Use with Cursor image generation or SVG per pn-svg-creator.
+description: "Questionnaire-driven image creation for high-quality PNG or SVG. Always grounds prompts in pn-cinematography-lighting and pn-image-prompt-engineering (camera, lighting, visual style). Gates on user confirmation before generation. Use with Cursor image generation or SVG per pn-svg-creator."
 ---
 
 # Image create (workflow questionnaire)

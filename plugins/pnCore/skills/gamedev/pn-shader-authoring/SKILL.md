@@ -1,6 +1,6 @@
 ---
 name: pn-shader-authoring
-description: Guides GLSL/WGSL shader authoring for Three.js, postprocessing, and custom materials. Use when writing shaders; covers structure, common patterns, performance, and debugging.
+description: "Guides GLSL/WGSL shader authoring for Three.js, postprocessing, and custom materials. Use when writing shaders; covers structure, common patterns, performance, and debugging."
 ---
 
 # Shader authoring skill

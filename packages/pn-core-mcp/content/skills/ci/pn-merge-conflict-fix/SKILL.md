@@ -1,6 +1,6 @@
 ---
 name: pn-merge-conflict-fix
-description: Resolve merge conflicts non-interactively, validate build and tests, and finalize conflict resolution. Use when branch has unresolved merge conflicts.
+description: "Resolve merge conflicts non-interactively, validate build and tests, and finalize conflict resolution. Use when branch has unresolved merge conflicts."
 ---
 
 # Fix merge conflicts

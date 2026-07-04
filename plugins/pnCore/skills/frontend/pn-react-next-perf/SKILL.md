@@ -1,6 +1,6 @@
 ---
 name: pn-react-next-perf
-description: Optimizes React/Next.js data loading and rendering; avoids waterfalls, unnecessary client JS, and missing loading/error boundaries. Use when building or reviewing React or Next.js apps.
+description: "Optimizes React/Next.js data loading and rendering; avoids waterfalls, unnecessary client JS, and missing loading/error boundaries. Use when building or reviewing React or Next.js apps."
 ---
 
 # React / Next.js performance

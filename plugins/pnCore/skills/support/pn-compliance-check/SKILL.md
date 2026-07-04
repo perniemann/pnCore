@@ -1,6 +1,6 @@
 ---
 name: pn-compliance-check
-description: Compliance assessment, regulations, legal review. GDPR, CCPA, privacy, terms. Use for regulatory requirements and risk management. Recommends professional legal review when warranted.
+description: "Compliance assessment, regulations, legal review. GDPR, CCPA, privacy, terms. Use for regulatory requirements and risk management. Recommends professional legal review when warranted."
 ---
 
 # Compliance check

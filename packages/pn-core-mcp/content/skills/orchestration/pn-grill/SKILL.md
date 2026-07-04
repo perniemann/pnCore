@@ -1,6 +1,6 @@
 ---
 name: pn-grill
-description: Stress-test a plan or design through Socratic one-question-at-a-time interrogation. Each question includes a recommended answer. Walks every branch of the decision tree until all assumptions are resolved. Use when you want to be challenged on a plan before building, or when invoked by pn-grill command.
+description: "Stress-test a plan or design through Socratic one-question-at-a-time interrogation. Each question includes a recommended answer. Walks every branch of the decision tree until all assumptions are resolved. Use when you want to be challenged on a plan before building, or when invoked by pn-grill command."
 ---
 
 # Grill

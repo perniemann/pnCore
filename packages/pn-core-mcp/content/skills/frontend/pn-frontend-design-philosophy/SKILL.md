@@ -1,6 +1,6 @@
 ---
 name: pn-frontend-design-philosophy
-description: Defines an authoritative, brand-agnostic frontend design rulebook. Use when designing or reviewing frontends, typography audit, layout audit, state architecture, performance budget, responsive/mobile/touch design, or when establishing design constraints for mixed visual/motion/media/form/conversion sites.
+description: "Defines an authoritative, brand-agnostic frontend design rulebook. Use when designing or reviewing frontends, typography audit, layout audit, state architecture, performance budget, responsive/mobile/touch design, or when establishing design constraints for mixed visual/motion/media/form/conversion sites."
 ---
 
 # Frontend Design Philosophy

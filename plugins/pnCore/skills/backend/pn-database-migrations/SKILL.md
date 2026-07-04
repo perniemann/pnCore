@@ -1,6 +1,6 @@
 ---
 name: pn-database-migrations
-description: Database migration patterns for Prisma, Drizzle, TypeORM. Covers zero-downtime column changes, rollback strategies, seed data, and index hygiene. Use when adding, altering, or dropping schema objects in production.
+description: "Database migration patterns for Prisma, Drizzle, TypeORM. Covers zero-downtime column changes, rollback strategies, seed data, and index hygiene. Use when adding, altering, or dropping schema objects in production."
 ---
 
 # Database migrations

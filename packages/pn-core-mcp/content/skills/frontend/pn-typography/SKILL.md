@@ -1,6 +1,6 @@
 ---
 name: pn-typography
-description: Typography styling: font selection, scales, variable fonts, loading, optical sizing. Use when styling text, headings, or establishing type hierarchy.
+description: "Typography styling: font selection, scales, variable fonts, loading, optical sizing. Use when styling text, headings, or establishing type hierarchy."
 ---
 
 # Typography styling

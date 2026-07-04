@@ -1,6 +1,6 @@
 ---
 name: pn-graphql
-description: GraphQL schema design, resolvers, DataLoader, Federation, and security. Use when building or reviewing GraphQL APIs with Apollo Server, Pothos, or GraphQL Yoga.
+description: "GraphQL schema design, resolvers, DataLoader, Federation, and security. Use when building or reviewing GraphQL APIs with Apollo Server, Pothos, or GraphQL Yoga."
 ---
 
 # GraphQL

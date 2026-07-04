@@ -1,6 +1,6 @@
 ---
 name: pn-tts
-description: Text-to-speech for video and audio production. Covers tool selection (ElevenLabs, OpenAI, Kokoro/local), voice and model choice, SSML expressivity, caption-track alignment (SRT/VTT), loudness normalization, retry strategy, and accessibility requirements. Use when a composition or generative video needs narration audio before assembly.
+description: "Text-to-speech for video and audio production. Covers tool selection (ElevenLabs, OpenAI, Kokoro/local), voice and model choice, SSML expressivity, caption-track alignment (SRT/VTT), loudness normalization, retry strategy, and accessibility requirements. Use when a composition or generative video needs narration audio before assembly."
 ---
 
 # Text-to-speech (TTS)

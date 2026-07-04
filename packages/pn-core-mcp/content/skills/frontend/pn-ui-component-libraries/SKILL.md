@@ -1,6 +1,6 @@
 ---
 name: pn-ui-component-libraries
-description: Curated UI/UX and component library knowledge. Recommends libraries for stack and use case; when shadcn MCP is available, use its tools to browse/search/install. Use when building UI, during discovery, or prior-art for frontend projects.
+description: "Curated UI/UX and component library knowledge. Recommends libraries for stack and use case; when shadcn MCP is available, use its tools to browse/search/install. Use when building UI, during discovery, or prior-art for frontend projects."
 ---
 
 # UI and component libraries

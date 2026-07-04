@@ -1,6 +1,6 @@
 ---
 name: pn-tooling-mcp-maintenance
-description: MCP server configuration review, integration testing, version compatibility. Use when adding or updating MCP servers, or ensuring integration reliability.
+description: "MCP server configuration review, integration testing, version compatibility. Use when adding or updating MCP servers, or ensuring integration reliability."
 ---
 
 # MCP tooling and maintenance

@@ -1,6 +1,6 @@
 ---
 name: pn-transcribe
-description: Speech-to-text transcription for video production — word-level timestamps, SRT/VTT caption track generation, forced alignment, hallucination detection, and caption formatting standards. Use after TTS or screen recording to produce caption tracks for video compositions.
+description: "Speech-to-text transcription for video production — word-level timestamps, SRT/VTT caption track generation, forced alignment, hallucination detection, and caption formatting standards. Use after TTS or screen recording to produce caption tracks for video compositions."
 ---
 
 # Transcription and captions (STT)

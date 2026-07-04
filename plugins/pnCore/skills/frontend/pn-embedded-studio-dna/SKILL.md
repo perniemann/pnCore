@@ -1,6 +1,6 @@
 ---
 name: pn-embedded-studio-dna
-description: Cinematic realtime portfolio and lab UI — editorial structure, dual registers (commercial vs R&D), motion-as-evidence. Loads pn-core embedded reference; pairs with pn-design.
+description: "Cinematic realtime portfolio and lab UI — editorial structure, dual registers (commercial vs R&D), motion-as-evidence. Loads pn-core embedded reference; pairs with pn-design."
 ---
 
 # Embedded studio DNA

@@ -1,6 +1,6 @@
 ---
 name: pn-community-engagement
-description: Authentic community engagement across platforms (Reddit, Discord, forums). 90% value, 10% promotional. Use for community strategy and reputation building.
+description: "Authentic community engagement across platforms (Reddit, Discord, forums). 90% value, 10% promotional. Use for community strategy and reputation building."
 ---
 
 # Community engagement

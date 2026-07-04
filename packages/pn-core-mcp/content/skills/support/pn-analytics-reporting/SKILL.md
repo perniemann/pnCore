@@ -1,6 +1,6 @@
 ---
 name: pn-analytics-reporting
-description: Data into actionable insights. Dashboards, KPI tracking, statistical analysis. Use for business intelligence and data-driven decisions.
+description: "Data into actionable insights. Dashboards, KPI tracking, statistical analysis. Use for business intelligence and data-driven decisions."
 ---
 
 # Analytics reporting

@@ -1,6 +1,6 @@
 ---
 name: pn-backend-architecture
-description: Scalable system design, database schemas, API contracts, microservices patterns. Use when designing APIs, DBs, or infrastructure before or during backend implementation.
+description: "Scalable system design, database schemas, API contracts, microservices patterns. Use when designing APIs, DBs, or infrastructure before or during backend implementation."
 ---
 
 # Backend architecture

@@ -1,6 +1,6 @@
 ---
 name: pn-job-stories
-description: Create job stories using "When [situation], I want to [motivation], so I can [outcome]" (JTBD format). Use when expressing user situations and motivations, creating JTBD-style backlog items, or focusing on context over roles.
+description: "Create job stories using \"When [situation], I want to [motivation], so I can [outcome]\" (JTBD format). Use when expressing user situations and motivations, creating JTBD-style backlog items, or focusing on context over roles."
 ---
 
 # Job Stories

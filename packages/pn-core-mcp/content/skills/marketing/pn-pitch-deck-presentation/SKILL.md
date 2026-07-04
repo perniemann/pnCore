@@ -1,6 +1,6 @@
 ---
 name: pn-pitch-deck-presentation
-description: Create investor pitch decks and persuasive presentations using 2026 best practices. Use when drafting pitch decks, investor materials, fundraising slides, or high-stakes presentations. Covers structure, slide sequence, opening impact, traction proof, team slide, CTA, and mobile-friendly design.
+description: "Create investor pitch decks and persuasive presentations using 2026 best practices. Use when drafting pitch decks, investor materials, fundraising slides, or high-stakes presentations. Covers structure, slide sequence, opening impact, traction proof, team slide, CTA, and mobile-friendly design."
 ---
 
 # Pitch Deck and Presentation

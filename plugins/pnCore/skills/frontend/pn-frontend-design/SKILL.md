@@ -1,6 +1,6 @@
 ---
 name: pn-frontend-design
-description: Create distinctive, production-grade frontend interfaces with high design quality. Use when building web components, pages, or apps (React, Astro, Next.js, vanilla HTML/CSS). Avoid generic AI aesthetics.
+description: "Create distinctive, production-grade frontend interfaces with high design quality. Use when building web components, pages, or apps (React, Astro, Next.js, vanilla HTML/CSS). Avoid generic AI aesthetics."
 ---
 
 # Frontend design

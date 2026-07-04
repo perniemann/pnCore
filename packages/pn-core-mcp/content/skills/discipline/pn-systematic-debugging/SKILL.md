@@ -1,6 +1,6 @@
 ---
 name: pn-systematic-debugging
-description: Root cause analysis with triage mode — Phase 0 feedback loop, investigate first, one question max, then isolate, hypothesize, confirm. Outputs TDD fix plan with RED-GREEN cycles; optional GitHub issue via GitHub MCP. Use when debugging a failure or bug.
+description: "Root cause analysis with triage mode — Phase 0 feedback loop, investigate first, one question max, then isolate, hypothesize, confirm. Outputs TDD fix plan with RED-GREEN cycles; optional GitHub issue via GitHub MCP. Use when debugging a failure or bug."
 ---
 
 # Systematic debugging

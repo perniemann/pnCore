@@ -1,6 +1,6 @@
 ---
 name: pn-landing-page
-description: Builds or refines landing pages: hero anatomy, social proof, pricing tables, CTA hierarchy, above-the-fold strategy, responsive patterns, LCP optimization. Use when building or refining landing pages.
+description: "Builds or refines landing pages: hero anatomy, social proof, pricing tables, CTA hierarchy, above-the-fold strategy, responsive patterns, LCP optimization. Use when building or refining landing pages."
 ---
 
 # Landing page skill

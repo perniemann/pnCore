@@ -1,6 +1,6 @@
 ---
 name: pn-prompt-optimize
-description: Turn a user's goal and constraints into an optimized, production-ready prompt. Output: optimized prompt block, brief notes, usage tips. Do NOT execute the task in the prompt.
+description: "Turn a user's goal and constraints into an optimized, production-ready prompt. Output: optimized prompt block, brief notes, usage tips. Do NOT execute the task in the prompt."
 ---
 
 # Prompt optimize

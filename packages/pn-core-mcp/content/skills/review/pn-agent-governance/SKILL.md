@@ -1,6 +1,6 @@
 ---
 name: pn-agent-governance
-description: Design and audit the governance framework for deployed AI agents — continuous audit trails, human-in-the-loop escalation policies, privacy/data-minimization rules, compliance evidence generation (SOC 2 / ISO 27001 / HIPAA-adjacent), and an org-level agent policy charter. Use when a project is moving agents from prototype to production, preparing for compliance review, or establishing org-wide agent trust policy.
+description: "Design and audit the governance framework for deployed AI agents — continuous audit trails, human-in-the-loop escalation policies, privacy/data-minimization rules, compliance evidence generation (SOC 2 / ISO 27001 / HIPAA-adjacent), and an org-level agent policy charter. Use when a project is moving agents from prototype to production, preparing for compliance review, or establishing org-wide agent trust policy."
 ---
 
 # Agent Governance Skill

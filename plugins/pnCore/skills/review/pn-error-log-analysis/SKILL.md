@@ -1,6 +1,6 @@
 ---
 name: pn-error-log-analysis
-description: Log parsing, stack-trace analysis, error correlation across systems. Use when debugging from logs or investigating production errors.
+description: "Log parsing, stack-trace analysis, error correlation across systems. Use when debugging from logs or investigating production errors."
 ---
 
 # Error log analysis

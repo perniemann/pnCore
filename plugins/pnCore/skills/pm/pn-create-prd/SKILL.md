@@ -1,6 +1,6 @@
 ---
 name: pn-create-prd
-description: Create a Product Requirements Document using an 8-section template (summary, contacts, background, objective, segments, value proposition, solution, release). Use when writing a PRD, documenting product requirements, or preparing a feature spec before pn-writing-plans.
+description: "Create a Product Requirements Document using an 8-section template (summary, contacts, background, objective, segments, value proposition, solution, release). Use when writing a PRD, documenting product requirements, or preparing a feature spec before pn-writing-plans."
 ---
 
 # Create a Product Requirements Document

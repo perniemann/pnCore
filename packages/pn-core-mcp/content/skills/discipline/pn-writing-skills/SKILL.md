@@ -1,6 +1,6 @@
 ---
 name: pn-writing-skills
-description: Applies TDD to skill authoring: validation scenarios first, then SKILL.md. Use when creating new skills, editing existing skills, or verifying skills work before deployment.
+description: "Applies TDD to skill authoring: validation scenarios first, then SKILL.md. Use when creating new skills, editing existing skills, or verifying skills work before deployment."
 ---
 
 # Writing skills

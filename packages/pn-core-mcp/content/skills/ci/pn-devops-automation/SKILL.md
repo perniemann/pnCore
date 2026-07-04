@@ -1,6 +1,6 @@
 ---
 name: pn-devops-automation
-description: CI/CD pipelines, IaC, container orchestration, monitoring, alerting. Use when setting up or improving deployment, monitoring, or infra automation.
+description: "CI/CD pipelines, IaC, container orchestration, monitoring, alerting. Use when setting up or improving deployment, monitoring, or infra automation."
 ---
 
 # DevOps automation

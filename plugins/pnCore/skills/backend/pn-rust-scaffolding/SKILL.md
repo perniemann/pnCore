@@ -1,6 +1,6 @@
 ---
 name: pn-rust-scaffolding
-description: Scaffolds new Rust API projects (Axum, Actix-web) or handlers. Use when setting up a Rust backend; covers Cargo workspace layout, Axum/Actix patterns, error handling, and idiomatic Rust conventions.
+description: "Scaffolds new Rust API projects (Axum, Actix-web) or handlers. Use when setting up a Rust backend; covers Cargo workspace layout, Axum/Actix patterns, error handling, and idiomatic Rust conventions."
 ---
 
 # Rust backend scaffolding

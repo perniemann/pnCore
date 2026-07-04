@@ -1,6 +1,6 @@
 ---
 name: pn-feedback-analysis
-description: Collect, analyze, and synthesize user feedback into actionable product insights. Themes, prioritization, voice of customer.
+description: "Collect, analyze, and synthesize user feedback into actionable product insights. Themes, prioritization, voice of customer."
 ---
 
 # Feedback analysis

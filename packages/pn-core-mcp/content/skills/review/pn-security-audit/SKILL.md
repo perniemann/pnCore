@@ -1,6 +1,6 @@
 ---
 name: pn-security-audit
-description: Security review for OWASP, auth (JWT/OAuth2), CORS/CSP, input validation, encryption. Use for security reviews, auth flows, or vulnerability fixes.
+description: "Security review for OWASP, auth (JWT/OAuth2), CORS/CSP, input validation, encryption. Use for security reviews, auth flows, or vulnerability fixes."
 ---
 
 # Security audit

@@ -1,6 +1,6 @@
 ---
 name: pn-svg
-description: SVG structure, optimization, animation, and accessibility. Use when creating or editing inline SVG, icons, logos, or SVG animations. Reference assets/pn-logo.svg for a rich example.
+description: "SVG structure, optimization, animation, and accessibility. Use when creating or editing inline SVG, icons, logos, or SVG animations. Reference assets/pn-logo.svg for a rich example."
 ---
 
 # SVG

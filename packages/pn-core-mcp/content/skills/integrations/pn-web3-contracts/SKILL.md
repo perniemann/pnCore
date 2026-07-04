@@ -1,6 +1,6 @@
 ---
 name: pn-web3-contracts
-description: Guides Solidity contracts, tests, and frontend integration. Use when writing Web3 contracts; covers contract patterns, security checklist, testing, deployment, and wallet/chain integration.
+description: "Guides Solidity contracts, tests, and frontend integration. Use when writing Web3 contracts; covers contract patterns, security checklist, testing, deployment, and wallet/chain integration."
 ---
 
 # Web3 contracts skill

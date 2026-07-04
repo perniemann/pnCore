@@ -1,6 +1,6 @@
 ---
 name: pn-program-orchestration
-description: Conductor playbook for feature_program — multi-slice hierarchical orchestration. Use when decomposing a new project or large feature into ≥2 independent vertical slices that can be built in parallel. Covers when to use, slice decomposition rules, DAG dependency management, merge queue, and resume patterns.
+description: "Conductor playbook for feature_program — multi-slice hierarchical orchestration. Use when decomposing a new project or large feature into ≥2 independent vertical slices that can be built in parallel. Covers when to use, slice decomposition rules, DAG dependency management, merge queue, and resume patterns."
 ---
 
 # Program orchestration

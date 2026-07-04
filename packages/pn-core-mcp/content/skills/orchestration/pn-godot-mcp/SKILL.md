@@ -1,6 +1,6 @@
 ---
 name: pn-godot-mcp
-description: Compare and select a Godot 4.x-compatible MCP server for editor automation. Use at discovery time to pick the best server for your use case, then install and verify tool coverage before planning.
+description: "Compare and select a Godot 4.x-compatible MCP server for editor automation. Use at discovery time to pick the best server for your use case, then install and verify tool coverage before planning."
 ---
 
 # pn-godot-mcp

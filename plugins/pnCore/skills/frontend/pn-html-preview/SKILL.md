@@ -1,6 +1,6 @@
 ---
 name: pn-html-preview
-description: Save self-contained HTML from a fenced html block, open in browser, optional screenshot evidence. Use for static UI aesthetic iteration.
+description: "Save self-contained HTML from a fenced html block, open in browser, optional screenshot evidence. Use for static UI aesthetic iteration."
 ---
 
 # HTML Preview

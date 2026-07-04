@@ -1,6 +1,6 @@
 ---
 name: pn-loop
-description: Autonomous iteration until verification passes. Keep working on the same task, re-running verification commands each turn, until they succeed. Use for fix-until-green, migration completion, or any task with clear verification criteria.
+description: "Autonomous iteration until verification passes. Keep working on the same task, re-running verification commands each turn, until they succeed. Use for fix-until-green, migration completion, or any task with clear verification criteria."
 ---
 
 # Loop

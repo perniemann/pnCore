@@ -1,6 +1,6 @@
 ---
 name: pn-docker
-description: Docker best practices for production containers. Multi-stage builds, non-root user, .dockerignore, layer caching, compose.yaml for local dev, and container security scanning. Use when writing or reviewing Dockerfiles or local development container setups.
+description: "Docker best practices for production containers. Multi-stage builds, non-root user, .dockerignore, layer caching, compose.yaml for local dev, and container security scanning. Use when writing or reviewing Dockerfiles or local development container setups."
 ---
 
 # Docker

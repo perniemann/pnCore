@@ -1,6 +1,6 @@
 ---
 name: pn-ai-fluency-curriculum
-description: Design an AI fluency curriculum for a team or organization — skill-level assessment, learning path design, hands-on exercise plans, and progress tracking. Use when onboarding a team to AI agent tooling, building internal AI education programs, or helping individuals move from passive AI use to confident, autonomous AI collaboration.
+description: "Design an AI fluency curriculum for a team or organization — skill-level assessment, learning path design, hands-on exercise plans, and progress tracking. Use when onboarding a team to AI agent tooling, building internal AI education programs, or helping individuals move from passive AI use to confident, autonomous AI collaboration."
 ---
 
 # AI Fluency Curriculum Skill

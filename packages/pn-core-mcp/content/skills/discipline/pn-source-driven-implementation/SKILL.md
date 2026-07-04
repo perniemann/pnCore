@@ -1,6 +1,6 @@
 ---
 name: pn-source-driven-implementation
-description: Ground framework and library choices in official docs for the versions in the repo — detect stack, fetch authoritative sources, implement documented patterns, cite links. Use when correctness depends on vendor APIs, not for pure refactors or typos.
+description: "Ground framework and library choices in official docs for the versions in the repo — detect stack, fetch authoritative sources, implement documented patterns, cite links. Use when correctness depends on vendor APIs, not for pure refactors or typos."
 ---
 
 # Source-driven implementation

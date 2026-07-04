@@ -1,6 +1,6 @@
 ---
 name: pn-content-strategy
-description: Content strategy, editorial calendars, brand storytelling. Multi-platform content, SEO, repurposing. Use for content plans and copy.
+description: "Content strategy, editorial calendars, brand storytelling. Multi-platform content, SEO, repurposing. Use for content plans and copy."
 ---
 
 # Content strategy

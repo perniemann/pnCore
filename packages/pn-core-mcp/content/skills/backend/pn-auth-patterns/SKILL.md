@@ -1,6 +1,6 @@
 ---
 name: pn-auth-patterns
-description: Authentication implementation patterns. JWT rotation, OAuth2 PKCE, session vs token trade-offs, NextAuth.js v5, Clerk, and Supabase Auth. Use when implementing or reviewing auth flows.
+description: "Authentication implementation patterns. JWT rotation, OAuth2 PKCE, session vs token trade-offs, NextAuth.js v5, Clerk, and Supabase Auth. Use when implementing or reviewing auth flows."
 ---
 
 # Auth patterns

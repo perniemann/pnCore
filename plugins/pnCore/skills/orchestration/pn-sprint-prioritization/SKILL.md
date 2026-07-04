@@ -1,6 +1,6 @@
 ---
 name: pn-sprint-prioritization
-description: Agile backlog prioritization, RICE/MoSCoW, capacity planning. Use during discovery or planning when prioritizing features or backlog.
+description: "Agile backlog prioritization, RICE/MoSCoW, capacity planning. Use during discovery or planning when prioritizing features or backlog."
 ---
 
 # Sprint prioritization

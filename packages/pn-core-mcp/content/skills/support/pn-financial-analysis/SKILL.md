@@ -1,6 +1,6 @@
 ---
 name: pn-financial-analysis
-description: Product and operational metrics analysis — KPIs, cost modeling, unit economics, A/B test ROI, and budget variance for non-finance teams. For professional investment/valuation analysis use the FSI skill stack.
+description: "Product and operational metrics analysis — KPIs, cost modeling, unit economics, A/B test ROI, and budget variance for non-finance teams. For professional investment/valuation analysis use the FSI skill stack."
 ---
 
 # Product and operational financial analysis

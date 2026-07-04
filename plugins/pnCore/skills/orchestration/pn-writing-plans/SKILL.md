@@ -1,6 +1,6 @@
 ---
 name: pn-writing-plans
-description: Creates bite-sized implementation plans with exact file paths and verification steps. Use when a spec or requirements exist for a multi-step task, before touching code.
+description: "Creates bite-sized implementation plans with exact file paths and verification steps. Use when a spec or requirements exist for a multi-step task, before touching code."
 ---
 
 # Writing plans
