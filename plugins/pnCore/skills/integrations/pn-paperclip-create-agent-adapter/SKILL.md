@@ -1,6 +1,6 @@
 ---
 name: pn-paperclip-create-agent-adapter
-description: Technical guide for creating a new Paperclip agent adapter. Use when building a new adapter package, adding support for a new AI coding tool (e.g. Cursor, e2b), or modifying the adapter system.
+description: "Technical guide for creating a new Paperclip agent adapter. Use when building a new adapter package, adding support for a new AI coding tool (e.g. Cursor, e2b), or modifying the adapter system."
 ---
 
 # Creating a Paperclip Agent Adapter

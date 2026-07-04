@@ -1,6 +1,6 @@
 ---
 name: pn-verification-before-completion
-description: Requires running verification commands and confirming output before any success claim. Use when about to claim work is complete, fixed, or passing, before committing or creating PRs.
+description: "Requires running verification commands and confirming output before any success claim. Use when about to claim work is complete, fixed, or passing, before committing or creating PRs."
 ---
 
 # Verification before completion

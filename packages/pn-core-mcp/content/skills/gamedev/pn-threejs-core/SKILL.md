@@ -1,6 +1,6 @@
 ---
 name: pn-threejs-core
-description: Guides Three.js scenes, cameras, lighting, asset loading, animation, physics, and performance. Use when working on Three.js; covers scene structure, R3F/Drei patterns, WebGPU migration (r171+), TSL shaders, and compute shaders.
+description: "Guides Three.js scenes, cameras, lighting, asset loading, animation, physics, and performance. Use when working on Three.js; covers scene structure, R3F/Drei patterns, WebGPU migration (r171+), TSL shaders, and compute shaders."
 ---
 
 # Three.js core skill

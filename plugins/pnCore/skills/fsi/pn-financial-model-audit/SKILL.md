@@ -1,6 +1,6 @@
 ---
 name: pn-financial-model-audit
-description: Audit a financial model (spreadsheet, structured table, or agent-produced model) for hardcoded values, broken formula logic, balance-sheet balance, circular references, and missing cross-checks. Use after any DCF, LBO, comps, or 3-statement model is built before it is used in a deliverable.
+description: "Audit a financial model (spreadsheet, structured table, or agent-produced model) for hardcoded values, broken formula logic, balance-sheet balance, circular references, and missing cross-checks. Use after any DCF, LBO, comps, or 3-statement model is built before it is used in a deliverable."
 ---
 
 # Financial model audit

@@ -1,6 +1,6 @@
 ---
 name: pn-create-refs-index
-description: Create a refs index under docs/refs/README.md listing PRD, design doc, domain doc, optional stack/MCP/UI, discovery, plans, and research. Use during project_kickoff (MCP) or when consolidating doc pointers.
+description: "Create a refs index under docs/refs/README.md listing PRD, design doc, domain doc, optional stack/MCP/UI, discovery, plans, and research. Use during project_kickoff (MCP) or when consolidating doc pointers."
 ---
 
 # Create Refs Index

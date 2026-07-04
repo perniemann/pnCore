@@ -1,6 +1,6 @@
 ---
 name: pn-risk-monitor
-description: Detect runaway loops, recursion depth, TTL exceeded, infinite retry. Use for autonomous execution safety; alert and recommend halt when thresholds exceeded.
+description: "Detect runaway loops, recursion depth, TTL exceeded, infinite retry. Use for autonomous execution safety; alert and recommend halt when thresholds exceeded."
 ---
 
 # Risk monitoring

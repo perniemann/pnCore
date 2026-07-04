@@ -1,6 +1,6 @@
 ---
 name: pn-generative-video-pipelines
-description: Text-to-video and image-to-video pipelines, temporal consistency, motion prompting, segmentation for long outputs, fps and codec delivery. Use with pn-generative-media-director and pn-comfyui-workflows.
+description: "Text-to-video and image-to-video pipelines, temporal consistency, motion prompting, segmentation for long outputs, fps and codec delivery. Use with pn-generative-media-director and pn-comfyui-workflows."
 ---
 
 # Generative video pipelines

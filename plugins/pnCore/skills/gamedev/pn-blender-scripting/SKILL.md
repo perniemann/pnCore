@@ -1,6 +1,6 @@
 ---
 name: pn-blender-scripting
-description: Guides Blender Python scripts, export pipelines, and add-ons. Use when writing bpy scripts or add-ons; covers bpy API, export scripts, asset prep, add-on structure, and operator/panel patterns.
+description: "Guides Blender Python scripts, export pipelines, and add-ons. Use when writing bpy scripts or add-ons; covers bpy API, export scripts, asset prep, add-on structure, and operator/panel patterns."
 ---
 
 # Blender scripting skill

@@ -1,6 +1,6 @@
 ---
 name: pn-python-scaffolding
-description: Scaffolds new Python API projects (FastAPI, Flask, Django) or routes. Use when adding a new route/module; covers project layout, env/secrets, validation, error handling, and idiomatic Python patterns.
+description: "Scaffolds new Python API projects (FastAPI, Flask, Django) or routes. Use when adding a new route/module; covers project layout, env/secrets, validation, error handling, and idiomatic Python patterns."
 ---
 
 # Python backend scaffolding

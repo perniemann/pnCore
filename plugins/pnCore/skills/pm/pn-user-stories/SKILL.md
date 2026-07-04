@@ -1,6 +1,6 @@
 ---
 name: pn-user-stories
-description: Create user stories following the 3 C's (Card, Conversation, Confirmation) and INVEST criteria. Use when breaking down features into backlog items, defining acceptance criteria, or preparing stories before pn-writing-plans.
+description: "Create user stories following the 3 C's (Card, Conversation, Confirmation) and INVEST criteria. Use when breaking down features into backlog items, defining acceptance criteria, or preparing stories before pn-writing-plans."
 ---
 
 # User Stories

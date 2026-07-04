@@ -1,6 +1,6 @@
 ---
 name: pn-php-scaffolding
-description: Scaffolds new PHP API projects (Laravel, Slim) or routes. Use when adding a new controller/service; covers PSR standards, Composer hygiene, Laravel conventions, and idiomatic PHP 8.x patterns.
+description: "Scaffolds new PHP API projects (Laravel, Slim) or routes. Use when adding a new controller/service; covers PSR standards, Composer hygiene, Laravel conventions, and idiomatic PHP 8.x patterns."
 ---
 
 # PHP backend scaffolding

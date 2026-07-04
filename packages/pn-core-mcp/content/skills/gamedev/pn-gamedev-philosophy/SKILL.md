@@ -1,6 +1,6 @@
 ---
 name: pn-gamedev-philosophy
-description: Defines an authoritative game and real-time 3D design rulebook. Use when building games, Three.js/WebGL scenes, or real-time experiences. Aligns with fixed timestep, frame budget, disposal discipline, and performance-first practices (current).
+description: "Defines an authoritative game and real-time 3D design rulebook. Use when building games, Three.js/WebGL scenes, or real-time experiences. Aligns with fixed timestep, frame budget, disposal discipline, and performance-first practices (current)."
 ---
 
 # Game Development Philosophy

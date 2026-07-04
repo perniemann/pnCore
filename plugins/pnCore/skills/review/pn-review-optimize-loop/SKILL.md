@@ -1,6 +1,6 @@
 ---
 name: pn-review-optimize-loop
-description: Run a review pass (quality gates, pn-review-plugin-submission, pn-deslop, pn-reality-check; pn-evidence-qa optional for UI), then an optimization pass (pn-react-next-perf, pn-systematic-debugging). If issues are found, fix and re-run once. Use for the pn-reviewer agent and the pn-project-builder's own loop.
+description: "Run a review pass (quality gates, pn-review-plugin-submission, pn-deslop, pn-reality-check; pn-evidence-qa optional for UI), then an optimization pass (pn-react-next-perf, pn-systematic-debugging). If issues are found, fix and re-run once. Use for the pn-reviewer agent and the pn-project-builder's own loop."
 ---
 
 # Review and optimize loop

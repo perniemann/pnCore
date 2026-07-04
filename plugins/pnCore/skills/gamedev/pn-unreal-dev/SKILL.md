@@ -1,6 +1,6 @@
 ---
 name: pn-unreal-dev
-description: Guides Unreal Engine development: C++, Blueprints, asset naming, build config, plugin development, programmatic asset creation, live uasset creation, Python automation, UAT/BuildGraph, Editor Utility Widgets, Data Validation, Materials, Niagara, PCG, and performance. Use when developing Unreal Engine projects.
+description: "Guides Unreal Engine development: C++, Blueprints, asset naming, build config, plugin development, programmatic asset creation, live uasset creation, Python automation, UAT/BuildGraph, Editor Utility Widgets, Data Validation, Materials, Niagara, PCG, and performance. Use when developing Unreal Engine projects."
 ---
 
 # Unreal Engine development skill

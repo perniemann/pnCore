@@ -1,6 +1,6 @@
 ---
 name: pn-earnings-analysis
-description: Post-earnings analysis. Ingest earnings call transcript and/or quarterly filing, compute actuals vs. consensus delta, update key model line items, and draft a structured earnings note (headline, key metrics, model update, thesis read-through, open questions). Use after a quarterly print for equity research coverage or portfolio monitoring.
+description: "Post-earnings analysis. Ingest earnings call transcript and/or quarterly filing, compute actuals vs. consensus delta, update key model line items, and draft a structured earnings note (headline, key metrics, model update, thesis read-through, open questions). Use after a quarterly print for equity research coverage or portfolio monitoring."
 ---
 
 # Earnings analysis

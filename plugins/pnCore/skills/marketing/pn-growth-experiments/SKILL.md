@@ -1,6 +1,6 @@
 ---
 name: pn-growth-experiments
-description: Growth strategy, funnel optimization, experiment design. CAC/LTV, viral loops, A/B testing. Use for user acquisition and conversion optimization.
+description: "Growth strategy, funnel optimization, experiment design. CAC/LTV, viral loops, A/B testing. Use for user acquisition and conversion optimization."
 ---
 
 # Growth experiments

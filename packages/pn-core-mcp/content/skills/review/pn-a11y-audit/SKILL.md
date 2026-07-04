@@ -1,6 +1,6 @@
 ---
 name: pn-a11y-audit
-description: Accessibility audit for web apps. axe-core integration, WCAG 2.2 AA checklist, screen-reader testing (NVDA/VoiceOver), focus trap patterns, and keyboard navigation. Use when auditing or fixing accessibility issues.
+description: "Accessibility audit for web apps. axe-core integration, WCAG 2.2 AA checklist, screen-reader testing (NVDA/VoiceOver), focus trap patterns, and keyboard navigation. Use when auditing or fixing accessibility issues."
 ---
 
 # Accessibility audit

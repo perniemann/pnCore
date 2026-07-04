@@ -1,6 +1,6 @@
 ---
 name: pn-node-api
-description: Guides Node/API design, DB access patterns, and env/secrets. Use when designing or implementing Node/API code; covers API design, error handling, config, and DB patterns.
+description: "Guides Node/API design, DB access patterns, and env/secrets. Use when designing or implementing Node/API code; covers API design, error handling, config, and DB patterns."
 ---
 
 # Node / API skill

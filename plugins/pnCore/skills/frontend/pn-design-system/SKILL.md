@@ -1,6 +1,6 @@
 ---
 name: pn-design-system
-description: Establishes or maintains a design system: tokens, CSS variables, spacing/type scales, theming, and consistency auditing. Use when defining tokens or auditing components. The pn-design-system rule enforces token usage when editing CSS/SCSS files.
+description: "Establishes or maintains a design system: tokens, CSS variables, spacing/type scales, theming, and consistency auditing. Use when defining tokens or auditing components. The pn-design-system rule enforces token usage when editing CSS/SCSS files."
 ---
 
 # Design system skill

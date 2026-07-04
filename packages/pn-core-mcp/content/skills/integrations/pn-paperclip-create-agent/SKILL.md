@@ -1,6 +1,6 @@
 ---
 name: pn-paperclip-create-agent
-description: Create new agents in Paperclip with governance-aware hiring. Use when you need to inspect adapter configuration options, compare existing agent configs, draft a new agent prompt/config, and submit a hire request.
+description: "Create new agents in Paperclip with governance-aware hiring. Use when you need to inspect adapter configuration options, compare existing agent configs, draft a new agent prompt/config, and submit a hire request."
 ---
 
 # Paperclip Create Agent Skill

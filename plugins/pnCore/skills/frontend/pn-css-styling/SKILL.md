@@ -1,6 +1,6 @@
 ---
 name: pn-css-styling
-description: CSS styling: layout, box model, selectors, specificity, utilities. Use when writing or refactoring CSS, SCSS, or styled components.
+description: "CSS styling: layout, box model, selectors, specificity, utilities. Use when writing or refactoring CSS, SCSS, or styled components."
 ---
 
 # CSS styling

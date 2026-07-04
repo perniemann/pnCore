@@ -1,6 +1,6 @@
 ---
 name: pn-discipline-philosophy
-description: Defines engineering discipline: test-first, root-cause before fix, minimal change, measure-before-optimize, review/second look, evidence over guess. Use when implementing features, debugging, planning, or establishing development practices. Aligns with TDD, systematic debugging, and RCA practices (current).
+description: "Defines engineering discipline: test-first, root-cause before fix, minimal change, measure-before-optimize, review/second look, evidence over guess. Use when implementing features, debugging, planning, or establishing development practices. Aligns with TDD, systematic debugging, and RCA practices (current)."
 ---
 
 # Engineering Discipline Philosophy

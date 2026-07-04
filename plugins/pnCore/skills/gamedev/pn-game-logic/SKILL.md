@@ -1,6 +1,6 @@
 ---
 name: pn-game-logic
-description: Guides game loops, state machines, input handling, collision, scoring, and save state. Use when implementing game logic; covers architecture patterns for 2D/3D games.
+description: "Guides game loops, state machines, input handling, collision, scoring, and save state. Use when implementing game logic; covers architecture patterns for 2D/3D games."
 ---
 
 # Game logic skill

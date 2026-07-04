@@ -1,6 +1,6 @@
 ---
 name: pn-comfyui-workflows
-description: ComfyUI workflow JSON, execution graphs, seeds, model loading, conditioning patterns, API and headless runs, troubleshooting, pinning versions for reproducibility. Use with pn-generative-media-director for T2I/T2V pipelines.
+description: "ComfyUI workflow JSON, execution graphs, seeds, model loading, conditioning patterns, API and headless runs, troubleshooting, pinning versions for reproducibility. Use with pn-generative-media-director for T2I/T2V pipelines."
 ---
 
 # ComfyUI workflows

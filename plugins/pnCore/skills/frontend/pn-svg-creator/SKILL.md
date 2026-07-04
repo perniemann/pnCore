@@ -1,6 +1,6 @@
 ---
 name: pn-svg-creator
-description: Questionnaire-driven SVG creation. Covers purpose, identity, style, animation, colors, size, constraints. Gates on user confirmation. Generates production-quality SVG using pn-svg patterns.
+description: "Questionnaire-driven SVG creation. Covers purpose, identity, style, animation, colors, size, constraints. Gates on user confirmation. Generates production-quality SVG using pn-svg patterns."
 ---
 
 # SVG creator

@@ -1,6 +1,6 @@
 ---
 name: pn-gl-reconciler
-description: General ledger reconciliation and break analysis. Ingest a trial balance and subledger (or equivalent source), identify open items and breaks, trace each break to a root cause category, and produce a structured break report routed to the appropriate approver. Does not post journal entries or mark items settled — all resolution actions require human sign-off.
+description: "General ledger reconciliation and break analysis. Ingest a trial balance and subledger (or equivalent source), identify open items and breaks, trace each break to a root cause category, and produce a structured break report routed to the appropriate approver. Does not post journal entries or mark items settled — all resolution actions require human sign-off."
 ---
 
 # GL reconciler

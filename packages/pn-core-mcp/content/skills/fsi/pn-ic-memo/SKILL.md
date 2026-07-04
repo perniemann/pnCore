@@ -1,6 +1,6 @@
 ---
 name: pn-ic-memo
-description: Investment committee memo drafting. Structure a full IC memo from deal or thesis inputs: situation overview, investment thesis, market and competitive context, financial summary and valuation, key risks with mitigants, returns analysis, open items, and recommendation. Does not constitute an investment recommendation for end clients — output requires IC sign-off before use.
+description: "Investment committee memo drafting. Structure a full IC memo from deal or thesis inputs: situation overview, investment thesis, market and competitive context, financial summary and valuation, key risks with mitigants, returns analysis, open items, and recommendation. Does not constitute an investment recommendation for end clients — output requires IC sign-off before use."
 ---
 
 # IC memo

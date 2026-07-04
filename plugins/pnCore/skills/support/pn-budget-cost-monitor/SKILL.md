@@ -1,6 +1,6 @@
 ---
 name: pn-budget-cost-monitor
-description: Track token usage, API cost, and compute budgets; surface hidden token drivers; alert when approaching limits; recommend degradation. Use when running autonomous or multi-tenant workflows, RAG, or heavy MCP tool use with cost control.
+description: "Track token usage, API cost, and compute budgets; surface hidden token drivers; alert when approaching limits; recommend degradation. Use when running autonomous or multi-tenant workflows, RAG, or heavy MCP tool use with cost control."
 ---
 
 # Budget and cost monitoring

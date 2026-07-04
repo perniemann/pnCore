@@ -1,6 +1,6 @@
 ---
 name: pn-ux-patterns
-description: A11y (labels, headings, focus, contrast, touch targets, hover alternatives), error and copy patterns, and form flow. Use when improving or reviewing UX; reference pn-nextjs for React/Next.
+description: "A11y (labels, headings, focus, contrast, touch targets, hover alternatives), error and copy patterns, and form flow. Use when improving or reviewing UX; reference pn-nextjs for React/Next."
 ---
 
 # UX patterns

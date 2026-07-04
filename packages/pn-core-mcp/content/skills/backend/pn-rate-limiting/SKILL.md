@@ -1,6 +1,6 @@
 ---
 name: pn-rate-limiting
-description: API rate limiting patterns. Token-bucket, sliding window, Redis-based counters, Upstash rate-limit, 429 responses, and abuse prevention. Use when protecting API endpoints from overuse or DoS.
+description: "API rate limiting patterns. Token-bucket, sliding window, Redis-based counters, Upstash rate-limit, 429 responses, and abuse prevention. Use when protecting API endpoints from overuse or DoS."
 ---
 
 # Rate limiting

@@ -1,6 +1,6 @@
 ---
 name: pn-dependency-audit
-description: Runs stack-appropriate dependency and CVE audits; interprets severity and gates on critical/high. Use before release, after adding dependencies, or as part of a security or review pass.
+description: "Runs stack-appropriate dependency and CVE audits; interprets severity and gates on critical/high. Use before release, after adding dependencies, or as part of a security or review pass."
 ---
 
 # Dependency audit

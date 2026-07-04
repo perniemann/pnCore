@@ -1,6 +1,6 @@
 ---
 name: pn-test-generation
-description: Generate unit or integration tests from code, specs, or acceptance criteria. Use when adding test coverage, scaffolding TDD, or backfilling tests for existing code.
+description: "Generate unit or integration tests from code, specs, or acceptance criteria. Use when adding test coverage, scaffolding TDD, or backfilling tests for existing code."
 ---
 
 # Test generation

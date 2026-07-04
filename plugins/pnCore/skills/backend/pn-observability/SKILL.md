@@ -1,6 +1,6 @@
 ---
 name: pn-observability
-description: Production observability with OpenTelemetry, structured logging, Sentry error tracking, and Datadog/Grafana APM. Use when instrumenting a service for traces, metrics, logs, and alerts.
+description: "Production observability with OpenTelemetry, structured logging, Sentry error tracking, and Datadog/Grafana APM. Use when instrumenting a service for traces, metrics, logs, and alerts."
 ---
 
 # Observability

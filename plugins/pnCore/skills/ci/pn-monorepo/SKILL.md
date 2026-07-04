@@ -1,6 +1,6 @@
 ---
 name: pn-monorepo
-description: Monorepo setup and maintenance with Turborepo, Nx, and pnpm workspaces. Build caching, publishConfig, shared package configuration, and workspace dependency graphs. Use when setting up or refactoring a monorepo.
+description: "Monorepo setup and maintenance with Turborepo, Nx, and pnpm workspaces. Build caching, publishConfig, shared package configuration, and workspace dependency graphs. Use when setting up or refactoring a monorepo."
 ---
 
 # Monorepo

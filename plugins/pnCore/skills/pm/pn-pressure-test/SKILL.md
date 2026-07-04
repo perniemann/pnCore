@@ -1,6 +1,6 @@
 ---
 name: pn-pressure-test
-description: Pressure-test a startup idea with early-stage frameworks — verdict, scorecard, fatal flaws, problem reality, competition, first customers, MVP wedge. Use when asked to validate an idea, assess founder-market fit, map competitors and current behavior, find first customers, define a 2-week MVP test, or deliver a strong/weak/pivot call.
+description: "Pressure-test a startup idea with early-stage frameworks — verdict, scorecard, fatal flaws, problem reality, competition, first customers, MVP wedge. Use when asked to validate an idea, assess founder-market fit, map competitors and current behavior, find first customers, define a 2-week MVP test, or deliver a strong/weak/pivot call."
 ---
 
 # Startup pressure test

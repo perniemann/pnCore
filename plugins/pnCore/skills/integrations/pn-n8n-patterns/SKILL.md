@@ -1,6 +1,6 @@
 ---
 name: pn-n8n-patterns
-description: Use when building or editing n8n workflows. Covers node choice, secrets, webhooks, error handling, retries, idempotency, modular design, observability, and version control. Follows common workflow automation patterns for reliability and security. Reference pn-backend-philosophy for secrets and error-handling patterns.
+description: "Use when building or editing n8n workflows. Covers node choice, secrets, webhooks, error handling, retries, idempotency, modular design, observability, and version control. Follows common workflow automation patterns for reliability and security. Reference pn-backend-philosophy for secrets and error-handling patterns."
 ---
 
 # n8n patterns skill

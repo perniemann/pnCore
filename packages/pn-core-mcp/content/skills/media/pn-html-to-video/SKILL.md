@@ -1,6 +1,6 @@
 ---
 name: pn-html-to-video
-description: Deterministic, programmatic video from HTML compositions. Covers the HTML composition contract (data-start, data-duration, data-track-index), Frame Adapter pattern (GSAP / Lottie / CSS / Three.js), Puppeteer+FFmpeg capture pipeline, delivery sheet, and tool selection (Hyperframes / Remotion / Motion Canvas). Use when repeatability and pixel-exactness matter more than generative variety — product demos, marketing cuts, social variants, data-driven explainers. Use pn-generative-video-pipelines for T2V/I2V creative generation.
+description: "Deterministic, programmatic video from HTML compositions. Covers the HTML composition contract (data-start, data-duration, data-track-index), Frame Adapter pattern (GSAP / Lottie / CSS / Three.js), Puppeteer+FFmpeg capture pipeline, delivery sheet, and tool selection (Hyperframes / Remotion / Motion Canvas). Use when repeatability and pixel-exactness matter more than generative variety — product demos, marketing cuts, social variants, data-driven explainers. Use pn-generative-video-pipelines for T2V/I2V creative generation."
 ---
 
 # HTML-to-video (programmatic video)

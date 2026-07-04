@@ -1,6 +1,6 @@
 ---
 name: pn-create-domain-doc
-description: Create a domain/mechanics doc when product has rules, progression, formulas (gamification, scoring, tier systems). Use when scope indicates mechanics-heavy products (RPG, fitness scoring, game loops).
+description: "Create a domain/mechanics doc when product has rules, progression, formulas (gamification, scoring, tier systems). Use when scope indicates mechanics-heavy products (RPG, fitness scoring, game loops)."
 ---
 
 # Create a Domain / Mechanics Document

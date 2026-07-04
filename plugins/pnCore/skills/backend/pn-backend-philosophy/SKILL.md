@@ -1,6 +1,6 @@
 ---
 name: pn-backend-philosophy
-description: Defines an authoritative backend design rulebook. Use when designing or reviewing APIs, databases, config, security, or error handling. Aligns with OWASP, REST best practices, and current secrets management.
+description: "Defines an authoritative backend design rulebook. Use when designing or reviewing APIs, databases, config, security, or error handling. Aligns with OWASP, REST best practices, and current secrets management."
 ---
 
 # Backend Design Philosophy

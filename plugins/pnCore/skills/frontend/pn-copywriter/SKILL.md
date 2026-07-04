@@ -1,6 +1,6 @@
 ---
 name: pn-copywriter
-description: Brand-agnostic copy style system: diagnose brand, build style fingerprint, structure proof, optimize conversion. Use for service/portfolio copy, landing pages, CTAs. Tone, rhythm, and format rules.
+description: "Brand-agnostic copy style system: diagnose brand, build style fingerprint, structure proof, optimize conversion. Use for service/portfolio copy, landing pages, CTAs. Tone, rhythm, and format rules."
 ---
 
 # Copywriter skill

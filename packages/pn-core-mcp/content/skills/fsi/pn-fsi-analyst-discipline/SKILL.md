@@ -1,6 +1,6 @@
 ---
 name: pn-fsi-analyst-discipline
-description: Cross-cutting discipline for FSI analyst workflows. Enforces non-advice framing, mandatory human gate at every client-facing or policy-adjacent output, staged-for-review boundaries, and data handling guardrails. Load at the start of any FSI workflow step that produces a deliverable.
+description: "Cross-cutting discipline for FSI analyst workflows. Enforces non-advice framing, mandatory human gate at every client-facing or policy-adjacent output, staged-for-review boundaries, and data handling guardrails. Load at the start of any FSI workflow step that produces a deliverable."
 ---
 
 # FSI analyst discipline

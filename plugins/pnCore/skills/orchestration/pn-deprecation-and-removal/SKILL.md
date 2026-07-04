@@ -1,6 +1,6 @@
 ---
 name: pn-deprecation-and-removal
-description: Sunsetting APIs, features, and dead code — deprecation levels, migration windows, Hyrum's Law, zombie code removal. Use when removing or replacing user-visible behavior, public APIs, or long-lived flags; not the same as framework version upgrades alone.
+description: "Sunsetting APIs, features, and dead code — deprecation levels, migration windows, Hyrum's Law, zombie code removal. Use when removing or replacing user-visible behavior, public APIs, or long-lived flags; not the same as framework version upgrades alone."
 ---
 
 # Deprecation and removal

@@ -1,6 +1,6 @@
 ---
 name: pn-domain-language
-description: Extract a DDD-style ubiquitous language glossary from the current conversation — flag ambiguities, propose canonical terms, save to UBIQUITOUS_LANGUAGE.md. Use when defining domain terms, building a glossary, hardening terminology, or when "domain model" or "DDD" is mentioned.
+description: "Extract a DDD-style ubiquitous language glossary from the current conversation — flag ambiguities, propose canonical terms, save to UBIQUITOUS_LANGUAGE.md. Use when defining domain terms, building a glossary, hardening terminology, or when \"domain model\" or \"DDD\" is mentioned."
 ---
 
 # Domain language

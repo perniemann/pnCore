@@ -1,6 +1,6 @@
 ---
 name: pn-idea-miner
-description: Generate product ideas from market signals, trends, and gaps. Use when exploring SaaS opportunities or product discovery; feeds into pn-create-prd.
+description: "Generate product ideas from market signals, trends, and gaps. Use when exploring SaaS opportunities or product discovery; feeds into pn-create-prd."
 ---
 
 # Idea mining (product discovery methodology)

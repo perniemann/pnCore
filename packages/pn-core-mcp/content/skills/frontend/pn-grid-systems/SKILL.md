@@ -1,6 +1,6 @@
 ---
 name: pn-grid-systems
-description: Grid systems: CSS Grid, flexbox, responsive breakpoints, alignment. Use when building layouts, card grids, or responsive structures.
+description: "Grid systems: CSS Grid, flexbox, responsive breakpoints, alignment. Use when building layouts, card grids, or responsive structures."
 ---
 
 # Grid systems

@@ -1,6 +1,6 @@
 ---
 name: pn-smoke-tests
-description: Run smoke or E2E tests, debug failures, and verify fixes. Use for end-to-end verification before or after changes.
+description: "Run smoke or E2E tests, debug failures, and verify fixes. Use for end-to-end verification before or after changes."
 ---
 
 # Run smoke tests

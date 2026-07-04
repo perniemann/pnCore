@@ -1,6 +1,6 @@
 ---
 name: pn-create-design-doc
-description: Create a DESIGN doc from discovery spec: vision, aesthetic, IA, user flows, responsive strategy, a11y. Use when documenting design direction before implementation or when project kickoff produces docs.
+description: "Create a DESIGN doc from discovery spec: vision, aesthetic, IA, user flows, responsive strategy, a11y. Use when documenting design direction before implementation or when project kickoff produces docs."
 ---
 
 # Create a Design Document

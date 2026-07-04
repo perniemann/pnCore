@@ -1,6 +1,6 @@
 ---
 name: pn-tdd
-description: Enforces test-driven development: RED-GREEN-REFACTOR; production code only after a failing test. Use when implementing features or fixes with TDD.
+description: "Enforces test-driven development: RED-GREEN-REFACTOR; production code only after a failing test. Use when implementing features or fixes with TDD."
 ---
 
 # TDD (Test-Driven Development)

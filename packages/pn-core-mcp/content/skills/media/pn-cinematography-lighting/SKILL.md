@@ -1,6 +1,6 @@
 ---
 name: pn-cinematography-lighting
-description: Cinematography and lighting vocabulary for generative media—shot size, axis, coverage, lenses, motivated light, contrast ratios, color temperature, continuity. Use with pn-generative-media-director and pn-image-prompt-engineering.
+description: "Cinematography and lighting vocabulary for generative media—shot size, axis, coverage, lenses, motivated light, contrast ratios, color temperature, continuity. Use with pn-generative-media-director and pn-image-prompt-engineering."
 ---
 
 # Cinematography and lighting

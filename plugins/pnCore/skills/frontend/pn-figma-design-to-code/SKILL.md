@@ -1,6 +1,6 @@
 ---
 name: pn-figma-design-to-code
-description: Implements designs from Figma with design-to-code workflow, token extraction, and component mapping. Use when implementing from Figma; ensures fidelity to design specs.
+description: "Implements designs from Figma with design-to-code workflow, token extraction, and component mapping. Use when implementing from Figma; ensures fidelity to design specs."
 ---
 
 # Figma design-to-code skill

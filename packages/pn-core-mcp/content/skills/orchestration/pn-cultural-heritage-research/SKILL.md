@@ -1,6 +1,6 @@
 ---
 name: pn-cultural-heritage-research
-description: Tiered research for art history, movements, museums, period-accurate visuals and copy. Uses institutions, open aggregators, Wikidata/AAT, then discovery UIs — no single-vendor dependency. Use before grounding UI, games, or content in cultural facts.
+description: "Tiered research for art history, movements, museums, period-accurate visuals and copy. Uses institutions, open aggregators, Wikidata/AAT, then discovery UIs — no single-vendor dependency. Use before grounding UI, games, or content in cultural facts."
 ---
 
 # Cultural heritage research

@@ -1,6 +1,6 @@
 ---
 name: pn-rag-evaluation
-description: Evaluate retrieval-augmented generation pipelines — golden sets, automated metrics (incl. RAGAS-style), human rubrics, regression gates in CI. Use when building or changing RAG (chunks, embeddings, rerankers, prompts) and need quality proof, not vibes.
+description: "Evaluate retrieval-augmented generation pipelines — golden sets, automated metrics (incl. RAGAS-style), human rubrics, regression gates in CI. Use when building or changing RAG (chunks, embeddings, rerankers, prompts) and need quality proof, not vibes."
 ---
 
 # RAG evaluation

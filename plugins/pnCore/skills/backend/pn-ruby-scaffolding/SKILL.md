@@ -1,6 +1,6 @@
 ---
 name: pn-ruby-scaffolding
-description: Scaffolds new Ruby API projects (Rails API-only, Sinatra) or routes. Use when adding a new controller/service; covers Rails conventions, Gemfile hygiene, service objects, and idiomatic Ruby patterns.
+description: "Scaffolds new Ruby API projects (Rails API-only, Sinatra) or routes. Use when adding a new controller/service; covers Rails conventions, Gemfile hygiene, service objects, and idiomatic Ruby patterns."
 ---
 
 # Ruby backend scaffolding

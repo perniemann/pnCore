@@ -1,6 +1,6 @@
 ---
 name: pn-create-stack-doc
-description: Create a STACK.md documenting chosen tech stack, layers, key dependencies, and rationale. Use when project has multi-stack (frontend + backend + infra) or needs formal stack documentation.
+description: "Create a STACK.md documenting chosen tech stack, layers, key dependencies, and rationale. Use when project has multi-stack (frontend + backend + infra) or needs formal stack documentation."
 ---
 
 # Create Stack Document

@@ -1,6 +1,6 @@
 ---
 name: pn-frontend-scaffolding
-description: Scaffolds new pages and components by stack (React, Next.js, Astro, or vanilla). Use when adding a new page or component; branch by stack per config; covers pages, components, layout, and a11y basics.
+description: "Scaffolds new pages and components by stack (React, Next.js, Astro, or vanilla). Use when adding a new page or component; branch by stack per config; covers pages, components, layout, and a11y basics."
 ---
 
 # Frontend scaffolding

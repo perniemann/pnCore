@@ -1,6 +1,6 @@
 ---
 name: pn-color-system
-description: Color system design and implementation: OKLCH color space, tinted neutrals, palette structure, contrast, dark mode architecture, and token hierarchy. Use when establishing color tokens, theming, dark mode, or reviewing color choices.
+description: "Color system design and implementation: OKLCH color space, tinted neutrals, palette structure, contrast, dark mode architecture, and token hierarchy. Use when establishing color tokens, theming, dark mode, or reviewing color choices."
 ---
 
 # Color System

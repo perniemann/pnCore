@@ -1,3 +1,8 @@
+---
+name: pn-skills-catalog
+description: "Catalog and authoring conventions for pnCore skills grouped by domain category."
+---
+
 # Skills structure
 
 Skills are grouped by domain. Cursor discovers them recursively under `skills/`.

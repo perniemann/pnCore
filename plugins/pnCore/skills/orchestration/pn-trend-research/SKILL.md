@@ -1,6 +1,6 @@
 ---
 name: pn-trend-research
-description: Market intelligence, competitive analysis, emerging trend identification. Use for market research, opportunity assessment, and prior-art validation.
+description: "Market intelligence, competitive analysis, emerging trend identification. Use for market research, opportunity assessment, and prior-art validation."
 ---
 
 # Trend research

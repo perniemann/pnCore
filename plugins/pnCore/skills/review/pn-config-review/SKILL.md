@@ -1,6 +1,6 @@
 ---
 name: pn-config-review
-description: Review configuration and infra changes for production risk. Connection pools, timeouts, memory limits. Use when reviewing config files or infra changes.
+description: "Review configuration and infra changes for production risk. Connection pools, timeouts, memory limits. Use when reviewing config files or infra changes."
 ---
 
 # Config review

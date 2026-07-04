@@ -1,6 +1,6 @@
 ---
 name: pn-gsap
-description: Deep GSAP API reference — timelines, easing, ScrollTrigger, plugins (SplitText, Flip, DrawSVG, MorphSVG, MotionPath), framework integrations (React useGSAP, Vue, Svelte), and performance patterns. Use when implementing GSAP-powered animations; load alongside pn-animation for motion role taxonomy and budgets.
+description: "Deep GSAP API reference — timelines, easing, ScrollTrigger, plugins (SplitText, Flip, DrawSVG, MorphSVG, MotionPath), framework integrations (React useGSAP, Vue, Svelte), and performance patterns. Use when implementing GSAP-powered animations; load alongside pn-animation for motion role taxonomy and budgets."
 ---
 
 # GSAP deep API

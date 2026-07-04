@@ -1,6 +1,6 @@
 ---
 name: pn-session-retro
-description: Run a blameless retrospective on an agent transcript. Classify mistakes under a 5-code taxonomy, emit a structured report at docs/refs/retros/, and recommend concrete hardening. Use after a session that felt off, before a quarterly audit, or via the /pn-retro command. v1 is manual-only; cross-session pattern counters and auto-trigger are deferred to v2.
+description: "Run a blameless retrospective on an agent transcript. Classify mistakes under a 5-code taxonomy, emit a structured report at docs/refs/retros/, and recommend concrete hardening. Use after a session that felt off, before a quarterly audit, or via the /pn-retro command. v1 is manual-only; cross-session pattern counters and auto-trigger are deferred to v2."
 ---
 
 # Session retro

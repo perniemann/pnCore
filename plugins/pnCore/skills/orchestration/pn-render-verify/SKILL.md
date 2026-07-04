@@ -1,6 +1,6 @@
 ---
 name: pn-render-verify
-description: Re-read a rendered or visual artifact and produce a structured verdict against the spec. Use before pn-skeptic-challenge in design workflows when the deliverable is a render, image, screenshot, or HTML page.
+description: "Re-read a rendered or visual artifact and produce a structured verdict against the spec. Use before pn-skeptic-challenge in design workflows when the deliverable is a render, image, screenshot, or HTML page."
 ---
 
 # pn-render-verify

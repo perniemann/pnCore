@@ -1,6 +1,6 @@
 ---
 name: pn-godot-dev
-description: Guides Godot Engine 4.x development: GDScript, GDExtension (C++), multiplayer, VisualShader/shader code, export/platform config, autoloads, Resource serialization, InputMap, headless CI, AnimationPlayer/Tree, 2D/3D workflows, physics, PCG, and Blender pipeline. Use when developing Godot 4.x projects.
+description: "Guides Godot Engine 4.x development: GDScript, GDExtension (C++), multiplayer, VisualShader/shader code, export/platform config, autoloads, Resource serialization, InputMap, headless CI, AnimationPlayer/Tree, 2D/3D workflows, physics, PCG, and Blender pipeline. Use when developing Godot 4.x projects."
 ---
 
 # Godot Engine development skill

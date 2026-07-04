@@ -1,6 +1,6 @@
 ---
 name: pn-create-mcp-architecture
-description: Create MCP.md documenting MCP servers in use, purpose, and integration points. Use when project uses multiple MCPs or needs MCP documentation.
+description: "Create MCP.md documenting MCP servers in use, purpose, and integration points. Use when project uses multiple MCPs or needs MCP documentation."
 ---
 
 # Create MCP Architecture Document

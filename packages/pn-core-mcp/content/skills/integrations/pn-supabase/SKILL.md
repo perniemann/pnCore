@@ -1,6 +1,6 @@
 ---
 name: pn-supabase
-description: Supabase patterns for Row Level Security, realtime subscriptions, Edge Functions, storage, and auth helpers. Use when building features on a Supabase-backed project.
+description: "Supabase patterns for Row Level Security, realtime subscriptions, Edge Functions, storage, and auth helpers. Use when building features on a Supabase-backed project."
 ---
 
 # Supabase

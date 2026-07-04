@@ -1,6 +1,6 @@
 ---
 name: pn-ci-fix
-description: Finds failing CI jobs, inspects logs, and applies focused fixes. Use when branch CI is failing and a fast, iterative path to green checks is needed.
+description: "Finds failing CI jobs, inspects logs, and applies focused fixes. Use when branch CI is failing and a fast, iterative path to green checks is needed."
 ---
 
 # Fix CI

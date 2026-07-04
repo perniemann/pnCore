@@ -1,6 +1,6 @@
 ---
 name: pn-comps-analysis
-description: Comparable company analysis (trading comps). Select a peer set, pull or structure key trading multiples (EV/EBITDA, EV/Revenue, P/E, EV/EBIT), compute spread statistics, and output a structured comps table with narrative commentary. Use for valuation context in pitches, IC memos, or coverage notes.
+description: "Comparable company analysis (trading comps). Select a peer set, pull or structure key trading multiples (EV/EBITDA, EV/Revenue, P/E, EV/EBIT), compute spread statistics, and output a structured comps table with narrative commentary. Use for valuation context in pitches, IC memos, or coverage notes."
 ---
 
 # Comparable company analysis

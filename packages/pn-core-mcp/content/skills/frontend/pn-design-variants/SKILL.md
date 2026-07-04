@@ -1,6 +1,6 @@
 ---
 name: pn-design-variants
-description: Generate 3+ radically different designs or API interfaces in parallel using sub-agents, then compare and synthesize. Based on "Design It Twice" from A Philosophy of Software Design. Use before committing to a single design approach — for UI layouts, component APIs, module interfaces, or system architecture choices.
+description: "Generate 3+ radically different designs or API interfaces in parallel using sub-agents, then compare and synthesize. Based on \"Design It Twice\" from A Philosophy of Software Design. Use before committing to a single design approach — for UI layouts, component APIs, module interfaces, or system architecture choices."
 ---
 
 # Design variants

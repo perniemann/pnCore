@@ -1,6 +1,6 @@
 ---
 name: pn-workflow-reporter
-description: Daily or weekly workflow summaries: task status, workflow health, token usage. Use for operating cadence and observability.
+description: "Daily or weekly workflow summaries: task status, workflow health, token usage. Use for operating cadence and observability."
 ---
 
 # Workflow reporter

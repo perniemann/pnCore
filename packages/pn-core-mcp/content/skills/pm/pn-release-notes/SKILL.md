@@ -1,6 +1,6 @@
 ---
 name: pn-release-notes
-description: Generate user-facing release notes from tickets, PRDs, or changelogs. Organize by New Features, Improvements, Bug Fixes, Breaking Changes. Use when announcing product updates or summarizing what shipped.
+description: "Generate user-facing release notes from tickets, PRDs, or changelogs. Organize by New Features, Improvements, Bug Fixes, Breaking Changes. Use when announcing product updates or summarizing what shipped."
 ---
 
 # Release Notes Generator

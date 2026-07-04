@@ -1,6 +1,6 @@
 ---
 name: pn-api-probe
-description: Fetch live API, version, and enum facts from the target runtime or stack before planning. Use in Phase 0 of pn-design and pn-build when the stack may have changed since training data.
+description: "Fetch live API, version, and enum facts from the target runtime or stack before planning. Use in Phase 0 of pn-design and pn-build when the stack may have changed since training data."
 ---
 
 # pn-api-probe

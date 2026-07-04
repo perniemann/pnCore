@@ -1,6 +1,6 @@
 ---
 name: pn-business-strategy-orchestration
-description: Conductor for the business_strategy workflow. Defines workflow state shape, companion-MCP detection, evidence-log protocol, HITL gate scripts, discussion-loop semantics, and explicit references to all sub-skills. Load at step 0 and keep loaded throughout the run.
+description: "Conductor for the business_strategy workflow. Defines workflow state shape, companion-MCP detection, evidence-log protocol, HITL gate scripts, discussion-loop semantics, and explicit references to all sub-skills. Load at step 0 and keep loaded throughout the run."
 ---
 
 # Business Strategy Orchestration

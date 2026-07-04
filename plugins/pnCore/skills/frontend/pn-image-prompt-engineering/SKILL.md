@@ -1,6 +1,6 @@
 ---
 name: pn-image-prompt-engineering
-description: Craft detailed prompts for AI image generation (Midjourney, DALL-E, Stable Diffusion, Flux). Subject, environment, lighting, style, technical specs. Use with pn-assets-manager or pn-generative-media-director when generating raster imagery.
+description: "Craft detailed prompts for AI image generation (Midjourney, DALL-E, Stable Diffusion, Flux). Subject, environment, lighting, style, technical specs. Use with pn-assets-manager or pn-generative-media-director when generating raster imagery."
 ---
 
 # Image prompt engineering

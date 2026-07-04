@@ -1,6 +1,6 @@
 ---
 name: pn-slice-contracts
-description: How to define and lock interface contracts between feature_program slices, emit .cursor/worktrees.json, and run contract-conformance tests at the verifier gate. Use at feature_program step 1 (lock contracts) and step 4 (verify conformance).
+description: "How to define and lock interface contracts between feature_program slices, emit .cursor/worktrees.json, and run contract-conformance tests at the verifier gate. Use at feature_program step 1 (lock contracts) and step 4 (verify conformance)."
 ---
 
 # Slice contracts

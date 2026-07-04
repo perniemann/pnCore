@@ -1,6 +1,6 @@
 ---
 name: pn-caching
-description: Caching strategies for backend services and frontend apps. Redis patterns (read-through, write-behind, TTL), HTTP cache headers, Next.js fetch caching, Vercel Edge Config, and SWR/React Query. Use when optimising response times or reducing database load.
+description: "Caching strategies for backend services and frontend apps. Redis patterns (read-through, write-behind, TTL), HTTP cache headers, Next.js fetch caching, Vercel Edge Config, and SWR/React Query. Use when optimising response times or reducing database load."
 ---
 
 # Caching

@@ -1,6 +1,6 @@
 ---
 name: pn-prior-art-research
-description: Searches for existing solutions (GitHub, npm, boilerplates), evaluates candidates, recommends adapt vs build-from-scratch with justification. Mandatory before scaffold or implementation plan.
+description: "Searches for existing solutions (GitHub, npm, boilerplates), evaluates candidates, recommends adapt vs build-from-scratch with justification. Mandatory before scaffold or implementation plan."
 ---
 
 # Prior art research
