@@ -5,12 +5,20 @@ export interface SkillEntry {
     description: string;
     category: string;
 }
+export interface CommandEntry {
+    id: string;
+    name: string;
+    description: string;
+    menuPath: string;
+}
 export declare function getContentVersion(): number;
 export declare function listSkills(opts?: {
     category?: string;
     filter?: string;
 }): SkillEntry[];
 export declare function getSkill(id: string): string | null;
+export declare function listCommands(): CommandEntry[];
+export declare function getCommand(id: string): string | null;
 export declare const listAgents: () => {
     id: string;
     name: string;
@@ -24,12 +32,6 @@ export declare function listInternalAgents(): {
     internal: true;
 }[];
 export declare function getAgent(id: string): string | null;
-export declare const listCommands: () => {
-    id: string;
-    name: string;
-    description: string;
-}[];
-export declare const getCommand: (id: string) => string | null;
 export declare const listRules: () => {
     id: string;
     name: string;

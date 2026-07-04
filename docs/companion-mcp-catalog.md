@@ -63,6 +63,8 @@ Run one of:
 
 **Flow:** PRD → user/job stories → pn-writing-plans → build. For full pm-skills (strategy, market research, GTM), copy `pm-*/skills/*` to `.cursor/skills/` or use Claude for the broader PM workflow.
 
+**Slash palette:** Cursor IDE → **`/`** → **`pn`** submenu (categories: start, build, design, pm, audit, challenge, ship). [pi.dev](https://pi.dev) → install pnCore Pi package for flat `/pn-*` prompt templates (`plugins/pnCore/prompts/`). Cursor CLI → `/pn` stub only (nested submenu IDE-only). See [ADR-0008](../docs/adr/0008-command-palette-pn-submenu.md).
+
 ---
 
 ## Business Strategy Companions

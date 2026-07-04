@@ -34,11 +34,16 @@ Whenever a plan needs user input, ask before locking. See `pn-build-gate` and `r
 
 ## PM flows (optional, model-discretionary)
 
+**Palette:** Cursor IDE → **`/`** → **`pn`** → **`pn/pm/`** leaves. pi.dev → flat `/pn-create-prd` etc. CLI → `/pn` stub or `get_command`.
+
 | Need | Flow | When |
 |------|------|------|
-| Stakeholder alignment | PRD (pn-create-prd) → prior art → plan | User requests product spec |
-| Backlog/sprint planning | pn-user-stories or pn-job-stories → plan | User requests backlog or sprint items |
-| Release notes | pn-release-notes (before or after summary) | User wants release notes |
+| PM routing | `get_command("pn")` or `pn-guide` | Unsure which PM workflow |
+| Stakeholder alignment | PRD (`pn-create-prd`) → prior art → plan | User requests product spec |
+| Backlog/sprint planning | `pn-user-stories` or `pn-job-stories` → plan | User requests backlog or sprint items |
+| Release notes | `pn-release-notes` (before or after summary) | User wants release notes |
+
+See ADR-0008 for Cursor vs pi.dev delivery differences.
 
 Do not add PM skills as mandatory steps to full_dev or design.
 

@@ -1,5 +1,5 @@
 import { readFileSync, readdirSync, existsSync, statSync, openSync, readSync, closeSync } from "fs";
-import { join, dirname, resolve, sep } from "path";
+import { join, dirname, resolve, sep, basename } from "path";
 import { fileURLToPath } from "url";
 import { debug } from "./debug.js";
 
@@ -21,6 +21,13 @@ export interface SkillEntry {
   category: string;
 }
 
+export interface CommandEntry {
+  id: string;
+  name: string;
+  description: string;
+  menuPath: string;
+}
+
 // Mtime-based cache: invalidate when content dirs change (per MCP best practice: cache read-heavy ops)
 const CACHE_TTL_MS = 60_000;
 const cache = {
@@ -30,7 +37,7 @@ const cache = {
   skillsById: new Map<string, string>(),
   agents: null as { id: string; name: string; description: string }[] | null,
   agentsById: new Map<string, string>(),
-  commands: null as { id: string; name: string; description: string }[] | null,
+  commands: null as CommandEntry[] | null,
   commandsById: new Map<string, string>(),
   rules: null as { id: string; name: string; description: string }[] | null,
   rulesById: new Map<string, string>(),
@@ -99,6 +106,8 @@ const KNOWN_FRONTMATTER_KEYS = new Set([
   // (the Cursor slash palette). Default true; set `slash: false` to keep
   // the file canonical-only — still reachable via get_command(id) and MCP prompts.
   "slash",
+  "menu",
+  "menuGroup",
 ]);
 
 function parseFrontmatter(raw: string): { name?: string; description?: string } {
@@ -175,13 +184,52 @@ export function getSkill(id: string): string | null {
   return null;
 }
 
+function* walkCommandFiles(
+  dir: string,
+  relBase = ""
+): Generator<{ relPath: string; absPath: string }> {
+  if (!existsSync(dir)) return;
+  for (const ent of readdirSync(dir, { withFileTypes: true })) {
+    const absPath = join(dir, ent.name);
+    const relPath = relBase ? join(relBase, ent.name) : ent.name;
+    if (ent.isDirectory()) {
+      yield* walkCommandFiles(absPath, relPath);
+    } else if (ent.name.endsWith(".md") || ent.name.endsWith(".mdc")) {
+      yield { relPath: relPath.replace(/\\/g, "/"), absPath };
+    }
+  }
+}
+
+function commandStemFromPath(relPath: string): string {
+  return basename(relPath).replace(/\.(md|mdc)$/, "");
+}
+
+function loadAllCommands(): CommandEntry[] {
+  const commandsRoot = join(contentRoot, "commands");
+  const out: CommandEntry[] = [];
+  for (const { relPath, absPath } of walkCommandFiles(commandsRoot)) {
+    const raw = readFileSync(absPath, "utf-8");
+    const { name, description } = parseFrontmatter(raw);
+    const stem = commandStemFromPath(relPath);
+    const id = name ?? stem;
+    out.push({
+      id,
+      name: name ?? id,
+      description: description ?? "",
+      menuPath: relPath.replace(/\.(md|mdc)$/, ""),
+    });
+    cache.commandsById.set(id, raw);
+  }
+  return out;
+}
+
 function listMdIn(
   dir: string,
-  cacheKey: "agents" | "commands" | "rules",
+  cacheKey: "agents" | "rules",
   byIdCache: Map<string, string>
 ): { id: string; name: string; description: string }[] {
   invalidateIfStale();
-  const cached = cache[cacheKey];
+  const cached = cacheKey === "agents" ? cache.agents : cache.rules;
   if (cached) return cached;
   const full = join(contentRoot, dir);
   if (!existsSync(full)) return [];
@@ -195,7 +243,6 @@ function listMdIn(
     byIdCache.set(id, raw);
   }
   if (cacheKey === "agents") cache.agents = out;
-  else if (cacheKey === "commands") cache.commands = out;
   else cache.rules = out;
   return out;
 }
@@ -213,6 +260,24 @@ function getMdIn(dir: string, id: string, byIdCache: Map<string, string>): strin
     }
   }
   return null;
+}
+
+export function listCommands(): CommandEntry[] {
+  invalidateIfStale();
+  if (!cache.commands) {
+    cache.commands = loadAllCommands();
+  }
+  return cache.commands;
+}
+
+export function getCommand(id: string): string | null {
+  invalidateIfStale();
+  const cached = cache.commandsById.get(id);
+  if (cached !== undefined) return cached;
+  if (!cache.commands) {
+    cache.commands = loadAllCommands();
+  }
+  return cache.commandsById.get(id) ?? null;
 }
 
 export const listAgents = () => listMdIn("agents", "agents", cache.agentsById);
@@ -244,8 +309,6 @@ export function getAgent(id: string): string | null {
   if (found) return found;
   return getMdIn("agents-internal", id, cache.agentsById);
 }
-export const listCommands = () => listMdIn("commands", "commands", cache.commandsById);
-export const getCommand = (id: string) => getMdIn("commands", id, cache.commandsById);
 export const listRules = () => listMdIn("rules", "rules", cache.rulesById);
 export const getRule = (id: string) => getMdIn("rules", id, cache.rulesById);
 

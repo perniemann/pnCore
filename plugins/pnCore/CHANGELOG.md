@@ -4,6 +4,20 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.15.1] - 2026-07-04
+
+### Added
+
+- **`pn` command submenu** (ADR-0008): visible commands nested under `.cursor/commands/pn/{category}/` with top-level `pn.md` router.
+- **Pi package delivery:** flat `plugins/pnCore/prompts/pn-*.md` + `package.json` `pi-package` manifest for [pi.dev](https://pi.dev) prompt templates.
+- PM palette leaves: `/pn-create-prd`, `/pn-user-stories`.
+- Recursive MCP `get_command` / `list_commands` with `menuPath`; `scripts/command-slash-filter.mjs` shared helpers.
+
+### Changed
+
+- Catalog: **28** visible palette files (27 submenu leaves + `/pn` stub), **46** commands total (18 palette-hidden).
+- `pn-guide`, RUNBOOK, and companion catalog updated for submenu layout.
+
 ## [0.15.0] - 2026-07-03
 
 ### Added

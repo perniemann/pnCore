@@ -5,24 +5,24 @@
  * Usage: node scripts/sync-content-to-plugin.mjs (or npm run sync:content from repo root)
  *
  * Sync coverage map (canonical → plugin destination):
- *   content/commands/         → plugins/pnCore/.cursor/commands/
- *   content/skills/           → plugins/pnCore/skills/
- *   content/agents/           → plugins/pnCore/agents/
- *   content/agents-internal/  → plugins/pnCore/agents-internal/
- *   content/rules/            → plugins/pnCore/rules/
- *   content/config/           → plugins/pnCore/config/
- *   content/docs/             → plugins/pnCore/docs/
- *   content/reference/        → plugins/pnCore/reference/
- *   content/hooks/            → plugins/pnCore/hooks/
- *   content/docs/agents-md-guide.md → docs/agents-md-guide.md (repo-root copy)
- *   content/config/specialists.json → config/specialists.json  (repo-root copy)
- *   content/config/stacks.json      → config/stacks.json       (repo-root copy)
+ *   content/commands/pn.md + pn/**  → plugins/pnCore/.cursor/commands/ (visible only)
+ *   content/skills/                 → plugins/pnCore/skills/
+ *   visible commands (Pi)           → plugins/pnCore/prompts/ (flat pn-*.md)
+ *   ...
  *
  * NOT synced here (project-local):
  *   content/config/features.json  — intentionally local per project
  */
-import { cpSync, mkdirSync, existsSync, rmSync, copyFileSync, readdirSync } from "fs";
-import { join, dirname } from "path";
+import {
+  cpSync,
+  mkdirSync,
+  existsSync,
+  rmSync,
+  copyFileSync,
+  readdirSync,
+  writeFileSync,
+} from "fs";
+import { join, dirname, basename } from "path";
 import { fileURLToPath } from "url";
 import { partitionCommands } from "./command-slash-filter.mjs";
 
@@ -40,27 +40,60 @@ if (!existsSync(pluginRoot)) {
   process.exit(1);
 }
 
-// Commands go to .cursor/commands (plugin structure).
-// Filter by frontmatter `slash: false` so demoted (advanced) commands stay
-// canonical-only and do not appear in the Cursor slash palette.
-// See scripts/command-slash-filter.mjs for the contract.
+/** Copy visible command tree to Cursor plugin commands dir. */
 const commandsSrc = join(mcpContent, "commands");
 const commandsDest = join(pluginRoot, ".cursor", "commands");
+const promptsDest = join(pluginRoot, "prompts");
+
 if (existsSync(commandsSrc)) {
   if (existsSync(commandsDest)) rmSync(commandsDest, { recursive: true });
   mkdirSync(commandsDest, { recursive: true });
+
   const { visible, hidden } = partitionCommands(commandsSrc);
-  for (const file of visible) {
-    copyFileSync(join(commandsSrc, file), join(commandsDest, file));
+  let cursorCopied = 0;
+
+  for (const rel of visible) {
+    const src = join(commandsSrc, rel);
+    const dest = join(commandsDest, rel);
+    mkdirSync(dirname(dest), { recursive: true });
+    copyFileSync(src, dest);
+    cursorCopied++;
   }
-  // Also copy any non-md/txt files (none today, but preserves cpSync behavior).
+
+  // Non-md assets at commands root (none expected today)
   for (const file of readdirSync(commandsSrc)) {
+    const srcPath = join(commandsSrc, file);
     if (file.endsWith(".md") || file.endsWith(".txt")) continue;
-    copyFileSync(join(commandsSrc, file), join(commandsDest, file));
+    let isFile = false;
+    try {
+      isFile =
+        readdirSync(commandsSrc, { withFileTypes: true })
+          .find((e) => e.name === file)
+          ?.isFile?.() ?? false;
+    } catch {
+      continue;
+    }
+    if (isFile) copyFileSync(srcPath, join(commandsDest, file));
   }
+
   const hiddenNote = hidden.length ? ` (${hidden.length} hidden via slash:false)` : "";
   console.log(
-    `Synced content/commands -> plugins/pnCore/.cursor/commands/ — ${visible.length} visible${hiddenNote}`
+    `Synced content/commands -> plugins/pnCore/.cursor/commands/ — ${cursorCopied} visible${hiddenNote}`
+  );
+
+  // Pi.dev: flat prompts/ (non-recursive discovery per pi prompt-templates.md)
+  if (existsSync(promptsDest)) rmSync(promptsDest, { recursive: true });
+  mkdirSync(promptsDest, { recursive: true });
+  let piCopied = 0;
+  for (const rel of visible) {
+    if (!rel.endsWith(".md")) continue;
+    const src = join(commandsSrc, rel);
+    const flatName = basename(rel);
+    copyFileSync(src, join(promptsDest, flatName));
+    piCopied++;
+  }
+  console.log(
+    `Synced visible commands -> plugins/pnCore/prompts/ — ${piCopied} flat Pi prompt templates`
   );
 }
 
@@ -85,7 +118,31 @@ for (const dir of dirs) {
   }
 }
 
-// Copy agents-md-guide to repo docs/ so plugin-reference and mcp-usage-guide links resolve (single source: content/docs/)
+// Pi package manifest (pi.dev package install)
+const piPackagePath = join(pluginRoot, "package.json");
+if (!existsSync(piPackagePath)) {
+  writeFileSync(
+    piPackagePath,
+    JSON.stringify(
+      {
+        name: "pn-core-plugin",
+        version: "0.15.0",
+        private: true,
+        keywords: ["pi-package"],
+        description:
+          "pnCore plugin — Pi prompt templates and skills (Cursor plugin ships separately)",
+        pi: {
+          prompts: ["./prompts"],
+          skills: ["./skills"],
+        },
+      },
+      null,
+      2
+    ) + "\n"
+  );
+  console.log("Created plugins/pnCore/package.json (pi-package manifest)");
+}
+
 const agentsMdSrc = join(mcpContent, "docs", "agents-md-guide.md");
 const agentsMdDest = join(repoRoot, "docs", "agents-md-guide.md");
 if (existsSync(agentsMdSrc)) {
@@ -94,8 +151,6 @@ if (existsSync(agentsMdSrc)) {
   console.log("Synced content/docs/agents-md-guide.md -> docs/agents-md-guide.md");
 }
 
-// Copy config/specialists.json and config/stacks.json to repo root config/
-// (features.json is project-local and intentionally not synced here)
 for (const cfg of ["specialists.json", "stacks.json"]) {
   const cfgSrc = join(mcpContent, "config", cfg);
   const cfgDest = join(repoRoot, "config", cfg);

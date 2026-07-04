@@ -1,5 +1,5 @@
 import { readFileSync, readdirSync, existsSync, statSync, openSync, readSync, closeSync } from "fs";
-import { join, dirname, resolve, sep } from "path";
+import { join, dirname, resolve, sep, basename } from "path";
 import { fileURLToPath } from "url";
 import { debug } from "./debug.js";
 const currentDir = dirname(fileURLToPath(import.meta.url));
@@ -89,6 +89,8 @@ const KNOWN_FRONTMATTER_KEYS = new Set([
     // (the Cursor slash palette). Default true; set `slash: false` to keep
     // the file canonical-only — still reachable via get_command(id) and MCP prompts.
     "slash",
+    "menu",
+    "menuGroup",
 ]);
 function parseFrontmatter(raw) {
     const match = raw.match(/^---\s*\n([\s\S]*?)\n---/);
@@ -161,9 +163,44 @@ export function getSkill(id) {
     }
     return null;
 }
+function* walkCommandFiles(dir, relBase = "") {
+    if (!existsSync(dir))
+        return;
+    for (const ent of readdirSync(dir, { withFileTypes: true })) {
+        const absPath = join(dir, ent.name);
+        const relPath = relBase ? join(relBase, ent.name) : ent.name;
+        if (ent.isDirectory()) {
+            yield* walkCommandFiles(absPath, relPath);
+        }
+        else if (ent.name.endsWith(".md") || ent.name.endsWith(".mdc")) {
+            yield { relPath: relPath.replace(/\\/g, "/"), absPath };
+        }
+    }
+}
+function commandStemFromPath(relPath) {
+    return basename(relPath).replace(/\.(md|mdc)$/, "");
+}
+function loadAllCommands() {
+    const commandsRoot = join(contentRoot, "commands");
+    const out = [];
+    for (const { relPath, absPath } of walkCommandFiles(commandsRoot)) {
+        const raw = readFileSync(absPath, "utf-8");
+        const { name, description } = parseFrontmatter(raw);
+        const stem = commandStemFromPath(relPath);
+        const id = name ?? stem;
+        out.push({
+            id,
+            name: name ?? id,
+            description: description ?? "",
+            menuPath: relPath.replace(/\.(md|mdc)$/, ""),
+        });
+        cache.commandsById.set(id, raw);
+    }
+    return out;
+}
 function listMdIn(dir, cacheKey, byIdCache) {
     invalidateIfStale();
-    const cached = cache[cacheKey];
+    const cached = cacheKey === "agents" ? cache.agents : cache.rules;
     if (cached)
         return cached;
     const full = join(contentRoot, dir);
@@ -181,8 +218,6 @@ function listMdIn(dir, cacheKey, byIdCache) {
     }
     if (cacheKey === "agents")
         cache.agents = out;
-    else if (cacheKey === "commands")
-        cache.commands = out;
     else
         cache.rules = out;
     return out;
@@ -201,6 +236,23 @@ function getMdIn(dir, id, byIdCache) {
         }
     }
     return null;
+}
+export function listCommands() {
+    invalidateIfStale();
+    if (!cache.commands) {
+        cache.commands = loadAllCommands();
+    }
+    return cache.commands;
+}
+export function getCommand(id) {
+    invalidateIfStale();
+    const cached = cache.commandsById.get(id);
+    if (cached !== undefined)
+        return cached;
+    if (!cache.commands) {
+        cache.commands = loadAllCommands();
+    }
+    return cache.commandsById.get(id) ?? null;
 }
 export const listAgents = () => listMdIn("agents", "agents", cache.agentsById);
 /** List internal agents (agents-internal/ directory). Each entry carries `internal: true`. */
@@ -227,8 +279,6 @@ export function getAgent(id) {
         return found;
     return getMdIn("agents-internal", id, cache.agentsById);
 }
-export const listCommands = () => listMdIn("commands", "commands", cache.commandsById);
-export const getCommand = (id) => getMdIn("commands", id, cache.commandsById);
 export const listRules = () => listMdIn("rules", "rules", cache.rulesById);
 export const getRule = (id) => getMdIn("rules", id, cache.rulesById);
 // Resource content (config, reference, docs) — used by MCP resources
