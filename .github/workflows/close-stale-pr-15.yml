@@ -4,6 +4,9 @@ name: Close stale PR 15
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [.github/workflows/close-stale-pr-15.yml]
 
 permissions:
   pull-requests: write
