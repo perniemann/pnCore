@@ -257,6 +257,17 @@ describe("MCP per-tool integration", () => {
     expect(typeof parsed.run_id).toBe("string");
   });
 
+  it("workflow_step: omitted state defaults to {} (MCP Zod default parity)", async () => {
+    const result = await client.callTool({
+      name: "workflow_step",
+      arguments: { workflowType: "design", step: 0 },
+    });
+    expect(result.isError).toBeFalsy();
+    const parsed = parseFirst(result);
+    expect(typeof parsed.instruction).toBe("string");
+    expect(typeof parsed.run_id).toBe("string");
+  });
+
   it("workflow_step: out-of-range step returns INVALID_STATE error", async () => {
     const result = await client.callTool({
       name: "workflow_step",

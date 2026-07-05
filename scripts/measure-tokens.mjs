@@ -60,12 +60,17 @@ console.log(
 
 console.log("\n=== (b) MCP tool descriptions + schema .describe() text ===");
 
-const indexSrc = readFileSync(join(root, "packages", "pn-core-mcp", "src", "index.ts"), "utf-8");
+const indexSrc = readFileSync(
+  join(root, "packages", "pn-core-mcp", "src", "tools", "registry.ts"),
+  "utf-8"
+);
+const schemaSrc = readFileSync(
+  join(root, "packages", "pn-core-mcp", "src", "tools", "schemas-zod.ts"),
+  "utf-8"
+);
 
-// Extract server.tool("name", "description") — description is the second string arg,
-// always on the line immediately following the tool name.
-// Pattern: server.tool(\n  "name",\n  "description",
-const toolDescRe = /server\.tool\(\s*\n\s*"([^"]+)",\s*\n\s*"((?:[^"\\]|\\.)*)"/gs;
+// Extract tool descriptions from registry def("name", "Label", "description", ...)
+const toolDescRe = /def\(\s*\n\s*"([^"]+)",\s*\n\s*"[^"]+",\s*\n\s*"((?:[^"\\]|\\.)*)"/gs;
 const toolDescs = [];
 let toolDescTotalChars = 0;
 
@@ -76,21 +81,13 @@ for (const m of indexSrc.matchAll(toolDescRe)) {
   toolDescs.push({ tool: name, descChars: desc.length, estimatedTokens: tokenEst(desc.length) });
 }
 
-// Dynamic tools registered via listGetTools: capture listDesc, getDesc, idDesc strings
-const listGetRe = /\b(?:listDesc|getDesc|idDesc):\s*"((?:[^"\\]|\\.)*)"/g;
-let listGetTotalChars = 0;
-const listGetItems = [];
-for (const m of indexSrc.matchAll(listGetRe)) {
-  listGetTotalChars += m[1].length;
-  listGetItems.push({ chars: m[1].length, text: m[1].slice(0, 80) });
-}
-toolDescTotalChars += listGetTotalChars;
+// list/get tool descriptions are captured via registry def() blocks above.
 
-// Extract all .describe("text") calls — these become inputSchema descriptions
+// Extract all .describe("text") calls from Zod schemas
 const describeRe = /\.describe\(\s*"((?:[^"\\]|\\.)*)"\s*\)/g;
 let schemaTotalChars = 0;
 const schemaDescs = [];
-for (const m of indexSrc.matchAll(describeRe)) {
+for (const m of schemaSrc.matchAll(describeRe)) {
   schemaTotalChars += m[1].length;
   schemaDescs.push({
     chars: m[1].length,

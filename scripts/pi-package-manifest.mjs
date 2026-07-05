@@ -9,6 +9,7 @@ import { join } from "path";
 /** Paths relative to repo root for pi install git:github.com/.../pnCore */
 export const ROOT_PI_PROMPTS = "./plugins/pnCore/prompts";
 export const ROOT_PI_SKILLS = "./plugins/pnCore/skills";
+export const ROOT_PI_EXTENSIONS = "./packages/pn-core-mcp/extensions/pn-core.ts";
 
 /**
  * @param {Record<string, unknown>} pkg
@@ -22,6 +23,7 @@ export function applyRootPiManifest(pkg) {
     pi: {
       prompts: [ROOT_PI_PROMPTS],
       skills: [ROOT_PI_SKILLS],
+      extensions: [ROOT_PI_EXTENSIONS],
     },
   };
 }
@@ -76,13 +78,26 @@ export function validateRootPiManifest(repoRoot) {
   if (!Array.isArray(pi.skills) || pi.skills[0] !== ROOT_PI_SKILLS) {
     errors.push(`Root pi.skills must be ["${ROOT_PI_SKILLS}"]`);
   }
+  if (!Array.isArray(pi.extensions) || pi.extensions[0] !== ROOT_PI_EXTENSIONS) {
+    errors.push(`Root pi.extensions must be ["${ROOT_PI_EXTENSIONS}"]`);
+  }
   const promptsDir = join(repoRoot, ROOT_PI_PROMPTS.replace(/^\.\//, ""));
   const skillsDir = join(repoRoot, ROOT_PI_SKILLS.replace(/^\.\//, ""));
+  const extensionsFile = join(repoRoot, ROOT_PI_EXTENSIONS.replace(/^\.\//, ""));
   if (!existsSync(promptsDir)) {
     errors.push(`Pi prompts directory missing: ${ROOT_PI_PROMPTS} (run: npm run sync:content)`);
   }
   if (!existsSync(skillsDir)) {
     errors.push(`Pi skills directory missing: ${ROOT_PI_SKILLS}`);
+  }
+  if (!existsSync(extensionsFile)) {
+    errors.push(`Pi extension missing: ${ROOT_PI_EXTENSIONS} (run: npm run build:mcp after adding extension)`);
+  }
+  const registryDist = join(repoRoot, "packages/pn-core-mcp/dist/tools/registry.js");
+  if (!existsSync(registryDist)) {
+    errors.push(
+      "Pi extension requires built registry at packages/pn-core-mcp/dist/tools/registry.js — run: npm run build:mcp"
+    );
   }
   return errors;
 }

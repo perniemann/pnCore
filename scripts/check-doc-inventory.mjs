@@ -22,9 +22,12 @@ function walkSkills(dir) {
 }
 
 function countWorkflowTypes() {
-  const src = readFileSync(join(repoRoot, "packages/pn-core-mcp/src/index.ts"), "utf8");
+  const src = readFileSync(
+    join(repoRoot, "packages/pn-core-mcp/src/tools/schemas-zod.ts"),
+    "utf8"
+  );
   const block = src.match(/workflowTypeEnum\s*=\s*z\.enum\(\[([\s\S]*?)\]\)/);
-  if (!block) throw new Error("workflowTypeEnum not found in index.ts");
+  if (!block) throw new Error("workflowTypeEnum not found in schemas-zod.ts");
   return (block[1].match(/"[^"]+"/g) ?? []).length;
 }
 
