@@ -8,6 +8,7 @@ import {
   validateRootPiManifest,
   ROOT_PI_PROMPTS,
   ROOT_PI_SKILLS,
+  ROOT_PI_EXTENSIONS,
 } from "../pi-package-manifest.mjs";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -18,6 +19,7 @@ test("applyRootPiManifest adds pi-package keyword and plugin paths", () => {
   assert.deepEqual(out.pi, {
     prompts: [ROOT_PI_PROMPTS],
     skills: [ROOT_PI_SKILLS],
+    extensions: [ROOT_PI_EXTENSIONS],
   });
 });
 
@@ -30,4 +32,5 @@ test("root package.json pi block matches expected paths", () => {
   const pkg = JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf8"));
   assert.equal(pkg.pi.prompts[0], ROOT_PI_PROMPTS);
   assert.equal(pkg.pi.skills[0], ROOT_PI_SKILLS);
+  assert.equal(pkg.pi.extensions[0], ROOT_PI_EXTENSIONS);
 });

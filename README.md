@@ -6,9 +6,10 @@
 
 **pnCore** is an orchestration pack and MCP server for AI-assisted software delivery in Cursor. It ships structured workflows — discovery, planning, skeptic challenge, design, audits, asset creation, and delivery — backed by skills, agents, rules, and a deterministic `workflow_step` engine. It is not a generic prompt pack.
 
-One product, two surfaces:
+One product, three surfaces:
 
 - **MCP server** (`packages/pn-core-mcp/`) — executable logic: workflows, tools, resources (`pn-core://`), gates, and state. Runs in any MCP client.
+- **Pi native extension** — same 24 tools via `pi.registerTool()` when you `pi install git:…/pnCore` (no subprocess MCP on Pi).
 - **Cursor plugin** (`plugins/pnCore/`) — native Cursor UX: slash commands, file-glob rules, agent selector, hooks. Installed into your project with `npx github:perniemann/pnCore plugin-install`.
 
 Canonical content lives in `packages/pn-core-mcp/content/` and syncs into the plugin via `npm run sync:content`. Edit canonical files only; never hand-edit the plugin copy.
@@ -58,7 +59,7 @@ Copies commands, rules, skills, agents, config, and hooks into `.cursor/` and `.
 
 ### pi.dev (Pi coding agent)
 
-Install pnCore as a [Pi package](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/packages.md) for flat slash prompt templates (`/pn-build`, `/pn-design`, …) and skills:
+Install pnCore as a [Pi package](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/packages.md) for flat slash prompt templates (`/pn-build`, `/pn-design`, …), skills, and **native pn-core tools** (`health`, `get_skill`, `workflow_step`, …) via `pi.registerTool()`:
 
 ```bash
 pi install git:github.com/perniemann/pnCore@main
@@ -67,12 +68,11 @@ pi install git:github.com/perniemann/pnCore@main
 From a local clone (contributors):
 
 ```bash
-pi install ./plugins/pnCore    # plugin subfolder only
-# or, from repo root after npm run sync:content:
-pi install .
+pi install .    # repo root — prompts, skills, and all 24 native tools (run npm run build:mcp first)
+pi install ./plugins/pnCore    # prompts + skills only (no native tools)
 ```
 
-**Note:** Pi has no nested `/pn` submenu — commands appear as a flat list. Type `/pn` for the orientation router, or `/pn-build` etc. directly. Pair with the pn-core MCP (`get_command`, `workflow_step`) for full orchestration. See [ADR-0008](docs/adr/0008-command-palette-pn-submenu.md).
+**Note:** Pi has no nested `/pn` submenu — commands appear as a flat list. Type `/pn` for the orientation router, or `/pn-build` etc. directly. Native tools ship with `pi install git:…/pnCore` or `pi install .` from repo root; no separate MCP subprocess required on Pi. Cursor and Claude Code still use the stdio MCP server. See [ADR-0008](docs/adr/0008-command-palette-pn-submenu.md) and [ADR-0009](docs/adr/0009-pi-native-tools.md).
 
 ### Claude Code
 

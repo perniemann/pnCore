@@ -282,18 +282,15 @@ See `pn-core://reference/RUNBOOK.md` for the full reference.
 
 Use `workflow_step("engine_feature", 0, { engine: "unreal" })` or `{ engine: "godot" }` as the entry point for game-engine feature workflows. Direct `unreal_feature` and `godot_feature` workflow types are not supported.
 
-## Plugin vs MCP
+## Plugin vs MCP vs Pi native tools
 
-pnCore is a **dual-surface product** built on one canonical content body (skills, agents, commands, rules under `content/`). The two surfaces sit on different axes:
+pnCore is a **multi-surface product** built on one canonical content body (skills, agents, commands, rules under `content/`):
 
-- **MCP-first by engineering.** All executable logic lives in this MCP server: the deterministic `workflow_step` engine plus the other tools, resources, and prompts. It works in any MCP client (Cursor, Claude Code, …) over stdio. Use it for orchestration, skeptic, full dev cycle, research, questionnaire, SVG creator, and related workflows in conversation.
-- **Plugin-first by branding and distribution.** The `pnCore` Cursor plugin is the marketplace-shaped install path. It adds **Cursor-only** surface the MCP cannot provide:
-  - **Slash commands** in the `/` palette (`/pn-new`, `/pn-build`, …). The same commands are reachable over MCP via `get_command("<id>")`, but without the one-keystroke palette.
-  - **File-glob–scoped rules** (`.mdc` auto-apply by path). The MCP can only serve rule text via `get_rule`; it cannot auto-attach rules by file pattern.
-  - **Stop hook** — continual-learning auto-update of `AGENTS.md` between sessions.
-  - **Agent selector.**
+- **MCP (stdio)** — All executable logic lives in this server: the deterministic `workflow_step` engine plus the other tools, resources, and prompts. Works in any MCP client (Cursor, Claude Code, …).
+- **Cursor plugin** — Slash palette, file-glob rules, stop hook, agent selector. Same commands via `get_command`; rules via `get_rule`.
+- **Pi native extension** — `pi install git:…/pnCore` loads `packages/pn-core-mcp/extensions/pn-core.ts`, which registers the same 24 tools via `pi.registerTool()` (no subprocess MCP on Pi). See [ADR-0009](../../docs/adr/0009-pi-native-tools.md).
 
-The same content ships through both, and you can use them together. Choose the MCP for cross-client orchestration and the workflow engine; add the [pnCore plugin](https://github.com/perniemann/pnCore) in Cursor for the native UX above.
+Choose MCP for cross-client orchestration; add the Cursor plugin for native IDE UX; use `pi install` from repo root on [pi.dev](https://pi.dev) for prompts, skills, and native tools together.
 
 ## Build from source (monorepo)
 
