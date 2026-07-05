@@ -12,7 +12,16 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       include: ["src/**/*.ts"],
-      exclude: ["src/**/*.test.ts", "src/index.ts"],
+      exclude: [
+        "src/**/*.test.ts",
+        "src/index.ts",
+        // MCP stdio server + tool handlers run in a Vitest-spawned subprocess (index.tools.test.ts);
+        // same exclusion policy as the former monolithic index.ts surface.
+        "src/adapters/**",
+        "src/tools/handlers.ts",
+        "src/tools/tool-runtime.ts",
+        "src/tools/registry.ts",
+      ],
       // Global floor only. autoUpdate ratchets thresholds up on local runs
       // when coverage exceeds them; disabled in CI so config is never
       // mutated mid-run on the build server.

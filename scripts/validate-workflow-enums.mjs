@@ -103,9 +103,7 @@ for (const schemaName of [
   }
   const slice = src.slice(idx, idx + 2500);
   if (!slice.includes("workflowTypeEnum")) {
-    console.error(
-      `validate-workflow-enums: expected workflowTypeEnum usage in ${schemaName}`
-    );
+    console.error(`validate-workflow-enums: expected workflowTypeEnum usage in ${schemaName}`);
     process.exit(1);
   }
 }

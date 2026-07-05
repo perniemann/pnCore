@@ -91,7 +91,9 @@ export function validateRootPiManifest(repoRoot) {
     errors.push(`Pi skills directory missing: ${ROOT_PI_SKILLS}`);
   }
   if (!existsSync(extensionsFile)) {
-    errors.push(`Pi extension missing: ${ROOT_PI_EXTENSIONS} (run: npm run build:mcp after adding extension)`);
+    errors.push(
+      `Pi extension missing: ${ROOT_PI_EXTENSIONS} (run: npm run build:mcp after adding extension)`
+    );
   }
   const registryDist = join(repoRoot, "packages/pn-core-mcp/dist/tools/registry.js");
   if (!existsSync(registryDist)) {
