@@ -6,8 +6,10 @@
  */
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { PN_CORE_TOOLS } from "../dist/tools/registry.js";
+import { registerPnCommandMenu } from "./pn-command-menu.js";
 
 export default function registerPnCoreTools(pi: ExtensionAPI): void {
+  registerPnCommandMenu(pi);
   for (const tool of PN_CORE_TOOLS) {
     pi.registerTool({
       name: tool.name,

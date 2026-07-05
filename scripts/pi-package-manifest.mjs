@@ -1,15 +1,20 @@
 #!/usr/bin/env node
 /**
  * Shared pi.dev package manifest helpers (ADR-0008).
- * Git/npm installs use the monorepo root package.json; prompts/skills live under plugins/pnCore/.
+ * Git/npm installs use the monorepo root package.json; skills live under plugins/pnCore/.
+ * Slash commands: single /pn via extension (not flat pi.prompts in main menu).
  */
 import { readFileSync, writeFileSync, existsSync } from "fs";
 import { join } from "path";
 
 /** Paths relative to repo root for pi install git:github.com/.../pnCore */
-export const ROOT_PI_PROMPTS = "./plugins/pnCore/prompts";
+export const ROOT_PI_PROMPTS_DIR = "./plugins/pnCore/prompts";
+export const ROOT_PI_COMMAND_INDEX = "./plugins/pnCore/pi-command-index.json";
 export const ROOT_PI_SKILLS = "./plugins/pnCore/skills";
 export const ROOT_PI_EXTENSIONS = "./packages/pn-core-mcp/extensions/pn-core.ts";
+
+/** @deprecated use ROOT_PI_PROMPTS_DIR */
+export const ROOT_PI_PROMPTS = ROOT_PI_PROMPTS_DIR;
 
 /**
  * @param {Record<string, unknown>} pkg
@@ -21,7 +26,6 @@ export function applyRootPiManifest(pkg) {
     ...pkg,
     keywords: [...keywords],
     pi: {
-      prompts: [ROOT_PI_PROMPTS],
       skills: [ROOT_PI_SKILLS],
       extensions: [ROOT_PI_EXTENSIONS],
     },
@@ -29,7 +33,7 @@ export function applyRootPiManifest(pkg) {
 }
 
 /**
- * Ensure repo root package.json exposes pi.prompts/skills for `pi install git:.../pnCore`.
+ * Ensure repo root package.json exposes pi manifest for `pi install git:.../pnCore`.
  * @param {string} repoRoot
  */
 export function ensureRootPiManifest(repoRoot) {
@@ -72,8 +76,10 @@ export function validateRootPiManifest(repoRoot) {
     errors.push("Root package.json missing pi manifest (required for pi install git:.../pnCore)");
     return errors;
   }
-  if (!Array.isArray(pi.prompts) || pi.prompts[0] !== ROOT_PI_PROMPTS) {
-    errors.push(`Root pi.prompts must be ["${ROOT_PI_PROMPTS}"]`);
+  if (Array.isArray(pi.prompts) && pi.prompts.length > 0) {
+    errors.push(
+      "Root pi.prompts must be omitted — pn slash commands use /pn extension menu, not flat prompt templates"
+    );
   }
   if (!Array.isArray(pi.skills) || pi.skills[0] !== ROOT_PI_SKILLS) {
     errors.push(`Root pi.skills must be ["${ROOT_PI_SKILLS}"]`);
@@ -81,11 +87,15 @@ export function validateRootPiManifest(repoRoot) {
   if (!Array.isArray(pi.extensions) || pi.extensions[0] !== ROOT_PI_EXTENSIONS) {
     errors.push(`Root pi.extensions must be ["${ROOT_PI_EXTENSIONS}"]`);
   }
-  const promptsDir = join(repoRoot, ROOT_PI_PROMPTS.replace(/^\.\//, ""));
+  const promptsDir = join(repoRoot, ROOT_PI_PROMPTS_DIR.replace(/^\.\//, ""));
+  const indexFile = join(repoRoot, ROOT_PI_COMMAND_INDEX.replace(/^\.\//, ""));
   const skillsDir = join(repoRoot, ROOT_PI_SKILLS.replace(/^\.\//, ""));
   const extensionsFile = join(repoRoot, ROOT_PI_EXTENSIONS.replace(/^\.\//, ""));
   if (!existsSync(promptsDir)) {
-    errors.push(`Pi prompts directory missing: ${ROOT_PI_PROMPTS} (run: npm run sync:content)`);
+    errors.push(`Pi command templates missing: ${ROOT_PI_PROMPTS_DIR} (run: npm run sync:content)`);
+  }
+  if (!existsSync(indexFile)) {
+    errors.push(`Pi command index missing: ${ROOT_PI_COMMAND_INDEX} (run: npm run sync:content)`);
   }
   if (!existsSync(skillsDir)) {
     errors.push(`Pi skills directory missing: ${ROOT_PI_SKILLS}`);
@@ -102,4 +112,17 @@ export function validateRootPiManifest(repoRoot) {
     );
   }
   return errors;
+}
+
+/**
+ * @param {Record<string, unknown>} pluginPkg
+ */
+export function applyPluginPiManifest(pluginPkg) {
+  return {
+    ...pluginPkg,
+    keywords: ["pi-package"],
+    pi: {
+      skills: ["./skills"],
+    },
+  };
 }

@@ -4,6 +4,12 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.17.1] - 2026-07-06
+
+### Changed
+
+- **Pi slash menu:** Single `/pn` extension command with selector UI (like `/model`); leaf workflows no longer flood the main slash menu. Removes flat `pi.prompts` registration; sync generates `pi-command-index.json`.
+
 ## [0.17.0] - 2026-07-05
 
 ### Added

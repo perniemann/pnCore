@@ -2,7 +2,7 @@
   <img src="plugins/pnCore/assets/pn-logo.svg" width="256" alt="pnCore" />
 </p>
 
-# pnCore — v0.17.0
+# pnCore — v0.17.1
 
 **pnCore** is an orchestration pack and MCP server for AI-assisted software delivery in Cursor. It ships structured workflows — discovery, planning, skeptic challenge, design, audits, asset creation, and delivery — backed by skills, agents, rules, and a deterministic `workflow_step` engine. It is not a generic prompt pack.
 
@@ -72,7 +72,7 @@ pi install .    # repo root — prompts, skills, and all 24 native tools (run np
 pi install ./plugins/pnCore    # prompts + skills only (no native tools)
 ```
 
-**Note:** Pi has no nested `/pn` submenu — commands appear as a flat list. Type `/pn` for the orientation router, or `/pn-build` etc. directly. Native tools ship with `pi install git:…/pnCore` or `pi install .` from repo root; no separate MCP subprocess required on Pi. Cursor and Claude Code still use the stdio MCP server. See [ADR-0008](docs/adr/0008-command-palette-pn-submenu.md) and [ADR-0009](docs/adr/0009-pi-native-tools.md).
+**Note:** Pi surfaces a single **`/pn`** entry in the main slash menu (like `/model` or `/settings`); the selector lists build, design, audit, and ship workflows. Direct invoke: `/pn pn-build`. Native tools ship with `pi install git:…/pnCore` or `pi install .` from repo root; no separate MCP subprocess required on Pi. Cursor and Claude Code still use the stdio MCP server. See [ADR-0008](docs/adr/0008-command-palette-pn-submenu.md) and [ADR-0009](docs/adr/0009-pi-native-tools.md).
 
 ### Claude Code
 

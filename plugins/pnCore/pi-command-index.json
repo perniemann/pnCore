@@ -1,0 +1,167 @@
+{
+  "version": 1,
+  "commands": [
+    {
+      "id": "pn-backend-audit",
+      "category": "Audit",
+      "description": "Full backend audit — API design, security posture, data model, error handling, and performance. 5-phase deterministic workflow. Use for new codebases, pre-launch review, or technical debt assessment.",
+      "file": "pn-backend-audit.md"
+    },
+    {
+      "id": "pn-frontend-audit",
+      "category": "Audit",
+      "description": "Full frontend audit — typography, layout, motion, state, performance — with scored diagnosis and prioritized fix roadmap. Use for comprehensive analysis. To fix issues immediately without a roadmap, use pn-polish.",
+      "file": "pn-frontend-audit.md"
+    },
+    {
+      "id": "pn-best-of-n",
+      "category": "Build",
+      "description": "Run 2–3 competing implementations in isolated worktrees, hard-gate on tests/lint, then premium judge picks winner. For ambiguous refactors/APIs with strong tests — not auth/security.",
+      "file": "pn-best-of-n.md"
+    },
+    {
+      "id": "pn-build",
+      "category": "Build",
+      "description": "Full development cycle — discovery, prior art, plan, skeptic, specialist routing, review. For full-stack features, apps, and large changes. When the deliverable is primarily visual, use pn-design instead.",
+      "file": "pn-build.md"
+    },
+    {
+      "id": "pn-deliver",
+      "category": "Build",
+      "description": "Validate output against acceptance criteria, then package results for handoff — summary, file list, test instructions, validation checklist, residual risks, and followups. Runs verify then package in sequence. Use at the end of a build or strict-mode flow before declaring done.",
+      "file": "pn-deliver.md"
+    },
+    {
+      "id": "pn-program",
+      "category": "Build",
+      "description": "Multi-slice hierarchical orchestration — discovery, contract locking, parallel slice execution in git worktrees, verifier gate, sequential merge queue, program review. Use for large projects or features with ≥2 independent work streams. For single-pipeline work, use /pn-build.",
+      "file": "pn-program.md"
+    },
+    {
+      "id": "pn-grill",
+      "category": "Challenge",
+      "description": "Interactive Socratic stress-test — one question at a time with recommended answers, walks every branch until resolved. Use for dialogue before building. For a fast automated single-pass challenge, use pn-skeptic instead.",
+      "file": "pn-grill.md"
+    },
+    {
+      "id": "pn-prompt-optimize",
+      "category": "Challenge",
+      "description": "Turn a goal and constraints into an optimized, production-ready prompt for an LLM, agent, or tool-using workflow. Output: optimized prompt block, notes, usage tips. Does not execute the task in the prompt. For challenging an implementation plan, use pn-skeptic or pn-grill instead.",
+      "file": "pn-prompt-optimize.md"
+    },
+    {
+      "id": "pn-skeptic",
+      "category": "Challenge",
+      "description": "Specialist: fast automated plan challenge — questions the approach, lists alternatives and tradeoffs, outputs proceed/revise verdict. Use for a single-pass review. For interactive Socratic dialogue, use pn-grill instead.",
+      "file": "pn-skeptic.md"
+    },
+    {
+      "id": "pn-assets",
+      "category": "Design",
+      "description": "Create a logo, icon, SVG, or raster image — questionnaire-driven so content is discussed before generation. Raster paths use pn-cinematography-lighting and pn-image-prompt-engineering for camera, lighting, and style. Routes to SVG or image workflow internally.",
+      "file": "pn-assets.md"
+    },
+    {
+      "id": "pn-design",
+      "category": "Design",
+      "description": "UI and visual design build — discovery, plan, and implement with mandatory typography/color/layout substeps and skeptic gates. Use instead of pn-build when the deliverable is primarily visual.",
+      "file": "pn-design.md"
+    },
+    {
+      "id": "pn-design-dna",
+      "category": "Design",
+      "description": "Design with cinematic studio DNA — portfolio, reel, lab, editorial surfaces. Loads DNA preamble then runs pn-design. Use when the deliverable needs cinematic or editorial-brutalist structure.",
+      "file": "pn-design-dna.md"
+    },
+    {
+      "id": "pn-design-variants",
+      "category": "Design",
+      "description": "Explore 3+ radically different design approaches in parallel, then compare and pick the strongest. Based on \"Design It Twice.\" Use before committing to a layout, component design, or architecture choice.",
+      "file": "pn-design-variants.md"
+    },
+    {
+      "id": "pn-polish",
+      "category": "Design",
+      "description": "Pre-ship design quality pass — typography, color, spacing, copy, a11y, and interaction states. Use for design-only polish. For code quality and performance review, use pn-review. For a scored diagnosis with roadmap, use pn-frontend-audit.",
+      "file": "pn-polish.md"
+    },
+    {
+      "id": "pn-preflight",
+      "category": "Design",
+      "description": "Marketing UI pre-ship gate — Design Read, tuning dials, strict checklist PASS/FAIL, AI Slop Test. Use before declaring landing/portfolio/editorial pages done.",
+      "file": "pn-preflight.md"
+    },
+    {
+      "id": "pn-visual-tweak",
+      "category": "Design",
+      "description": "Quick visual edit — routes to the right surgical command (pn-typeset, pn-colorize, pn-arrange, pn-bolder, pn-quieter, pn-delight) for a bounded change without rerunning full pn-design.",
+      "file": "pn-visual-tweak.md"
+    },
+    {
+      "id": "pn-create-prd",
+      "category": "Product",
+      "description": "Create a Product Requirements Document — 8-section template or feature-matrix for multi-phase products. Use before pn-writing-plans and build when stakeholders need a spec.",
+      "file": "pn-create-prd.md"
+    },
+    {
+      "id": "pn-document",
+      "category": "Product",
+      "description": "Format, validate, or generate project docs — discovery specs, plans, prior-art briefs, README, CHANGELOG. Enforces consistent structure across all doc types.",
+      "file": "pn-document.md"
+    },
+    {
+      "id": "pn-pressure-test",
+      "category": "Product",
+      "description": "Startup idea pressure-test — verdict, scorecard, fatal flaws, problem reality, competition, first customers, MVP wedge (Strong/Weak/Pivot). Not for implementation plans; use pn-skeptic or pn-grill for those.",
+      "file": "pn-pressure-test.md"
+    },
+    {
+      "id": "pn-strategy",
+      "category": "Product",
+      "description": "Business strategy workflow — evidence-led pressure-test of a startup idea or codebase-derived angle. Runs framing, evidence gathering, strategic frame, grill, pressure-test (Strong/Weak/Pivot), and delivers an HTML brief + markdown digest.",
+      "file": "pn-strategy.md"
+    },
+    {
+      "id": "pn-user-stories",
+      "category": "Product",
+      "description": "Create user stories — 3 C's and INVEST criteria. Use when breaking a feature or PRD into backlog items before pn-writing-plans.",
+      "file": "pn-user-stories.md"
+    },
+    {
+      "id": "pn-retro",
+      "category": "Ship",
+      "description": "Run a blameless session retrospective on an agent transcript. Classifies mistakes under a 5-code taxonomy and writes a structured report under docs/refs/retros/. Manual-only in v1; auto-trigger and cross-session pattern detection are deferred to v2.",
+      "file": "pn-retro.md"
+    },
+    {
+      "id": "pn-review",
+      "category": "Ship",
+      "description": "Code quality and performance review — quality gates, deslop, reality-check, and optimization in one pass. Use for code review and perf. For design-only quality (typography, color, states), use pn-polish.",
+      "file": "pn-review.md"
+    },
+    {
+      "id": "pn-video-lint",
+      "category": "Ship",
+      "description": "Pre-render checklist for video compositions and generative video deliverables — timing integrity, audio normalization, codec/delivery conformance, caption validity, asset resolution, and seed strategy. Run before every render pass.",
+      "file": "pn-video-lint.md"
+    },
+    {
+      "id": "pn-guide",
+      "category": "Start",
+      "description": "Show all pnCore capabilities — commands, agents, and recommended starting points. Use when you don't know which command to run.",
+      "file": "pn-guide.md"
+    },
+    {
+      "id": "pn-new",
+      "category": "Start",
+      "description": "Start a new project — analyzes references, selects build intent (full auto / design focused / involved), and optionally creates the full doc set (PRD, DESIGN, prior art, workflow roadmap) before building. Use when starting a brand new project from scratch.",
+      "file": "pn-new.md"
+    },
+    {
+      "id": "pn-setup",
+      "category": "Start",
+      "description": "Configure pnCore for an existing project — onboard the codebase (project-context, project skill, file rules), capture design context (.pncore-design.md), and capture backend stack context (.pncore-stack.md). Run once per project; re-run when context goes stale. Use for existing projects; for new projects from scratch use pn-new.",
+      "file": "pn-setup.md"
+    }
+  ]
+}
