@@ -35,8 +35,13 @@ function loadCommandIndex(): PiCommandIndexEntry[] {
   if (!existsSync(INDEX_PATH)) {
     return [];
   }
-  const raw = JSON.parse(readFileSync(INDEX_PATH, "utf8")) as PiCommandIndex;
-  return Array.isArray(raw.commands) ? raw.commands : [];
+  try {
+    const raw = JSON.parse(readFileSync(INDEX_PATH, "utf8")) as PiCommandIndex;
+    const commands = Array.isArray(raw.commands) ? raw.commands : [];
+    return commands.filter((entry) => resolveCommand(entry));
+  } catch {
+    return [];
+  }
 }
 
 function parseCommandMarkdown(filePath: string): string {

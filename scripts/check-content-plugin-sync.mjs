@@ -11,6 +11,10 @@ import { join, dirname, basename } from "path";
 import { fileURLToPath } from "url";
 import { isCommandHiddenFromSlash, partitionCommands } from "./command-slash-filter.mjs";
 import { validateRootPiManifest } from "./pi-package-manifest.mjs";
+import {
+  validatePiCommandIndexFreshness,
+  validatePiCommandIndexParity,
+} from "./pi-command-index.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, "..");
@@ -173,6 +177,15 @@ function main() {
   if (promptFails.length) {
     console.error("check-content-plugin-sync: Pi prompts/ out of sync:");
     for (const msg of promptFails) console.error(" ", msg);
+    process.exit(1);
+  }
+
+  const indexParityFails = validatePiCommandIndexParity(pluginRoot);
+  const indexFreshFails = validatePiCommandIndexFreshness(repoRoot);
+  const indexFails = [...indexParityFails, ...indexFreshFails];
+  if (indexFails.length) {
+    console.error("check-content-plugin-sync: Pi command index invalid:");
+    for (const msg of indexFails) console.error(" ", msg);
     process.exit(1);
   }
 

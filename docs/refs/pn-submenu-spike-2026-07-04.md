@@ -26,11 +26,17 @@ Official docs (verified 2026-07-04):
 | Frontmatter `description` | Supported; optional `argument-hint` for autocomplete | [prompt-templates](https://pi.dev/docs/latest/prompt-templates) § Format |
 | Package install | `pi install` + `package.json` `"pi": { "prompts": ["./prompts"] }` | [packages.md](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/packages.md) § Creating a Pi Package |
 
-**Gate:** Official Pi docs do **not** document submenu grouping. Our nested `pn/{category}/` layout is unsupported on Pi; flat sync is the documented path.
+**Gate (2026-07-04):** Official Pi docs do **not** document prompt-template submenu grouping. Nested `pn/{category}/` layout is **Cursor-only**.
 
-**pnCore Pi strategy:** sync visible commands to flat `plugins/pnCore/prompts/pn-*.md` plus `package.json` `pi.prompts: ["./prompts"]` and `keywords: ["pi-package"]`. Category folders under `.cursor/commands/pn/` are **Cursor-only**; Pi users type `/pn-build` from the flat prompt list (prefix filter in autocomplete).
+**Amendment (2026-07-06, v0.17.1):** Flat `pi.prompts` registration was **removed**. Pi submenu-equivalent UX uses `pi.registerCommand("pn")` + `SelectList` ([tui.md Pattern 1](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/tui.md)). Templates stay in `plugins/pnCore/prompts/`; sync writes `pi-command-index.json` for the extension. See `docs/PN-COMMAND-GROUPING-RESEARCH.md`.
 
-Alternative (not used): manifest globs such as `"./prompts/**/*.md"` could load nested files, but would still appear as a **flat** `/` list — no submenu UX gain.
+**pnCore Pi strategy (current):**
+
+- Sync visible commands to flat `plugins/pnCore/prompts/pn-*.md` (extension storage, not `pi.prompts`).
+- Root `package.json`: `pi.skills` + `pi.extensions` only; **`pi.prompts` omitted** (validator enforced).
+- Users: **`/pn`** opens selector; **`/pn pn-build`** direct invoke; `pi install git:github.com/perniemann/pnCore@main` + restart.
+
+**Superseded (pre–v0.17.1):** flat `pi.prompts: ["./prompts"]` — flooded main slash menu with ~27 entries.
 
 ## Spike files (removed after verification)
 
@@ -50,6 +56,6 @@ Temporary files were placed at:
 **Proceed with WP1–WP3** using dual delivery:
 
 - **Cursor:** nested `.cursor/commands/pn/{category}/pn-*.md` + root `pn.md` stub
-- **Pi:** flat `plugins/pnCore/prompts/pn-*.md` via sync
+- **Pi:** flat `plugins/pnCore/prompts/` + **`/pn` extension menu** (v0.17.1+; see research doc)
 
 Record manual IDE confirmation in PR before merge when available.

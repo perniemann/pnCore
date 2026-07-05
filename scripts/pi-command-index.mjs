@@ -3,9 +3,13 @@
  * Pi /pn command menu index (ADR-0008 Pi path).
  * Generated at sync time from visible command paths; consumed by pn-core Pi extension.
  */
-import { readFileSync, writeFileSync } from "fs";
+import { existsSync, readFileSync, writeFileSync } from "fs";
 import { basename, join } from "path";
-import { commandIdFromFile, commandStemFromRel } from "./command-slash-filter.mjs";
+import {
+  commandIdFromFile,
+  commandStemFromRel,
+  partitionCommands,
+} from "./command-slash-filter.mjs";
 
 /** @typedef {{ id: string, category: string, description: string, file: string }} PiCommandIndexEntry */
 
@@ -85,4 +89,74 @@ export function writePiCommandIndex(pluginRoot, entries) {
   const outPath = join(pluginRoot, "pi-command-index.json");
   writeFileSync(outPath, `${JSON.stringify({ version: 1, commands: entries }, null, 2)}\n`);
   return outPath;
+}
+
+/**
+ * @param {string} pluginRoot
+ * @returns {string[]} errors
+ */
+export function validatePiCommandIndexParity(pluginRoot) {
+  const promptsDir = join(pluginRoot, "prompts");
+  const indexPath = join(pluginRoot, "pi-command-index.json");
+  const errors = [];
+
+  if (!existsSync(indexPath)) {
+    errors.push(`Missing plugins/pnCore/pi-command-index.json (run: npm run sync:content)`);
+    return errors;
+  }
+
+  let commands;
+  try {
+    const raw = JSON.parse(readFileSync(indexPath, "utf8"));
+    commands = Array.isArray(raw.commands) ? raw.commands : [];
+  } catch (e) {
+    errors.push(`Invalid pi-command-index.json: ${e.message}`);
+    return errors;
+  }
+
+  const seenIds = new Set();
+  for (const entry of commands) {
+    if (!entry?.id || !entry?.file) {
+      errors.push("pi-command-index.json entry missing id or file");
+      continue;
+    }
+    if (seenIds.has(entry.id)) {
+      errors.push(`Duplicate pi-command-index id: ${entry.id}`);
+    }
+    seenIds.add(entry.id);
+    if (!existsSync(join(promptsDir, entry.file))) {
+      errors.push(
+        `pi-command-index.json references missing prompts/${entry.file} (id: ${entry.id})`
+      );
+    }
+  }
+  return errors;
+}
+
+/**
+ * @param {string} repoRoot
+ * @returns {string[]} errors
+ */
+export function validatePiCommandIndexFreshness(repoRoot) {
+  const pluginRoot = join(repoRoot, "plugins", "pnCore");
+  const commandsSrc = join(repoRoot, "packages", "pn-core-mcp", "content", "commands");
+  const indexPath = join(pluginRoot, "pi-command-index.json");
+
+  if (!existsSync(commandsSrc) || !existsSync(indexPath)) {
+    return [];
+  }
+
+  const { visible } = partitionCommands(commandsSrc);
+  const built = buildPiCommandIndex(commandsSrc, visible);
+  let committed;
+  try {
+    committed = JSON.parse(readFileSync(indexPath, "utf8")).commands ?? [];
+  } catch (e) {
+    return [`Invalid pi-command-index.json: ${e.message}`];
+  }
+
+  if (JSON.stringify(built) !== JSON.stringify(committed)) {
+    return ["pi-command-index.json stale vs canonical commands (run: npm run sync:content)"];
+  }
+  return [];
 }

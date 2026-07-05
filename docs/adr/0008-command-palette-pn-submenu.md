@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted — 2026-07-04
+Accepted — 2026-07-04 (Pi extension menu amended 2026-07-06, v0.17.1+)
 
 Supersedes [ADR-0007](0007-command-palette-pm-router.md) (never merged; PM-router approach abandoned).
 
@@ -26,11 +26,14 @@ Cursor IDE 2.6+ recursively scans `.cursor/commands/` subfolders; Cursor CLI rea
 
 ### Pi (secondary)
 
-1. Sync visible command bodies to **flat** `plugins/pnCore/prompts/pn-*.md` (basename only).
-2. Ship `plugins/pnCore/package.json` with `"keywords": ["pi-package"]` and `"pi": { "prompts": ["./prompts"], "skills": ["./skills"] }` for `pi install ./plugins/pnCore`.
-3. Ship **root** `package.json` with `"pi": { "prompts": ["./plugins/pnCore/prompts"], "skills": ["./plugins/pnCore/skills"] }` so `pi install git:github.com/perniemann/pnCore` resolves prompts (monorepo layout).
-4. Document: Pi users get `/pn-build` etc. in a flat list; no `pn` submenu.
+**Amended v0.17.1:** Pi has no native prompt submenu. Equivalent UX uses an **extension command** ([Pi tui.md Pattern 1](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/tui.md)) — not flat `pi.prompts` registration.
 
+1. Sync visible command bodies to **flat** `plugins/pnCore/prompts/pn-*.md` (basename only) — **storage for the extension**, not `pi.prompts` discovery.
+2. Sync generates **`plugins/pnCore/pi-command-index.json`** (`id`, `category`, `description`, `file`) via `scripts/pi-command-index.mjs`.
+3. **`packages/pn-core-mcp/extensions/pn-command-menu.ts`** registers `pi.registerCommand("pn", …)` with `SelectList` UI and `getArgumentCompletions` for `/pn pn-build` direct invoke.
+4. **Root** `package.json` `pi`: `{ skills, extensions }` only — **no** `pi.prompts` (validator rejects flat prompt registration). Git install: `pi install git:github.com/perniemann/pnCore@main`.
+5. **`plugins/pnCore/package.json`** (plugin-only install): `pi.skills` only; no extension — use git/root install for `/pn` menu + native tools.
+6. Document: Pi users type **`/pn`** for the selector (like `/model`); category appears in list descriptions. See `docs/PN-COMMAND-GROUPING-RESEARCH.md`.
 ### Categories (v1)
 
 | Folder | Commands |
@@ -50,12 +53,14 @@ Cursor IDE 2.6+ recursively scans `.cursor/commands/` subfolders; Cursor CLI rea
 
 ## Consequences
 
-**Positive:** One `pn` menu in Cursor; Pi users get prompt templates via `pi install`; stable MCP ids.
+**Positive:** One `pn` menu in Cursor; Pi users get **`/pn` selector** + native tools via git install; stable MCP ids; index parity enforced in CI.
 
-**Negative:** Cursor CLI lacks nested leaves; Pi lacks submenu UX; dual sync path to maintain.
-
+**Negative:** Cursor CLI lacks nested leaves; Pi selector is flat-with-categories (not nested folder UI); dual sync path + extension to maintain; print/non-TUI mode cannot open selector.
 ## References
 
+- `docs/PN-COMMAND-GROUPING-RESEARCH.md`
 - `docs/refs/pn-submenu-spike-2026-07-04.md`
+- `packages/pn-core-mcp/extensions/pn-command-menu.ts`
+- `scripts/pi-command-index.mjs`
 - `scripts/command-slash-filter.mjs`
 - `scripts/sync-content-to-plugin.mjs`
