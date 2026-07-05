@@ -20,12 +20,14 @@ import {
   rmSync,
   copyFileSync,
   readdirSync,
+  readFileSync,
   writeFileSync,
 } from "fs";
 import { join, dirname, basename } from "path";
 import { fileURLToPath } from "url";
 import { partitionCommands } from "./command-slash-filter.mjs";
-import { ensureRootPiManifest } from "./pi-package-manifest.mjs";
+import { ensureRootPiManifest, applyPluginPiManifest } from "./pi-package-manifest.mjs";
+import { buildPiCommandIndex, writePiCommandIndex } from "./pi-command-index.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, "..");
@@ -94,7 +96,13 @@ if (existsSync(commandsSrc)) {
     piCopied++;
   }
   console.log(
-    `Synced visible commands -> plugins/pnCore/prompts/ — ${piCopied} flat Pi prompt templates`
+    `Synced visible commands -> plugins/pnCore/prompts/ — ${piCopied} flat Pi command templates`
+  );
+
+  const indexEntries = buildPiCommandIndex(commandsSrc, visible);
+  const indexPath = writePiCommandIndex(pluginRoot, indexEntries);
+  console.log(
+    `Wrote Pi command index -> ${indexPath} (${indexEntries.length} commands for /pn menu)`
   );
 }
 
@@ -119,24 +127,22 @@ for (const dir of dirs) {
   }
 }
 
-// Pi package manifest (pi.dev package install)
+// Pi package manifest (pi.dev package install — skills only; /pn menu via root extension)
 const piPackagePath = join(pluginRoot, "package.json");
-if (!existsSync(piPackagePath)) {
+if (existsSync(piPackagePath)) {
+  const pluginPkg = JSON.parse(readFileSync(piPackagePath, "utf8"));
+  writeFileSync(piPackagePath, JSON.stringify(applyPluginPiManifest(pluginPkg), null, 2) + "\n");
+} else {
   writeFileSync(
     piPackagePath,
     JSON.stringify(
-      {
+      applyPluginPiManifest({
         name: "pn-core-plugin",
         version: "0.15.0",
         private: true,
-        keywords: ["pi-package"],
         description:
-          "pnCore plugin — Pi prompt templates and skills (Cursor plugin ships separately)",
-        pi: {
-          prompts: ["./prompts"],
-          skills: ["./skills"],
-        },
-      },
+          "pnCore plugin — Pi skills and command templates for /pn menu (Cursor plugin ships separately)",
+      }),
       null,
       2
     ) + "\n"

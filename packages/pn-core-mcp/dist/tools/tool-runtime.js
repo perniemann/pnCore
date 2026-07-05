@@ -5,7 +5,7 @@ import { z } from "zod";
 import { loadFeatures } from "../features.js";
 import { maxResourceCharsFromEnv } from "../resource-truncate.js";
 import { debug } from "../debug.js";
-import { parseRequiredApprovalWorkflows, } from "../human-gate-tickets.js";
+import { parseRequiredApprovalWorkflows } from "../human-gate-tickets.js";
 import { tailScanBytesFromEnv } from "../file-tail.js";
 import { defaultGateLogPath } from "../workflow-gate-log.js";
 export const ErrorCode = {

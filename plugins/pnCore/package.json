@@ -7,9 +7,6 @@
   ],
   "description": "pnCore plugin — Pi prompt templates and skills (Cursor plugin ships separately)",
   "pi": {
-    "prompts": [
-      "./prompts"
-    ],
     "skills": [
       "./skills"
     ]

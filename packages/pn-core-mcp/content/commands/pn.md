@@ -32,7 +32,7 @@ Load the chosen command via `get_command("<id>")` and follow its contract.
 |----------|------------------------|
 | **Cursor IDE** | `/` → **`pn`** submenu → pick leaf (e.g. `pn-build`) |
 | **Cursor CLI** | This `/pn` stub or `get_command("<id>")` — nested submenu not available |
-| **pi.dev** | Flat `/pn-build` prompt templates from the pnCore Pi package (`pi.prompts`) |
+| **pi.dev** | `/pn` opens the pnCore command menu (like `/model`); pick a workflow from the selector. Direct: `/pn pn-build` |
 
 ## Guardrails
 
