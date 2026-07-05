@@ -4,6 +4,12 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.17.0] - 2026-07-05
+
+### Added
+
+- **Pi native tools:** `pi install git:…/pnCore` registers all 24 pn-core tools via `pi.registerTool()` (`packages/pn-core-mcp/extensions/pn-core.ts`). Shared handler registry extracted from the MCP server; stdio MCP unchanged for Cursor and other clients. See [ADR-0009](../../docs/adr/0009-pi-native-tools.md).
+
 ## [0.16.0] - 2026-07-04
 
 ### Breaking
