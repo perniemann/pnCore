@@ -4,6 +4,12 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.17.2] - 2026-07-06
+
+### Fixed
+
+- CHANGELOG `[0.16.0]` section heading: `### Breaking` → `### Changed` (doc-structure gate).
+
 ## [0.17.1] - 2026-07-06
 
 ### Changed
@@ -18,7 +24,7 @@ All notable changes to pnCore are documented in this file.
 
 ## [0.16.0] - 2026-07-04
 
-### Breaking
+### Changed
 
 - Removed pnCursor-era local state: `.pncursor/` gitignore entries; use `.pncore/` only.
 - **`run_id` only** — `pncoreRunId` state field no longer accepted.
