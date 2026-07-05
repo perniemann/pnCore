@@ -3,7 +3,12 @@ import assert from "node:assert/strict";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { partitionCommands } from "../command-slash-filter.mjs";
-import { buildPiCommandIndex, categoryFromCommandRel } from "../pi-command-index.mjs";
+import {
+  buildPiCommandIndex,
+  categoryFromCommandRel,
+  validatePiCommandIndexFreshness,
+  validatePiCommandIndexParity,
+} from "../pi-command-index.mjs";
 
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const commandsSrc = join(repoRoot, "packages", "pn-core-mcp", "content", "commands");
@@ -19,4 +24,15 @@ test("buildPiCommandIndex skips pn router stub and includes leaves", () => {
   assert.ok(index.length >= 20);
   assert.ok(!index.some((e) => e.id === "pn"));
   assert.ok(index.some((e) => e.id === "pn-build" && e.category === "Build"));
+});
+
+test("validatePiCommandIndexParity passes on synced plugin", () => {
+  const pluginRoot = join(repoRoot, "plugins", "pnCore");
+  const errors = validatePiCommandIndexParity(pluginRoot);
+  assert.deepEqual(errors, []);
+});
+
+test("validatePiCommandIndexFreshness matches committed index", () => {
+  const errors = validatePiCommandIndexFreshness(repoRoot);
+  assert.deepEqual(errors, []);
 });
