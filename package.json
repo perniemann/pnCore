@@ -54,6 +54,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "typebox": "^1.0.61",
     "zod": "4.4.3"
   },
   "overrides": {
