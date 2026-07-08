@@ -4,6 +4,13 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.17.3] - 2026-07-08
+
+### Added
+
+- **Orchestrator-lead mode:** `workflow_step` returns `orchestrationMode` and `subagentTierHints` on parallel fan-out when `leadModelTier` / `sessionModel` indicates `long_horizon` or premium + intent. New `orchestration-lead` module, always-apply rule `pn-orchestrator-lead`, loop catalog docs, `/pn-handoff`, and five-tier roadmap vocabulary (`long_horizon` Orchestration row).
+- **Session model slug resolution:** boundary-safe `sessionModel` → tier matching (vendor prefix + display-name rules; no substring false positives).
+
 ## [0.17.2] - 2026-07-06
 
 ### Fixed
