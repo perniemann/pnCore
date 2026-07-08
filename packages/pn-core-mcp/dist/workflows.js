@@ -7,6 +7,7 @@ import { getResource } from "./content.js";
 import { loadFeatures, loadBestOfNFeatures } from "./features.js";
 import { applySkepticGateStateChecks } from "./skeptic-gate-state.js";
 import { debug } from "./debug.js";
+import { applyOrchestrationLead } from "./orchestration-lead.js";
 import { applyTierAlias, buildSuggestedTier, isModelTier, renderTierHint, resolveTournamentBuilderModel, } from "./model-tiers.js";
 /** Terminal-step reminder — only emitted when Paperclip env vars are configured. */
 function paperclipWorkflowHint() {
@@ -952,26 +953,33 @@ export function resolveStepTier(workflowType, step) {
  * step's default — e.g. an iteration loop-back instructs the model to redo
  * a previous step's work, so the previous step's tier is more honest.
  */
-function withTierHint(result, workflowType, step, override) {
+function withTierHint(result, workflowType, step, state, override) {
     let suggested;
+    const features = loadFeatures();
     if (override) {
-        const features = loadFeatures();
         const aliased = applyTierAlias(override.tier, features.tierAliases);
         suggested = buildSuggestedTier(aliased, override.rationale);
     }
     else {
         suggested = resolveStepTier(workflowType, step);
     }
-    if (suggested === null)
-        return result;
-    if (suggested.tier === "standard") {
-        return { ...result, suggestedModelTier: suggested };
+    let enriched = result;
+    if (suggested !== null) {
+        if (suggested.tier === "standard") {
+            enriched = { ...result, suggestedModelTier: suggested };
+        }
+        else {
+            enriched = {
+                ...result,
+                suggestedModelTier: suggested,
+                instruction: `${renderTierHint(suggested)}\n\n${result.instruction}`,
+            };
+        }
     }
-    return {
-        ...result,
-        suggestedModelTier: suggested,
-        instruction: `${renderTierHint(suggested)}\n\n${result.instruction}`,
-    };
+    return applyOrchestrationLead(enriched, state, {
+        tierAliases: features.tierAliases,
+        parallel: enriched.parallel === true,
+    });
 }
 function loadSpecialistsConfig() {
     const res = getResource("pn-core://config/specialists.json");
@@ -1086,7 +1094,7 @@ export function getWorkflowStep(workflowType, step, state) {
             gate: "human",
             done: false,
             workflowPhase: "github_issues",
-        }, workflowType, step, { tier: "premium", rationale: "Vertical slicing into tracer-bullet GitHub Issues." });
+        }, workflowType, step, state, { tier: "premium", rationale: "Vertical slicing into tracer-bullet GitHub Issues." });
     }
     const nextDef = step + 1 < steps.length ? steps[step + 1] : null;
     const intent = state.intent;
@@ -1148,7 +1156,7 @@ export function getWorkflowStep(workflowType, step, state) {
                         return withTierHint({
                             ...baseResult,
                             instruction: `Two-phase specialist run (parallelGroups in config/specialists.json). Phase A — sequential: run these specialists in list order before any parallel work: ${seqHint}. Apply each agent's scope and skills; each runs its own post-step review where applicable. For pn-assets-manager in Phase A: pass discoverySpec and plan; use the same batch-mode prompt as in this workflow's step-4 instructions. When Phase A is complete, call workflow_step with step=4 and the same specialistList and routeConfirmed (and intent if set), plus specialistSequentialComplete: true and taskResults with a non-empty summary for each Phase A specialist (${trKeys}). You will then receive Phase B to run in parallel: ${parHint}. Do not call workflow_step with step=5 until Phase B is done and taskResults includes every id in specialistList.`,
-                        }, workflowType, step);
+                        }, workflowType, step, state);
                     }
                     if (!seqSummariesComplete) {
                         return {
@@ -1165,7 +1173,7 @@ export function getWorkflowStep(workflowType, step, state) {
                         instruction: `Phase B — parallel: run these specialists in parallel (or any order): ${parallelIds.join(", ")}. Merge summaries into taskResults; preserve Phase A keys. When all Phase B tasks are done, call workflow_step with step=5 and state containing taskResults with one entry per id in specialistList: ${list.map((id) => `"${id}": "<summary>"`).join(", ")}.`,
                         parallel: true,
                         tasks,
-                    }, workflowType, step);
+                    }, workflowType, step, state);
                 }
                 if (list.length >= 2 &&
                     sequentialIds.length === 0 &&
@@ -1181,7 +1189,7 @@ export function getWorkflowStep(workflowType, step, state) {
                         instruction: `Run the following specialists in parallel (or any order). When all are done, call workflow_step with step=5 and state containing taskResults: { ${list.map((id) => `"${id}": "<summary>"`).join(", ")} }.`,
                         parallel: true,
                         tasks,
-                    }, workflowType, step);
+                    }, workflowType, step, state);
                 }
             }
         }
@@ -1202,7 +1210,7 @@ export function getWorkflowStep(workflowType, step, state) {
                 gate: "model",
                 done: false,
                 workflowPhase: "merge",
-            }, workflowType, step, { tier: "standard", rationale: "Conflict resolution + build + reconciled summary." });
+            }, workflowType, step, state, { tier: "standard", rationale: "Conflict resolution + build + reconciled summary." });
         }
     }
     // design step 4: when skeptic-on-output failed, loop back to build or gate on approval
@@ -1222,7 +1230,7 @@ export function getWorkflowStep(workflowType, step, state) {
             requiredInputs: def.requiredFromState,
             gate: "human",
             done: false,
-        }, workflowType, 3, { tier: "standard", rationale: "Rebuild against skeptic-flagged issues." });
+        }, workflowType, 3, state, { tier: "standard", rationale: "Rebuild against skeptic-flagged issues." });
     }
     // unreal_feature step 3: when skeptic-on-output failed, loop back to build or gate on approval
     if (workflowType === "unreal_feature" && step === 3 && state.skepticOutputPassed === false) {
@@ -1241,7 +1249,7 @@ export function getWorkflowStep(workflowType, step, state) {
             requiredInputs: def.requiredFromState,
             gate: "human",
             done: false,
-        }, workflowType, 2, { tier: "standard", rationale: "Rebuild against render-verify and skeptic findings." });
+        }, workflowType, 2, state, { tier: "standard", rationale: "Rebuild against render-verify and skeptic findings." });
     }
     // business_strategy step 5: pressure-test verdict routing
     // Pivot → jump to step 8 (deliver pivot artifact).
@@ -1256,7 +1264,7 @@ export function getWorkflowStep(workflowType, step, state) {
                 requiredInputs: def.requiredFromState,
                 gate: "human",
                 done: true,
-            }, workflowType, step, { tier: "premium", rationale: "Synthesize failure-mode and alternative thesis directions." });
+            }, workflowType, step, state, { tier: "premium", rationale: "Synthesize failure-mode and alternative thesis directions." });
         }
         if (verdict === "Weak") {
             const iterCount = typeof state.discussionIterations === "number" ? state.discussionIterations : 0;
@@ -1274,7 +1282,7 @@ export function getWorkflowStep(workflowType, step, state) {
                 requiredInputs: def.requiredFromState,
                 gate: "human",
                 done: false,
-            }, workflowType, 4);
+            }, workflowType, 4, state);
         }
     }
     // feature_program step 0: gate on featureProgram feature flag
@@ -1305,7 +1313,7 @@ export function getWorkflowStep(workflowType, step, state) {
                     requiredInputs: [],
                     gate: "human",
                     done: true,
-                }, workflowType, step, { tier: "fast", rationale: "Terminal redirect note — no further reasoning required." });
+                }, workflowType, step, state, { tier: "fast", rationale: "Terminal redirect note — no further reasoning required." });
             }
             const sliceIds = slices.map((s) => s.id);
             const dependsOnMap = {};
@@ -1361,7 +1369,7 @@ export function getWorkflowStep(workflowType, step, state) {
                 parallel: true,
                 tasks,
                 workflowPhase: "tournament_fanout",
-            }, workflowType, step);
+            }, workflowType, step, state);
         }
     }
     // implementation_tournament step 2: single-survivor fast path after objective gates
@@ -1382,7 +1390,7 @@ export function getWorkflowStep(workflowType, step, state) {
                     nextStep: 4,
                     done: false,
                     workflowPhase: "tournament_gate",
-                }, workflowType, step, { tier: "fast", rationale: "Mechanical winner when only one path passes gates." });
+                }, workflowType, step, state, { tier: "fast", rationale: "Mechanical winner when only one path passes gates." });
             }
         }
     }
@@ -1393,7 +1401,7 @@ export function getWorkflowStep(workflowType, step, state) {
             ...baseResult,
             instruction: `${baseResult.instruction}\n\nAuto-select threshold (bestOfN.autoSelectMinDelta): ${minDelta}. Use resolveBestOfNSelection / scripts/best-of-n-select.mjs (validator reads the same threshold from features.json / PNCORE_FEATURES).`,
             workflowPhase: "tournament_judge",
-        }, workflowType, step);
+        }, workflowType, step, state);
     }
     // implementation_tournament step 5: explicit full_dev handoff payload
     if (workflowType === "implementation_tournament" && step === 5) {
@@ -1407,7 +1415,7 @@ export function getWorkflowStep(workflowType, step, state) {
                 instruction: `${baseResult.instruction}\n\nHandoff state template: workflow_step('full_dev', 5, { tournamentHandoff: true, specSummary: <from state>, plan: <from state when parent full_dev>, skepticPassed: <from state when available>, specialistList: ['implementation_tournament'], taskResults: { implementation_tournament: ${JSON.stringify(String(summary))} }, mergeComplete: true, selectedCandidate: '${selected}', auditPath: <from state> })`,
                 workflowPhase: "tournament_handoff",
                 done: true,
-            }, workflowType, step);
+            }, workflowType, step, state);
         }
     }
     // feature_program step 3: return parallel tasks (one per slice)
@@ -1428,7 +1436,7 @@ export function getWorkflowStep(workflowType, step, state) {
                 instruction: `Parallel slice execution: run all ${slices.length} slices in parallel, each in its own git worktree (see .cursor/worktrees.json). Each slice runs a full_dev workflow starting at step 3 (specialist routing). Load get_skill('pn-program-orchestration') for slice-level guidance. When all slices report done, call workflow_step('feature_program', step=4) with slices[] updated (runId, worktreePath, branch, status per slice) and taskResults with one summary entry per slice id.`,
                 parallel: true,
                 tasks,
-            }, workflowType, step);
+            }, workflowType, step, state);
         }
     }
     // feature_program step 4: verifier gate and sequential merge queue
@@ -1449,7 +1457,7 @@ export function getWorkflowStep(workflowType, step, state) {
                     nextStep: 4,
                     workflowPhase: "merge",
                     done: false,
-                }, workflowType, step);
+                }, workflowType, step, state);
             }
             // All verified — proceed to merge
             return withTierHint({
@@ -1458,7 +1466,7 @@ export function getWorkflowStep(workflowType, step, state) {
                 nextStep: 4,
                 workflowPhase: "merge",
                 done: false,
-            }, workflowType, step, { tier: "standard", rationale: "Sequential git merges with build + test gates." });
+            }, workflowType, step, state, { tier: "standard", rationale: "Sequential git merges with build + test gates." });
         }
     }
     // godot_feature step 3: when skeptic-on-output failed, loop back to build or gate on approval
@@ -1478,7 +1486,7 @@ export function getWorkflowStep(workflowType, step, state) {
             requiredInputs: def.requiredFromState,
             gate: "human",
             done: false,
-        }, workflowType, 2, { tier: "standard", rationale: "Rebuild against render-verify and skeptic findings." });
+        }, workflowType, 2, state, { tier: "standard", rationale: "Rebuild against render-verify and skeptic findings." });
     }
     let result = baseResult;
     if (skepticGateWarning) {
@@ -1499,5 +1507,5 @@ export function getWorkflowStep(workflowType, step, state) {
                 result.instruction,
         };
     }
-    return withTierHint(result, workflowType, step);
+    return withTierHint(result, workflowType, step, state);
 }

@@ -59,23 +59,25 @@ For each phase in the plan, determine which pn-core commands/skills run at each 
 
 ### 3. Assign model tiers
 
-Use these rules to assign model tiers per step. **Canonical four-tier names** (used by `workflow_step` and `suggest_model_tier`) map to the roadmap vocabulary below:
+Use these rules to assign model tiers per step. **Canonical five-tier names** (used by `workflow_step` and `suggest_model_tier`) map to the roadmap vocabulary below:
 
-| Roadmap tier | pnCore model tier | Exemplar (June 2026) |
+| Roadmap tier | pnCore model tier | Exemplar (July 2026) |
 |--------------|-------------------|----------------------|
 | **Low** | `fast` | composer-2.5-fast |
 | **Medium** | `standard` | claude-4.6-sonnet-medium-thinking |
 | **High** | `premium` | claude-opus-4-8-thinking-high |
 | **Highest** | `premium_thinking` | claude-opus-4-8-thinking-high + MAX |
+| **Orchestration** | `long_horizon` | claude-fable-5 (alternates in `TIER_META`) |
 
 | Model Tier | Assign when |
 |------------|-------------|
+| **Orchestration** (`long_horizon`) | Lead session for multi-slice programs (`/pn-program`, `feature_program` step 3+), scheduled `/loop` orchestration, escalation queue — **delegate** parallel `tasks[]` to subagents; pass `leadModelTier: "long_horizon"` (or `sessionModel` slug) on every `workflow_step` call. See rule **`pn-orchestrator-lead`**. |
 | **Highest** (`premium_thinking`) | Security audits, financial models, program DAG + contract authoring, strategic frames |
-| **High** (`premium`) | Architecture decisions, creative design (animation, assets), DB migration design, skeptic on plan/output, security-review subagent |
-| **Medium** (`standard`) | Feature development, component building, test writing, planning, scaffolding, checker subagents |
+| **High** (`premium`) | Architecture decisions, creative design (animation, assets), DB migration design, skeptic on plan/output, security-review subagent; light delegate when `orchestrationIntent: true` on parallel fan-out |
+| **Medium** (`standard`) | Feature development, component building, test writing, planning, scaffolding, checker subagents, **builder** subagents when lead is `long_horizon` |
 | **Low** (`fast`) | Discovery questionnaires, verification checklists, doc formatting, terminal summaries, explore subagents |
 
-Subagent routing detail: `pn-core://reference/subagent-routing.md`.
+Subagent routing detail: `pn-core://reference/subagent-routing.md`. Loop orchestration: `pn-core://reference/loop-orchestration-guide.md`.
 
 ### 4. Estimate token costs
 

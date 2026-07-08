@@ -8,6 +8,7 @@ import { getResource } from "./content.js";
 import { loadFeatures, loadBestOfNFeatures } from "./features.js";
 import { applySkepticGateStateChecks } from "./skeptic-gate-state.js";
 import { debug } from "./debug.js";
+import { applyOrchestrationLead, type OrchestrationMode } from "./orchestration-lead.js";
 import {
   applyTierAlias,
   buildSuggestedTier,
@@ -15,6 +16,7 @@ import {
   renderTierHint,
   resolveTournamentBuilderModel,
   type ModelTier,
+  type SubagentRole,
   type SuggestedModelTier,
 } from "./model-tiers.js";
 
@@ -60,6 +62,8 @@ export interface WorkflowTask {
   id: string;
   instruction: string;
   agentId: string;
+  /** When orchestrator-lead mode is active, preferred subagent tier for Task delegation. */
+  suggestedSubagentTier?: SuggestedModelTier;
 }
 
 export interface WorkflowStepResult {
@@ -84,6 +88,10 @@ export interface WorkflowStepResult {
    * `instruction` when tier !== "standard".
    */
   suggestedModelTier?: SuggestedModelTier;
+  /** lead = long_horizon orchestrator; light_delegate = premium+parallel; implementer = default. */
+  orchestrationMode?: OrchestrationMode;
+  /** Subagent tier hints when orchestrationMode is lead or light_delegate. */
+  subagentTierHints?: Partial<Record<SubagentRole, SuggestedModelTier>>;
 }
 
 /** Terminal-step reminder — only emitted when Paperclip env vars are configured. */
@@ -1173,25 +1181,33 @@ function withTierHint(
   result: WorkflowStepResult,
   workflowType: WorkflowType,
   step: number,
+  state: Record<string, unknown>,
   override?: { tier: ModelTier; rationale?: string }
 ): WorkflowStepResult {
   let suggested: SuggestedModelTier | null;
+  const features = loadFeatures();
   if (override) {
-    const features = loadFeatures();
     const aliased = applyTierAlias(override.tier, features.tierAliases);
     suggested = buildSuggestedTier(aliased, override.rationale);
   } else {
     suggested = resolveStepTier(workflowType, step);
   }
-  if (suggested === null) return result;
-  if (suggested.tier === "standard") {
-    return { ...result, suggestedModelTier: suggested };
+  let enriched: WorkflowStepResult = result;
+  if (suggested !== null) {
+    if (suggested.tier === "standard") {
+      enriched = { ...result, suggestedModelTier: suggested };
+    } else {
+      enriched = {
+        ...result,
+        suggestedModelTier: suggested,
+        instruction: `${renderTierHint(suggested)}\n\n${result.instruction}`,
+      };
+    }
   }
-  return {
-    ...result,
-    suggestedModelTier: suggested,
-    instruction: `${renderTierHint(suggested)}\n\n${result.instruction}`,
-  };
+  return applyOrchestrationLead(enriched, state, {
+    tierAliases: features.tierAliases,
+    parallel: enriched.parallel === true,
+  });
 }
 
 function loadSpecialistsConfig(): { parallelGroups?: Record<string, number> } | null {
@@ -1335,6 +1351,7 @@ export function getWorkflowStep(
       },
       workflowType,
       step,
+      state,
       { tier: "premium", rationale: "Vertical slicing into tracer-bullet GitHub Issues." }
     );
   }
@@ -1406,7 +1423,8 @@ export function getWorkflowStep(
                 instruction: `Two-phase specialist run (parallelGroups in config/specialists.json). Phase A — sequential: run these specialists in list order before any parallel work: ${seqHint}. Apply each agent's scope and skills; each runs its own post-step review where applicable. For pn-assets-manager in Phase A: pass discoverySpec and plan; use the same batch-mode prompt as in this workflow's step-4 instructions. When Phase A is complete, call workflow_step with step=4 and the same specialistList and routeConfirmed (and intent if set), plus specialistSequentialComplete: true and taskResults with a non-empty summary for each Phase A specialist (${trKeys}). You will then receive Phase B to run in parallel: ${parHint}. Do not call workflow_step with step=5 until Phase B is done and taskResults includes every id in specialistList.`,
               },
               workflowType,
-              step
+              step,
+              state
             );
           }
           if (!seqSummariesComplete) {
@@ -1427,7 +1445,8 @@ export function getWorkflowStep(
               tasks,
             },
             workflowType,
-            step
+            step,
+            state
           );
         }
 
@@ -1450,7 +1469,8 @@ export function getWorkflowStep(
               tasks,
             },
             workflowType,
-            step
+            step,
+            state
           );
         }
       }
@@ -1479,6 +1499,7 @@ export function getWorkflowStep(
         },
         workflowType,
         step,
+        state,
         { tier: "standard", rationale: "Conflict resolution + build + reconciled summary." }
       );
     }
@@ -1506,6 +1527,7 @@ export function getWorkflowStep(
       },
       workflowType,
       3,
+      state,
       { tier: "standard", rationale: "Rebuild against skeptic-flagged issues." }
     );
   }
@@ -1532,6 +1554,7 @@ export function getWorkflowStep(
       },
       workflowType,
       2,
+      state,
       { tier: "standard", rationale: "Rebuild against render-verify and skeptic findings." }
     );
   }
@@ -1554,6 +1577,7 @@ export function getWorkflowStep(
         },
         workflowType,
         step,
+        state,
         { tier: "premium", rationale: "Synthesize failure-mode and alternative thesis directions." }
       );
     }
@@ -1578,7 +1602,8 @@ export function getWorkflowStep(
           done: false,
         },
         workflowType,
-        4
+        4,
+        state
       );
     }
   }
@@ -1620,6 +1645,7 @@ export function getWorkflowStep(
           },
           workflowType,
           step,
+          state,
           { tier: "fast", rationale: "Terminal redirect note — no further reasoning required." }
         );
       }
@@ -1685,7 +1711,8 @@ export function getWorkflowStep(
           workflowPhase: "tournament_fanout",
         },
         workflowType,
-        step
+        step,
+        state
       );
     }
   }
@@ -1716,6 +1743,7 @@ export function getWorkflowStep(
           },
           workflowType,
           step,
+          state,
           { tier: "fast", rationale: "Mechanical winner when only one path passes gates." }
         );
       }
@@ -1732,7 +1760,8 @@ export function getWorkflowStep(
         workflowPhase: "tournament_judge",
       },
       workflowType,
-      step
+      step,
+      state
     );
   }
 
@@ -1752,7 +1781,8 @@ export function getWorkflowStep(
           done: true,
         },
         workflowType,
-        step
+        step,
+        state
       );
     }
   }
@@ -1788,7 +1818,8 @@ export function getWorkflowStep(
           tasks,
         },
         workflowType,
-        step
+        step,
+        state
       );
     }
   }
@@ -1823,7 +1854,8 @@ export function getWorkflowStep(
             done: false,
           },
           workflowType,
-          step
+          step,
+          state
         );
       }
 
@@ -1838,6 +1870,7 @@ export function getWorkflowStep(
         },
         workflowType,
         step,
+        state,
         { tier: "standard", rationale: "Sequential git merges with build + test gates." }
       );
     }
@@ -1865,6 +1898,7 @@ export function getWorkflowStep(
       },
       workflowType,
       2,
+      state,
       { tier: "standard", rationale: "Rebuild against render-verify and skeptic findings." }
     );
   }
@@ -1893,5 +1927,5 @@ export function getWorkflowStep(
     };
   }
 
-  return withTierHint(result, workflowType, step);
+  return withTierHint(result, workflowType, step, state);
 }

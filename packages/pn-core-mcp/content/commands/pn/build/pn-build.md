@@ -9,6 +9,8 @@ description: Full development cycle — discovery, prior art, plan, skeptic, spe
 
 When **MCP workflow_step** is available, call `workflow_step("full_dev", 0, {})` and follow each returned instruction. When the user wants **full involvement** (gates at every step), pass `intent: "involved"` in state: `workflow_step("full_dev", 0, { intent: "involved" })`. For new projects, run `get_command("pn-new")` first to establish references and intent; do not bypass pn-new. Otherwise follow the steps below.
 
+**Lead orchestration:** Echo **`leadModelTier`** (or **`sessionModel`**) on each `workflow_step` call. At step 4 when the tool returns `parallel: true`, read **`orchestrationMode`** and **`subagentTierHints`** — spawn Task subagents with the builder tier exemplar; lead verifies summaries before step 5. Use **`orchestrationIntent: true`** with `leadModelTier: "premium"` for lighter delegation without a long-horizon model.
+
 **Multi-slice routing:** If discovery reveals ≥2 independent vertical slices (e.g. auth + payments + settings as separate bounded domains), and `featureProgram: true` is in `features.json`, consider `get_command("pn-program")` instead — it provides worktree isolation, contract locking, and a sequential merge queue for concurrent work streams. For a single work stream, stay on `pn-build`.
 
 1. **Discovery:** Run **pn-discovery-questionnaire**. Present each questionnaire section and **ask the user**; do not infer. Gate on user confirmation before proceeding. Skip if user says "skip discovery" or provides a complete spec.

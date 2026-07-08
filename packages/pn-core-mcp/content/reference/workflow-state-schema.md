@@ -7,7 +7,29 @@ Canonical schema for the state object passed to `workflow_step`. Clients may per
 - **`run_id`**: UUID string. On the first `workflow_step` call per run, if omitted, the server generates one and returns **`run_id`** on the JSON response. **Echo the same value** on every later `workflow_step`, `report_usage`, `gate_log_append`, and on `approval_checkpoint` when issuing or consuming human-gate tickets.
 - **`.pncore/workflow-runs.jsonl`** lines include **`runId`** when run logging is enabled.
 
-## Design workflow (workflowType: "design")
+## Global optional keys (all workflows)
+
+Orchestrator-lead mode (`orchestrationMode` on `workflow_step` responses). See rule **`pn-orchestrator-lead`** and `pn-core://reference/subagent-routing.md`.
+
+| Key | Type | Role |
+|-----|------|------|
+| **`leadModelTier`** | `fast` \| `standard` \| `premium` \| `premium_thinking` \| `long_horizon` | Declared lead session tier (preferred over slug matching) |
+| **`sessionModel`** | `string` | Optional picker slug; resolved via `TIER_META` exemplars/alternates |
+| **`orchestrationIntent`** | `boolean` | Enable light delegation on parallel steps when lead is not `long_horizon` |
+
+Example (long-horizon lead at program step 3):
+
+```json
+{ "leadModelTier": "long_horizon", "slices": [], "slicesPlanned": true }
+```
+
+Example (premium lead, parallel specialists):
+
+```json
+{ "leadModelTier": "premium", "orchestrationIntent": true, "specialistList": ["pn-frontend-developer", "pn-backend-developer"] }
+```
+
+---
 
 | Step | requiredFromState (to enter step) | State keys produced |
 |------|----------------------------------|---------------------|
@@ -438,6 +460,22 @@ When the MCP server sets **`PNCORE_REQUIRE_APPROVAL_FOR_WORKFLOWS`** to a comma-
 3. Call **`workflow_step`** with `state` containing **`pncoreHumanGateTicket`** (alongside normal keys). The server validates and consumes the ticket; reuse the same state object without the ticket key on the next human gate (each gate needs a new checkpoint).
 
 Tickets are stored under **`.pncore/human-gate-tickets.jsonl`** by default (`PNCORE_HUMAN_GATE_TICKETS_PATH` to override). **`PNCORE_APPROVAL_TOKEN`** must be set on the server or checkpoints fail closed.
+
+---
+
+## Loop STATE (scheduled / autonomous loops)
+
+Orthogonal to MCP `workflow_step` state. Used by Cursor `/loop`, catalog templates, and long-running maintainers.
+
+| Path | Purpose |
+|------|---------|
+| `.pncore/loops/<loop-id>/STATE.md` | Round log, escalations, paste-proof done checklist |
+| `.pncore/loops/<loop-id>/config.json` | Optional schedule, turn cap, risk color |
+| `.pncore/handoff.md` | Session-end handoff (`/pn-handoff`); not per-loop |
+
+Schema: `pn-core://reference/loop-catalog/STATE-schema.md`. Guide: `pn-core://reference/loop-orchestration-guide.md`.
+
+When a loop advances a plan phase, cross-link `STATE.md` **Current status** with `docs/plans/` and optional `.pncore/workflow-state.json`.
 
 ---
 

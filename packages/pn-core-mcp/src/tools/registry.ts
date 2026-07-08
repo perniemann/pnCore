@@ -112,7 +112,7 @@ export const PN_CORE_TOOLS: ToolDefinition[] = [
   def(
     "suggest_model_tier",
     "Suggest Model Tier",
-    "Return the suggested LLM model tier for a workflow step or subagent role. Omit `step` to get the full per-step table for the workflow. When `role` is set (explorer | builder | judge | checker), returns the tier for that subagent kind and ignores step. Tiers: fast | standard | premium | premium_thinking. Suggestions reflect cognitive demand and incorporate modelTierOverrides / tierAliases from features.json or PNCORE_FEATURES.",
+    "Return the suggested LLM model tier for a workflow step or subagent role. Omit `step` to get the full per-step table for the workflow. When `role` is set (explorer | builder | judge | checker | orchestrator), returns the tier for that subagent kind and ignores step. Tiers: fast | standard | premium | premium_thinking | long_horizon. Suggestions reflect cognitive demand and incorporate modelTierOverrides / tierAliases from features.json or PNCORE_FEATURES.",
     suggestModelTierSchema,
     readOnly,
     handleSuggestModelTier

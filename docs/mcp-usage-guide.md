@@ -19,7 +19,7 @@ pn-core is the **MCP server** for the pnCore plugin pack. It exposes skills, age
 |------|---------|-------------|
 | `health` | Status, version, **`calendarDateUtc`** / **`timestampUtc`** (server clock, UTC), capability summary | Gateways, probes, **dating changelogs or "as of" lines** |
 | `list_workflow_types` | List workflow types and step counts: `project_kickoff`, `design`, `full_dev`, `prompt_optimize`, `frontend_audit`, `backend_audit`, `image_create`, `visual_tweak`, `game_feature`, `svg_create`, `engine_feature`, `fsi_analyst_draft`, `business_strategy`, `media_director`, `feature_program`, `implementation_tournament` | AI (discoverability) |
-| `suggest_model_tier` | Suggested LLM model tier for a workflow step (`fast` / `standard` / `premium` / `premium_thinking`); omit `step` for the full per-step table | AI |
+| `suggest_model_tier` | Suggested LLM model tier for a workflow step or subagent role (`fast` / `standard` / `premium` / `premium_thinking` / `long_horizon`); pass `role` for subagent routing (`orchestrator` → long_horizon); omit `step` for the full per-step table | AI |
 | `list_skills` | List skill ids + descriptions | AI |
 | `get_skill` | Load full markdown of a skill by id | AI |
 | `list_agents` | List agent ids + descriptions | AI |

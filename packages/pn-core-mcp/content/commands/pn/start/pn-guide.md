@@ -81,6 +81,7 @@ Use `ask_question` when available:
 
 **Ship (`pn/ship/`):**
 - **pn-review** — Code quality + performance review
+- **pn-handoff** — Session handoff + two reflection questions (`.pncore/handoff.md`)
 - **pn-retro** — Session retrospective (manual v1)
 - **pn-video-lint** — Pre-render video checklist
 

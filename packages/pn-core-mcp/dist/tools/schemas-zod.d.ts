@@ -20,8 +20,8 @@ export declare const workflowTypeEnum: z.ZodEnum<{
 }>;
 export declare const workflowGateTypeEnum: z.ZodOptional<z.ZodEnum<{
     design: "design";
-    skeptic: "skeptic";
     plan: "plan";
+    skeptic: "skeptic";
     discovery: "discovery";
 }>>;
 export declare const workflowGateVerdictEnum: z.ZodOptional<z.ZodEnum<{
@@ -56,6 +56,7 @@ export declare const suggestModelTierSchema: {
         builder: "builder";
         judge: "judge";
         checker: "checker";
+        orchestrator: "orchestrator";
     }>>;
 };
 export declare const listSkillsSchema: {
@@ -158,8 +159,8 @@ export declare const workflowConfirmSchema: {
     readonly context: z.ZodOptional<z.ZodString>;
     readonly gate_type: z.ZodOptional<z.ZodEnum<{
         design: "design";
-        skeptic: "skeptic";
         plan: "plan";
+        skeptic: "skeptic";
         discovery: "discovery";
     }>>;
     readonly verdict: z.ZodOptional<z.ZodEnum<{
@@ -237,11 +238,11 @@ export declare const paperclipIssueCommentSchema: {
 export declare const paperclipIssueUpdateSchema: {
     readonly issueId: z.ZodOptional<z.ZodString>;
     readonly status: z.ZodEnum<{
+        done: "done";
         backlog: "backlog";
         todo: "todo";
         in_progress: "in_progress";
         in_review: "in_review";
-        done: "done";
         blocked: "blocked";
         cancelled: "cancelled";
     }>;

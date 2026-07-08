@@ -40,7 +40,17 @@ Follow each returned instruction. The workflow has 6 steps:
 
 Read `get_skill('pn-program-orchestration')` and `get_skill('pn-slice-contracts')` at step 1 for decomposition and contract guidance.
 
-### Enable the feature flag
+### Lead orchestration (model tier)
+
+Pass your **active lead model tier** on every `workflow_step` call (echo in state). Full orchestrator-lead delegation activates on **parallel fan-out steps** (step 3+), not on discovery/planning steps.
+
+- **`leadModelTier: "long_horizon"`** — recommended for step 3+ (parallel slice fan-out). Lead plans and verifies; slice work runs in worktree subagents on **standard** tier. Call `suggest_model_tier({ role: "orchestrator" })` at session start for the current long-horizon exemplar (default Fable; alternates in `TIER_META`).
+- **`leadModelTier: "premium"`** + **`orchestrationIntent: true`** — lighter delegation when long-horizon models are unavailable.
+- Or pass **`sessionModel`** with your picker slug instead of `leadModelTier`.
+
+When `orchestrationMode` is `lead` or `light_delegate`, spawn Task subagents per `tasks[]` using `subagentTierHints.builder` — do not implement slices in the lead session.
+
+---
 
 Add to `pn-core://config/features.json` (create if absent):
 

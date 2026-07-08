@@ -557,6 +557,18 @@ describe("MCP per-tool integration", () => {
     expect(typeof parsed.exemplar).toBe("string");
   });
 
+  it("suggest_model_tier: role orchestrator returns long_horizon tier", async () => {
+    const result = await client.callTool({
+      name: "suggest_model_tier",
+      arguments: { role: "orchestrator" },
+    });
+    expect(result.isError).toBeFalsy();
+    const parsed = parseFirst(result);
+    expect(parsed.role).toBe("orchestrator");
+    expect(parsed.tier).toBe("long_horizon");
+    expect(String(parsed.exemplar)).toMatch(/fable/i);
+  });
+
   it("suggest_model_tier: missing role and workflowType returns INVALID_STATE", async () => {
     const result = await client.callTool({
       name: "suggest_model_tier",

@@ -251,6 +251,36 @@ describe("workflows contract", () => {
       expect(r.tasks?.length).toBe(2);
     });
 
+    it("full_dev step 4 parallel with premium + orchestrationIntent returns light_delegate", () => {
+      const result = getWorkflowStep("full_dev", 4, {
+        specialistList: ["pn-frontend-developer", "pn-backend-developer"],
+        routeConfirmed: true,
+        plan: "p",
+        skepticPassed: true,
+        leadModelTier: "premium",
+        orchestrationIntent: true,
+      });
+      assertWorkflowStepResultShape(result);
+      const r = result as WorkflowStepResult;
+      expect(r.parallel).toBe(true);
+      expect(r.orchestrationMode).toBe("light_delegate");
+      expect(r.instruction).toContain("Light delegate mode");
+      expect(r.tasks![0].instruction).toContain("Delegate implementation");
+    });
+
+    it("full_dev step 4 parallel without lead signals stays implementer with soft hint", () => {
+      const result = getWorkflowStep("full_dev", 4, {
+        specialistList: ["pn-frontend-developer", "pn-backend-developer"],
+        routeConfirmed: true,
+        plan: "p",
+        skepticPassed: true,
+      });
+      const r = result as WorkflowStepResult;
+      expect(r.orchestrationMode).toBe("implementer");
+      expect(r.instruction).toContain("parallel fan-out");
+      expect(r.instruction).not.toContain("Orchestrator lead mode");
+    });
+
     it("full_dev step 3 returns github_issues phase when createGithubIssues true", () => {
       const result = getWorkflowStep("full_dev", 3, {
         plan: "p",
@@ -792,6 +822,48 @@ describe("workflows contract", () => {
         }
       });
 
+      it("step 3 with leadModelTier long_horizon returns orchestrationMode lead", () => {
+        const r = getWorkflowStep("feature_program", 3, {
+          slices: twoSlicesWithPlans,
+          slicesPlanned: true,
+          leadModelTier: "long_horizon",
+        });
+        assertWorkflowStepResultShape(r);
+        const w = r as WorkflowStepResult;
+        expect(w.orchestrationMode).toBe("lead");
+        expect(w.instruction).toContain("Orchestrator lead mode");
+        expect(w.subagentTierHints?.builder?.tier).toBe("standard");
+        expect(w.tasks![0].instruction).toContain("Delegate implementation");
+      });
+
+      it("step 1 with leadModelTier long_horizon stays implementer without lead contract", () => {
+        const r = getWorkflowStep("feature_program", 1, {
+          discoveryPath: "docs/discovery/2026-05-17-test.md",
+          programSlug: "test",
+          leadModelTier: "long_horizon",
+        });
+        assertWorkflowStepResultShape(r);
+        const w = r as WorkflowStepResult;
+        expect(w.orchestrationMode).toBe("implementer");
+        expect(w.instruction).not.toContain("Orchestrator lead mode");
+        expect(w.instruction).toContain("parallel fan-out");
+      });
+
+      it("step 1 with long_horizon + orchestrationIntent returns lead contract without parallel tasks", () => {
+        const r = getWorkflowStep("feature_program", 1, {
+          discoveryPath: "docs/discovery/2026-05-17-test.md",
+          programSlug: "test",
+          leadModelTier: "long_horizon",
+          orchestrationIntent: true,
+        });
+        assertWorkflowStepResultShape(r);
+        const w = r as WorkflowStepResult;
+        expect(w.parallel).toBeFalsy();
+        expect(w.orchestrationMode).toBe("lead");
+        expect(w.instruction).toContain("Orchestrator lead mode");
+        expect(w.tasks).toBeUndefined();
+      });
+
       it("step 3 returns parallel tasks without worktreePath (covers fallback instruction branch)", () => {
         // Covers the false branch of `sl.worktreePath ? ... : ...` and `sl.branch ?? sl.id`
         const slicesWithoutWorktree = twoSlices.map((s) => ({
@@ -1220,7 +1292,7 @@ describe("workflows contract", () => {
 
     describe("suggestedModelTier (model-tier suggestions)", () => {
       const SUGGEST_HINT_RE =
-        /^\*\*Suggested model tier:\*\* (fast|standard|premium|premium_thinking)/;
+        /^\*\*Suggested model tier:\*\* (fast|standard|premium|premium_thinking|long_horizon)/;
 
       it("every annotated StepDef.modelTier is a valid ModelTier value", () => {
         for (const wt of Object.keys(workflowSteps) as WorkflowType[]) {

@@ -6,12 +6,13 @@ afterEach(() => {
 });
 
 describe("model-tiers helpers (pure)", () => {
-  it("isModelTier accepts the four canonical values", async () => {
+  it("isModelTier accepts the five canonical values", async () => {
     const { isModelTier } = await import("./model-tiers.js");
     expect(isModelTier("fast")).toBe(true);
     expect(isModelTier("standard")).toBe(true);
     expect(isModelTier("premium")).toBe(true);
     expect(isModelTier("premium_thinking")).toBe(true);
+    expect(isModelTier("long_horizon")).toBe(true);
   });
 
   it("isModelTier rejects junk values", async () => {
@@ -174,6 +175,13 @@ describe("resolveRoleTier", () => {
     const { resolveRoleTier } = await import("./model-tiers.js");
     expect(resolveRoleTier("builder").tier).toBe("standard");
     expect(resolveRoleTier("checker").tier).toBe("standard");
+  });
+
+  it("maps orchestrator to long_horizon", async () => {
+    const { resolveRoleTier } = await import("./model-tiers.js");
+    const r = resolveRoleTier("orchestrator");
+    expect(r.tier).toBe("long_horizon");
+    expect(r.exemplar).toMatch(/fable/i);
   });
 
   it("applies tierAliases when provided", async () => {

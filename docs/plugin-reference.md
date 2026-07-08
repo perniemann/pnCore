@@ -93,6 +93,7 @@ Roughly **25** user-entry commands ship under **`plugins/pnCore/.cursor/commands
 - **pn-pressure-test** — Startup idea pressure-test (verdict, scorecard, fatal flaws, competition-as-behavior, first-customer moves, ~2-week MVP test). Not for implementation plans; use pn-skeptic / pn-grill for those.
 - **pn-program** — Multi-slice hierarchical orchestration (`feature_program` workflow; preview behind `featureProgram: true`). Prefer `workflow_step("feature_program", …)` when MCP available.
 - **pn-best-of-n** — Competing implementations tournament (2–3 isolated worktrees, objective gates, premium judge). Skill-only when `bestOfN.enabled` is false; prefer `workflow_step("implementation_tournament", …)` when the flag is on.
+- **pn-handoff** — Session handoff at `.pncore/handoff.md` plus two reflection questions before close.
 - **pn-retro** — Manual session retrospective; blameless reports under `docs/refs/retros/`.
 - **pn-prompt-optimize** — Refine and stress-test a prompt or instruction. Prefer `workflow_step("prompt_optimize", …)` when MCP available.
 

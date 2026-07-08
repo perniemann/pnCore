@@ -14,7 +14,7 @@ One product, three surfaces:
 
 Canonical content lives in `packages/pn-core-mcp/content/` and syncs into the plugin via `npm run sync:content`. Edit canonical files only; never hand-edit the plugin copy.
 
-**Catalog:** 167 skills, 9 public agents + 6 internal orchestration agents, 28 visible slash palette files (27 under **`pn`** submenu + **`/pn`** stub) + 18 palette-hidden surgical commands (46 command files total), 24 MCP tools, 16 workflow types, plus `pn-core://` resources and prompts.
+**Catalog:** 168 skills, 9 public agents + 6 internal orchestration agents, 29 visible slash palette files (28 under **`pn`** submenu + **`/pn`** stub) + 18 palette-hidden surgical commands (47 command files total), 24 MCP tools, 16 workflow types, plus `pn-core://` resources and prompts.
 
 **Best fit:** Teams building with Cursor on React, Astro, Next.js, vanilla web, Node backends, Three.js / Babylon / gamedev, n8n, and web3. **Limited support** for Vue, Svelte, Angular, and Unity. See [docs/plugin-reference.md](docs/plugin-reference.md) for the full inventory.
 
@@ -166,9 +166,10 @@ Start with `workflow_step("design", 0)` instead of `full_dev`. Loads `.pncore-de
 Load these before a build session:
 
 - `pn-core://reference/best-practices.md` — a11y, security, performance, orchestration, mobile, WebXR
+- `pn-core://reference/loop-orchestration-guide.md` — loop engineering, subagent model routing, Cursor `/loop` bridge
 - `pn-core://reference/aesthetics-baseline.md` — distinctive UI checklist; mirror in your project's `CLAUDE.md` via `<frontend_aesthetics>`
 - `health` — current UTC date and capability summary
-- **Three tier concepts:** **delivery tier** (MVP/Full), **context tier** (1–4 reading depth), **model tier** (`fast` / `standard` / `premium` / `premium_thinking`). See `pn-core://reference/delivery-tier-criteria.md` and [MCP tools](packages/pn-core-mcp/README.md#tools).
+- **Three tier concepts:** **delivery tier** (MVP/Full), **context tier** (1–4 reading depth), **model tier** (`fast` / `standard` / `premium` / `premium_thinking` / `long_horizon`). Loop orchestration: `suggest_model_tier` with `role: orchestrator` → `long_horizon` (e.g. Fable). See `pn-core://reference/delivery-tier-criteria.md` and [MCP tools](packages/pn-core-mcp/README.md#tools).
 
 Companion MCPs and full checklist: [docs/mcp-usage-guide.md](docs/mcp-usage-guide.md#best-practices).
 

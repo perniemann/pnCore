@@ -106,6 +106,10 @@ The 2026 industry stance (OpenAI, Anthropic, Google) is a **stack**, not a singl
 - **Bounded loops.** Every loop has a stop condition and an iteration cap (3-failed-attempts rule; `pn-review-optimize-loop` single retry; skeptic gates).
 - **Evals before shipping prompt changes.** Both OpenAI (Promptfoo direction) and Anthropic (capability vs regression suites) treat behavioral evals as non-optional for production prompts. Skill **retrieval** evals and behavioral eval coverage remain tracked gaps — use `pn-rag-evaluation` and workflow skeptic gates before shipping prompt changes.
 - **Model-specific knobs.** Stay model-agnostic in content, but when a target model is named apply `pn-core://reference/prompt-provider-knobs.md` (reasoning effort, adaptive thinking, `thinking_level`).
+- **Loop orchestration.** Full guide: `pn-core://reference/loop-orchestration-guide.md`. Starter templates: `pn-core://reference/loop-catalog/README.md`.
+- **Paste-proof goals.** Evaluators and `/goal` see chat only — require pasted command output, not “tests pass.” See loop guide § Paste-proof completion.
+- **Loop STATE files.** Per-loop memory at `.pncore/loops/<loop-id>/STATE.md` (schema in `loop-catalog/STATE-schema.md`); orthogonal to MCP `workflow-state.json`.
+- **Cursor `/loop` bridge.** External scheduler; combine with catalog templates + `pn-loop` verification. Distinct from `pn-loop` skill (no scheduler).
 
 ### 10.1 Build-phase loop (not `pn-loop`)
 

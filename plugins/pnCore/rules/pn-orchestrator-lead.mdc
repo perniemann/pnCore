@@ -1,0 +1,38 @@
+---
+description: Orchestrator-lead mode for workflow_step — tier-first delegation when lead is long_horizon or premium+parallel
+alwaysApply: true
+---
+
+# Orchestrator lead (model-tier delegation)
+
+When driving **`workflow_step`** as the **lead session**, pass your active model tier in state so pnCore can adapt orchestration vs implementation:
+
+| State key | Type | Role |
+|-----------|------|------|
+| **`leadModelTier`** | `fast` \| `standard` \| `premium` \| `premium_thinking` \| `long_horizon` | Preferred — declare the tier matching your picker model |
+| **`sessionModel`** | string | Optional picker slug; resolved via exemplars/alternates from `suggest_model_tier` / `pn-core://reference/subagent-routing.md` |
+| **`orchestrationIntent`** | boolean | Opt-in delegation before parallel fan-out: `long_horizon` → `lead`; premium → `light_delegate`; standard + parallel → `light_delegate` |
+
+Echo these on **every** `workflow_step` call in the same run (with `run_id`). Full delegation contracts appear when **`parallel: true`** or **`orchestrationIntent: true`** (including non-parallel steps when intent is set).
+
+## When `workflow_step` returns `orchestrationMode`
+
+| Mode | Lead behavior |
+|------|----------------|
+| **`lead`** | `long_horizon` declared — plan, coordinate, verify only; **no bulk file edits** in lead session |
+| **`light_delegate`** | Premium + (`parallel` or `orchestrationIntent`), or `orchestrationIntent` + `parallel` on standard — spawn Task subagents per `tasks[]`; lead may fix ≤1 trivial file |
+| **`implementer`** | Default — lead may implement directly |
+
+## Delegation contract
+
+1. Read **`subagentTierHints`** and **`tasks[].suggestedSubagentTier`** on the response.
+2. For each parallel task, spawn **Task** (`generalPurpose`, `best-of-n-runner`, `explore`, `shell`) with `model` set to the **builder** or **explorer** exemplar from hints — not the lead model.
+3. Call **`suggest_model_tier`** with `role: "orchestrator"` at session start for the recommended long-horizon exemplar (default: Fable; alternates in `TIER_META`).
+4. Re-call **`workflow_step`** only after all delegated tasks report summaries in `taskResults`.
+5. After **two verification failures** on the same finding, record in loop STATE and follow `pn-core://reference/loop-catalog/escalation-queue.md`.
+
+## Without long_horizon access
+
+Set `PNCORE_FEATURES` or `features.json`: `"tierAliases": { "long_horizon": "premium" }` — **lead mode behavior is unchanged**; only the exemplar string downgrades.
+
+Pair with `pn-core://reference/subagent-routing.md` and `pn-core://reference/loop-orchestration-guide.md`.

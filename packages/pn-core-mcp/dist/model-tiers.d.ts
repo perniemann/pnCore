@@ -15,7 +15,7 @@
  * *context* tiers (1–4, see pn-context-engineering). This file deals only
  * with *model* tiers — the LLM-power axis surfaced in Cursor's model picker.
  */
-export declare const MODEL_TIERS: readonly ["fast", "standard", "premium", "premium_thinking"];
+export declare const MODEL_TIERS: readonly ["fast", "standard", "premium", "premium_thinking", "long_horizon"];
 export type ModelTier = (typeof MODEL_TIERS)[number];
 export declare function isModelTier(v: unknown): v is ModelTier;
 export type TierMeta = {
@@ -30,7 +30,7 @@ export type SuggestedModelTier = {
     rationale: string;
 };
 /** Subagent role → model tier (P2 best-of-N / routing). */
-export type SubagentRole = "explorer" | "builder" | "judge" | "checker";
+export type SubagentRole = "explorer" | "builder" | "judge" | "checker" | "orchestrator";
 export declare const SUBAGENT_ROLE_TIERS: Record<SubagentRole, ModelTier>;
 export declare function isSubagentRole(v: unknown): v is SubagentRole;
 /** Tier suggestion for Task subagent_type routing (explorer/builder/judge/checker). */
