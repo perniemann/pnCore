@@ -128,6 +128,12 @@
       "file": "pn-user-stories.md"
     },
     {
+      "id": "pn-handoff",
+      "category": "Ship",
+      "description": "End a session with a structured handoff at .pncore/handoff.md plus two reflection questions (coverage gap and blind spots). Use before closing a long session or switching tasks.",
+      "file": "pn-handoff.md"
+    },
+    {
       "id": "pn-retro",
       "category": "Ship",
       "description": "Run a blameless session retrospective on an agent transcript. Classifies mistakes under a 5-code taxonomy and writes a structured report under docs/refs/retros/. Manual-only in v1; auto-trigger and cross-session pattern detection are deferred to v2.",

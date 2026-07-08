@@ -90,7 +90,7 @@ Step 1 must emit `.cursor/worktrees.json`. Use `get_skill('pn-slice-contracts')`
 | 0 | Run pn-discovery-questionnaire. Ask for programSlug and confirm programBranch. |
 | 1 | Decompose slices, lock contracts, emit worktrees.json, validate DAG (no cycles). Hard-exit to /pn-build if only 1 slice. |
 | 2 | Run pn-writing-plans once per slice. Run pn-skeptic-challenge on each plan. Gate on confirmation. |
-| 3 | Launch parallel slice execution via workflow_step tasks. Each slice runs full_dev starting at step 3. |
+| 3 | Launch parallel slice execution via workflow_step tasks. Pass **`leadModelTier: "long_horizon"`** (or your active tier) in state. When `orchestrationMode` is `lead`, spawn Task subagents per slice — lead does not bulk-edit in slice worktrees. Each slice runs full_dev starting at step 3 on **standard** tier in its worktree. |
 | 4 | Sub-phase A: verifier gate per slice (pn-testing-specialist + contract conformance). Sub-phase B: sequential merge in DAG topological order; run build + tests after each merge. |
 | 5 | Program review: pn-reviewer + pn-skeptic on the merged program branch. pn-docs-sync. |
 

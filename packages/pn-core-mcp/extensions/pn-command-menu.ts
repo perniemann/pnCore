@@ -65,6 +65,12 @@ function runCommand(entry: PiCommandIndexEntry, ctx: ExtensionContext): void {
   }
   ctx.ui.setEditorText(body);
   ctx.ui.notify(`Loaded /${entry.id}`, "info");
+  if (entry.id === "pn-program" || entry.id === "pn-build") {
+    ctx.ui.notify(
+      "Orchestrator lead: pass leadModelTier in workflow_step state; delegate parallel work to subagents (see pn-orchestrator-lead rule).",
+      "info"
+    );
+  }
 }
 
 async function showPnCommandSelector(

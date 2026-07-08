@@ -3,7 +3,8 @@
  * Control flow lives here; the LLM assists each step but does not decide sequence.
  * 2026 best practice: "Gating LLM invocation behind deterministic routing decisions."
  */
-import { type ModelTier, type SuggestedModelTier } from "./model-tiers.js";
+import { type OrchestrationMode } from "./orchestration-lead.js";
+import { type ModelTier, type SubagentRole, type SuggestedModelTier } from "./model-tiers.js";
 export type WorkflowType = "design" | "full_dev" | "project_kickoff" | "prompt_optimize" | "frontend_audit" | "backend_audit" | "image_create" | "visual_tweak" | "game_feature" | "svg_create" | "engine_feature" | "unreal_feature" | "godot_feature" | "fsi_analyst_draft" | "business_strategy" | "media_director" | "feature_program" | "implementation_tournament";
 export type GateType = "human" | "model";
 /** Intent from pn-new: full_auto (few gates), design_focused (design workflow), involved (strict gates at every step). */
@@ -25,6 +26,8 @@ export interface WorkflowTask {
     id: string;
     instruction: string;
     agentId: string;
+    /** When orchestrator-lead mode is active, preferred subagent tier for Task delegation. */
+    suggestedSubagentTier?: SuggestedModelTier;
 }
 export interface WorkflowStepResult {
     instruction: string;
@@ -42,6 +45,10 @@ export interface WorkflowStepResult {
      * `instruction` when tier !== "standard".
      */
     suggestedModelTier?: SuggestedModelTier;
+    /** lead = long_horizon orchestrator; light_delegate = premium+parallel; implementer = default. */
+    orchestrationMode?: OrchestrationMode;
+    /** Subagent tier hints when orchestrationMode is lead or light_delegate. */
+    subagentTierHints?: Partial<Record<SubagentRole, SuggestedModelTier>>;
 }
 /** Internal engine step keys — not exposed on workflowTypeEnum. */
 export declare const INTERNAL_ENGINE_WORKFLOW_TYPES: readonly ["unreal_feature", "godot_feature"];

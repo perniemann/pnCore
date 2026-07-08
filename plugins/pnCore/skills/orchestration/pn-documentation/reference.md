@@ -73,7 +73,7 @@ Full document templates and format structures. For doc type rules and convention
 
 Baseline per skill invocation (single pass). Multiply by step count for multi-step phases.
 
-**Roadmap tier → pnCore model tier:** Low = `fast`, Medium = `standard`, High = `premium`, Highest = `premium_thinking`. See `pn-create-workflow-roadmap` §3 and `pn-core://reference/subagent-routing.md`.
+**Roadmap tier → pnCore model tier:** Low = `fast`, Medium = `standard`, High = `premium`, Highest = `premium_thinking`, Orchestration = `long_horizon`. Use Orchestration for lead sessions on multi-slice programs and loop orchestration (`suggest_model_tier` role `orchestrator`). See `pn-create-workflow-roadmap` §3, rule **`pn-orchestrator-lead`**, `pn-core://reference/subagent-routing.md`, and `pn-core://reference/loop-orchestration-guide.md`.
 
 | Skill/Command | Est. Input | Est. Output | Model Tier |
 |---|---|---|---|

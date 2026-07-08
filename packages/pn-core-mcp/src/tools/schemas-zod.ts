@@ -46,10 +46,10 @@ export const suggestModelTierSchema = {
     .optional()
     .describe("Specific step index. Omit to get the full per-step table for this workflow."),
   role: z
-    .enum(["explorer", "builder", "judge", "checker"])
+    .enum(["explorer", "builder", "judge", "checker", "orchestrator"])
     .optional()
     .describe(
-      "Subagent role tier (explorer=fast, builder=standard, judge=premium_thinking, checker=standard). When set, workflowType/step are optional."
+      "Subagent role tier (explorer=fast, builder=standard, judge=premium_thinking, checker=standard, orchestrator=long_horizon). When set, workflowType/step are optional."
     ),
 } as const;
 

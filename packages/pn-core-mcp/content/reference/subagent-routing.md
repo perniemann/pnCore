@@ -2,6 +2,8 @@
 
 When to use Cursor's Task tool (`subagent_type`, optional `model`, `readonly`) with pnCore workflows. Pair with per-step **`suggestedModelTier`** from `workflow_step` — tier hints apply to the **lead session**; subagents should use the table below unless the step explicitly says otherwise.
 
+When `workflow_step` returns **`orchestrationMode`** (`lead` | `light_delegate` | `implementer`), follow rule **`pn-orchestrator-lead`**: pass **`leadModelTier`** / **`sessionModel`** in state; delegate parallel `tasks[]` using **`subagentTierHints`**, not the lead model.
+
 **Resource:** `pn-core://reference/subagent-routing.md`.
 
 ## Disambiguation
@@ -27,6 +29,18 @@ See also: `pn-core://reference/parallel-rules.md`; model tier names and exemplar
 | CI failure triage | `ci-investigator` | **fast** / **standard** | One failing check; readonly |
 | Shell / git / npm commands | `shell` | **fast** | Deterministic commands only |
 | Same-spec N attempts | `best-of-n-runner` | **standard** per path; **premium** judge | P1 pilot — see `pn-design-variants`; hard verify gates before judge |
+| Long-horizon loop lead | Lead session (not Task) | **long_horizon** | Multi-hour `/loop`, escalation queue; see `loop-orchestration-guide.md` |
+| Routine loop tick | `explore` or `shell`, readonly | **fast** | CI watch, dependency audit, doc drift — escalate after 2 same failures |
+
+## Escalation queue (cheap → long_horizon)
+
+For scheduled loops ([`loop-catalog/escalation-queue.md`](loop-catalog/escalation-queue.md)):
+
+1. **Default tick:** fast tier (`explore` / `shell`, readonly when possible).
+2. **After 2 verification failures** on the same finding (recorded in `.pncore/loops/<id>/STATE.md`): bump lead to **long_horizon** (e.g. claude-fable-5) for replanning only; delegate edits to **standard** `generalPurpose` subagents.
+3. **Log every escalation** in STATE `Escalations` table; downgrade when verify passes or turn cap hit.
+
+Never start a routine maintainer loop on long_horizon — Fable is for orchestration and escalation, not every tick.
 
 ## Parallel review panel (high-risk slices)
 
@@ -60,6 +74,9 @@ Task({
 | **standard** | claude-4.6-sonnet-medium-thinking | gpt-5.3-codex, gpt-5.5-medium |
 | **premium** | claude-opus-4-8-thinking-high | — |
 | **premium_thinking** | claude-opus-4-8-thinking-high + MAX | Downgrade via `PNCORE_FEATURES.tierAliases` |
+| **long_horizon** | claude-fable-5 | Loop orchestration, escalation; alias to `premium` if Fable unavailable |
+
+MCP `suggest_model_tier` with `role: "orchestrator"` returns **long_horizon**. See `pn-core://reference/loop-orchestration-guide.md`.
 
 Bump exemplars in `packages/pn-core-mcp/src/model-tiers.ts` when the Cursor picker rotates.
 

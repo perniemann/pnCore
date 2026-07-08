@@ -387,6 +387,27 @@ describe("content contract", () => {
       expect(r!.mimeType).toBe("text/markdown");
     });
 
+    it("returns loop-orchestration-guide markdown", () => {
+      const r = getResource("pn-core://reference/loop-orchestration-guide.md");
+      expect(r).not.toBeNull();
+      expect(r!.text).toContain("# Loop orchestration guide");
+      expect(r!.mimeType).toBe("text/markdown");
+    });
+
+    it("returns loop-catalog README markdown", () => {
+      const r = getResource("pn-core://reference/loop-catalog/README.md");
+      expect(r).not.toBeNull();
+      expect(r!.text).toContain("# Loop catalog");
+      expect(r!.mimeType).toBe("text/markdown");
+    });
+
+    it("returns loop-catalog ci-babysitter markdown", () => {
+      const r = getResource("pn-core://reference/loop-catalog/ci-babysitter.md");
+      expect(r).not.toBeNull();
+      expect(r!.text).toContain("ci-babysitter");
+      expect(r!.mimeType).toBe("text/markdown");
+    });
+
     it("returns null for an unknown URI", () => {
       expect(getResource("pn-core://nonexistent/__never__.md")).toBeNull();
     });

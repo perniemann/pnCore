@@ -15,7 +15,13 @@
  * *context* tiers (1–4, see pn-context-engineering). This file deals only
  * with *model* tiers — the LLM-power axis surfaced in Cursor's model picker.
  */
-export const MODEL_TIERS = ["fast", "standard", "premium", "premium_thinking"];
+export const MODEL_TIERS = [
+    "fast",
+    "standard",
+    "premium",
+    "premium_thinking",
+    "long_horizon",
+];
 export function isModelTier(v) {
     return typeof v === "string" && MODEL_TIERS.includes(v);
 }
@@ -41,12 +47,18 @@ export const TIER_META = {
         alternates: [],
         description: "Premium + MAX Mode (extended thinking): security audit, financial models, strategic frame, contract design, best-of-N judge.",
     },
+    long_horizon: {
+        exemplar: "claude-fable-5",
+        alternates: ["claude-opus-4-8-thinking-high"],
+        description: "Long-horizon tier: multi-hour loop orchestration, sustained planning, escalation after cheap-tier verify failures (Anthropic Fable 5).",
+    },
 };
 export const SUBAGENT_ROLE_TIERS = {
     explorer: "fast",
     builder: "standard",
     judge: "premium_thinking",
     checker: "standard",
+    orchestrator: "long_horizon",
 };
 export function isSubagentRole(v) {
     return typeof v === "string" && v in SUBAGENT_ROLE_TIERS;
@@ -59,6 +71,7 @@ export function resolveRoleTier(role, tierAliases) {
         builder: "Builder subagents: scoped implementation in worktrees (best-of-n-runner, generalPurpose).",
         judge: "Judge pass: separate premium tier after objective gates (maker ≠ checker).",
         checker: "Checker/reviewer subagents: readonly review, bugbot, same-session verify.",
+        orchestrator: "Long-horizon loop lead: sustained orchestration, escalation queue, multi-hour scheduled runs (Fable 5).",
     };
     return buildSuggestedTier(tier, roleRationale[role] ?? TIER_META[tier].description);
 }
@@ -90,6 +103,7 @@ const TIER_RANK = {
     standard: 1,
     premium: 2,
     premium_thinking: 3,
+    long_horizon: 4,
 };
 /** Clamp `tier` to at most `maxTier` (for bestOfN.maxCostTier builder cap). */
 export function capModelTier(tier, maxTier) {

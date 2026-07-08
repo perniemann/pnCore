@@ -19,7 +19,7 @@ Use `ask_question` when available:
 4. **Product management** — PRD, stories, strategy (`pn-create-prd`, `pn-user-stories`, `pn-strategy`, …)
 5. **Audit** — frontend or backend quality (`pn-frontend-audit`, `pn-backend-audit`)
 6. **Challenge** — plan stress-test (`pn-grill`, `pn-skeptic`, `pn-prompt-optimize`)
-7. **Ship** — review, retro, video lint (`pn-review`, `pn-retro`, `pn-video-lint`)
+7. **Ship** — review, handoff, retro, video lint (`pn-review`, `pn-handoff`, `pn-retro`, `pn-video-lint`)
 8. **Show full map** — load `get_command("pn-guide")`
 
 ## Step 2 — Run

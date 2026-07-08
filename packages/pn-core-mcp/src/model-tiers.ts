@@ -16,7 +16,13 @@
  * with *model* tiers — the LLM-power axis surfaced in Cursor's model picker.
  */
 
-export const MODEL_TIERS = ["fast", "standard", "premium", "premium_thinking"] as const;
+export const MODEL_TIERS = [
+  "fast",
+  "standard",
+  "premium",
+  "premium_thinking",
+  "long_horizon",
+] as const;
 
 export type ModelTier = (typeof MODEL_TIERS)[number];
 
@@ -56,6 +62,12 @@ export const TIER_META: Record<ModelTier, TierMeta> = {
     description:
       "Premium + MAX Mode (extended thinking): security audit, financial models, strategic frame, contract design, best-of-N judge.",
   },
+  long_horizon: {
+    exemplar: "claude-fable-5",
+    alternates: ["claude-opus-4-8-thinking-high"],
+    description:
+      "Long-horizon tier: multi-hour loop orchestration, sustained planning, escalation after cheap-tier verify failures (Anthropic Fable 5).",
+  },
 };
 
 export type SuggestedModelTier = {
@@ -65,13 +77,14 @@ export type SuggestedModelTier = {
 };
 
 /** Subagent role → model tier (P2 best-of-N / routing). */
-export type SubagentRole = "explorer" | "builder" | "judge" | "checker";
+export type SubagentRole = "explorer" | "builder" | "judge" | "checker" | "orchestrator";
 
 export const SUBAGENT_ROLE_TIERS: Record<SubagentRole, ModelTier> = {
   explorer: "fast",
   builder: "standard",
   judge: "premium_thinking",
   checker: "standard",
+  orchestrator: "long_horizon",
 };
 
 export function isSubagentRole(v: unknown): v is SubagentRole {
@@ -90,6 +103,8 @@ export function resolveRoleTier(
       "Builder subagents: scoped implementation in worktrees (best-of-n-runner, generalPurpose).",
     judge: "Judge pass: separate premium tier after objective gates (maker ≠ checker).",
     checker: "Checker/reviewer subagents: readonly review, bugbot, same-session verify.",
+    orchestrator:
+      "Long-horizon loop lead: sustained orchestration, escalation queue, multi-hour scheduled runs (Fable 5).",
   };
   return buildSuggestedTier(tier, roleRationale[role] ?? TIER_META[tier].description);
 }
@@ -130,6 +145,7 @@ const TIER_RANK: Record<ModelTier, number> = {
   standard: 1,
   premium: 2,
   premium_thinking: 3,
+  long_horizon: 4,
 };
 
 /** Clamp `tier` to at most `maxTier` (for bestOfN.maxCostTier builder cap). */
