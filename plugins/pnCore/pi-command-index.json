@@ -38,6 +38,12 @@
       "file": "pn-program.md"
     },
     {
+      "id": "pn-backfill-evals",
+      "category": "Challenge",
+      "description": "Rank skills missing EVAL.yaml and emit paste-ready local-agent prompts for small backfill batches. Use when starting a local EVAL backfill session or during ADR-0002 quarterly audits. Does not auto-write suites.",
+      "file": "pn-backfill-evals.md"
+    },
+    {
       "id": "pn-grill",
       "category": "Challenge",
       "description": "Interactive Socratic stress-test — one question at a time with recommended answers, walks every branch until resolved. Use for dialogue before building. For a fast automated single-pass challenge, use pn-skeptic instead.",

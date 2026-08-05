@@ -71,6 +71,7 @@ skills/
 **Frontmatter (YAML):**
 - `name`: Letters, numbers, hyphens only
 - `description`: Include both WHAT (one line) and WHEN (trigger scenarios). Avoid summarizing full workflow.
+- `owner` (optional): Maintainer handle or team label for long-term accountability. Prefer this over CODEOWNERS when GitHub teams are not configured (CODEOWNERS would block PRs).
 
 **Description rule:** Lead with what the skill does (one sentence), then "Use when" and trigger conditions. This improves discovery; avoid putting the full workflow in the description so agents read the full skill.
 
@@ -92,6 +93,24 @@ description: Creates bite-sized implementation plans with exact file paths. Use 
 - **Quick reference:** Table or bullets for scanning
 - **Common mistakes:** What goes wrong + fixes
 - **Output:** What to produce
+
+**Progressive disclosure:** Keep `SKILL.md` focused. If the body grows past ~400 lines, move deep reference material into `reference.md` (or `references/`) so agents load detail on demand. `validate-skill-schema` warns on oversized bodies.
+
+## EVAL.yaml (required for new skills)
+
+New skills ship a sibling `EVAL.yaml` with with/without-skill scenarios and optional Accuracy × Efficiency quadrant tags. Schema and cadence: `pn-core://reference/eval-convention.md`.
+
+```bash
+npm run scaffold:eval -- <skill-id>
+```
+
+Static checks: `npm run check:evals` (fails on malformed suites and on newly added skills without EVAL.yaml; missing suites on older skills stay advisory). Full continuous LLM scoring remains a tracked gap; the YAML is the durable test plan.
+
+**Backfill existing skills:** use the local-agent contract in `pn-core://reference/eval-backfill.md` (`/pn-backfill-evals`, `npm run list:eval-backfill`). Batches of 5; no mass stubs.
+
+## Prefer remote MCP tools over CLI/API
+
+When a skill needs an external capability, **prefer a remote MCP tool** (with the host's auth/IAM) over shelling out to a CLI or calling a raw API. Fall back to CLI/API only when no suitable MCP tool exists. This keeps credentials out of skill text and aligns agent actions with governed tool surfaces.
 
 ## The iron law (same as TDD)
 

@@ -45,7 +45,7 @@ Google Fonts (`Space Grotesk`, `DM Mono`) load from CDN the first time; everythi
 The inline values are only updated when an agent re-runs the dashboard plan, which:
 
 1. Calls `health`, `list_skills`, `list_agents`, `list_commands`, `list_rules` via the pn-core MCP server.
-2. Re-reads [`bench/REPORT.md`](../../bench/REPORT.md) when present (generate with `npm run bench:write`) for the latest baselines and gate verdicts.
+2. Re-reads `bench/REPORT.md` when present (generate with `npm run bench:write`) for the latest baselines and gate verdicts.
 3. Overwrites the inline numbers in `index.html`.
 4. Updates the snapshot date in this README and in the page footer.
 
@@ -62,7 +62,7 @@ The live server scans the same on-disk content that the MCP server exposes, so c
 | Commands | `packages/pn-core-mcp/content/commands/*.md` count (canonical total; includes both palette-visible and `slash: false` palette-hidden surgical commands) | `list_commands` (returns the same canonical set) |
 | Rules | `packages/pn-core-mcp/content/rules/*.{mdc,md}` count | `list_rules` |
 | Agents | `packages/pn-core-mcp/content/agents/*.md` count | `list_agents` |
-| Token budget + build baseline + gates | [`bench/REPORT.md`](../../bench/REPORT.md) parsed when present (`npm run bench:write`) | same, embedded inline |
+| Token budget + build baseline + gates | `bench/REPORT.md` parsed when present (`npm run bench:write`) | same, embedded inline |
 | **Skill file sizes** (min / median / p95 / max, histogram, largest 10) | Every `content/skills/<category>/<id>/SKILL.md` read and measured (est. tokens ≈ chars ÷ 4) | Not available without the server; static page shows `—` in those cells |
 | **M3 — hot skills** (ranked load counts) | `.pncore/skill-load-log.jsonl` at repo root — one JSON line per `get_skill` (file is gitignored) | No log on disk → empty state copy |
 

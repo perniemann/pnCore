@@ -5,6 +5,7 @@
  */
 import { execFileSync } from "child_process";
 
+/** @param {string[]} argv */
 export function git(argv) {
   return execFileSync("git", argv, {
     encoding: "utf8",

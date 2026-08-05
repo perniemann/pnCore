@@ -24,7 +24,7 @@ Skills are grouped by domain. Cursor discovers them recursively under `skills/`.
 | **fsi** | Financial services analyst workflows: discipline and non-advice framing, comparable company analysis, DCF valuation, model audit, earnings analysis, market research, GL reconciliation, IC memo drafting |
 | **learning** | Continual learning (AGENTS.md from transcripts), AI fluency curriculum (human upskilling) |
 
-To add a skill: create `skills/<category>/pn-<name>/SKILL.md` with frontmatter (`name`, `description`) and the required sections below.
+To add a skill: create `skills/<category>/pn-<name>/SKILL.md` with frontmatter (`name`, `description`, optional `owner`) and the required sections below. New skills also add a sibling `EVAL.yaml` (`npm run scaffold:eval -- pn-<name>`; see `pn-core://reference/eval-convention.md`).
 
 **`## When to use` (required)** — the primary retrieval anchor. Must appear after the frontmatter (and optional `#` title) and before the first instruction section. Include 2–4 bullet points describing when the skill applies. This is the only strictly required body section.
 

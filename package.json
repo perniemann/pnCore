@@ -1,6 +1,6 @@
 {
   "name": "pn-core",
-  "version": "0.17.3",
+  "version": "0.17.4",
   "description": "pnCore — MCP server, skills, agents, commands, rules",
   "private": true,
   "type": "module",
@@ -22,6 +22,10 @@
     "prune:actions": "node scripts/github-actions-prune-runs.mjs",
     "prune:actions:dry-run": "node scripts/github-actions-prune-runs.mjs --dry-run",
     "check:embedded-studio-urls": "node scripts/check-embedded-studio-urls.mjs",
+    "check:links": "node scripts/check-doc-links.mjs",
+    "check:evals": "node scripts/validate-eval-yaml.mjs",
+    "scaffold:eval": "node scripts/scaffold-eval.mjs",
+    "list:eval-backfill": "node scripts/list-eval-backfill.mjs",
     "test": "npm run test --prefix packages/pn-core-mcp",
     "test:coverage": "npm run test:coverage --prefix packages/pn-core-mcp",
     "test:scripts": "node --test scripts/__tests__/*.test.mjs",
@@ -59,7 +63,7 @@
   },
   "overrides": {
     "zod": "4.4.3",
-    "ip-address": "10.2.0"
+    "ip-address": "10.4.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

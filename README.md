@@ -2,7 +2,7 @@
   <img src="plugins/pnCore/assets/pn-logo.svg" width="256" alt="pnCore" />
 </p>
 
-# pnCore — v0.17.3
+# pnCore — v0.17.4
 
 **pnCore** is an orchestration pack and MCP server for AI-assisted software delivery in Cursor. It ships structured workflows — discovery, planning, skeptic challenge, design, audits, asset creation, and delivery — backed by skills, agents, rules, and a deterministic `workflow_step` engine. It is not a generic prompt pack.
 
@@ -14,7 +14,7 @@ One product, three surfaces:
 
 Canonical content lives in `packages/pn-core-mcp/content/` and syncs into the plugin via `npm run sync:content`. Edit canonical files only; never hand-edit the plugin copy.
 
-**Catalog:** 168 skills, 9 public agents + 6 internal orchestration agents, 29 visible slash palette files (28 under **`pn`** submenu + **`/pn`** stub) + 18 palette-hidden surgical commands (47 command files total), 24 MCP tools, 16 workflow types, plus `pn-core://` resources and prompts.
+**Catalog:** 168 skills, 9 public agents + 6 internal orchestration agents, 30 visible slash palette files (29 under **`pn`** submenu + **`/pn`** stub) + 18 palette-hidden surgical commands (48 command files total), 24 MCP tools, 16 workflow types, plus `pn-core://` resources and prompts.
 
 **Best fit:** Teams building with Cursor on React, Astro, Next.js, vanilla web, Node backends, Three.js / Babylon / gamedev, n8n, and web3. **Limited support** for Vue, Svelte, Angular, and Unity. See [docs/plugin-reference.md](docs/plugin-reference.md) for the full inventory.
 

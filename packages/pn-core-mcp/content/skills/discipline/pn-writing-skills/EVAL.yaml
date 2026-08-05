@@ -1,0 +1,18 @@
+# Evaluation suite for pn-writing-skills
+# Convention: pn-core://reference/eval-convention.md
+
+skill: pn-writing-skills
+owner: pncore-maintainers
+
+scenarios:
+  - id: without-skill-skips-red
+    prompt: "Create a new pnCore skill for checking commit message trailers. Write SKILL.md immediately."
+    expectation: "Agent authors SKILL.md without a failing baseline scenario (violates NO SKILL WITHOUT A FAILING TEST FIRST)."
+    without_skill: true
+    quadrant: inaccurate_inefficient
+
+  - id: with-skill-tdd-order
+    prompt: "Using pn-writing-skills, create a new skill for checking commit message trailers."
+    expectation: "Agent writes validation scenarios first (RED without skill), then minimal SKILL.md with ## When to use, then verifies GREEN with skill present."
+    with_skill: true
+    quadrant: accurate_efficient

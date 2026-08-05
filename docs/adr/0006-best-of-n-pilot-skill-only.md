@@ -11,7 +11,7 @@ Accepted — **P2 delivered** (2026-06). `implementation_tournament` workflow sh
 
 ## Context
 
-The [agent orchestration audit (2026-06-30)](../../.cursor/plans/agent_orchestration_audit_a99b5b66.plan.md) found pnCore strong at specialist parallelization and maker≠checker gates, but lacking a **competing-implementations → objective elimination → separate judge** loop. P2 (MCP workflow engine integration) was gated on a **skill-only P1 pilot**: ≥3 real tasks, usage metrics, and an ADR comparing tournament vs single-path cost and quality.
+The agent orchestration audit (2026-06-30; internal plan, not retained in-repo) found pnCore strong at specialist parallelization and maker≠checker gates, but lacking a **competing-implementations → objective elimination → separate judge** loop. P2 (MCP workflow engine integration) was gated on a **skill-only P1 pilot**: ≥3 real tasks, usage metrics, and an ADR comparing tournament vs single-path cost and quality. Pilot evidence lives under [`docs/audits/`](../audits/).
 
 P1 shipped `pn-best-of-n` skill, `best-of-n.contract.json`, and parallel review panel guidance (P0). Three pilot tournaments ran in June 2026 before promoting engine work.
 

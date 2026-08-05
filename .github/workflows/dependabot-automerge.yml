@@ -10,6 +10,9 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  checks: read
+  statuses: read
+  actions: read
 
 jobs:
   automerge:
@@ -32,14 +35,31 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           PR: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
           required_checks=("no-ide-trailers" "sync (22)" "sync (24)" "pn-gates" "pn-review")
+
+          list_checks() {
+            local out
+            if out=$(gh pr checks "$PR" --json name,bucket,workflow \
+              -q '.[] | [.name,.bucket,.workflow] | @tsv' 2>/dev/null) \
+              && [[ -n "$out" ]]; then
+              printf '%s\n' "$out"
+              return 0
+            fi
+            gh api "repos/${GH_REPO}/commits/${HEAD_SHA}/check-runs" --paginate \
+              -q '.check_runs[] | [.name,
+                (if .status != "completed" then "pending"
+                 elif .conclusion == "success" or .conclusion == "neutral" or .conclusion == "skipped" then "pass"
+                 elif .conclusion == "cancelled" then "cancel"
+                 else "fail" end),
+                (.app.name // "")] | @tsv' 2>/dev/null || true
+          }
+
           for attempt in $(seq 1 40); do
-            if ! mapfile -t rows < <(
-              gh pr checks "$PR" --json name,bucket,workflow -q '.[] | [.name,.bucket,.workflow] | @tsv' 2>/dev/null
-            ); then
-              echo "gh pr checks failed (no git repo context); retrying... (${attempt}/40)"
+            if ! mapfile -t rows < <(list_checks); then
+              echo "listing checks failed; retrying... (${attempt}/40)"
               sleep 30
               continue
             fi
@@ -50,11 +70,13 @@ jobs:
             fi
             pending=0
             failed=""
+            declare -A bucket_by_name=()
             for row in "${rows[@]}"; do
               IFS=$'\t' read -r name bucket workflow <<< "$row"
-              if [[ "$workflow" == *"Dependabot auto-merge"* ]]; then
+              if [[ "$workflow" == *"Dependabot auto-merge"* ]] || [[ "$name" == "automerge" ]]; then
                 continue
               fi
+              bucket_by_name["$name"]="$bucket"
               case "$bucket" in
                 pending) pending=$((pending + 1)) ;;
                 fail|cancel) failed="${failed} ${name}" ;;
@@ -66,7 +88,7 @@ jobs:
             fi
             if [[ "$pending" -eq 0 ]]; then
               for check in "${required_checks[@]}"; do
-                bucket=$(gh pr checks "$PR" --name "$check" --json bucket -q '.[0].bucket')
+                bucket="${bucket_by_name[$check]:-missing}"
                 if [[ "$bucket" != "pass" ]]; then
                   echo "Required check not passing yet: ${check} (${bucket})"
                   pending=1

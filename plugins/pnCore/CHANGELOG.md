@@ -4,6 +4,32 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.17.4] - 2026-08-05
+
+### Added
+
+- **Skill EVAL.yaml convention:** Schema and docs at `pn-core://reference/eval-convention.md`; `npm run scaffold:eval` / `check:evals`; pilot suites for `pn-writing-skills`, `pn-tdd`, `pn-discipline-philosophy`, `pn-orchestration-philosophy`, and `pn-context-engineering` (with/without skill + Accuracy×Efficiency tags). See [ADR-0010](../../docs/adr/0010-skill-evals-and-link-checking.md).
+- **Offline doc link checker:** `npm run check:links` validates `pn-core://` URIs and relative markdown links (warning-first; skips fenced code examples). Scheduled lychee workflow covers external URLs without blocking PRs.
+- **Skill authoring guidance:** Prefer remote MCP tools over CLI/API; optional `owner:` frontmatter; progressive-disclosure size advisory in `validate-skill-schema`.
+
+### Fixed
+
+- Corrected broken relative links in `pn-retro`, `docs/how-to-use-guide.md`, `docs/adr/0006`, and `docs/dashboard/README.md` surfaced by the offline link checker.
+- **PR auto-merge timeout:** grant `checks`/`statuses`/`actions` read and fall back to commit check-runs when `gh pr checks` returns empty (labeled-trigger false negative).
+
+### Changed
+
+- **Link check is a merge gate:** `npm run check:links` fails on broken offline links (escape `PNCORE_STRICT_LINKS=0`).
+- **EVAL gates tightened:** malformed `EVAL.yaml` fails CI; newly added skills must ship `EVAL.yaml` (escape `PNCORE_STRICT_EVALS=0`). Missing suites on existing skills stay advisory.
+
+### Added
+
+- **EVAL backfill kickoff:** `pn-core://reference/eval-backfill.md`, `/pn-backfill-evals`, and `npm run list:eval-backfill` for ranked local-agent batches (no mass stubs).
+
+### Security
+
+- Bump `ip-address` override to 10.4.0 (fixes high-severity SSRF/trust-boundary advisories via `express-rate-limit`).
+
 ## [0.17.3] - 2026-07-08
 
 ### Added

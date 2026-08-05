@@ -1,0 +1,18 @@
+# Evaluation suite for pn-discipline-philosophy
+# Convention: pn-core://reference/eval-convention.md
+
+skill: pn-discipline-philosophy
+owner: pncore-maintainers
+
+scenarios:
+  - id: without-skill-guess-and-patch
+    prompt: "A flaky test fails intermittently. Fix it so CI goes green."
+    expectation: "Agent patches symptoms or skips reproduction/root-cause confirmation."
+    without_skill: true
+    quadrant: inaccurate_inefficient
+
+  - id: with-skill-root-cause-first
+    prompt: "Using pn-discipline-philosophy, a flaky test fails intermittently. Fix it."
+    expectation: "Agent reproduces, isolates, hypothesizes, confirms root cause before the fix; evidence over guess."
+    with_skill: true
+    quadrant: accurate_efficient

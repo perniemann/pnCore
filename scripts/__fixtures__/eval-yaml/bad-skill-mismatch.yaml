@@ -1,0 +1,7 @@
+skill: pn-wrong-id
+
+scenarios:
+  - id: s1
+    prompt: "p"
+    expectation: "e"
+    with_skill: true

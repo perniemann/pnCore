@@ -375,6 +375,22 @@ export const resourceDefs: {
     mimeType: "text/markdown",
   },
   {
+    uri: "pn-core://reference/eval-convention.md",
+    name: "eval-convention.md",
+    description:
+      "EVAL.yaml skill evaluation convention: with/without-skill scenarios, Accuracy×Efficiency quadrants, scaffolder",
+    path: "reference/eval-convention.md",
+    mimeType: "text/markdown",
+  },
+  {
+    uri: "pn-core://reference/eval-backfill.md",
+    name: "eval-backfill.md",
+    description:
+      "Local-agent EVAL.yaml backfill contract: priority order, batch size, hard rules, ranked list via npm run list:eval-backfill",
+    path: "reference/eval-backfill.md",
+    mimeType: "text/markdown",
+  },
+  {
     uri: "pn-core://reference/aesthetics-baseline.md",
     name: "aesthetics-baseline.md",
     description:

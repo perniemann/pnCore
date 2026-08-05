@@ -359,6 +359,20 @@ describe("content contract", () => {
       expect(r!.mimeType).toBe("text/markdown");
     });
 
+    it("returns eval-convention markdown", () => {
+      const r = getResource("pn-core://reference/eval-convention.md");
+      expect(r).not.toBeNull();
+      expect(r!.text).toContain("# Skill EVAL.yaml convention");
+      expect(r!.mimeType).toBe("text/markdown");
+    });
+
+    it("returns eval-backfill markdown", () => {
+      const r = getResource("pn-core://reference/eval-backfill.md");
+      expect(r).not.toBeNull();
+      expect(r!.text).toContain("# EVAL.yaml local-agent backfill contract");
+      expect(r!.mimeType).toBe("text/markdown");
+    });
+
     it("returns embedded-studio-dna markdown", () => {
       const r = getResource("pn-core://reference/embedded-studio-dna.md");
       expect(r).not.toBeNull();
