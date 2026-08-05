@@ -12,6 +12,7 @@
  *     ## Approach / ## Overview / ## Usage) — acceptable variants, not enforced
  *   - Skills with category ci|review|orchestration|discipline missing
  *     `Rationalizations`, `Red flags — stop`, or `## Verification`
+ *   - SKILL.md body exceeds progressive-disclosure size advisory (line count)
  *
  * Run from repo root: node scripts/validate-skill-schema.mjs
  */
@@ -27,6 +28,9 @@ const skillsRoot = join(repoRoot, "packages", "pn-core-mcp", "content", "skills"
 const INSTRUCTION_ALIASES = ["Instructions", "Workflow", "Approach", "Overview", "Usage"];
 
 const WARN_CATEGORIES = new Set(["ci", "review", "orchestration", "discipline"]);
+
+/** Progressive-disclosure size advisory (body lines after frontmatter). Warning only. */
+const SIZE_WARN_LINES = 400;
 
 function* walkSkillMd(dir, base = "") {
   if (!existsSync(dir)) return;
@@ -85,12 +89,18 @@ function main() {
 
   const errors = [];
   const warnings = [];
+  /** @type {string[]} */
+  const oversized = [];
   let total = 0;
 
   for (const { path, rel } of walkSkillMd(skillsRoot)) {
     total++;
     const content = readFileSync(path, "utf-8");
     const { meta, body, rawLines } = parseFrontmatter(content);
+    const bodyLines = body.split(/\r?\n/).length;
+    if (rel !== "README.md" && bodyLines > SIZE_WARN_LINES) {
+      oversized.push(`${rel} (${bodyLines} lines)`);
+    }
 
     // Errors
     if (!meta.name || meta.name === "") {
@@ -133,6 +143,13 @@ function main() {
         );
       }
     }
+  }
+
+  if (oversized.length) {
+    const sample = oversized.slice(0, 5).join("; ");
+    warnings.push(
+      `${oversized.length} skill(s) exceed ${SIZE_WARN_LINES}-line progressive-disclosure advisory — move detail into reference.md (e.g. ${sample}${oversized.length > 5 ? "; …" : ""})`
+    );
   }
 
   if (warnings.length) {

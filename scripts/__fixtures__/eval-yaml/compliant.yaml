@@ -1,0 +1,15 @@
+skill: pn-example
+owner: maintainer
+
+scenarios:
+  - id: without-baseline
+    prompt: "Do the task without the skill."
+    expectation: "Agent skips the required verification step."
+    without_skill: true
+    quadrant: inaccurate_inefficient
+
+  - id: with-skill
+    prompt: "Do the same task with the skill loaded."
+    expectation: "Agent follows verification and produces the required output."
+    with_skill: true
+    quadrant: accurate_efficient

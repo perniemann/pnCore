@@ -20,7 +20,7 @@ Produces a structured, blameless retro of one session (or a small window of rece
 | `pn-deliver` | Artifact level (final hand-off) | Verifying a deliverable meets its spec |
 | `pn-skeptic` / `pn-grill` | Plan level (before build) | Challenging an approach before implementation |
 
-Use `pn-retro` after a session that felt off (user corrected the agent more than usual, work was reverted, tests were skipped, a hallucinated path appeared), or before a quarterly skill/rule audit per [ADR-0002](../../../../docs/adr/0002-skill-rule-audit-cadence.md) to provide evidence instead of memory.
+Use `pn-retro` after a session that felt off (user corrected the agent more than usual, work was reverted, tests were skipped, a hallucinated path appeared), or before a quarterly skill/rule audit per [ADR-0002](../../../../../../docs/adr/0002-skill-rule-audit-cadence.md) to provide evidence instead of memory.
 
 ## How to invoke
 

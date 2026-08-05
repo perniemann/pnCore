@@ -92,7 +92,7 @@ Deeper orientation: [Plugin reference](plugin-reference.md).
 
 Copy-pasteable prompts for the main user-centric commands. When MCP is available, the AI uses `workflow_step` for flows that have a workflow type; otherwise it uses the slash command or `get_command` fallback.
 
-> **Slash palette vs canonical inventory.** The `/pn-…` palette lists ~21 user-entry commands. Surgical `pn-audit-*` and design surgery commands (`pn-typeset`, `pn-colorize`, `pn-arrange`, `pn-bolder`, `pn-quieter`, `pn-delight`, `pn-distill`) are deliberately palette-hidden via frontmatter `slash: false`. Reach them via `get_command("<id>")` or invoke them through the visible umbrellas (`/pn-frontend-audit`, `/pn-backend-audit`, `/pn-visual-tweak`, `/pn-polish`, `/pn-design`). Full advanced index: see [`pn-guide` § Advanced](../packages/pn-core-mcp/content/commands/pn-guide.md#advanced--palette-hidden).
+> **Slash palette vs canonical inventory.** The `/pn-…` palette lists ~21 user-entry commands. Surgical `pn-audit-*` and design surgery commands (`pn-typeset`, `pn-colorize`, `pn-arrange`, `pn-bolder`, `pn-quieter`, `pn-delight`, `pn-distill`) are deliberately palette-hidden via frontmatter `slash: false`. Reach them via `get_command("<id>")` or invoke them through the visible umbrellas (`/pn-frontend-audit`, `/pn-backend-audit`, `/pn-visual-tweak`, `/pn-polish`, `/pn-design`). Full advanced index: see [`pn-guide` § Advanced](../packages/pn-core-mcp/content/commands/pn/start/pn-guide.md#advanced--palette-hidden).
 
 | Command | When to use | Example prompt(s) | Workflow (MCP) |
 |---------|--------------|-------------------|----------------|

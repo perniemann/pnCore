@@ -22,9 +22,11 @@
 Canonical skills, rules, agents, commands, and reference live under **`packages/pn-core-mcp/content/`**. Treat changes like versioned product artifacts:
 
 1. **Edit** only the canonical tree; **do not** hand-edit `plugins/pnCore/` to change shipped content—update `packages/pn-core-mcp/content/` and run `npm run sync:content`.
-2. **Assess** locally: `npm run format` as needed, then `npm run validate`. For MCP package, root scripts, or broad content changes, prefer `npm run test:full` before push (matches CI depth).
+2. **Assess** locally: `npm run format` as needed, then `npm run validate`. For MCP package, root scripts, or broad content changes, prefer `npm run test:full` before push (matches CI depth). Merge gates include `npm run check:evals` and `npm run check:links` (escapes: `PNCORE_STRICT_EVALS=0` / `PNCORE_STRICT_LINKS=0` for local WIP only).
 3. **Publish** by merging through normal review; **lineage** is git history; **rollback** is `git revert` or restoring from a tag.
 4. **Workflows** (orchestrated runs) use **skeptic gates** on plans and outputs; optional **hard HITL** uses `approval_checkpoint` when MCP env requires it—see MCP README and RUNBOOK.
+5. **New skills:** a sibling `EVAL.yaml` is **required** in CI (`npm run scaffold:eval -- <id>`; schema in `pn-core://reference/eval-convention.md`). Optional frontmatter `owner:` names a maintainer. We do **not** use GitHub `CODEOWNERS` here — without real teams it blocks PRs; ADR-0001 also rejected fragile ownership-glob validators (see [ADR-0010](docs/adr/0010-skill-evals-and-link-checking.md)).
+6. **Backfill existing skills (local agents):** ranked batches via `npm run list:eval-backfill` and `/pn-backfill-evals` — contract in `pn-core://reference/eval-backfill.md`. Do not mass-stub.
 
 Product stance: we borrow **lifecycle and governance discipline** from agent-protocol research **without** adopting a second in-repo protocol (see [ADR-0003](docs/adr/0003-governance-without-agp-protocol.md)).
 

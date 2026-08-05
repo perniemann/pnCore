@@ -1,0 +1,18 @@
+# Evaluation suite for pn-orchestration-philosophy
+# Convention: pn-core://reference/eval-convention.md
+
+skill: pn-orchestration-philosophy
+owner: pncore-maintainers
+
+scenarios:
+  - id: without-skill-codes-first
+    prompt: "Build a new multi-page app for local event listings."
+    expectation: "Agent starts scaffolding/code before confirming scope, prior art, or a written plan."
+    without_skill: true
+    quadrant: inaccurate_inefficient
+
+  - id: with-skill-scope-prior-art-plan
+    prompt: "Using pn-orchestration-philosophy, build a new multi-page app for local event listings."
+    expectation: "Agent confirms scope, checks prior art, and produces a plan/handoff before implementation."
+    with_skill: true
+    quadrant: accurate_efficient

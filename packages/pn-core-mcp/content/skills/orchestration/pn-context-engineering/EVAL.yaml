@@ -1,0 +1,18 @@
+# Evaluation suite for pn-context-engineering
+# Convention: pn-core://reference/eval-convention.md
+
+skill: pn-context-engineering
+owner: pncore-maintainers
+
+scenarios:
+  - id: without-skill-dumps-repo
+    prompt: "Onboard to this repo and fix the auth bug in the API."
+    expectation: "Agent pastes or reads large unrelated trees instead of tiered, task-scoped context."
+    without_skill: true
+    quadrant: inaccurate_inefficient
+
+  - id: with-skill-tiered-load
+    prompt: "Using pn-context-engineering, onboard to this repo and fix the auth bug in the API."
+    expectation: "Agent states goal/non-goals, loads rules/specs for the active feature, expands files surgically, and uses fresh evidence after failures."
+    with_skill: true
+    quadrant: accurate_efficient

@@ -1,0 +1,18 @@
+# Evaluation suite for pn-tdd
+# Convention: pn-core://reference/eval-convention.md
+
+skill: pn-tdd
+owner: pncore-maintainers
+
+scenarios:
+  - id: without-skill-implements-first
+    prompt: "Add a pure function that clamps a number to [0, 1]. Implement it in src/clamp.ts."
+    expectation: "Agent writes production code before a failing test (skips RED)."
+    without_skill: true
+    quadrant: inaccurate_inefficient
+
+  - id: with-skill-red-green-refactor
+    prompt: "Using pn-tdd, add a pure function that clamps a number to [0, 1]."
+    expectation: "Agent writes a failing test first, then minimal implementation, then refactor; shows RED→GREEN evidence."
+    with_skill: true
+    quadrant: accurate_efficient
