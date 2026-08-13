@@ -8,7 +8,7 @@ description: "Canonical format authority for all project documentation. Use when
 ## When to use
 
 - Whenever creating or updating discovery specs, implementation plans, workflow roadmaps, prior-art research, SVG specs, README, CHANGELOG, or API docs
-- When any doc-producing skill (pn-discovery-questionnaire, pn-writing-plans, pn-create-workflow-roadmap, pn-prior-art-research, pn-svg-creator, pn-docs-sync) runs: follow this skill for format compliance
+- When any doc-producing skill (pn-discovery-questionnaire, pn-writing-plans, pn-create-workflow-roadmap, pn-prior-art-research, pn-svg-creator, pn-diagram-design, pn-docs-sync) runs: follow this skill for format compliance
 
 For full document templates and format structures, see [reference.md](reference.md).
 
@@ -17,6 +17,8 @@ For full document templates and format structures, see [reference.md](reference.
 - **Heading hierarchy:** Use `#` for title, `##` for major sections, `###` for subsections. Do not skip levels.
 - **List style:** Use `-` for unordered lists. Use numbered lists for ordered steps.
 - **Code blocks:** Use fenced blocks with language tag. Paths: use forward slashes.
+- **Diagrams:** If a visual is needed, load `get_skill("pn-diagram-design")`. Prefer Mermaid in docs (`accTitle` + `accDescr`). Use editorial HTML only when the deliverable must leave the repo as a screenshot or shareable file (`pn-html-preview`). Do not draw when a table or paragraph is enough. Emit the diagram **standard** D-table (`pn-core://reference/diagram-baseline.md`); `/pn-diagram` as the primary ask also requires skeptic (and `pn-render-verify` on HTML).
+- **Date format:** `YYYY-MM-DD` (ISO 8601).
 - **Date format:** `YYYY-MM-DD` (ISO 8601).
 - **Path patterns:** Use `docs/<type>/YYYY-MM-DD-<slug>.<ext>` for generated docs.
 - **Current date:** Use the current date for discovery, plans, and design docs. If the user or context provides today's date (e.g. in AGENTS.md or chat), use that. Do not use stale or assumed dates.

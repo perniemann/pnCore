@@ -23,8 +23,8 @@ Single entry point for creating any visual asset. Asks what you need, then runs 
    2. Save spec to `docs/svg/YYYY-MM-DD-<slug>-spec.md`. Gate: confirm "SVG spec complete. Proceed with generation?" — do not generate until confirmed.
    3. Generate SVG per spec using pn-svg patterns. Write to path from spec (default: `assets/<slug>.svg`).
    4. Review output against spec — structure (defs, layering), animation quality, accessibility. Fix once if gaps.
-   5. Run `get_skill("pn-skeptic-challenge")` in "Skeptic on output" mode. Gate before declaring done. Skip if user says "skip skeptic."
-   6. Output: spec path, SVG path, skeptic verdict (if run), brief confirmation.
+   5. Run `get_skill("pn-skeptic-challenge")` in "Skeptic on output" mode. Gate before declaring done. Do not skip.
+   6. Output: spec path, SVG path, skeptic verdict, brief confirmation.
 
    ### Image (PNG/raster)
    When MCP `workflow_step` is available: call `workflow_step("image_create", 0, {})` and follow each returned instruction.
@@ -33,7 +33,8 @@ Single entry point for creating any visual asset. Asks what you need, then runs 
    1. Load **`get_skill("pn-cinematography-lighting")`**, **`get_skill("pn-image-prompt-engineering")`**, and **`get_skill("pn-image-creator")`**. Present questionnaire (Subject/content, environment, **lighting**, **camera**, style, technical/output, constraints). Use `ask_question` when available.
    2. Produce image spec and output contract; spec must reflect grounded camera, lighting, and style (not vague mood only). Gate: do not generate until user confirms.
    3. On confirmation: for PNG use the two skills again to finalize the prompt, then Cursor image generation; for SVG fall through to SVG flow above. Save to `assets/` or user path.
-   4. Output summary and path.
+   4. Run `get_skill("pn-render-verify")` on the saved file, then `get_skill("pn-skeptic-challenge")` in post-build mode. Gate before declaring done. Do not skip.
+   5. Output summary, path, and skeptic verdict.
 
    ### Placeholder
    Use picsum.photos or placehold.co; add URLs to components; document as temporary in README.

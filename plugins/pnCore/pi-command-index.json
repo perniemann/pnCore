@@ -86,6 +86,12 @@
       "file": "pn-design-variants.md"
     },
     {
+      "id": "pn-diagram",
+      "category": "Design",
+      "description": "Create an architecture, flowchart, sequence, loop, or layer-stack diagram as Mermaid-in-docs or self-contained HTML/SVG. Use when the user asks for a diagram, schematic, or flywheel. Does not import draw.io or redraw existing Mermaid files.",
+      "file": "pn-diagram.md"
+    },
+    {
       "id": "pn-polish",
       "category": "Design",
       "description": "Pre-ship design quality pass — typography, color, spacing, copy, a11y, and interaction states. Use for design-only polish. For code quality and performance review, use pn-review. For a scored diagnosis with roadmap, use pn-frontend-audit.",

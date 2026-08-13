@@ -1,0 +1,31 @@
+# Evaluation suite for pn-frontend-design
+# Convention: pn-core://reference/eval-convention.md
+# pn-preflight is a command; its GO/NO-GO bar is covered here (skill owns the Slop Test).
+
+skill: pn-frontend-design
+owner: pncore-maintainers
+
+scenarios:
+  - id: without-skill-template-landing
+    prompt: "Build a landing page for a notes app."
+    expectation: "Agent ships Inter or Geist, a purple-to-blue hero gradient, and three identical feature cards; no AI Slop Test; no pn-preflight P-01–P-15 table."
+    without_skill: true
+    quadrant: inaccurate_inefficient
+
+  - id: with-skill-slop-and-preflight
+    prompt: "Using pn-frontend-design, build a marketing landing page for a notes app."
+    expectation: "Agent reads .pncore-design.md if present, uses distinctive non-banned fonts, emits Design Read plus VARIANCE/MOTION/DENSITY dials, runs the AI Slop Test (<3 hits), and runs pn-preflight with SHIP GO or a P-ID NO-GO list. No Inter/Geist/Roboto defaults unless the spec names them."
+    with_skill: true
+    quadrant: accurate_efficient
+
+  - id: without-skill-declare-done
+    prompt: "The landing page is done."
+    expectation: "Agent declares done without a P-01–P-15 PASS/FAIL table and without counting slop fingerprints."
+    without_skill: true
+    quadrant: inaccurate_efficient
+
+  - id: with-skill-preflight-nogo
+    prompt: "Using pn-frontend-design, the hero uses Geist and a purple-to-blue gradient. Run preflight."
+    expectation: "Agent emits SHIP: NO-GO with P-05 and P-07 FAIL and does not declare the page done."
+    with_skill: true
+    quadrant: accurate_efficient

@@ -1,0 +1,54 @@
+# Evaluation suite for pn-diagram-design
+# Convention: pn-core://reference/eval-convention.md
+
+skill: pn-diagram-design
+owner: pncore-maintainers
+
+scenarios:
+  - id: without-skill-generic-mermaid
+    prompt: "Add an architecture diagram of frontend, backend, and database to the plan."
+    expectation: "Agent emits a dense Mermaid flowchart with generic boxes, no accTitle/accDescr, and no type/density check."
+    without_skill: true
+    quadrant: inaccurate_inefficient
+
+  - id: with-skill-mermaid-a11y-density
+    prompt: "Using pn-diagram-design, add a Mermaid architecture diagram of frontend, API, and Postgres to docs/plans/example.md."
+    expectation: "Agent states type architecture, stays within ~9 nodes, includes accTitle and accDescr, and skips drawing if a sentence would suffice."
+    with_skill: true
+    quadrant: accurate_efficient
+
+  - id: without-skill-logo-path
+    prompt: "Create an SVG diagram of our payment pipeline."
+    expectation: "Agent runs pn-svg-creator logo questionnaire or draws a decorative SVG instead of routing to diagram design."
+    without_skill: true
+    quadrant: inaccurate_inefficient
+
+  - id: with-skill-editorial-tokens
+    prompt: "Using pn-diagram-design, make an editorial HTML architecture diagram. Project has .pncore-design.md with paper #f4f1ea, ink #1c1917, accent #b45309."
+    expectation: "Agent maps those hex values to paper/ink/accent CSS variables, uses at most two accent focals, includes prefixed svg title/desc, and does not default to Geist."
+    with_skill: true
+    quadrant: accurate_efficient
+
+  - id: with-skill-refuse-import-v1
+    prompt: "Using pn-diagram-design, import platform.drawio and redraw it."
+    expectation: "Agent states import-redraw is out of v1 and offers a fresh diagram from described content instead of inventing a parser."
+    with_skill: true
+    quadrant: accurate_efficient
+
+  - id: without-skill-skip-ship-gate
+    prompt: "Add a Mermaid architecture diagram to the plan."
+    expectation: "Agent writes a fenced mermaid block and stops; no D-01–D-10 table; no DIAGRAM GO/NO-GO."
+    without_skill: true
+    quadrant: inaccurate_efficient
+
+  - id: with-skill-mermaid-ship-gate
+    prompt: "Using pn-diagram, add a Mermaid architecture diagram of web, API, and Postgres to docs/plans/example.md."
+    expectation: "Agent emits the D-01–D-10 table with DIAGRAM GO or NO-GO, includes accTitle/accDescr, and runs pn-skeptic-challenge on the markdown file before declaring done."
+    with_skill: true
+    quadrant: accurate_efficient
+
+  - id: with-skill-html-render-verify
+    prompt: "Using pn-diagram, make an editorial HTML architecture diagram of checkout and save it."
+    expectation: "Agent saves via pn-html-preview, emits the D-table (visual tier), runs pn-render-verify, then pn-skeptic-challenge with that verdict as evidence. Does not skip skeptic."
+    with_skill: true
+    quadrant: accurate_efficient

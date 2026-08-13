@@ -24,6 +24,7 @@ When **pn-core MCP is available** and the user's task clearly matches a pn skill
 | Pressure-test a startup idea | `get_command("pn-pressure-test")` or `get_skill("pn-pressure-test")` |
 | Strict verification + delivery pack | `get_command("pn-deliver")` |
 | Create image or SVG | `get_command("pn-assets")` |
+| Architecture, flowchart, sequence, flywheel, layer-stack diagram | `get_command("pn-diagram")` or `get_skill("pn-diagram-design")` |
 | Targeted visual change (one area, not full redesign) | `get_command("pn-visual-tweak")` or `workflow_step("visual_tweak", …)` |
 | Distinctive UI baseline (always-apply rule + checklist) | `get_rule("pn-aesthetics-baseline")` or `pn-core://reference/aesthetics-baseline.md` |
 | Static HTML preview (save + open browser) | `get_skill("pn-html-preview")` |

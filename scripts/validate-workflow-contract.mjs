@@ -117,6 +117,30 @@ if (!("error" in ic0)) {
   passed++;
 } else failed++;
 
+// image_create step 3: skeptic requires generate output
+const ic3fail = getWorkflowStep("image_create", 3, {
+  specConfirmed: true,
+  imageSpec: { format: "png" },
+});
+assert("error" in ic3fail, "image_create step 3 without imageComplete should error");
+if ("error" in ic3fail) passed++;
+else failed++;
+
+const ic3 = getWorkflowStep("image_create", 3, {
+  imageComplete: true,
+  outputPath: "assets/hero.png",
+});
+assert(!("error" in ic3), "image_create step 3 with imageComplete should not error");
+if (!("error" in ic3)) {
+  assert(ic3.nextStep === 4, "image_create step 3 nextStep is 4");
+  assert(ic3.gate === "human", "image_create step 3 gate is human");
+  assert(
+    ic3.instruction.includes("pn-skeptic-challenge"),
+    "image_create step 3 instruction includes pn-skeptic-challenge"
+  );
+  passed++;
+} else failed++;
+
 // visual_tweak step 0
 const vt0 = getWorkflowStep("visual_tweak", 0, {});
 assert(!("error" in vt0), "visual_tweak step 0 should not error");

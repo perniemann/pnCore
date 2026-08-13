@@ -44,4 +44,4 @@ Run **AI Slop Test** from `get_skill("pn-frontend-design")`. Count hits; **NO-GO
 
 - **`pn-design`** — invokes preflight at end of build for marketing modes.
 - **`pn-frontend-audit`** — full Phase 1–6 scored audit (broader than preflight).
-- **`pn-polish`** — may chain preflight after polish passes.
+- **`pn-diagram`** — D-01–D-10 ship gate (same PASS/FAIL job for diagrams).

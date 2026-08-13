@@ -17,6 +17,7 @@ Canonical checklist for **distinctive, non-generic** user-facing UI. Use togethe
 | **Backgrounds & depth** | Atmosphere (gradient mesh, grain, pattern, layer) where the aesthetic calls for it—not flat void? | `pn-frontend-design` |
 | **States & copy** | Loading, error, success, empty (with action), hover, focus—all designed, not browser default? | `pn-ux-patterns`, philosophy state rules |
 | **Assets** | Logo, hero, icons match concept—not generic placeholders? | `pn-assets-manager` |
+| **Diagrams** | Right type, sparse enough to read, brand tokens, `accTitle`/`accDescr` (Mermaid) or prefixed SVG title/desc (HTML), D-01–D-10 ship gate? | `pn-diagram`, `pn-diagram-design` |
 | **Evidence** | For high-stakes UI: screenshot or run `pn-evidence-qa` before “done.” | `pn-evidence-qa` |
 
 ## Inspiration banks (pick one anchor, then diverge in execution)
@@ -79,3 +80,4 @@ Frameworks and plans may suggest **example** display/body pairings to beat templ
 | Explore divergent directions | `get_command("pn-design-variants")` |
 | Amplify timid UI | `get_command("pn-bolder")` |
 | Static HTML preview (save + browser) | `get_skill("pn-html-preview")` |
+| Architecture / flowchart / sequence / flywheel / layers | `get_command("pn-diagram")` + `pn-core://reference/diagram-baseline.md` (D-table + skeptic / render-verify per track) |
