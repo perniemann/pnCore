@@ -1,0 +1,12 @@
+{
+  "name": "pnCore",
+  "install": "npm ci && npm ci --prefix packages/pn-core-mcp --include=dev && npm run build --prefix packages/pn-core-mcp",
+  "terminals": [
+    {
+      "name": "dashboard",
+      "command": "npm run dashboard",
+      "description": "pnCore metrics dashboard at http://localhost:4173 (read-only; scans packages/pn-core-mcp/content and bench/REPORT.md)."
+    }
+  ],
+  "ports": [{ "name": "dashboard", "port": 4173 }]
+}
