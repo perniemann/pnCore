@@ -4,6 +4,19 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-08-13
+
+### Added
+
+- **Diagram quality layer:** skill `pn-diagram-design`, command `/pn-diagram`, rule `pn-diagrams` (narrow glob), and `pn-core://reference/diagram-baseline.md`. Mermaid-in-docs (`accTitle`/`accDescr`) or editorial HTML/SVG with tokens from `.pncore-design.md`. Types in v1: architecture, flowchart, sequence, loop, layers. **Ship gate D-01–D-10** plus skeptic (`pn-render-verify` on editorial HTML) so diagrams match `pn-preflight` / `svg_create`. See [ADR-0011](../../docs/adr/0011-diagram-design-native-layer.md).
+- **EVAL.yaml** for `pn-diagram-design` (density, a11y, brand tokens, no import-redraw, D-table + skeptic), `pn-frontend-design` (slop test + `pn-preflight` GO/NO-GO), `pn-svg-creator`, and `pn-image-creator`.
+
+### Changed
+
+- `pn-svg-creator` routes `type: diagram` to `pn-diagram-design` instead of the logo questionnaire; skill-only path now requires skeptic on output (same as `svg_create`).
+- `pn-writing-plans` and `pn-documentation` require type pick, Mermaid accessible titles, and the standard D-table when a diagram is warranted.
+- `image_create` workflow is 0–4: generate is followed by `pn-render-verify` + `pn-skeptic-challenge` (parity with `svg_create`).
+
 ## [0.17.4] - 2026-08-05
 
 ### Added

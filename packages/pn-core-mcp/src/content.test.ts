@@ -359,6 +359,15 @@ describe("content contract", () => {
       expect(r!.mimeType).toBe("text/markdown");
     });
 
+    it("returns diagram-baseline markdown", () => {
+      const r = getResource("pn-core://reference/diagram-baseline.md");
+      expect(r).not.toBeNull();
+      expect(r!.text).toContain("# Diagram baseline");
+      expect(r!.text).toContain("D-01");
+      expect(r!.text).toContain("DIAGRAM: GO");
+      expect(r!.mimeType).toBe("text/markdown");
+    });
+
     it("returns eval-convention markdown", () => {
       const r = getResource("pn-core://reference/eval-convention.md");
       expect(r).not.toBeNull();

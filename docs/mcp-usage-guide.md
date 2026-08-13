@@ -64,7 +64,7 @@ When `workflow_step` is available, use it for build/design flows instead of load
 | `prompt_optimize` | 0–2 | Questionnaire → Draft + review → Final prompt |
 | `frontend_audit` | 0–2 | Scope → Phase 1–6 audit → summary |
 | `backend_audit` | 0–6 | Scope + stack → five audit phases → summary |
-| `image_create` | 0–3 | Questionnaire → Spec confirmation → Generate → Summary |
+| `image_create` | 0–4 | Questionnaire → Spec confirmation → Generate → Skeptic on output → Summary |
 | `visual_tweak` | 0–3 | Target → Plan → Implement → Summary |
 | `game_feature` | 0–4 | Questionnaire → Plan+Skeptic → Implement → Skeptic on output → Summary |
 | `svg_create` | 0–4 | Questionnaire → Spec + confirmation → Generate → Skeptic on output → Summary |

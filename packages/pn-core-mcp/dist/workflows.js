@@ -274,12 +274,21 @@ const imageCreateSteps = [
         tierRationale: "Image generation is offloaded to the gen-image tool.",
     },
     {
-        instruction: "Output summary: what was created, path, format. Image_create complete." +
+        instruction: "REQUIRED: Run get_skill('pn-render-verify') on outputPath, then get_skill('pn-skeptic-challenge') post-build on the image. Output skeptic verdict. After user confirms, call workflow_step(step=4) with state: { skepticOutputPassed: <gate record from workflow_confirm>, skepticOutputVerdict }." +
+            GATE_STATE_FROM_CONFIRM,
+        gate: "human",
+        nextStep: 4,
+        requiredFromState: ["imageComplete", "outputPath"],
+        modelTier: "premium",
+        tierRationale: "Skeptic review of generated image against spec (parity with svg_create).",
+    },
+    {
+        instruction: "Output summary: what was created, path, format, skeptic verdict. Image_create complete." +
             paperclipWorkflowHint() +
             " Do not call workflow_step again.",
         gate: "model",
-        nextStep: 3,
-        requiredFromState: ["imageComplete", "outputPath"],
+        nextStep: 4,
+        requiredFromState: ["skepticOutputPassed", "skepticOutputVerdict"],
         modelTier: "fast",
         tierRationale: "Brief terminal summary.",
     },

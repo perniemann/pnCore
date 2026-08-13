@@ -62,6 +62,7 @@ Use `ask_question` when available:
 - **pn-visual-tweak** — Bounded visual edit router
 - **pn-polish** — Pre-ship design quality pass
 - **pn-assets** — Create visual assets (SVG, raster, logos)
+- **pn-diagram** — Architecture / flowchart / sequence / loop / layers (Mermaid or HTML)
 
 **Product management (`pn/pm/`):**
 - **pn-create-prd** — PRD / product spec

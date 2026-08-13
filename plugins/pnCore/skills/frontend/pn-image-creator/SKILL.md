@@ -41,7 +41,7 @@ For **PNG or any raster** output: load **`get_skill('pn-cinematography-lighting'
 
 ## Output contract
 
-Before generating, gate: confirm "Image spec: [summary]. Output: [format] [dimensions]. Proceed?" (yes / correct) — see `reference/conventions.md`. Do not generate until user confirms. After generation, deliver the file at the agreed path and state the path and format.
+Before generating, gate: confirm "Image spec: [summary]. Output: [format] [dimensions]. Proceed?" (yes / correct) — see `reference/conventions.md`. Do not generate until user confirms. After generation, run `get_skill("pn-render-verify")` then `get_skill("pn-skeptic-challenge")` on the file; gate on confirmation. Then state the path, format, and skeptic verdict.
 
 ## Integration
 
@@ -66,3 +66,4 @@ Before generating, gate: confirm "Image spec: [summary]. Output: [format] [dimen
 ## Guardrails
 
 - If the plan contains options (e.g. format, size), ask before locking; use ask_question when available. Plans must be 100% accurate per user input.
+- After generate: `pn-render-verify` then `pn-skeptic-challenge` before declaring done (same as `workflow_step("image_create")`).

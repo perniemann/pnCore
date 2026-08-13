@@ -123,6 +123,10 @@ Add explicit tasks for:
 - **Layout distinctiveness:** Asymmetric hero (text 40%/visual 60%), staggered feature cards. Avoid centered symmetric hero and uniform grids.
 - **Motion:** At least one tagged motion (Reveal/Orient/Confirm/Delight) with `prefers-reduced-motion` fallback.
 
+### Diagrams in plans
+
+When the plan includes an architecture, flow, or sequence visual, load `get_skill("pn-diagram-design")` (or follow `pn-core://reference/diagram-baseline.md`). Pick one type. Skip the diagram if a list is enough. Cap ~9 nodes; split overview + detail instead of packing. Every fenced `mermaid` block includes `accTitle` and `accDescr`. Emit the **standard** D-01–D-10 table (`DIAGRAM: GO` / `NO-GO`) before leaving the plan; do not run a second skeptic on the diagram — the plan skeptic covers it.
+
 ### Test tasks (when Delivery tier: full or critical paths in scope)
 
 Include at least one test per critical path: auth (signup/login), checkout (session creation/webhook), and the main conversion flow. Verification: test suite exits 0.

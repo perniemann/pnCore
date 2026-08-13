@@ -16,6 +16,7 @@ description: "Questionnaire-driven SVG creation. Covers purpose, identity, style
 ### 1. Purpose
 
 - **Type:** Logo, icon set, illustration, diagram, favicon?
+- **If type is diagram:** Stop this questionnaire. Load `get_skill("pn-diagram-design")` or `get_command("pn-diagram")`. Do not generate a logo-style SVG for architecture/flow/sequence.
 - **Scope:** Single file or multiple sizes (e.g. 16, 32, 64, 128, 512)?
 - **Output path:** Default `assets/<slug>.svg`; user may specify.
 
@@ -66,6 +67,7 @@ Use Cursor's built-in `ask_question` tool when available to present questionnair
 4. **Gate:** Output: "SVG spec complete and saved. Proceed with generation? Reply 'yes' or add/correct items." Do not generate until user confirms.
 5. On confirmation: generate SVG per spec. Write to path from spec (default: `assets/<slug>.svg`).
 6. Self-review against quality checklist. Fix once if gaps.
+7. **Skeptic on output (mandatory):** `get_skill("pn-skeptic-challenge")` in post-build mode on the SVG path. Gate on confirmation. Same bar as `svg_create` step 3 and `/pn-diagram` visual track. Do not skip.
 
 ## Generation rules
 
@@ -100,11 +102,12 @@ When generating, ensure:
 
 - SVG spec (Markdown) at `docs/svg/YYYY-MM-DD-<slug>-spec.md`.
 - SVG file at `assets/<slug>.svg` or user-specified path.
-- Confirmation with spec path and SVG path.
+- Confirmation with spec path, SVG path, and skeptic verdict.
 
 ## Guardrails
 
 - Use `ask_question` when available; do not generate until user confirms spec.
+- After generate: skeptic on output before declaring done (same as `workflow_step("svg_create")`).
 - If animation requested: respect `prefers-reduced-motion` in constraints.
 - Skip path: User says "skip questionnaire" or provides complete spec — save it and gate on confirmation, then generate.
 

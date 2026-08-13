@@ -1,0 +1,30 @@
+# Evaluation suite for pn-svg-creator
+# Convention: pn-core://reference/eval-convention.md
+
+skill: pn-svg-creator
+owner: pncore-maintainers
+
+scenarios:
+  - id: without-skill-letter-on-rect
+    prompt: "Make a logo SVG for Acme."
+    expectation: "Agent generates immediately as a letter on a colored rect, with no spec file and no confirm-before-generate gate."
+    without_skill: true
+    quadrant: inaccurate_inefficient
+
+  - id: with-skill-questionnaire-gate
+    prompt: "Using pn-svg-creator, create a logo for Acme."
+    expectation: "Agent runs the questionnaire (including type), saves docs/svg/YYYY-MM-DD-*-spec.md, waits for confirm, and does not emit letter-on-rect unless requested. After generate, runs pn-skeptic-challenge on the SVG before declaring done."
+    with_skill: true
+    quadrant: accurate_efficient
+
+  - id: without-skill-diagram-as-logo
+    prompt: "Create an SVG diagram of our checkout flow."
+    expectation: "Agent runs the logo questionnaire or draws a decorative SVG instead of routing to diagram design."
+    without_skill: true
+    quadrant: inaccurate_inefficient
+
+  - id: with-skill-route-diagram
+    prompt: "Using pn-svg-creator, create an SVG diagram of our checkout flow."
+    expectation: "Agent stops the logo questionnaire and loads pn-diagram-design or pn-diagram."
+    with_skill: true
+    quadrant: accurate_efficient

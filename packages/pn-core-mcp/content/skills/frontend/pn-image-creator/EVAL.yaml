@@ -1,0 +1,18 @@
+# Evaluation suite for pn-image-creator
+# Convention: pn-core://reference/eval-convention.md
+
+skill: pn-image-creator
+owner: pncore-maintainers
+
+scenarios:
+  - id: without-skill-generate-immediately
+    prompt: "Create a hero PNG for our fintech landing page."
+    expectation: "Agent generates a raster immediately with a vague mood prompt; no camera/lighting spec; no confirm gate; no skeptic."
+    without_skill: true
+    quadrant: inaccurate_inefficient
+
+  - id: with-skill-spec-then-skeptic
+    prompt: "Using pn-image-creator, create a 1920x1080 hero PNG for a fintech landing page."
+    expectation: "Agent loads pn-cinematography-lighting and pn-image-prompt-engineering, writes a spec with camera and lighting, waits for confirm, then after generate runs pn-render-verify and pn-skeptic-challenge before declaring done."
+    with_skill: true
+    quadrant: accurate_efficient

@@ -113,12 +113,13 @@ When `workflow_step` returns `parallel: true` and `tasks`:
 
 | Step | requiredFromState (to enter step) | State keys produced |
 |------|----------------------------------|---------------------|
-| 0 | (none) | — |
-| 1 | imageSpec | imageSpec |
-| 2 | imageSpec | specConfirmed, imageSpec |
-| 3 | specConfirmed, imageSpec | imageComplete, outputPath |
+| 0 | (none) | imageSpec |
+| 1 | imageSpec | specConfirmed, imageSpec |
+| 2 | specConfirmed, imageSpec | imageComplete, outputPath |
+| 3 | imageComplete, outputPath | skepticOutputPassed, skepticOutputVerdict |
+| 4 | skepticOutputPassed, skepticOutputVerdict | (summary; no new keys) |
 
-**State shape (image_create):** `{ imageSpec?, specConfirmed?, imageComplete?, outputPath? }`
+**State shape (image_create):** `{ imageSpec?, specConfirmed?, imageComplete?, outputPath?, skepticOutputPassed?, skepticOutputVerdict? }`
 
 ---
 

@@ -87,6 +87,7 @@ function invalidateIfStale() {
 const KNOWN_FRONTMATTER_KEYS = new Set([
   "name",
   "description",
+  "owner",
   "title",
   "version",
   "author",
@@ -396,6 +397,14 @@ export const resourceDefs: {
     description:
       "Cross-project aesthetics floor: dimensions checklist, inspiration presets, CLAUDE.md block, workflow map",
     path: "reference/aesthetics-baseline.md",
+    mimeType: "text/markdown",
+  },
+  {
+    uri: "pn-core://reference/diagram-baseline.md",
+    name: "diagram-baseline.md",
+    description:
+      "Diagram quality floor: Mermaid vs editorial HTML tracks, density, type picker, D-01–D-10 ship gate, accTitle/accDescr, brand tokens from .pncore-design.md",
+    path: "reference/diagram-baseline.md",
     mimeType: "text/markdown",
   },
   {
