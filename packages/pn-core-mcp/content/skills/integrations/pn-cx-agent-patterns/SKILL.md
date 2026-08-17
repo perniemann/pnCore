@@ -176,7 +176,7 @@ Before deploying a customer-facing agent:
 
 ## Output
 
-- Agent architecture diagram (ASCII or Mermaid) matching one of the patterns above
+- Agent architecture or org-chart via `get_skill("pn-diagram-design")` (Mermaid with `accTitle`/`accDescr`; skip if a pattern table is enough) matching one of the patterns above
 - Session memory schema tailored to the project
 - Scope authorization record design
 - Escalation policy definition
@@ -187,6 +187,7 @@ Before deploying a customer-facing agent:
 - **pn-rag-evaluation** — Golden sets, automated metrics, and human rubrics before scaling RAG-heavy CX traffic
 - **pn-a2a-interop** — For A2A negotiation with external merchant/service agents
 - **pn-agent-governance** — Apply governance charter and audit trail to every CX agent
+- **pn-diagram-design** — Org-chart / architecture for the agent diagram (not ASCII boxes)
 - **pn-backend-architecture** — API/DB layer for session store and scope records
 - **pn-security-audit** — OWASP Agentic Applications 2026 review for prompt injection, scope escalation
 - **pn-auth-patterns** — Authentication for the CX agent's API access to account systems

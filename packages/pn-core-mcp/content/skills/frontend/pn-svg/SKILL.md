@@ -1,6 +1,6 @@
 ---
 name: pn-svg
-description: "SVG structure, optimization, animation, and accessibility. Use when creating or editing inline SVG, icons, logos, or SVG animations. Reference assets/pn-logo.svg for a rich example."
+description: "SVG structure, optimization, animation, and accessibility. Use when creating or editing inline SVG, icons, logos, or SVG animations. If the asset is a diagram (architecture, flowchart, sequence), route to pn-diagram-design. Reference assets/pn-logo.svg for a rich example."
 ---
 
 # SVG
@@ -11,6 +11,7 @@ description: "SVG structure, optimization, animation, and accessibility. Use whe
 - SVG animations (CSS, SMIL, or both).
 - Optimizing SVGs (viewBox, paths, defs).
 - SVG sprites or symbol reuse.
+- **Not** architecture / flowchart / sequence / org-chart diagrams — load `get_skill("pn-diagram-design")` or `get_command("pn-diagram")` instead. Keep this skill for logos, icons, and decorative SVG.
 
 ## Structure
 
@@ -62,3 +63,8 @@ See `assets/pn-logo.svg` for patterns used in this plugin:
 - Clean, well-structured SVG with defs for reuse.
 - **prefers-reduced-motion:** CSS animations: use `@media (prefers-reduced-motion: reduce)` to disable or simplify. SMIL animations do not respond to CSS; use JavaScript (e.g. `matchMedia`) to detect reduced motion and remove SMIL elements or set `dur="0"` when user prefers reduced motion.
 - **Browser compatibility:** Test in Safari; some SVG 2.0 features have weaker support in WebKit.
+
+## Integration
+
+- **Diagrams:** If type is architecture, flowchart, sequence, state, loop, quadrant, layers, process, data-flow, or org-chart, stop and use `pn-diagram-design`. Do not treat those as logos.
+- **Used by:** `pn-svg-creator` (logos/icons), `pn-assets` SVG route.

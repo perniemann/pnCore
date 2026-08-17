@@ -125,3 +125,8 @@ When generating, ensure:
 **Iterate:**
 > The monogram feels flat — add a subtle drop shadow filter and a gradient on the letterform.
 > Change the accent color from amber to teal and regenerate.
+
+## Integration
+
+- **Diagrams:** If purpose type is diagram, stop and load `pn-diagram-design` / `pn-diagram`. This skill stays logos, icons, illustrations, favicons.
+- **Used by:** `pn-assets` SVG route, `svg_create` workflow.

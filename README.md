@@ -2,7 +2,7 @@
   <img src="plugins/pnCore/assets/pn-logo.svg" width="256" alt="pnCore" />
 </p>
 
-# pnCore — v0.18.0
+# pnCore — v0.18.1
 
 **pnCore** is an orchestration pack and MCP server for AI-assisted software delivery in Cursor. It ships structured workflows — discovery, planning, skeptic challenge, design, audits, asset creation, and delivery — backed by skills, agents, rules, and a deterministic `workflow_step` engine. It is not a generic prompt pack.
 

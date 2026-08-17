@@ -1,6 +1,6 @@
 ---
 name: pn-assets
-description: Create a logo, icon, SVG, or raster image — questionnaire-driven so content is discussed before generation. Raster paths use pn-cinematography-lighting and pn-image-prompt-engineering for camera, lighting, and style. Routes to SVG or image workflow internally.
+description: Create a logo, icon, SVG, raster image, or diagram — questionnaire-driven so content is discussed before generation. Raster paths use pn-cinematography-lighting and pn-image-prompt-engineering for camera, lighting, and style. Routes to SVG, image, or pn-diagram internally.
 ---
 
 # pn-assets
@@ -11,7 +11,7 @@ Single entry point for creating any visual asset. Asks what you need, then runs 
 
 ## Flow
 
-1. **Clarify need:** "What do you need? **SVG** (logo, icon, illustration), **image** (PNG/raster, e.g. hero or product shot), **placeholder**, or **generative campaign / film / pipeline** (involved, multi-shot, ComfyUI/T2V)?" Use ask_question when available.
+1. **Clarify need:** "What do you need? **SVG** (logo, icon, illustration), **image** (PNG/raster, e.g. hero or product shot), **diagram** (architecture, flowchart, sequence, org-chart — Mermaid or editorial HTML), **placeholder**, or **generative campaign / film / pipeline** (involved, multi-shot, ComfyUI/T2V)?" Use ask_question when available.
 
 2. **Route:**
 
@@ -25,6 +25,11 @@ Single entry point for creating any visual asset. Asks what you need, then runs 
    4. Review output against spec — structure (defs, layering), animation quality, accessibility. Fix once if gaps.
    5. Run `get_skill("pn-skeptic-challenge")` in "Skeptic on output" mode. Gate before declaring done. Do not skip.
    6. Output: spec path, SVG path, skeptic verdict, brief confirmation.
+
+   ### Diagram
+   Architecture, flowchart, sequence, state, loop, quadrant, layers, process, data-flow, or org-chart. Do **not** send this through `svg_create` or `image_create`.
+
+   Load `get_command("pn-diagram")` (or `get_skill("pn-diagram-design")`) and follow that command. Tokens from `.pncore-design.md`. Preview editorial HTML via `pn-html-preview`.
 
    ### Image (PNG/raster)
    When MCP `workflow_step` is available: call `workflow_step("image_create", 0, {})` and follow each returned instruction.

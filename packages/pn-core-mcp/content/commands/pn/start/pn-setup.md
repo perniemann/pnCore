@@ -96,8 +96,9 @@ Ask these questions in one message:
 5. **Reference feel:** Optional — any products or aesthetics that capture the right vibe?
 6. **Constraints:** Framework, component library, existing brand colors or fonts, dark mode required?
 7. **House philosophy (optional):** Principles every UI surface should follow across your work (e.g. typographic discipline, motion restraint). Skip if not applicable.
-8. **Primary reference URL (optional):** A canonical site or product that sets the craft bar (portfolio or flagship). Agents use it as the aesthetic anchor when the spec allows. Skip if none.
-9. **Append `<frontend_aesthetics>` to CLAUDE.md (optional):** If the project uses a root `CLAUDE.md` (or similar global instructions), offer to append the block from `pn-core://reference/aesthetics-baseline.md` so models load the stance without opening a skill. User may decline.
+8. **Primary reference URL (optional):** A canonical site or product that sets the craft bar (portfolio or flagship). Agents use it as the aesthetic anchor when the spec allows. First editorial diagram also derives `paper`/`ink`/`muted`/`accent`/`link` from this URL when Diagram tokens are blank. Skip if none.
+9. **Diagram tokens (optional):** `paper`, `ink`, `muted`, `accent`, `link` — derived from brand colors/fonts or the Primary reference URL. Do not create a second style-guide file. Skip if none; the agent asks once on the first editorial HTML diagram.
+10. **Append `<frontend_aesthetics>` to CLAUDE.md (optional):** If the project uses a root `CLAUDE.md` (or similar global instructions), offer to append the block from `pn-core://reference/aesthetics-baseline.md` so models load the stance without opening a skill. User may decline.
 
 Gate: do not save until questions 1–4 and 6 are answered.
 
@@ -131,6 +132,13 @@ Gate: do not save until questions 1–4 and 6 are answered.
 
 ## Primary reference URL (optional)
 {URL to a portfolio or product that sets the bar — agents treat this as the aesthetic anchor when choosing direction; leave blank if none}
+
+## Diagram tokens (optional)
+- paper: {from brand background or reference URL}
+- ink: {from brand text}
+- muted: {from brand secondary}
+- accent: {from brand accent — one hue}
+- link: {from brand link, or ink}
 
 ## CLAUDE.md aesthetics block (optional)
 {yes/no — if yes, the `<frontend_aesthetics>` block from aesthetics-baseline was appended to project CLAUDE.md or user rules}

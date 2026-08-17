@@ -17,6 +17,18 @@ scenarios:
     with_skill: true
     quadrant: accurate_efficient
 
+  - id: with-skill-deletion
+    prompt: "Using pn-diagram-design, add a diagram that the frontend talks to the API. The plan already has a one-line architecture sentence covering that."
+    expectation: "Agent does not draw. States a paragraph or table already does the job (D-01) and DIAGRAM NO-GO or skip."
+    with_skill: true
+    quadrant: accurate_efficient
+
+  - id: with-skill-wrong-type
+    prompt: "Using pn-diagram-design, draw how the client, API, and auth service exchange a bearer-token refresh on 401."
+    expectation: "Agent picks type sequence (not architecture or flowchart), loads type-sequence.md, and uses sequenceDiagram or editorial lifelines."
+    with_skill: true
+    quadrant: accurate_efficient
+
   - id: without-skill-logo-path
     prompt: "Create an SVG diagram of our payment pipeline."
     expectation: "Agent runs pn-svg-creator logo questionnaire or draws a decorative SVG instead of routing to diagram design."
@@ -29,9 +41,21 @@ scenarios:
     with_skill: true
     quadrant: accurate_efficient
 
-  - id: with-skill-refuse-import-v1
+  - id: with-skill-brand-gate
+    prompt: "Using pn-diagram-design, make the first editorial HTML architecture diagram in this repo. There is no .pncore-design.md."
+    expectation: "Agent pauses once: onboard / paste tokens / derive from Primary reference URL / proceed with a non-Geist pair. Does not silent-ship Geist or atomic-tangerine."
+    with_skill: true
+    quadrant: accurate_efficient
+
+  - id: with-skill-import-redraw-ledger
+    prompt: "Using pn-diagram-design, redraw this Mermaid as editorial HTML: flowchart LR; A[Web] --> B[API] --> C[(Postgres)]. Keep the three components."
+    expectation: "Agent redraws on the editorial track, discards source layout/palette, and reports a fidelity ledger (Kept: Web, API, Postgres; Discarded: source coordinates/fills). Does not invent a draw.io parser."
+    with_skill: true
+    quadrant: accurate_efficient
+
+  - id: with-skill-no-extractor
     prompt: "Using pn-diagram-design, import platform.drawio and redraw it."
-    expectation: "Agent states import-redraw is out of v1 and offers a fresh diagram from described content instead of inventing a parser."
+    expectation: "Agent does not invent a parser. Asks for a pasted node list or Mermaid source, then offers import-redraw with a fidelity ledger."
     with_skill: true
     quadrant: accurate_efficient
 

@@ -1,16 +1,16 @@
 ---
-description: Diagram quality for plans, Mermaid sources, and editorial HTML — deletion, type pick, brand tokens; load pn-diagram-design
+description: Diagram quality for markdown, HTML, and Mermaid sources — deletion, type pick, brand tokens; load pn-diagram-design
 alwaysApply: false
-globs: ["docs/plans/**", "html_outputs/**", "**/*.mmd", "**/*.mermaid"]
+globs: ["**/*.md", "**/*.html", "**/*.mmd", "**/*.mermaid"]
 ---
 
-# Diagrams (narrow)
+# Diagrams
 
-Applies when editing implementation plans, preview HTML, or `.mmd`/`.mermaid` sources — not every markdown file.
+Applies when editing markdown, HTML, or `.mmd`/`.mermaid` sources.
 
-1. **Would a paragraph or table do the same job?** If yes, do not draw.
+1. **Would a paragraph or table do the same job?** If yes, do not draw. Highest-quality move is deletion.
 2. **Load** `get_skill("pn-diagram-design")` (or `get_command("pn-diagram")`) before drawing. Follow **`pn-core://reference/diagram-baseline.md`** when MCP is available.
-3. **Pick one visual type** (architecture, flowchart, sequence, loop, layers) and state it. Split above ~9 nodes rather than packing more boxes.
+3. **Pick one visual type** and state it. Split above ~9 nodes rather than packing more boxes. Confirm type, size, and planned cuts before drawing.
 4. **Mermaid:** include `accTitle` and `accDescr`. **Editorial HTML/SVG:** tokens from `.pncore-design.md` (`paper`, `ink`, `muted`, `accent`, `link`); never default to Geist or template cyan/purple.
 5. **Accent** on 1–2 focals only. Static by default.
 6. **Ship gate:** emit D-01–D-10 from `pn-core://reference/diagram-baseline.md`. **`DIAGRAM: NO-GO`** → fix before done. `/pn-diagram` also runs skeptic (and `pn-render-verify` on editorial HTML).

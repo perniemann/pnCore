@@ -67,7 +67,7 @@ Create a DESIGN document that captures vision, aesthetic direction, information 
 - Nav placement (bottom nav, sidebar, etc.)
 
 **7. Technical Architecture (High Level)**
-- Simple diagram or bullet list: frontend, backend, data layer
+- Load `get_skill("pn-diagram-design")` before drawing. Prefer **architecture** or **layers**. Skip the diagram if a short list of frontend / backend / data is enough. Cap ~9 nodes; include `accTitle`/`accDescr` on Mermaid. Editorial HTML only when the design doc must leave the repo as a shareable visual.
 - PWA, SPA, or native; offline considerations
 - Keep high-level; implementation details go in plan
 
@@ -96,3 +96,4 @@ Create a DESIGN document that captures vision, aesthetic direction, information 
 - **pn-new (Involved mode):** Step 3 runs this skill after PRD
 - **pn-frontend-design-philosophy:** Reference for alignment when UI in scope
 - **pn-writing-plans:** Plan references DESIGN doc for design tokens and flows
+- **pn-diagram-design:** Technical architecture visuals (architecture / layers); skip if a list suffices

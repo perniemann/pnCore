@@ -94,7 +94,9 @@ Present a table mapping model tiers to task types. Leave model name slots for th
 
 ### 6. Create the workflow overview diagram
 
-Build a Mermaid or ASCII diagram showing:
+Load `get_skill("pn-diagram-design")` first. Pick a type (usually **process** or **flowchart**). Skip the diagram if a numbered phase list is enough. Cap ~9 nodes; split overview + detail rather than packing. Every fenced Mermaid block includes `accTitle` and `accDescr`. Emit the **standard** D-table (`pn-core://reference/diagram-baseline.md`).
+
+Show:
 - Phase sequence (left to right or top to bottom)
 - Version targets per phase
 - Commands used per phase
@@ -127,6 +129,8 @@ For each plan phase, include:
 
 #### Post-build program boundary
 
+Include this section in `docs/WORKFLOW.md`:
+
 ```markdown
 ## Post-build (program end)
 
@@ -152,3 +156,4 @@ Include the build-phase loop summary from `pn-core://reference/best-practices.md
 - **pn-new (Involved mode):** Runs after plan, before skeptic challenge
 - **FLOW.md:** Positioned between Plan and Skeptic in the standard flow
 - **pn-documentation:** Format authority for the WORKFLOW doc type
+- **pn-diagram-design:** Overview diagram — type + density before drawing

@@ -64,7 +64,7 @@
     {
       "id": "pn-assets",
       "category": "Design",
-      "description": "Create a logo, icon, SVG, or raster image — questionnaire-driven so content is discussed before generation. Raster paths use pn-cinematography-lighting and pn-image-prompt-engineering for camera, lighting, and style. Routes to SVG or image workflow internally.",
+      "description": "Create a logo, icon, SVG, raster image, or diagram — questionnaire-driven so content is discussed before generation. Raster paths use pn-cinematography-lighting and pn-image-prompt-engineering for camera, lighting, and style. Routes to SVG, image, or pn-diagram internally.",
       "file": "pn-assets.md"
     },
     {
@@ -88,7 +88,7 @@
     {
       "id": "pn-diagram",
       "category": "Design",
-      "description": "Create an architecture, flowchart, sequence, loop, or layer-stack diagram as Mermaid-in-docs or self-contained HTML/SVG. Use when the user asks for a diagram, schematic, or flywheel. Does not import draw.io or redraw existing Mermaid files.",
+      "description": "Create an architecture, flowchart, sequence, state, loop, quadrant, layers, process, data-flow, or org-chart diagram as Mermaid-in-docs or self-contained HTML/SVG. Routes import-redraw of described or pasted diagrams with a fidelity ledger. Use when the user asks for a diagram, schematic, flywheel, or to redraw an existing figure. Does not run draw.io extractors.",
       "file": "pn-diagram.md"
     },
     {

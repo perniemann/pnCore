@@ -16,7 +16,24 @@ export function isDatedDocPath(relPath) {
 export function checkHeadingHierarchy(content, relPath) {
   const errors = [];
   let prevLevel = 0;
+  let fenceChar = "";
+  let fenceLen = 0;
   for (const line of content.split(/\r?\n/)) {
+    const fence = line.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
+    if (fence) {
+      const marker = fence[1];
+      const ch = marker[0];
+      const len = marker.length;
+      if (!fenceChar) {
+        fenceChar = ch;
+        fenceLen = len;
+      } else if (ch === fenceChar && len >= fenceLen && fence[2].trim() === "") {
+        fenceChar = "";
+        fenceLen = 0;
+      }
+      continue;
+    }
+    if (fenceChar) continue;
     const m = line.match(/^(#{1,6})\s+/);
     if (!m) continue;
     const level = m[1].length;

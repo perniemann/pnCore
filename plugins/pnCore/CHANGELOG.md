@@ -4,6 +4,23 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.18.1] - 2026-08-13
+
+### Added
+
+- **Diagram types:** state, quadrant, process, data-flow, and org-chart (`type-*.md`); remaining gallery names are a routing row (nearest grammar, no 27-type pack).
+- **Import-redraw** on `/pn-diagram`: keep components/relationships, discard source layout/palette, emit a fidelity ledger. No draw.io/Python extractors.
+- **Diagram tokens** (`paper` / `ink` / `muted` / `accent` / `link`) on `.pncore-design.md` (pn-setup + example template).
+
+### Changed
+
+- Rule `pn-diagrams` globs markdown, HTML, and `.mmd`/`.mermaid` (still not always-apply).
+- Weave diagram quality through design-doc, workflow-roadmap, CX agent patterns, `pn-svg`, `pn-assets` / `pn-assets-manager` (fourth need: **Diagram**), human-facing artifacts, frontend-developer, best-practices, and the skills catalog.
+
+### Fixed
+
+- Doc-structure gate ignores ATX headings inside fenced code examples, so a `##` sample in a skill no longer flags a skip to the next `####`.
+
 ## [0.18.0] - 2026-08-13
 
 ### Added

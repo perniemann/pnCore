@@ -41,6 +41,18 @@ Persist marketing UI defaults (integers 1–10). Agents still emit a Design Read
 
 See `pn-core://reference/design-intent.md`.
 
+## Diagram tokens (optional)
+
+Derived from brand colors/fonts or **Primary reference URL** — do not add a second style-guide file. Used by `pn-diagram-design` for editorial HTML/SVG.
+
+- **paper:** (page / SVG background)
+- **ink:** (stroke and labels)
+- **muted:** (secondary labels, default arrows)
+- **accent:** (1–2 focals only)
+- **link:** (external / HTTP edges)
+
+Leave blank to derive on first editorial diagram (agent asks once).
+
 ## Constraints
 
 - Framework: (e.g. Next.js, Astro, vanilla)
@@ -85,6 +97,14 @@ Editorial spacing, strong type hierarchy, purposeful motion. No stock “AI land
 ## Primary reference URL
 
 (your portfolio or flagship product, if you maintain one — otherwise leave blank)
+
+## Diagram tokens (optional)
+
+- paper: (from brand background)
+- ink: (from brand text)
+- muted: (from brand secondary)
+- accent: (from brand accent — one hue)
+- link: (from brand link, or ink)
 
 ## Constraints
 

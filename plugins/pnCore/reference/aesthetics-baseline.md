@@ -80,4 +80,4 @@ Frameworks and plans may suggest **example** display/body pairings to beat templ
 | Explore divergent directions | `get_command("pn-design-variants")` |
 | Amplify timid UI | `get_command("pn-bolder")` |
 | Static HTML preview (save + browser) | `get_skill("pn-html-preview")` |
-| Architecture / flowchart / sequence / flywheel / layers | `get_command("pn-diagram")` + `pn-core://reference/diagram-baseline.md` (D-table + skeptic / render-verify per track) |
+| Architecture / flowchart / sequence / state / loop / quadrant / layers / process / data-flow / org-chart | `get_command("pn-diagram")` + `pn-core://reference/diagram-baseline.md` (D-table + skeptic / render-verify per track; import-redraw with fidelity ledger, no extractors) |
