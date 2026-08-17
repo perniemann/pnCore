@@ -125,7 +125,7 @@ Add explicit tasks for:
 
 ### Diagrams in plans
 
-When the plan includes an architecture, flow, or sequence visual, load `get_skill("pn-diagram-design")` (or follow `pn-core://reference/diagram-baseline.md`). Pick one type. Skip the diagram if a list is enough. Cap ~9 nodes; split overview + detail instead of packing. Every fenced `mermaid` block includes `accTitle` and `accDescr`. Emit the **standard** D-01–D-10 table (`DIAGRAM: GO` / `NO-GO`) before leaving the plan; do not run a second skeptic on the diagram — the plan skeptic covers it.
+When the plan includes an architecture, flow, sequence, state, or process visual, load `get_skill("pn-diagram-design")` (or follow `pn-core://reference/diagram-baseline.md`). Pick one type. Skip the diagram if a list is enough. Cap ~9 nodes; split overview + detail instead of packing. Every fenced `mermaid` block includes `accTitle` and `accDescr`. Emit the **standard** D-01–D-10 table (`DIAGRAM: GO` / `NO-GO`) before leaving the plan; do not run a second skeptic on the diagram — the plan skeptic covers it.
 
 ### Test tasks (when Delivery tier: full or critical paths in scope)
 

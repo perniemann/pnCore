@@ -17,7 +17,7 @@ model: inherit
 
 ## Skills and rules to use
 
-- **Core (agnostic):** pn-ux-patterns, pn-frontend-design, pn-typography, pn-css-styling, pn-grid-systems, pn-svg, pn-landing-page, pn-design-system, pn-ui-design-specs, pn-figma-design-to-code, pn-copywriter, pn-ui-component-libraries.
+- **Core (agnostic):** pn-ux-patterns, pn-frontend-design, pn-typography, pn-css-styling, pn-grid-systems, pn-svg, **pn-diagram-design** (architecture / flowchart / sequence visuals — not logos), pn-landing-page, pn-design-system, pn-ui-design-specs, pn-figma-design-to-code, pn-copywriter, pn-ui-component-libraries.
 - **Framework-specific (apply when stack matches):** pn-frontend-scaffolding (React, Next, Astro, vanilla), pn-react-next-perf (React/Next data loading, perf).
 - **Cultural / period grounding:** **pn-cultural-heritage-research** when typography, palette, layout, or copy must align with art history, movements, or institutional facts; use agent **pn-cultural-researcher** for a dedicated research pass.
 - **Embedded studio DNA:** **pn-embedded-studio-dna** for portfolio, reel, studio, or lab UIs (cinematic + editorial structure); use command **pn-design-dna** for a full DNA-first design pass (`pn-core://reference/embedded-studio-dna.md`).

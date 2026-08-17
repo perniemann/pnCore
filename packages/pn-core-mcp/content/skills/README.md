@@ -9,7 +9,7 @@ Skills are grouped by domain. Cursor discovers them recursively under `skills/`.
 
 | Category | Purpose |
 |----------|---------|
-| **frontend** | React/Astro/vanilla scaffolds, design philosophy, typography, CSS, grid, SVG, landing pages, Figma-to-code, embedded studio DNA (portfolio / reel / lab) |
+| **frontend** | React/Astro/vanilla scaffolds, design philosophy, typography, CSS, grid, SVG, **diagrams** (`pn-diagram-design`: Mermaid-in-docs or editorial HTML/SVG), landing pages, Figma-to-code, embedded studio DNA (portfolio / reel / lab) |
 | **backend** | Backend philosophy, Node API, payments, DB patterns |
 | **ci** | Fix CI, merge conflicts, dev/prod split, smoke tests, ship checklist, deslop, loop |
 | **review** | Security audit, config review, browser runtime verify, legacy modernization, error analysis, review-optimize-loop, agent governance (audit trail, compliance evidence, policy charter), GitHub issue triage (GitHub MCP) |

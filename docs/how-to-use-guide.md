@@ -53,7 +53,7 @@ Deeper orientation: [Plugin reference](plugin-reference.md).
 ### Assets (image, SVG, placeholders)
 
 - **Assets when UI in scope** — Full dev and orchestrator flows automatically include pn-assets-manager when the build has UI (landing page, frontend, product page, components). Images must exist for all elements where they should exist (logo, hero, feature icons, subject icons, badge icons, empty-state illustrations per asset taxonomy). Run `validate:assets` before build or in CI. pn-deliver (verify phase) runs this check for UI projects.
-- **Image or SVG (single entry)** — `/pn-assets` or "Create an image or SVG." Asks: SVG (logo, icon, illustration), image (PNG/raster), or placeholder? Then routes to questionnaire-driven svg_create or image_create workflow (or placeholder URLs). Content is discussed before generation.
+- **Image, SVG, or diagram (single entry)** — `/pn-assets` or "Create an image or SVG." Asks: SVG (logo, icon, illustration), image (PNG/raster), **diagram**, or placeholder? Diagrams route to `/pn-diagram`, not `svg_create`.
 - **Placeholder images** — Choose "placeholder" in pn-assets or "Create placeholder images for this component." Uses picsum, placehold.co, or SVG data-URI.
 - **Diagrams** — `/pn-diagram` or "Draw an architecture diagram." Mermaid in docs or editorial HTML/SVG. Not for logos (use `/pn-assets`).
 
@@ -108,8 +108,8 @@ Copy-pasteable prompts for the main user-centric commands. When MCP is available
 | **pn-grill** | Socratic plan stress-test | `/pn-grill` or "Grill me on this plan before we build." | — (interactive) |
 | **pn-pressure-test** | Startup idea validation | `/pn-pressure-test` or "Pressure-test this startup idea before we write a PRD." | — (skill-backed report; optional playbooks in skill `references/`) |
 | **pn-design-variants** | Parallel different designs to compare | `/pn-design-variants` or "Generate 3 radically different designs." | — (parallel sub-agents) |
-| **pn-assets** | Image, SVG, or placeholder (single entry) | `/pn-assets` or "Create an image or SVG." | Routes to `svg_create` or `image_create` |
-| **pn-diagram** | Architecture / flowchart / sequence / loop / layers | `/pn-diagram` or "Draw an architecture diagram." | Skill `pn-diagram-design` (no workflowType) |
+| **pn-assets** | Image, SVG, diagram, or placeholder (single entry) | `/pn-assets` or "Create an image or SVG." | Routes to `svg_create`, `image_create`, or `pn-diagram` |
+| **pn-diagram** | Architecture / flowchart / sequence / state / loop / quadrant / layers / process / data-flow / org-chart | `/pn-diagram` or "Draw an architecture diagram." | Skill `pn-diagram-design` (no workflowType) |
 | **pn-document** | Format or validate project docs | `/pn-document` or "Format this README per pn-documentation." | — (one-shot) |
 | **pn-prompt-optimize** | Structured prompt improvement | `/pn-prompt-optimize` or "Optimize this prompt for reliability." | `prompt_optimize` (0→2) |
 | `game_feature` | Add incremental game mechanic | "Add a [mechanic] to this game." or "Use the game feature workflow." | `game_feature` (no slash command — use natural language) |

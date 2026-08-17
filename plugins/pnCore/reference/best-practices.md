@@ -28,6 +28,7 @@ Cross-cutting checklist for design, full_dev, and frontend_audit workflows. Cove
 - Avoid generic AI aesthetics (e.g. Inter everywhere, purple gradients on white).
 - **Full dimension checklist + copy-paste block:** `pn-core://reference/aesthetics-baseline.md` (use with project `.pncore-design.md`).
 - **Award rubric (visual distinctiveness):** Inventive art direction, cohesive storytelling via layout and motion, consistent design system, custom interaction design — avoid template/AI-generated look.
+- **Diagrams:** Load `pn-diagram-design` / `pn-core://reference/diagram-baseline.md`. Do not draw when a paragraph or table is clearer. Pick type before drawing; cap ~9 nodes; `accTitle`/`accDescr` on Mermaid; editorial HTML uses `.pncore-design.md` tokens (`paper`/`ink`/`muted`/`accent`/`link`), not Geist defaults. Emit D-01–D-10. Command: `pn-diagram`.
 
 ## 5. Orchestration
 

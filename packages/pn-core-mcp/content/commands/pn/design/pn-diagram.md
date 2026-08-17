@@ -1,6 +1,6 @@
 ---
 name: pn-diagram
-description: Create an architecture, flowchart, sequence, loop, or layer-stack diagram as Mermaid-in-docs or self-contained HTML/SVG. Use when the user asks for a diagram, schematic, or flywheel. Does not import draw.io or redraw existing Mermaid files.
+description: Create an architecture, flowchart, sequence, state, loop, quadrant, layers, process, data-flow, or org-chart diagram as Mermaid-in-docs or self-contained HTML/SVG. Routes import-redraw of described or pasted diagrams with a fidelity ledger. Use when the user asks for a diagram, schematic, flywheel, or to redraw an existing figure. Does not run draw.io extractors.
 ---
 
 # pn-diagram
@@ -11,9 +11,9 @@ Single entry for diagrams. Load `get_skill("pn-diagram-design")` and `pn-core://
 
 ## Flow
 
-1. **Clarify track** if unstated: **Mermaid** (docs/plans) or **editorial HTML** (shareable visual). Use `ask_question` when available. Default: Mermaid when the user is already in a plan/doc; HTML when they want a file to open or screenshot.
+1. **Clarify track** if unstated: **Mermaid** (docs/plans), **editorial HTML** (shareable visual), or **import-redraw** (existing figure → fresh drawing). Use `ask_question` when available. Default: Mermaid when the user is already in a plan/doc; HTML when they want a file to open or screenshot; import-redraw when they paste Mermaid, list nodes, or say “redraw this.”
 
-2. **Do not import.** If the user points at `.drawio`, `.mmd`, or “redraw this Mermaid,” say import-redraw is out of v1 and offer a fresh diagram from the described content.
+2. **Import-redraw (no extractors).** Keep components and relationships. Discard source layout and palette. Redraw on Mermaid or editorial. Emit a **fidelity ledger** (Kept / Discarded / Uncertain). If the user points at `.drawio` or other XML/binary, do not invent a parser — ask for a pasted node list or Mermaid source, then redraw.
 
 3. **Run the skill workflow:** skip-if-prose → tokens from `.pncore-design.md` → pattern then type → confirm type/track/cuts → load the matching `type-*.md` plus mermaid-track or editorial-track.
 
@@ -28,7 +28,7 @@ Single entry for diagrams. Load `get_skill("pn-diagram-design")` and `pn-core://
 
    Do not skip skeptic. Do not substitute a one-line “looks good.”
 
-6. **Output:** path, type, track, tokens used, cuts, D-table verdict, skeptic verdict.
+6. **Output:** path, type, track, tokens used, cuts, fidelity ledger (import-redraw only), D-table verdict, skeptic verdict.
 
 ## See also
 

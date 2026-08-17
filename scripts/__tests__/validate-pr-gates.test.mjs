@@ -51,6 +51,26 @@ test("checkHeadingHierarchy detects skipped levels", () => {
   assert.match(errors[0], /skipped heading level/);
 });
 
+test("checkHeadingHierarchy ignores ATX headings inside fenced examples", () => {
+  const md = [
+    "# Skill",
+    "## Instructions",
+    "### 8. Write the document",
+    "#### Post-build program boundary",
+    "",
+    "```markdown",
+    "## Post-build (program end)",
+    "```",
+    "",
+    "#### Operating model",
+    "",
+    "## Output",
+    "",
+  ].join("\n");
+  const errors = checkHeadingHierarchy(md, "skill.md");
+  assert.deepEqual(errors, []);
+});
+
 test("checkChangelogSections rejects unknown sections", () => {
   const md = "## [1.0.0] - 2026-01-01\n\n### Misc\n\n- x\n";
   const errors = checkChangelogSections(md, "CHANGELOG.md");

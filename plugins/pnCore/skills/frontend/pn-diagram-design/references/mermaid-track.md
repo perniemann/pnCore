@@ -23,7 +23,7 @@ State the type. Keep ~9 nodes / ~12 edges. Split overview + detail instead of pa
 - Avoid Mermaid reserved words as IDs (`end`, `subgraph`, `graph`).
 - Edge labels in quotes when they contain parentheses or colons.
 - Subgraphs for zones; do not nest more than two levels.
-- Prefer `flowchart` / `sequenceDiagram`. Do not depend on experimental types.
+- Prefer `flowchart` / `sequenceDiagram` / `stateDiagram-v2`. Do not depend on experimental types. `quadrantChart` is allowed when the host renders it; otherwise a 2×2 subgraph flowchart.
 
 Cursor **CreatePlan** diagrams have extra syntax constraints (no spaces in node IDs, quoted edge labels with special characters). Honor those when the host is plan-mode; they do not replace `accTitle`/`accDescr`.
 

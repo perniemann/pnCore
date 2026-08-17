@@ -10,6 +10,7 @@ For these **subset** classes of deliverable, the default stance is **SHOULD** pr
 - Implementation plan packaging (timeline, mockups, data-flow, snippets)
 - PR / code review explainers (annotated diffs, severity, navigation)
 - Reports for others (status, incident, research synthesis)
+- **Editorial diagrams** (architecture, sequence, strategy visuals) as self-contained HTML/SVG via `pn-diagram` / `pn-diagram-design` — not Mermaid screenshots when the artifact must leave the IDE
 
 Do **not** substitute HTML for **machine-facing** artifacts: workflow state fields, gate tickets, terse `taskResults` summaries, JSON handoffs, or anything a downstream automated step must parse quickly. Keep those **markdown or structured text** unless the user explicitly wants otherwise.
 
@@ -40,3 +41,4 @@ Illustrative patterns and example prompts: [The unreasonable effectiveness of HT
 
 - `pn-core://reference/RUNBOOK.md` — orchestrator quick reference (this document is linked from there).
 - Project **best practices** and a11y: `pn-core://reference/best-practices.md`.
+- Editorial diagrams as an HTML deliverable class: `pn-core://reference/diagram-baseline.md`.
