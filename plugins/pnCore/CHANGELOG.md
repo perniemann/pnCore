@@ -4,6 +4,16 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.18.2] - 2026-08-18
+
+### Changed
+
+- Portable one-click MCP config sets `GIT_TERMINAL_PROMPT=0` and `GIT_ASKPASS=echo`. This checkout commits `.cursor/mcp.json` (`node` + `packages/pn-core-mcp/dist/index.js`) for Desktop clones. Cloud Agents still need that same entry in dashboard MCP JSON.
+
+### Fixed
+
+- **npx MCP install loading:** `pn-core` exits on a TTY after a stderr line (pre-warm no longer sits idle). Without the git fail-fast env, a private git package blocked Cursor on a hidden credential prompt.
+
 ## [0.18.1] - 2026-08-13
 
 ### Added

@@ -37,4 +37,4 @@ console.log("Reload Cursor (or restart the pn-core MCP server) for the change to
 console.log("");
 console.log("First connect may exceed Cursor's MCP timeout. Pre-warm npx once:");
 console.log(" ", warmCacheShellCommand());
-console.log("  (Ctrl+C when it sits idle — cache is warm; then reload MCP in Cursor.)");
+console.log("  (The bin exits on a TTY after install — cache is warm; then reload MCP in Cursor.)");

@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "pn-core": {
+      "command": "node",
+      "args": ["packages/pn-core-mcp/dist/index.js"]
+    }
+  }
+}
+

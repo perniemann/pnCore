@@ -29,7 +29,7 @@ const entry = portableMcpServerEntryForPackage(packageSpec);
 const smokeCwd = process.env.USERPROFILE || process.env.HOME || process.env.TMPDIR || process.cwd();
 
 /**
- * @param {{ command: string; args: string[] }} launchEntry
+ * @param {{ command: string; args: string[]; env?: Record<string, string> }} launchEntry
  * @param {number} budgetMs
  * @returns {Promise<number>}
  */
@@ -37,7 +37,7 @@ async function connectAndHealth(launchEntry, budgetMs) {
   const transport = new StdioClientTransport({
     command: launchEntry.command,
     args: launchEntry.args,
-    env: process.env,
+    env: { ...process.env, ...(launchEntry.env ?? {}) },
     cwd: smokeCwd,
     ...(process.platform === "win32" && launchEntry.command === "npx" ? { shell: true } : {}),
   });

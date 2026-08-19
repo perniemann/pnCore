@@ -2,7 +2,12 @@
  * Portable vs dev MCP config classification and helpers.
  * Canonical npx launch shapes live in mcp-npx-config.mjs — do not duplicate args here.
  */
-import { npxPnCoreArgs, npxPnCoreArgsForPackage, PN_CORE_GIT_PACKAGE } from "./mcp-npx-config.mjs";
+import {
+  npxPnCoreArgs,
+  npxPnCoreArgsForPackage,
+  PN_CORE_GIT_PACKAGE,
+  portableNpxGitEnv,
+} from "./mcp-npx-config.mjs";
 
 export const PNCORE_GIT_PACKAGE = PN_CORE_GIT_PACKAGE;
 
@@ -20,9 +25,37 @@ export function portableMcpServerEntry(platform = process.platform) {
 export function portableMcpServerEntryForPackage(packageSpec, platform = process.platform) {
   const tail = npxPnCoreArgsForPackage(packageSpec);
   if (platform === "win32") {
-    return { command: "cmd", args: ["/c", "npx", ...tail] };
+    return { command: "cmd", args: ["/c", "npx", ...tail], env: { ...portableNpxGitEnv } };
   }
-  return { command: "npx", args: tail };
+  return { command: "npx", args: tail, env: { ...portableNpxGitEnv } };
+}
+
+/** Workspace-relative node entry when the MCP host cwd is this repo (Desktop clone). Cloud Agents must paste the same entry in dashboard MCP JSON — they do not read project `.cursor/mcp.json`. */
+export function repoWorkspaceMcpServerEntry() {
+  return { command: "node", args: [PNCORE_MCP_SERVER_REL] };
+}
+
+/**
+ * `node packages/pn-core-mcp/dist/index.js` (or `./…`) from this repo root — not after npx.
+ *
+ * @param {{ command?: string; args?: string[] } | undefined} entry
+ * @returns {boolean}
+ */
+export function isRepoWorkspacePnCoreEntry(entry) {
+  if (!entry?.args?.length) return false;
+  const cmd = typeof entry.command === "string" ? entry.command.replace(/\\/g, "/") : "";
+  const isNode =
+    cmd === "node" || cmd === "node.exe" || cmd.endsWith("/node") || cmd.endsWith("/node.exe");
+  if (!isNode) return false;
+  return entry.args.some((a) => {
+    if (typeof a !== "string") return false;
+    const norm = a.replace(/\\/g, "/");
+    return (
+      norm === PNCORE_MCP_SERVER_REL ||
+      norm === `./${PNCORE_MCP_SERVER_REL}` ||
+      norm.endsWith(`/${PNCORE_MCP_SERVER_REL}`)
+    );
+  });
 }
 
 /**
@@ -72,7 +105,7 @@ export function isLocalDevPnCoreEntry(entry) {
 
 /**
  * @param {{ command?: string; args?: string[] } | undefined} entry
- * @returns {{ portable: boolean; localDev: boolean; brokenPortable: boolean; reason: string }}
+ * @returns {{ portable: boolean; localDev: boolean; brokenPortable: boolean; repoWorkspace: boolean; reason: string }}
  */
 export function classifyPnCoreEntry(entry) {
   if (!entry) {
@@ -80,6 +113,7 @@ export function classifyPnCoreEntry(entry) {
       portable: false,
       localDev: false,
       brokenPortable: false,
+      repoWorkspace: false,
       reason: "missing pn-core entry",
     };
   }
@@ -88,6 +122,7 @@ export function classifyPnCoreEntry(entry) {
       portable: false,
       localDev: false,
       brokenPortable: true,
+      repoWorkspace: false,
       reason: "broken npx config (relative node path — use pn-core bin)",
     };
   }
@@ -96,7 +131,17 @@ export function classifyPnCoreEntry(entry) {
       portable: true,
       localDev: false,
       brokenPortable: false,
+      repoWorkspace: false,
       reason: "npx git install (portable)",
+    };
+  }
+  if (isRepoWorkspacePnCoreEntry(entry)) {
+    return {
+      portable: false,
+      localDev: false,
+      brokenPortable: false,
+      repoWorkspace: true,
+      reason: "repo workspace node dist (this checkout)",
     };
   }
   if (isLocalDevPnCoreEntry(entry)) {
@@ -104,6 +149,7 @@ export function classifyPnCoreEntry(entry) {
       portable: false,
       localDev: true,
       brokenPortable: false,
+      repoWorkspace: false,
       reason: "absolute local path (dev-only)",
     };
   }
@@ -111,6 +157,7 @@ export function classifyPnCoreEntry(entry) {
     portable: false,
     localDev: false,
     brokenPortable: false,
+    repoWorkspace: false,
     reason: "unknown pn-core command shape",
   };
 }

@@ -1,2 +1,2 @@
 plans/
-mcp.json
+# mcp.json is committed in this repo: node + packages/pn-core-mcp/dist (cwd = repo root).

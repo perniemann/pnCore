@@ -86,17 +86,23 @@ if (classification.localDev && !allowLocal) {
   exitCode = 1;
 }
 
-if (!classification.portable && !classification.localDev) {
+if (!classification.portable && !classification.localDev && !classification.repoWorkspace) {
   console.warn("");
   console.warn("pn-core MCP: unrecognized command shape — expected npx git install.");
   console.warn("  Fix: one-click install or README MCP JSON (npx + `-- pn-core`)");
   exitCode = 1;
 }
 
+if (classification.repoWorkspace) {
+  console.log("");
+  console.log("  Repo-workspace mode: MCP host cwd must be the pnCore repo root.");
+}
+
 if (classification.portable) {
   console.log("");
   console.log("  Pre-warm before first Cursor connect (avoids ~60s MCP timeout):");
   console.log("  ", warmCacheShellCommand());
+  console.log("  The bin exits on a TTY after install (cache stays warm).");
 }
 
 if (smoke && entry && entryPath) {
@@ -107,7 +113,7 @@ if (smoke && entry && entryPath) {
   const transport = new StdioClientTransport({
     command: entry.command,
     args: entry.args,
-    env: process.env,
+    env: { ...process.env, ...(entry.env ?? {}) },
   });
   const client = new Client({ name: "check-mcp-smoke", version: "1.0.0" }, { capabilities: {} });
 
