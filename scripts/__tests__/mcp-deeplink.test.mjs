@@ -17,6 +17,8 @@ test("one-click config uses pn-core bin, not cwd-relative node path", () => {
   assert.deepEqual(mcpConfigNpx.args.slice(-1), ["pn-core"]);
   assert.ok(!mcpConfigNpx.args.includes("node"));
   assert.ok(!mcpConfigNpx.args.some((a) => a.includes("packages/pn-core-mcp/dist")));
+  assert.equal(mcpConfigNpx.env.GIT_TERMINAL_PROMPT, "0");
+  assert.equal(mcpConfigNpx.env.GIT_ASKPASS, "echo");
 });
 
 test("encoded config round-trips", () => {

@@ -11,16 +11,27 @@ export function npxPnCoreArgsForPackage(packageSpec = PN_CORE_GIT_PACKAGE) {
 
 export const npxPnCoreArgs = npxPnCoreArgsForPackage();
 
+/**
+ * Fail fast when the git package is private and the MCP child has no credentials.
+ * Without this, git waits on a credential prompt that never appears — forever loading.
+ */
+export const portableNpxGitEnv = {
+  GIT_TERMINAL_PROMPT: "0",
+  GIT_ASKPASS: "echo",
+};
+
 /** Cross-platform: npx on PATH (Mac, Linux, Windows). */
 export const mcpConfigNpx = {
   command: "npx",
   args: npxPnCoreArgs,
+  env: portableNpxGitEnv,
 };
 
 /** Windows fallback when MCP host requires cmd /c. */
 export const mcpConfigWindowsCmd = {
   command: "cmd",
   args: ["/c", "npx", ...npxPnCoreArgs],
+  env: portableNpxGitEnv,
 };
 
 export function encodeMcpConfig(config) {

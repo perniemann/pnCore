@@ -1,14 +1,14 @@
 # pn-core-mcp
 
-MCP server for [pnCore](https://github.com/perniemann/pnCore) **0.18.1**: same skills, agents, commands, and rules as the Cursor plugin, plus **`workflow_step`** and related tools. Use from any MCP client to run orchestration, discovery, skeptic, audits, assets, and other pnCore workflows without installing the plugin.
+MCP server for [pnCore](https://github.com/perniemann/pnCore) **0.18.2**: same skills, agents, commands, and rules as the Cursor plugin, plus **`workflow_step`** and related tools. Use from any MCP client to run orchestration, discovery, skeptic, audits, assets, and other pnCore workflows without installing the plugin.
 
 ## Installation
 
 **Install (Cursor)** — one-click deeplink (same badge as [repo README](../../README.md#mcp-any-mcp-client)):
 
-[![Install MCP](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=pn-core&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIi0tcGFja2FnZT1naXQraHR0cHM6Ly9naXRodWIuY29tL3Blcm5pZW1hbm4vcG5Db3JlLmdpdCNtYWluIiwiLS0iLCJwbi1jb3JlIl19)
+[![Install MCP](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=pn-core&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIi0tcGFja2FnZT1naXQraHR0cHM6Ly9naXRodWIuY29tL3Blcm5pZW1hbm4vcG5Db3JlLmdpdCNtYWluIiwiLS0iLCJwbi1jb3JlIl0sImVudiI6eyJHSVRfVEVSTUlOQUxfUFJPTVBUIjoiMCIsIkdJVF9BU0tQQVNTIjoiZWNobyJ9fQ==)
 
-Or use `cursor://` in-app: `cursor://anysphere.cursor-deeplink/mcp/install?name=pn-core&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIi0tcGFja2FnZT1naXQraHR0cHM6Ly9naXRodWIuY29tL3Blcm5pZW1hbm4vcG5Db3JlLmdpdCNtYWluIiwiLS0iLCJwbi1jb3JlIl19`
+Or use `cursor://` in-app: `cursor://anysphere.cursor-deeplink/mcp/install?name=pn-core&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIi0tcGFja2FnZT1naXQraHR0cHM6Ly9naXRodWIuY29tL3Blcm5pZW1hbm4vcG5Db3JlLmdpdCNtYWluIiwiLS0iLCJwbi1jb3JlIl0sImVudiI6eyJHSVRfVEVSTUlOQUxfUFJPTVBUIjoiMCIsIkdJVF9BU0tQQVNTIjoiZWNobyJ9fQ==`
 
 Default uses `npx --package` + the **`pn-core` bin** (via `-- pn-core`) so npx resolves the entry inside the install tree. Do **not** use `node packages/pn-core-mcp/dist/index.js` in npx configs — that path is relative to the MCP host’s working directory, not the package. Run `npm run mcp-deeplink` from repo root to regenerate links if the config changes.
 
@@ -21,13 +21,20 @@ Add to your MCP config (e.g. `~/.cursor/mcp.json` or Cursor Settings → MCP):
   "mcpServers": {
     "pn-core": {
       "command": "npx",
-      "args": ["-y", "--package=git+https://github.com/perniemann/pnCore.git#main", "--", "pn-core"]
+      "args": ["-y", "--package=git+https://github.com/perniemann/pnCore.git#main", "--", "pn-core"],
+      "env": { "GIT_TERMINAL_PROMPT": "0", "GIT_ASKPASS": "echo" }
     }
   }
 }
 ```
 
-**Windows:** if MCP cannot launch `npx` directly, use `"command": "cmd"` with `"/c"` before `npx` in `args` (keep the same trailing `-- pn-core`).
+`GIT_TERMINAL_PROMPT=0` and `GIT_ASKPASS=echo` stop git from blocking on a credential prompt when the package URL is a private repo (Cursor then shows an error instead of spinning forever). Override a TTY pre-warm exit with `PNCORE_MCP_ALLOW_TTY=1`.
+
+**This pnCore checkout (Cursor Desktop):** use the committed [`.cursor/mcp.json`](../../.cursor/mcp.json) — `"command": "node"`, `"args": ["packages/pn-core-mcp/dist/index.js"]` — with cwd = repo root. That skips `npx` git clone. Do **not** append `node packages/…` after `npx`.
+
+**Cloud Agents:** dashboard MCP JSON is injected at boot and does not read project `.cursor/mcp.json`. Paste the same `node` + `packages/pn-core-mcp/dist/index.js` entry there. Existing runs keep the injected config until you start a new agent.
+
+**Windows:** if MCP cannot launch `npx` directly, use `"command": "cmd"` with `"/c"` before `npx` in `args` (keep the same trailing `-- pn-core` and the same `env`).
 
 ### Windows: if you still see `'pn-core' is not recognized`
 
@@ -61,6 +68,8 @@ Then reload Cursor. `mcp-config:dev` writes your global `~/.cursor/mcp.json` (or
 | Works on one PC, fails on another | `mcp.json` has an **absolute local path** (e.g. `X:\pnCore\...`) | One-click install or README MCP JSON |
 | Module / zod errors in MCP log | **Node &lt; 22** or wrong major on PATH | Install Node 22+; set `PNCORE_MCP_NODE` to Node 22 binary |
 | `'pn-core' is not recognized` (Windows) | Old config without `--package=git+…` | Use current npx + `-- pn-core` config |
+| Terminal `npx … -- pn-core` sits forever with no output | Stdio server waiting on stdin | The bin now exits on a TTY after a stderr line (cache stays warm). Override: `PNCORE_MCP_ALLOW_TTY=1` |
+| Cursor tile stays **loading** then errors | Missing GitHub auth for the private git package, first clone &gt; timeout, or Cloud Agent still on injected npx | Add git credentials; Desktop: this repo’s `.cursor/mcp.json` `node` entry; Cloud Agents: set dashboard MCP to `node` + `packages/pn-core-mcp/dist/index.js`; pre-warm npx once |
 
 **Pre-warm npx (once per machine if first connect times out):**
 
@@ -76,7 +85,7 @@ Mac/Linux:
 npx -y --package=git+https://github.com/perniemann/pnCore.git#main -- pn-core
 ```
 
-The process sits idle (stdio MCP — no output is normal). Press Ctrl+C. npx cache is warm; reload **pn-core** in Cursor Settings → MCP.
+On a TTY the `pn-core` bin prints one stderr line and exits 0 (npx cache is warm). Reload **pn-core** in Cursor Settings → MCP.
 
 **Verify config:** from a pnCore clone run `npm run check:mcp` (flags non-portable paths) or `npm run check:mcp -- --smoke` (live connect + `health`).
 

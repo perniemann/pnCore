@@ -2,7 +2,7 @@
   <img src="plugins/pnCore/assets/pn-logo.svg" width="256" alt="pnCore" />
 </p>
 
-# pnCore — v0.18.1
+# pnCore — v0.18.2
 
 **pnCore** is an orchestration pack and MCP server for AI-assisted software delivery in Cursor. It ships structured workflows — discovery, planning, skeptic challenge, design, audits, asset creation, and delivery — backed by skills, agents, rules, and a deterministic `workflow_step` engine. It is not a generic prompt pack.
 
@@ -28,7 +28,7 @@ Canonical content lives in `packages/pn-core-mcp/content/` and syncs into the pl
 
 ### Cursor — MCP (one-click)
 
-[![Install MCP](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=pn-core&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIi0tcGFja2FnZT1naXQraHR0cHM6Ly9naXRodWIuY29tL3Blcm5pZW1hbm4vcG5Db3JlLmdpdCNtYWluIiwiLS0iLCJwbi1jb3JlIl19)
+[![Install MCP](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=pn-core&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIi0tcGFja2FnZT1naXQraHR0cHM6Ly9naXRodWIuY29tL3Blcm5pZW1hbm4vcG5Db3JlLmdpdCNtYWluIiwiLS0iLCJwbi1jb3JlIl0sImVudiI6eyJHSVRfVEVSTUlOQUxfUFJPTVBUIjoiMCIsIkdJVF9BU0tQQVNTIjoiZWNobyJ9fQ==)
 
 Or add manually to `~/.cursor/mcp.json`:
 
@@ -37,13 +37,20 @@ Or add manually to `~/.cursor/mcp.json`:
   "mcpServers": {
     "pn-core": {
       "command": "npx",
-      "args": ["-y", "--package=git+https://github.com/perniemann/pnCore.git#main", "--", "pn-core"]
+      "args": ["-y", "--package=git+https://github.com/perniemann/pnCore.git#main", "--", "pn-core"],
+      "env": { "GIT_TERMINAL_PROMPT": "0", "GIT_ASKPASS": "echo" }
     }
   }
 }
 ```
 
-**Windows:** if `npx` fails from MCP settings, use `"command": "cmd"` with `"/c"` before `npx` in `args` (same trailing `-- pn-core`). Config options and troubleshooting: [packages/pn-core-mcp/README.md](packages/pn-core-mcp/README.md).
+`GIT_TERMINAL_PROMPT=0` and `GIT_ASKPASS=echo` fail fast when git cannot authenticate (this repo is private). Without them, a credential prompt on piped stdin leaves Cursor in a forever loading state.
+
+**This checkout (Cursor Desktop):** committed `.cursor/mcp.json` runs `node packages/pn-core-mcp/dist/index.js` from the repo root (after `npm run build:mcp`). Do **not** put that relative `node` path after `npx` — that resolves from the host cwd, not the package.
+
+**Cloud Agents:** the dashboard injects MCP config and does not read project `.cursor/mcp.json`. Paste the same `node` + `packages/pn-core-mcp/dist/index.js` entry in the agent's MCP JSON (cwd is the repo root). Existing runs keep whatever was injected at boot.
+
+**Windows:** if `npx` fails from MCP settings, use `"command": "cmd"` with `"/c"` before `npx` in `args` (same trailing `-- pn-core` and the same `env`). Config options and troubleshooting: [packages/pn-core-mcp/README.md](packages/pn-core-mcp/README.md).
 
 ### Cursor — Plugin
 

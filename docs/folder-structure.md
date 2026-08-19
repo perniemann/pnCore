@@ -14,7 +14,7 @@ This repo follows [add-a-plugin.md](add-a-plugin.md). Layout:
 When you open the **pnCore repo root** as the workspace, `.cursor-plugin/plugin.json` points at `plugins/pnCore/` for skills, agents, rules, commands, and hooks. Cursor loads content from the plugin folder. The **canonical source** for skills, agents, rules, config, docs, reference, and hooks is **`packages/pn-core-mcp/content/`**. After editing content there, run **`npm run sync:content`** from the repo root to copy into `plugins/pnCore/` so both stay in sync. Running `npm run install` from the repo root keeps the plugin mapping; it does not copy plugin content into root `.cursor/`.
 
 ```text
-.cursor/                 # Optional workspace-only (e.g. mcp.json, .gitignore)
+.cursor/                 # Workspace MCP: committed mcp.json launches node + packages/pn-core-mcp/dist (this repo only)
 .cursor-plugin/
   plugin.json            # Points at plugins/pnCore/ for content
 config/
