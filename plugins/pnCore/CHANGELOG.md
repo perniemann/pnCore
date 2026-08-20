@@ -4,6 +4,18 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.18.3] - 2026-08-20
+
+### Added
+
+- **MCP dispose-verify:** `workflow_verify` runs catalog commands with no shell and returns a `GateReport`. `exitCode !== 0` is a completed verify. Tournament step 2 reads attested ids when `disposeVerify` is on; agent `passed` flags are ignored. `workflow_run_query` joins verify/acceptance events by `run_id`. See [ADR-0012](../../docs/adr/0012-mcp-dispose-verify.md).
+- **Earned acceptance** on `workflow_step`: `accepted` is not `phasesPassed`. A red suite can finish verify and still be `accepted: false`.
+- **Typed envelopes** (`typedEnvelopes`): `pn-*` `taskResults` must be specialist objects, not free strings.
+
+### Changed
+
+- MCP tool count is **26** (was 24). Flags default **off**. Jail is fail-closed (`bwrap`); `PNCORE_VERIFY_SANDBOX=restricted` is an explicit no-jail opt-in.
+
 ## [0.18.2] - 2026-08-18
 
 ### Changed

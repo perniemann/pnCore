@@ -32,6 +32,12 @@ export type PnCoreFeatures = {
    */
   tierAliases?: Partial<Record<ModelTier, ModelTier>>;
   strictSkepticGates?: boolean;
+  /** MCP dispose-verify: workflow_verify + attested tournament gates. Default false. */
+  disposeVerify?: boolean;
+  /** Require specialist envelopes on pn-* taskResults keys. Default false. */
+  typedEnvelopes?: boolean;
+  /** Allow free-form argv on workflow_verify (still no-shell + allowlist). Default false. */
+  disposeVerifyAllowArgv?: boolean;
 };
 
 const DEFAULT_BEST_OF_N: Required<BestOfNFeatures> = {
@@ -50,6 +56,9 @@ const DEFAULTS: Required<PnCoreFeatures> = {
   modelTierOverrides: {},
   tierAliases: {},
   strictSkepticGates: false,
+  disposeVerify: false,
+  typedEnvelopes: false,
+  disposeVerifyAllowArgv: false,
 };
 
 // Module-scope cache keyed on content version — ensures flag consistency
@@ -152,6 +161,12 @@ export function loadFeatures(): ResolvedPnCoreFeatures {
     tierAliases: aliasesFromEnv ?? aliasesFromFile ?? DEFAULTS.tierAliases,
     strictSkepticGates:
       envPart.strictSkepticGates ?? file.strictSkepticGates ?? DEFAULTS.strictSkepticGates,
+    disposeVerify: envPart.disposeVerify ?? file.disposeVerify ?? DEFAULTS.disposeVerify,
+    typedEnvelopes: envPart.typedEnvelopes ?? file.typedEnvelopes ?? DEFAULTS.typedEnvelopes,
+    disposeVerifyAllowArgv:
+      envPart.disposeVerifyAllowArgv ??
+      file.disposeVerifyAllowArgv ??
+      DEFAULTS.disposeVerifyAllowArgv,
   };
   return _featuresCache;
 }
@@ -166,4 +181,26 @@ export function strictSkepticGatesEnabled(): boolean {
   const env = process.env.PNCORE_STRICT_SKEPTIC_GATES?.trim().toLowerCase();
   if (env === "1" || env === "true" || env === "yes") return true;
   return loadFeatures().strictSkepticGates;
+}
+
+function envFlag(name: string): boolean | undefined {
+  const env = process.env[name]?.trim().toLowerCase();
+  if (env === "1" || env === "true" || env === "yes") return true;
+  if (env === "0" || env === "false" || env === "no") return false;
+  return undefined;
+}
+
+/** Env PNCORE_DISPOSE_VERIFY or features.disposeVerify. */
+export function disposeVerifyEnabled(): boolean {
+  return envFlag("PNCORE_DISPOSE_VERIFY") ?? loadFeatures().disposeVerify;
+}
+
+/** Env PNCORE_TYPED_ENVELOPES or features.typedEnvelopes. */
+export function typedEnvelopesEnabled(): boolean {
+  return envFlag("PNCORE_TYPED_ENVELOPES") ?? loadFeatures().typedEnvelopes;
+}
+
+/** Env PNCORE_DISPOSE_VERIFY_ALLOW_ARGV or features.disposeVerifyAllowArgv. */
+export function disposeVerifyAllowArgvEnabled(): boolean {
+  return envFlag("PNCORE_DISPOSE_VERIFY_ALLOW_ARGV") ?? loadFeatures().disposeVerifyAllowArgv;
 }

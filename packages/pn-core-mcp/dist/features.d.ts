@@ -28,6 +28,12 @@ export type PnCoreFeatures = {
      */
     tierAliases?: Partial<Record<ModelTier, ModelTier>>;
     strictSkepticGates?: boolean;
+    /** MCP dispose-verify: workflow_verify + attested tournament gates. Default false. */
+    disposeVerify?: boolean;
+    /** Require specialist envelopes on pn-* taskResults keys. Default false. */
+    typedEnvelopes?: boolean;
+    /** Allow free-form argv on workflow_verify (still no-shell + allowlist). Default false. */
+    disposeVerifyAllowArgv?: boolean;
 };
 export type ResolvedPnCoreFeatures = Omit<Required<PnCoreFeatures>, "bestOfN"> & {
     bestOfN: Required<BestOfNFeatures>;
@@ -37,3 +43,9 @@ export declare function loadFeatures(): ResolvedPnCoreFeatures;
 export declare function loadBestOfNFeatures(): Required<BestOfNFeatures>;
 /** Env override for strict skeptic gate checks (also features.json.strictSkepticGates). */
 export declare function strictSkepticGatesEnabled(): boolean;
+/** Env PNCORE_DISPOSE_VERIFY or features.disposeVerify. */
+export declare function disposeVerifyEnabled(): boolean;
+/** Env PNCORE_TYPED_ENVELOPES or features.typedEnvelopes. */
+export declare function typedEnvelopesEnabled(): boolean;
+/** Env PNCORE_DISPOSE_VERIFY_ALLOW_ARGV or features.disposeVerifyAllowArgv. */
+export declare function disposeVerifyAllowArgvEnabled(): boolean;

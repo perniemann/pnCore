@@ -7,13 +7,13 @@ updated: 2026-07-03
 
 ## What pn-core MCP is
 
-pn-core is the **MCP server** for the pnCore plugin pack. It exposes skills, agents, commands, rules, and a deterministic **`workflow_step`** engine as **24 tools**, plus **`pn-core://` resources** and **MCP prompts** (see below). Stacks and scope limits: [plugin reference](plugin-reference.md). **Orientation** (plugin vs MCP, slash commands, when to use which workflow): [How to use pnCore](how-to-use-guide.md).
+pn-core is the **MCP server** for the pnCore plugin pack. It exposes skills, agents, commands, rules, and a deterministic **`workflow_step`** engine as **26 tools**, plus **`pn-core://` resources** and **MCP prompts** (see below). Stacks and scope limits: [plugin reference](plugin-reference.md). **Orientation** (plugin vs MCP, slash commands, when to use which workflow): [How to use pnCore](how-to-use-guide.md).
 
 **Reference:** Env vars, tool risk labels, and structured error codes are documented in [packages/pn-core-mcp/README.md](../packages/pn-core-mcp/README.md). This guide focuses on usage patterns.
 
 ---
 
-## The 24 tools: who uses them and how
+## The 26 tools: who uses them and how
 
 | Tool | Purpose | Who uses it |
 |------|---------|-------------|
@@ -35,6 +35,8 @@ pn-core is the **MCP server** for the pnCore plugin pack. It exposes skills, age
 | `workflow_handoff_read` | Read recent handoff lines for a `run_id` (e.g. new chat restore) | AI / Client |
 | `workflow_state_save` | Persist workflow state to file for resume after disconnect | AI / Client |
 | `workflow_state_load` | Load workflow state from file | AI / Client |
+| `workflow_verify` | Run a catalog verify command with no shell; returns a GateReport (`exitCode !== 0` is a completed verify). Requires `disposeVerify`. Fail-closed without a jail unless `PNCORE_VERIFY_SANDBOX=restricted` or Vitest | AI |
+| `workflow_run_query` | Query server-written verify/acceptance events for a `run_id` | AI / Client |
 | `workflow_confirm` | Structured confirmation gate (MCP-only `ask_question` approximation). Returns prompt + options; model outputs them and stops until user replies | AI (gates when ask_question unavailable) |
 | `approval_checkpoint` | Hard gate: succeeds only if `approval_token` matches `PNCORE_APPROVAL_TOKEN` on the MCP server (`env` in MCP config). Optional `workflow_type` + `workflow_step` issue `pncoreHumanGateTicket` for opt-in mandatory human gates | AI + user (high-risk steps) |
 | `gate_log_append` | Append-only gate audit line (JSONL), default `.pncore/gate-log.jsonl` | AI / ops audit |

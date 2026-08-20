@@ -1,5 +1,6 @@
 import { appendFileSync, mkdirSync, existsSync, readFileSync, writeFileSync } from "fs";
-import { dirname, resolve, join, sep } from "path";
+import { dirname, resolve, join } from "path";
+import { resolveSafePath, safeBase } from "../safe-path.js";
 import { fileURLToPath } from "url";
 import { z } from "zod";
 import { loadFeatures } from "../features.js";
@@ -17,6 +18,8 @@ export const ErrorCode = {
     PARSE_ERROR: "PARSE_ERROR",
     PATH_TRAVERSAL: "PATH_TRAVERSAL",
     INVALID_GATE: "INVALID_GATE",
+    DISPOSE_UNAVAILABLE: "DISPOSE_UNAVAILABLE",
+    INVALID_ARGV: "INVALID_ARGV",
 };
 export function getMcpVersion() {
     const pkgPath = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "package.json");
@@ -40,7 +43,7 @@ export function getMcpVersion() {
     return pkg.version;
 }
 export const MCP_VERSION = getMcpVersion();
-export const safeBase = process.cwd();
+export { safeBase, resolveSafePath };
 export const requiredHumanGateWorkflows = parseRequiredApprovalWorkflows(process.env.PNCORE_REQUIRE_APPROVAL_FOR_WORKFLOWS);
 export const defaultHumanGateTicketsPath = process.env.PNCORE_HUMAN_GATE_TICKETS_PATH ?? ".pncore/human-gate-tickets.jsonl";
 export const defaultUsagePath = ".pncore/usage.jsonl";
@@ -57,15 +60,6 @@ export const runIdOptArg = z
 export function getContentMaxChars() {
     const feats = loadFeatures();
     return feats.truncateSkills ? maxResourceCharsFromEnv() : Number.MAX_SAFE_INTEGER;
-}
-export function resolveSafePath(filePath) {
-    const normalizedBase = resolve(safeBase);
-    const normalizedResolved = resolve(normalizedBase, filePath);
-    const isInside = normalizedResolved === normalizedBase || normalizedResolved.startsWith(normalizedBase + sep);
-    if (!isInside) {
-        return { error: "Path must be within process cwd" };
-    }
-    return { resolved: normalizedResolved };
 }
 function errJson(code, message, extra) {
     return JSON.stringify({ error: message, code, ...extra });

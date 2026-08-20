@@ -31,6 +31,30 @@ describe("PNCORE_STRICT_SKEPTIC_GATES", () => {
   });
 });
 
+describe("disposeVerify and typedEnvelopes flags", () => {
+  it("reads env shortcuts", async () => {
+    vi.stubEnv("PNCORE_DISPOSE_VERIFY", "true");
+    vi.stubEnv("PNCORE_TYPED_ENVELOPES", "yes");
+    vi.stubEnv("PNCORE_DISPOSE_VERIFY_ALLOW_ARGV", "1");
+    const { disposeVerifyEnabled, typedEnvelopesEnabled, disposeVerifyAllowArgvEnabled } =
+      await import("./features.js");
+    expect(disposeVerifyEnabled()).toBe(true);
+    expect(typedEnvelopesEnabled()).toBe(true);
+    expect(disposeVerifyAllowArgvEnabled()).toBe(true);
+  });
+
+  it("honors explicit false env over features.json", async () => {
+    vi.stubEnv("PNCORE_DISPOSE_VERIFY", "false");
+    vi.stubEnv("PNCORE_TYPED_ENVELOPES", "0");
+    vi.stubEnv("PNCORE_DISPOSE_VERIFY_ALLOW_ARGV", "no");
+    const { disposeVerifyEnabled, typedEnvelopesEnabled, disposeVerifyAllowArgvEnabled } =
+      await import("./features.js");
+    expect(disposeVerifyEnabled()).toBe(false);
+    expect(typedEnvelopesEnabled()).toBe(false);
+    expect(disposeVerifyAllowArgvEnabled()).toBe(false);
+  });
+});
+
 describe("PNCORE_FEATURES strictPlanSummary", () => {
   it("full_dev step 3 errors without planArtifactPath and planSummary", async () => {
     vi.stubEnv("PNCORE_FEATURES", JSON.stringify({ strictPlanSummary: true }));

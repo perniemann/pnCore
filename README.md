@@ -2,19 +2,19 @@
   <img src="plugins/pnCore/assets/pn-logo.svg" width="256" alt="pnCore" />
 </p>
 
-# pnCore — v0.18.2
+# pnCore — v0.18.3
 
 **pnCore** is an orchestration pack and MCP server for AI-assisted software delivery in Cursor. It ships structured workflows — discovery, planning, skeptic challenge, design, audits, asset creation, and delivery — backed by skills, agents, rules, and a deterministic `workflow_step` engine. It is not a generic prompt pack.
 
 One product, three surfaces:
 
 - **MCP server** (`packages/pn-core-mcp/`) — executable logic: workflows, tools, resources (`pn-core://`), gates, and state. Runs in any MCP client.
-- **Pi native extension** — same 24 tools via `pi.registerTool()` when you `pi install git:…/pnCore` (no subprocess MCP on Pi).
+- **Pi native extension** — same 26 tools via `pi.registerTool()` when you `pi install git:…/pnCore` (no subprocess MCP on Pi).
 - **Cursor plugin** (`plugins/pnCore/`) — native Cursor UX: slash commands, file-glob rules, agent selector, hooks. Installed into your project with `npx github:perniemann/pnCore plugin-install`.
 
 Canonical content lives in `packages/pn-core-mcp/content/` and syncs into the plugin via `npm run sync:content`. Edit canonical files only; never hand-edit the plugin copy.
 
-**Catalog:** 169 skills, 9 public agents + 6 internal orchestration agents, 31 visible slash palette files (30 under **`pn`** submenu + **`/pn`** stub) + 18 palette-hidden surgical commands (49 command files total), 24 MCP tools, 16 workflow types, plus `pn-core://` resources and prompts.
+**Catalog:** 169 skills, 9 public agents + 6 internal orchestration agents, 31 visible slash palette files (30 under **`pn`** submenu + **`/pn`** stub) + 18 palette-hidden surgical commands (49 command files total), 26 MCP tools, 16 workflow types, plus `pn-core://` resources and prompts.
 
 **Best fit:** Teams building with Cursor on React, Astro, Next.js, vanilla web, Node backends, Three.js / Babylon / gamedev, n8n, and web3. **Limited support** for Vue, Svelte, Angular, and Unity. See [docs/plugin-reference.md](docs/plugin-reference.md) for the full inventory.
 
@@ -189,7 +189,7 @@ Companion MCPs and full checklist: [docs/mcp-usage-guide.md](docs/mcp-usage-guid
 | [docs/how-to-use-guide.md](docs/how-to-use-guide.md) | Copy-paste prompts, example flows, MCP-only bootstrap |
 | [docs/mcp-usage-guide.md](docs/mcp-usage-guide.md) | MCP tools, resources, workflow patterns, state/handoff |
 | [docs/plugin-reference.md](docs/plugin-reference.md) | Rules, skills, agents, commands, hooks |
-| [packages/pn-core-mcp/README.md](packages/pn-core-mcp/README.md) | MCP config, 24 tools, env vars, error codes, resources |
+| [packages/pn-core-mcp/README.md](packages/pn-core-mcp/README.md) | MCP config, 26 tools, env vars, error codes, resources |
 | [docs/companion-mcp-catalog.md](docs/companion-mcp-catalog.md) | Companion MCPs (Octocode, Stripe, n8n, …) |
 | [docs/pitch-to-app-example.md](docs/pitch-to-app-example.md) | End-to-end pitch-to-app walkthrough |
 | [packages/pn-core-mcp/content/docs/starting-new-project.md](packages/pn-core-mcp/content/docs/starting-new-project.md) | Kickoff and `docs/refs/` setup |

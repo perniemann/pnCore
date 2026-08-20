@@ -430,6 +430,19 @@ Requires **`bestOfN.enabled: true`** in `pn-core://config/features.json` or `PNC
 - **auditPath:** string — `docs/audits/best-of-n-YYYY-MM-DD-<slug>.json` per `best-of-n.contract.json`.
 - **Step 5 handoff:** calls `workflow_step("full_dev", 5, { tournamentHandoff: true, ... })` for review through full_dev step 6.
 
+### Dispose-verify (opt-in)
+
+When **`disposeVerify`** is true (`PNCORE_FEATURES` or `PNCORE_DISPOSE_VERIFY=1`):
+
+- Call **`workflow_verify`** with a catalog `commandId` (`npm_test`, `npm_test_full`, `npm_validate`, `ruff_check`, `pytest`). The server runs argv with **no shell**. A red suite is a completed verify (`ok: true`, `exitCode !== 0`).
+- Tournament step 2 requires **`verifyAttestationIds`** (or `objectiveGateResults[].attestationId`). The server computes `passed` from attested `exitCode`. Agent-supplied `passed` is ignored.
+- **`workflow_step`** may return **`acceptance`**: `{ phasesPassed, verifyEarned, humanEarned, accepted, reasons[] }`. `accepted === false` with `phasesPassed === true` is a first-class result (all candidates red).
+- Query attestations with **`workflow_run_query`** (`run_id`). Events live in `.pncore/run-events.jsonl` (`PNCORE_RUN_EVENTS_PATH`).
+
+When **`typedEnvelopes`** is true (`PNCORE_TYPED_ENVELOPES=1`), `taskResults` values for keys starting with `pn-` must be `{ kind: "specialist", specialistId, run_id, summary, filesTouched }` — not a free string. Non-`pn-` keys may remain strings.
+
+Jail: Linux `bwrap` when present. Production does **not** fall back to raw spawn. Opt into no-shell spawn without an OS jail via **`PNCORE_VERIFY_SANDBOX=restricted`**. Vitest uses a `test` backend automatically.
+
 ---
 
 ## Persistence and resume

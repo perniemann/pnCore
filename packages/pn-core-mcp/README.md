@@ -1,6 +1,6 @@
 # pn-core-mcp
 
-MCP server for [pnCore](https://github.com/perniemann/pnCore) **0.18.2**: same skills, agents, commands, and rules as the Cursor plugin, plus **`workflow_step`** and related tools. Use from any MCP client to run orchestration, discovery, skeptic, audits, assets, and other pnCore workflows without installing the plugin.
+MCP server for [pnCore](https://github.com/perniemann/pnCore) **0.18.3**: same skills, agents, commands, and rules as the Cursor plugin, plus **`workflow_step`** and related tools. Use from any MCP client to run orchestration, discovery, skeptic, audits, assets, and other pnCore workflows without installing the plugin.
 
 ## Installation
 
@@ -125,6 +125,8 @@ Skills, agents, rules, config, docs, reference, and hooks in this package live i
 | **workflow_usage_totals** | read | Sum tokens/cost for a **`run_id`** over usage JSONL (tail scan). |
 | **workflow_handoff_append** | append | Append bounded step summary line for a **`run_id`**. |
 | **workflow_handoff_read** | read | Read recent handoff lines for a **`run_id`**. |
+| **workflow_verify** | write | No-shell catalog verify; returns a GateReport. Requires **`disposeVerify`**. Fail-closed without a jail unless **`PNCORE_VERIFY_SANDBOX=restricted`** or the Vitest test backend. |
+| **workflow_run_query** | read | Query server-written verify/acceptance events for a **`run_id`**. |
 | **report_usage** | append | Append usage line; include optional **`run_id`**. |
 | **workflow_state_save** | append | Persist workflow state JSON. |
 | **workflow_state_load** | read | Load workflow state JSON. |
@@ -162,6 +164,8 @@ When a tool returns an error, the response includes `{ error: string, code: stri
 | `IO_ERROR` | Filesystem read/write failed |
 | `PARSE_ERROR` | Invalid JSON (e.g. corrupted workflow state file) |
 | `PATH_TRAVERSAL` | Path parameter escapes workspace (e.g. `../` outside cwd); rejected for report_usage, gate_log_append, workflow_state_save, workflow_state_load |
+| `DISPOSE_UNAVAILABLE` | `workflow_verify` is off or no jail/test/restricted backend is available |
+| `INVALID_ARGV` | `workflow_verify` argv failed no-shell / allowlist policy |
 
 ### report_usage
 
@@ -297,7 +301,7 @@ pnCore is a **multi-surface product** built on one canonical content body (skill
 
 - **MCP (stdio)** — All executable logic lives in this server: the deterministic `workflow_step` engine plus the other tools, resources, and prompts. Works in any MCP client (Cursor, Claude Code, …).
 - **Cursor plugin** — Slash palette, file-glob rules, stop hook, agent selector. Same commands via `get_command`; rules via `get_rule`.
-- **Pi native extension** — `pi install git:…/pnCore` loads `packages/pn-core-mcp/extensions/pn-core.ts`, which registers the same 24 tools via `pi.registerTool()` (no subprocess MCP on Pi). See [ADR-0009](../../docs/adr/0009-pi-native-tools.md).
+- **Pi native extension** — `pi install git:…/pnCore` loads `packages/pn-core-mcp/extensions/pn-core.ts`, which registers the same 26 tools via `pi.registerTool()` (no subprocess MCP on Pi). See [ADR-0009](../../docs/adr/0009-pi-native-tools.md).
 
 Choose MCP for cross-client orchestration; add the Cursor plugin for native IDE UX; use `pi install` from repo root on [pi.dev](https://pi.dev) for prompts, skills, and native tools together.
 
