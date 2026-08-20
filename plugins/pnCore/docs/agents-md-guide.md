@@ -14,6 +14,8 @@ Learned preferences and durable workspace facts live in **AGENTS.md**, updated b
 
 **Rule of thumb:** If it must never be violated, put it in User Rules or a project rule. If it improves behavior but can be overridden, AGENTS.md is fine.
 
+**Communication tone:** Soft prefs (e.g. “avoid hedging”, “prefer plans first”) belong in **AGENTS.md**. Stronger session steering for concise chat — lead with the answer, ban filler, response aliases (`scr`/`eli`/`foc`/`ref`/`scp`) — uses the **agent-requested** rule `pn-communication-contract` (`alwaysApply: false`) plus skill `pn-response-aliases`. Do not make that rule always-on; it would inflate every turn. Prefer AGENTS bullets for durable taste; load the rule/skill when verbosity bites or aliases appear. See `pn-core://reference/communication-contract.md`.
+
 ## Example: Hard Constraints Rule
 
 Create `.cursor/rules/hard-constraints.mdc` in your project:

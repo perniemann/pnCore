@@ -17,7 +17,7 @@ Skills are grouped by domain. Cursor discovers them recursively under `skills/`.
 | **orchestration** | Orchestration philosophy, context engineering, deprecation and removal, discovery questionnaire, skeptic challenge, prior art research, writing plans, GitHub vertical slices (Issues via GitHub MCP), documentation (format authority), cultural / museum heritage research (tiered sources) |
 | **pm** | PRD, user stories, job stories, release notes, AI adoption playbook |
 | **plugin** | Create plugin scaffold |
-| **discipline** | Discipline philosophy, TDD, source-driven implementation, systematic debugging, writing skills, prompt optimize |
+| **discipline** | Discipline philosophy, TDD, source-driven implementation, systematic debugging, writing skills, prompt optimize, response aliases (`scr`/`eli`/`foc`/`ref`/`scp`) |
 | **integrations** | n8n patterns, web3 contracts, A2A interop, CX agent patterns, RAG evaluation |
 | **marketing** | Growth experiments, content strategy, community engagement |
 | **support** | Analytics reporting, financial analysis, compliance check, budget and cost monitoring |

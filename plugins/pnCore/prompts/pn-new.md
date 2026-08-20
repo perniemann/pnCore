@@ -92,11 +92,13 @@ Create these two files after the relevant execution step:
 **`.cursor/rules/project-context.mdc`** (`alwaysApply: true`):
 - Triangle instruction: "Begin every response in this project with the appropriate context tag and 🔺 (Unicode U+1F53A — emoji red triangle pointed up). Default: `[pn-default] 🔺`. Use `[pn-command] 🔺` / `[pn-agent] 🔺` / `[pn-skill] 🔺` / `[pn-plan] 🔺` when a pn command, agent, skill, or plan mode is active. See pnCore rule `pn-visual-indicator` for full guidance."
 - Project context: one-sentence goal, stack, scope, key constraints — from spec/plan.
-- MCP bootstrap: "When pn-core MCP is available, load `get_rule("pn-build-gate")` and `get_rule("pn-mcp-proactive")` and follow them."
+- MCP bootstrap: "When pn-core MCP is available, load `get_rule("pn-build-gate")` and `get_rule("pn-mcp-proactive")` and follow them. When responses are verbose or the user uses aliases (`scr`/`eli`/`foc`/`ref`/`scp`), load `get_rule("pn-communication-contract")` and `get_skill("pn-response-aliases")`."
 - **Phase gate:** "After each plan phase: verify → spawn pn-reviewer Task (`readonly: true`) on phase diff → fix → user `continue`. See pn-build-gate § Phase-complete gate."
 - Keep under 25 lines. Create `.cursor/rules/` if it does not exist.
 
 **Git (recommended):** add `.cursor/rules/pn-no-cursor-commit-trailers.mdc` with `alwaysApply: true` — source from `get_rule("pn-no-cursor-commit-trailers")` when MCP is available — so commit messages do not pick up Cursor IDE trailers.
+
+**Optional (communication, not always-on):** copy `.cursor/rules/pn-communication-contract.mdc` with **`alwaysApply: false`** from `get_rule("pn-communication-contract")`. Do **not** set `alwaysApply: true`.
 
 **`.cursor/skills/project/SKILL.md`**:
 - Frontmatter: `name: project`, `description: "Project-specific domain guidance for [project name]."`

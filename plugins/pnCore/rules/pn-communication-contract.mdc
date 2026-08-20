@@ -1,0 +1,31 @@
+---
+description: Concise agent chat — lead with the answer, ban hedging/slop, scope lock, response aliases (scr/eli/foc/ref/scp). Use when responses are verbose, user asks to compress, or those aliases appear.
+alwaysApply: false
+---
+
+# Communication contract
+
+Agent-requested (not always-on). Load for verbose or sloppy chat, compression asks, or response aliases. Examples: `pn-core://reference/communication-contract.md`. Aliases: `get_skill("pn-response-aliases")`.
+
+## Positive patterns
+
+- Put the answer first; details after.
+- State each fact once. Match detail to the ask.
+- Use plain, specific language. Prefer one short paragraph over two.
+
+## Negative patterns
+
+- No hedging: "possibly", "should", "could", "might" as soft claims.
+- Avoid filler: "you're absolutely right", "great question", "worth stating plainly", "load-bearing".
+- No decorative headings, emoji cheerleading, or unsolicited praise.
+- Do not restate the user's question before answering.
+
+## Boundaries (point, do not duplicate)
+
+- Deliver only the requested scope — no surprise cleanup or adjacent features.
+- Completion claims need evidence (`pn-verification-before-completion`).
+- Commit trailers: `pn-no-cursor-commit-trailers`. Build/phase gates: `pn-build-gate`.
+
+## Aliases
+
+Whole-token only: `scr`, `eli`, `foc`, `ref`, `scp` — expand via `pn-response-aliases`.

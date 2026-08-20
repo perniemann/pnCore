@@ -368,6 +368,14 @@ describe("content contract", () => {
       expect(r!.mimeType).toBe("text/markdown");
     });
 
+    it("returns communication-contract markdown", () => {
+      const r = getResource("pn-core://reference/communication-contract.md");
+      expect(r).not.toBeNull();
+      expect(r!.text).toContain("# Communication contract");
+      expect(r!.text).toContain("pn-response-aliases");
+      expect(r!.mimeType).toBe("text/markdown");
+    });
+
     it("returns eval-convention markdown", () => {
       const r = getResource("pn-core://reference/eval-convention.md");
       expect(r).not.toBeNull();

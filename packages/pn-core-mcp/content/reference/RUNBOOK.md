@@ -112,6 +112,8 @@ For skills, rules, agents, commands, and reference shipped from the repo:
 
 Token/cost reporting is client-side. Call `report_usage` after each `workflow_step` when possible; include **`run_id`** from `workflow_step`. Use **`workflow_usage_totals`** to aggregate per run. See `pn-core://reference/workflow-state-schema.md`.
 
+**Context / response hygiene:** Prefer agent-requested `pn-communication-contract` and `get_skill("pn-response-aliases")` for verbose chat or aliases (`scr`/`eli`/`foc`/`ref`/`scp`) — do not add them as `alwaysApply`. Reference-point codes (`F1`/`D1`/…) live in `pn-context-engineering`. Static always-on footprint: `node scripts/measure-tokens.mjs`.
+
 ### Token-efficient MCP usage
 
 - Call `list_skills` / `list_commands` (etc.) once to pick ids, then `get_skill` / `get_command` once per artifact and reuse the text in-session instead of re-fetching the same id every step.

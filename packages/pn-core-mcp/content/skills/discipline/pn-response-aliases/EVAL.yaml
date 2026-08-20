@@ -1,0 +1,29 @@
+# Evaluation suite for pn-response-aliases
+# Convention: pn-core://reference/eval-convention.md
+
+skill: pn-response-aliases
+
+scenarios:
+  - id: without-skill-baseline
+    prompt: "User's previous assistant reply was a long multi-header essay. User now sends only: scr"
+    expectation: "Without the skill, the agent may ask what scr means, ignore it, or expand unrelated words containing those letters."
+    without_skill: true
+    quadrant: inaccurate_inefficient
+
+  - id: with-skill-scr
+    prompt: "Previous reply was verbose. User sends: scr"
+    expectation: "Agent simplifies, compresses, and repeats the last answer without a meta preamble about the alias."
+    with_skill: true
+    quadrant: accurate_efficient
+
+  - id: with-skill-exact-token
+    prompt: "User asks about a script file named focus-refcount.ts and says 'open the script'"
+    expectation: "Agent does not expand scr/foc/ref inside script, focus, or refcount; only whole-token aliases expand."
+    with_skill: true
+    quadrant: accurate_efficient
+
+  - id: with-skill-ref
+    prompt: "User sends: ref after a long findings dump"
+    expectation: "Agent rewrites with F#/D#/R#/O#/Q#/A# codes for three or more items."
+    with_skill: true
+    quadrant: accurate_efficient
