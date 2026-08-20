@@ -408,6 +408,14 @@ export const resourceDefs: {
     mimeType: "text/markdown",
   },
   {
+    uri: "pn-core://reference/communication-contract.md",
+    name: "communication-contract.md",
+    description:
+      "Do/don't examples for concise agent chat; companion to agent-requested rule pn-communication-contract and skill pn-response-aliases",
+    path: "reference/communication-contract.md",
+    mimeType: "text/markdown",
+  },
+  {
     uri: "pn-core://reference/prompt-provider-knobs.md",
     name: "prompt-provider-knobs.md",
     description:

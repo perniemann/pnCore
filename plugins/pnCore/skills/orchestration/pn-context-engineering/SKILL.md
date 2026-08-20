@@ -48,6 +48,25 @@ description: "Curate what the agent sees and when — rules vs specs vs task fil
 - Can you name **which file** is authoritative for the current decision (spec, rule, or source)?
 - Did you **re-read** failing test/build output after the last edit?
 
+## Reference-point protocol
+
+When presenting **three or more** findings, decisions, options, risks, questions, or actions in one reply, assign a short stable code to each:
+
+| Prefix | Use |
+|--------|-----|
+| `F1`… | Findings |
+| `D1`… | Decisions |
+| `O1`… | Options |
+| `R1`… | Risks |
+| `Q1`… | Questions |
+| `A1`… | Actions |
+
+- Preserve the same codes for the rest of the session so follow-ups can stay cheap (`keep D1, reject O2, answer Q1`).
+- Do not invent codes for short one- or two-item answers.
+- On long-session handoff, write durable codes into `.pncore/handoff.md` (or the session handoff artifact) so they survive context compaction.
+- User alias `ref` (skill **pn-response-aliases**) rewrites the last answer into this form on demand.
+- For concise chat tone without always-on cost, load agent-requested rule **pn-communication-contract**.
+
 ## Guardrails
 
 - Do not duplicate full project documentation in chat; link paths and read what you use.
@@ -59,6 +78,8 @@ description: "Curate what the agent sees and when — rules vs specs vs task fil
 - **pn-writing-plans** — plans are tier-2 context; keep them executable and path-specific.
 - **pn-prior-art-research** / **pn-source-driven-implementation** — tier-3 expansion for external truth.
 - **pn-budget-cost-monitor** — When slimming context for **cost** as well as focus (hidden token drivers).
+- **pn-response-aliases** — `scr` / `eli` / `foc` / `ref` / `scp` for on-demand response shaping.
+- **pn-communication-contract** — agent-requested communication patterns (not alwaysApply).
 
 ## Output
 

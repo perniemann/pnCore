@@ -4,6 +4,12 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.18.4] - 2026-08-20
+
+### Added
+
+- **Communication contract** (agent-requested): rule `pn-communication-contract` (`alwaysApply: false`), reference `pn-core://reference/communication-contract.md`, skill `pn-response-aliases` (`scr`/`eli`/`foc`/`ref`/`scp`), and reference-point protocol in `pn-context-engineering`. Optional seed from pn-setup / pn-new. See [ADR-0013](../../docs/adr/0013-communication-contract-agent-requested.md).
+
 ## [0.18.3] - 2026-08-20
 
 ### Added
