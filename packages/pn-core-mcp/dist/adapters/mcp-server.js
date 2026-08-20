@@ -16,6 +16,8 @@ const ERROR_CODE_TO_JSON_RPC = {
     PARSE_ERROR: -32700,
     PATH_TRAVERSAL: -32602,
     INVALID_GATE: -32602,
+    DISPOSE_UNAVAILABLE: -32005,
+    INVALID_ARGV: -32602,
 };
 const server = new McpServer({ name: "pn-core-mcp", version: MCP_VERSION }, { capabilities: { prompts: {}, resources: {} } });
 function regTool(name, description, schema, annotations, handler) {

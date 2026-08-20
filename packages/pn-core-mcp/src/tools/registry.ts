@@ -23,8 +23,10 @@ import {
   workflowHandoffReadSchema,
   workflowStateLoadSchema,
   workflowStateSaveSchema,
+  workflowRunQuerySchema,
   workflowStepSchema,
   workflowUsageTotalsSchema,
+  workflowVerifySchema,
 } from "./schemas-zod.js";
 import { typeboxSchemas, PN_CORE_TOOL_NAMES } from "./schemas-typebox.js";
 import {
@@ -50,8 +52,10 @@ import {
   handleWorkflowHandoffRead,
   handleWorkflowStateLoad,
   handleWorkflowStateSave,
+  handleWorkflowRunQuery,
   handleWorkflowStep,
   handleWorkflowUsageTotals,
+  handleWorkflowVerify,
 } from "./handlers.js";
 
 export interface ToolDefinition {
@@ -260,6 +264,22 @@ export const PN_CORE_TOOLS: ToolDefinition[] = [
     workflowStateLoadSchema,
     readOnly,
     handleWorkflowStateLoad
+  ),
+  def(
+    "workflow_verify",
+    "Workflow Verify",
+    "Run a catalog (or policy-checked) verify command with no shell. Returns a GateReport; exitCode !== 0 is a completed verify, not a tool error. Requires disposeVerify. Fail-closed without a jail unless PNCORE_VERIFY_SANDBOX=restricted or Vitest test backend.",
+    workflowVerifySchema,
+    write,
+    handleWorkflowVerify
+  ),
+  def(
+    "workflow_run_query",
+    "Workflow Run Query",
+    "Query server-written run events (verify attestations and acceptance) for a run_id from .pncore/run-events.jsonl.",
+    workflowRunQuerySchema,
+    readOnly,
+    handleWorkflowRunQuery
   ),
   def(
     "paperclip_issue_checkout",

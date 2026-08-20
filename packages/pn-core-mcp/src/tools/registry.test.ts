@@ -13,9 +13,9 @@ function typeboxPropertyKeys(schema: TSchema): string[] {
 }
 
 describe("PN_CORE tool registry", () => {
-  it("exports 24 tools with matching TypeBox schemas", () => {
-    expect(PN_CORE_TOOLS).toHaveLength(24);
-    expect(PN_CORE_TOOL_NAMES).toHaveLength(24);
+  it("exports 26 tools with matching TypeBox schemas", () => {
+    expect(PN_CORE_TOOLS).toHaveLength(26);
+    expect(PN_CORE_TOOL_NAMES).toHaveLength(26);
     for (const tool of PN_CORE_TOOLS) {
       expect(typeboxSchemas[tool.name]).toBeDefined();
       expect(tool.name).toBe(tool.name.toLowerCase());
@@ -38,6 +38,8 @@ describe("PN_CORE tool registry", () => {
       "get_skill",
       "get_command",
       "workflow_step",
+      "workflow_verify",
+      "workflow_run_query",
       "approval_checkpoint",
     ]) {
       expect(names.has(required)).toBe(true);

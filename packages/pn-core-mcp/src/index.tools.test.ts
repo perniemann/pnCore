@@ -1,6 +1,6 @@
 /**
  * Per-tool integration tests via StdioClientTransport.
- * Covers all 24 tools: one happy-path + one negative case each.
+ * Covers all 26 tools: one happy-path + one negative case each.
  * Negatives assert the unified error envelope: { isError: true, content: [{ type: "text", text: JSON({ code, error }) }] }
  * Depends on: F1.1 (error envelope shape), F1.4 (list_agents cardinality)
  */
@@ -630,5 +630,41 @@ describe("MCP per-tool integration", () => {
       arguments: { issueId: "TEST-001", status: "invalid_status" },
     });
     expect(result.isError).toBe(true);
+  });
+
+  it("workflow_verify: off by default returns DISPOSE_UNAVAILABLE", async () => {
+    const result = await client.callTool({
+      name: "workflow_verify",
+      arguments: { run_id: "run-test", commandId: "npm_test" },
+    });
+    const err = assertErrorEnvelope(result);
+    expect(err.code).toBe("DISPOSE_UNAVAILABLE");
+  });
+
+  it("workflow_verify: missing run_id returns validation error", async () => {
+    const result = await client.callTool({
+      name: "workflow_verify",
+      arguments: { commandId: "npm_test" },
+    });
+    expect(result.isError).toBe(true);
+  });
+
+  it("workflow_run_query: empty events for unknown run", async () => {
+    const result = await client.callTool({
+      name: "workflow_run_query",
+      arguments: { run_id: "run-does-not-exist" },
+    });
+    const parsed = parseFirst(result);
+    expect(parsed.run_id).toBe("run-does-not-exist");
+    expect(parsed.events).toEqual([]);
+  });
+
+  it("workflow_run_query: path traversal returns PATH_TRAVERSAL", async () => {
+    const result = await client.callTool({
+      name: "workflow_run_query",
+      arguments: { run_id: "run-x", path: "../outside.jsonl" },
+    });
+    const err = assertErrorEnvelope(result);
+    expect(err.code).toBe("PATH_TRAVERSAL");
   });
 });

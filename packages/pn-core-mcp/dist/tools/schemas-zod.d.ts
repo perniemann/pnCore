@@ -20,8 +20,8 @@ export declare const workflowTypeEnum: z.ZodEnum<{
 }>;
 export declare const workflowGateTypeEnum: z.ZodOptional<z.ZodEnum<{
     design: "design";
-    plan: "plan";
     skeptic: "skeptic";
+    plan: "plan";
     discovery: "discovery";
 }>>;
 export declare const workflowGateVerdictEnum: z.ZodOptional<z.ZodEnum<{
@@ -159,8 +159,8 @@ export declare const workflowConfirmSchema: {
     readonly context: z.ZodOptional<z.ZodString>;
     readonly gate_type: z.ZodOptional<z.ZodEnum<{
         design: "design";
-        plan: "plan";
         skeptic: "skeptic";
+        plan: "plan";
         discovery: "discovery";
     }>>;
     readonly verdict: z.ZodOptional<z.ZodEnum<{
@@ -247,6 +247,46 @@ export declare const paperclipIssueUpdateSchema: {
         cancelled: "cancelled";
     }>;
     readonly comment: z.ZodOptional<z.ZodString>;
+};
+export declare const workflowVerifySchema: {
+    readonly run_id: z.ZodString;
+    readonly commandId: z.ZodOptional<z.ZodString>;
+    readonly argv: z.ZodOptional<z.ZodArray<z.ZodString>>;
+    readonly cwd: z.ZodOptional<z.ZodString>;
+    readonly timeoutMs: z.ZodOptional<z.ZodNumber>;
+    readonly candidate_id: z.ZodOptional<z.ZodString>;
+    readonly workflowType: z.ZodOptional<z.ZodEnum<{
+        design: "design";
+        full_dev: "full_dev";
+        project_kickoff: "project_kickoff";
+        prompt_optimize: "prompt_optimize";
+        frontend_audit: "frontend_audit";
+        backend_audit: "backend_audit";
+        image_create: "image_create";
+        visual_tweak: "visual_tweak";
+        game_feature: "game_feature";
+        svg_create: "svg_create";
+        engine_feature: "engine_feature";
+        fsi_analyst_draft: "fsi_analyst_draft";
+        business_strategy: "business_strategy";
+        media_director: "media_director";
+        feature_program: "feature_program";
+        implementation_tournament: "implementation_tournament";
+    }>>;
+    readonly step: z.ZodOptional<z.ZodNumber>;
+};
+export declare const workflowRunQuerySchema: {
+    readonly run_id: z.ZodString;
+    readonly kinds: z.ZodOptional<z.ZodArray<z.ZodEnum<{
+        step: "step";
+        gate: "gate";
+        acceptance: "acceptance";
+        verify: "verify";
+        handoff: "handoff";
+        usage: "usage";
+    }>>>;
+    readonly limit: z.ZodOptional<z.ZodNumber>;
+    readonly path: z.ZodOptional<z.ZodString>;
 };
 export declare const contextArgSchema: {
     readonly context: z.ZodOptional<z.ZodString>;

@@ -1288,6 +1288,200 @@ describe("workflows contract", () => {
         expect(r).toHaveProperty("error");
         expect((r as { error: string }).error).toContain("implementation_tournament");
       });
+
+      it("step 2 with disposeVerify requires attestations", async () => {
+        vi.stubEnv(
+          "PNCORE_FEATURES",
+          JSON.stringify({ bestOfN: { enabled: true }, disposeVerify: true })
+        );
+        vi.stubEnv("PNCORE_DISPOSE_VERIFY", "1");
+        const { getWorkflowStep: gws } = await import("./workflows.js");
+        const r = gws("implementation_tournament", 2, {
+          objectiveGateResults: [{ candidate_id: "path-a", passed: true }],
+        });
+        expect(r).toHaveProperty("error");
+        expect(String((r as { error: string }).error)).toContain("verifyAttestationIds");
+      });
+
+      it("step 1 fan-out mentions workflow_verify when disposeVerify is on", async () => {
+        vi.stubEnv(
+          "PNCORE_FEATURES",
+          JSON.stringify({ bestOfN: { enabled: true }, disposeVerify: true })
+        );
+        vi.stubEnv("PNCORE_DISPOSE_VERIFY", "1");
+        const { getWorkflowStep: gws } = await import("./workflows.js");
+        const r = gws("implementation_tournament", 1, fanOutState);
+        assertWorkflowStepResultShape(r);
+        const w = r as WorkflowStepResult;
+        expect(w.instruction).toContain("verifyAttestationIds");
+        expect(w.tasks![0]!.instruction).toContain("workflow_verify");
+      });
+
+      it("step 2 attested red suite is phasesPassed with accepted false", async () => {
+        vi.stubEnv(
+          "PNCORE_FEATURES",
+          JSON.stringify({ bestOfN: { enabled: true }, disposeVerify: true })
+        );
+        vi.stubEnv("PNCORE_DISPOSE_VERIFY", "1");
+        vi.stubEnv("PNCORE_RUN_EVENTS_PATH", ".pncore/test-wf-events.jsonl");
+        const { appendRunEvent, newAttestationId } = await import("./verify-attest.js");
+        const { getWorkflowStep: gws } = await import("./workflows.js");
+        const id = newAttestationId();
+        appendRunEvent({
+          kind: "verify",
+          run_id: "wf",
+          argv: ["npm", "test"],
+          cwd: ".",
+          exitCode: 1,
+          timedOut: false,
+          stdoutTail: "",
+          stderrTail: "",
+          startedAt: "2026-08-20T00:00:00.000Z",
+          finishedAt: "2026-08-20T00:00:01.000Z",
+          attestationId: id,
+          candidate_id: "path-a",
+          sandbox: { backend: "unavailable", jailed: false },
+        });
+        const r = gws("implementation_tournament", 2, {
+          verifyAttestationIds: [id],
+          objectiveGateResults: [{ candidate_id: "path-a", passed: true }],
+        });
+        assertWorkflowStepResultShape(r);
+        const w = r as WorkflowStepResult;
+        expect(w.acceptance?.phasesPassed).toBe(true);
+        expect(w.acceptance?.accepted).toBe(false);
+        expect(w.instruction).toContain("go_no_go");
+      });
+
+      it("step 2 attested single survivor skips judge", async () => {
+        vi.stubEnv("PNCORE_DISPOSE_VERIFY", "1");
+        vi.stubEnv("PNCORE_RUN_EVENTS_PATH", ".pncore/test-wf-events-win.jsonl");
+        const { appendRunEvent, newAttestationId } = await import("./verify-attest.js");
+        const { getWorkflowStep: gws } = await import("./workflows.js");
+        const a = newAttestationId();
+        const b = newAttestationId();
+        appendRunEvent({
+          kind: "verify",
+          run_id: "wf",
+          argv: ["npm", "test"],
+          cwd: ".",
+          exitCode: 0,
+          timedOut: false,
+          stdoutTail: "",
+          stderrTail: "",
+          startedAt: "2026-08-20T00:00:00.000Z",
+          finishedAt: "2026-08-20T00:00:01.000Z",
+          attestationId: a,
+          candidate_id: "path-a",
+          sandbox: { backend: "unavailable", jailed: false },
+        });
+        appendRunEvent({
+          kind: "verify",
+          run_id: "wf",
+          argv: ["npm", "test"],
+          cwd: ".",
+          exitCode: 1,
+          timedOut: false,
+          stdoutTail: "",
+          stderrTail: "",
+          startedAt: "2026-08-20T00:00:00.000Z",
+          finishedAt: "2026-08-20T00:00:01.000Z",
+          attestationId: b,
+          candidate_id: "path-b",
+          sandbox: { backend: "unavailable", jailed: false },
+        });
+        const r = gws("implementation_tournament", 2, {
+          candidates: [{ id: "path-a" }, { id: "path-b" }],
+          verifyAttestationIds: [a, b],
+          objectiveGateResults: [
+            { candidate_id: "path-a", passed: false },
+            { candidate_id: "path-b", passed: true },
+          ],
+        });
+        assertWorkflowStepResultShape(r);
+        const w = r as WorkflowStepResult;
+        expect(w.nextStep).toBe(4);
+        expect(w.instruction).toContain("path-a");
+        expect(w.acceptance?.accepted).toBe(true);
+      });
+
+      it("step 2 attested two survivors proceeds to judge", async () => {
+        vi.stubEnv("PNCORE_DISPOSE_VERIFY", "1");
+        vi.stubEnv("PNCORE_RUN_EVENTS_PATH", ".pncore/test-wf-events-two.jsonl");
+        const { appendRunEvent, newAttestationId } = await import("./verify-attest.js");
+        const { getWorkflowStep: gws } = await import("./workflows.js");
+        const a = newAttestationId();
+        const b = newAttestationId();
+        for (const [id, cid] of [
+          [a, "path-a"],
+          [b, "path-b"],
+        ] as const) {
+          appendRunEvent({
+            kind: "verify",
+            run_id: "wf",
+            argv: ["npm", "test"],
+            cwd: ".",
+            exitCode: 0,
+            timedOut: false,
+            stdoutTail: "",
+            stderrTail: "",
+            startedAt: "2026-08-20T00:00:00.000Z",
+            finishedAt: "2026-08-20T00:00:01.000Z",
+            attestationId: id,
+            candidate_id: cid,
+            sandbox: { backend: "unavailable", jailed: false },
+          });
+        }
+        const r = gws("implementation_tournament", 2, {
+          verifyAttestationIds: [a, b],
+          objectiveGateResults: [
+            { candidate_id: "path-a", passed: true },
+            { candidate_id: "path-b", passed: true },
+          ],
+        });
+        assertWorkflowStepResultShape(r);
+        const w = r as WorkflowStepResult;
+        expect(w.nextStep).toBe(3);
+        expect(w.acceptance?.accepted).toBe(true);
+      });
+    });
+
+    describe("typedEnvelopes on taskResults", () => {
+      afterEach(() => {
+        vi.unstubAllEnvs();
+        vi.resetModules();
+      });
+
+      it("rejects string taskResults for pn-* keys when the flag is on", async () => {
+        vi.stubEnv("PNCORE_TYPED_ENVELOPES", "1");
+        const { getWorkflowStep: gws } = await import("./workflows.js");
+        const r = gws("full_dev", 5, {
+          specialistList: ["pn-frontend-developer"],
+          taskResults: { "pn-frontend-developer": "did stuff" },
+          mergeComplete: true,
+        });
+        expect(r).toHaveProperty("error");
+        expect(String((r as { error: string }).error)).toContain("envelope");
+      });
+
+      it("accepts a specialist envelope when the flag is on", async () => {
+        vi.stubEnv("PNCORE_TYPED_ENVELOPES", "1");
+        const { getWorkflowStep: gws } = await import("./workflows.js");
+        const r = gws("full_dev", 5, {
+          specialistList: ["pn-frontend-developer"],
+          taskResults: {
+            "pn-frontend-developer": {
+              kind: "specialist",
+              specialistId: "pn-frontend-developer",
+              run_id: "r1",
+              summary: "built ui",
+              filesTouched: ["src/a.ts"],
+            },
+          },
+          mergeComplete: true,
+        });
+        assertWorkflowStepResultShape(r);
+      });
     });
 
     describe("suggestedModelTier (model-tier suggestions)", () => {

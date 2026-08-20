@@ -5,7 +5,15 @@
  */
 
 import { getResource } from "./content.js";
-import { loadFeatures, loadBestOfNFeatures } from "./features.js";
+import {
+  disposeVerifyEnabled,
+  loadBestOfNFeatures,
+  loadFeatures,
+  typedEnvelopesEnabled,
+} from "./features.js";
+import { applyTournamentDisposeVerify } from "./dispose-verify-bind.js";
+import { validateTaskResults } from "./specialist-envelopes.js";
+import type { Acceptance } from "./acceptance.js";
 import { applySkepticGateStateChecks } from "./skeptic-gate-state.js";
 import { debug } from "./debug.js";
 import { applyOrchestrationLead, type OrchestrationMode } from "./orchestration-lead.js";
@@ -92,6 +100,8 @@ export interface WorkflowStepResult {
   orchestrationMode?: OrchestrationMode;
   /** Subagent tier hints when orchestrationMode is lead or light_delegate. */
   subagentTierHints?: Partial<Record<SubagentRole, SuggestedModelTier>>;
+  /** Server-computed earned acceptance (disposeVerify / typed gates). */
+  acceptance?: Acceptance;
 }
 
 /** Terminal-step reminder — only emitted when Paperclip env vars are configured. */
@@ -1324,6 +1334,13 @@ export function getWorkflowStep(
     }
   }
 
+  if (typedEnvelopesEnabled() && state.taskResults && typeof state.taskResults === "object") {
+    const envelopeCheck = validateTaskResults(state.taskResults as Record<string, unknown>);
+    if ("error" in envelopeCheck) {
+      return { error: envelopeCheck.error };
+    }
+  }
+
   const skepticGateCheck = applySkepticGateStateChecks(step, state, def.requiredFromState);
   if (skepticGateCheck?.error) {
     return { error: skepticGateCheck.error };
@@ -1709,13 +1726,16 @@ export function getWorkflowStep(
             `Constraint: ${p.constraint}.\n` +
             `Required builder model tier: ${builder.tier} — use ${builder.model}${capNote}. Do not exceed maxCostTier.\n` +
             `Run before submit: ${gateList}.\n` +
+            (disposeVerifyEnabled()
+              ? `Call workflow_verify with a catalog commandId (do not self-report exit codes). Pass attestationId in parent state verifyAttestationIds and objectiveGateResults[].attestationId for id "${p.id}".\n`
+              : "") +
             `Output: summary, files touched, verify exit codes. Append to parent state objectiveGateResults[] (and candidates[] when available) for id "${p.id}". Do NOT merge to main.`,
         };
       });
       return withTierHint(
         {
           ...baseResult,
-          instruction: `Parallel tournament fan-out (N=${tournamentN}): spawn Task subagents (subagent_type: best-of-n-runner) for each task below in isolated worktrees. Same spec, different constraint per path. When all paths complete, call workflow_step('implementation_tournament', step=2) with candidates[] and objectiveGateResults[].`,
+          instruction: `Parallel tournament fan-out (N=${tournamentN}): spawn Task subagents (subagent_type: best-of-n-runner) for each task below in isolated worktrees. Same spec, different constraint per path. When all paths complete, call workflow_step('implementation_tournament', step=2) with candidates[] and objectiveGateResults[]${disposeVerifyEnabled() ? " and verifyAttestationIds[] from workflow_verify" : ""}.`,
           parallel: true,
           tasks,
           workflowPhase: "tournament_fanout",
@@ -1729,6 +1749,59 @@ export function getWorkflowStep(
 
   // implementation_tournament step 2: single-survivor fast path after objective gates
   if (workflowType === "implementation_tournament" && step === 2) {
+    const attested = applyTournamentDisposeVerify(state);
+    if ("error" in attested) {
+      return { error: attested.error };
+    }
+    if (attested.skipped === false) {
+      const { survivors, acceptance } = attested;
+      if (survivors.length === 0) {
+        return withTierHint(
+          {
+            ...baseResult,
+            instruction:
+              "Zero survivors after attested objective gates. Set go_no_go: no_go. phasesPassed is true; accepted is false — a red suite is a completed verify, not a green run.",
+            nextStep: 2,
+            done: false,
+            workflowPhase: "tournament_gate",
+            acceptance,
+          },
+          workflowType,
+          step,
+          state,
+          { tier: "fast", rationale: "Attested verify produced no survivors." }
+        );
+      }
+      if (survivors.length === 1) {
+        const winnerId = survivors[0]!;
+        return withTierHint(
+          {
+            ...baseResult,
+            instruction: `Single survivor "${winnerId}" after attested objective gates — skip LLM judge. Call workflow_step('implementation_tournament', step=4) with selectedCandidate: "${winnerId}", judgeComplete: true, and taskResults summarizing the merge-ready worktree.`,
+            nextStep: 4,
+            done: false,
+            workflowPhase: "tournament_gate",
+            acceptance,
+          },
+          workflowType,
+          step,
+          state,
+          { tier: "fast", rationale: "Mechanical winner when only one path passes attested gates." }
+        );
+      }
+      return withTierHint(
+        {
+          ...baseResult,
+          instruction: `${baseResult.instruction}\n\nAttested verify kept ${survivors.length} survivors. Proceed to judge with those candidates only.`,
+          nextStep: 3,
+          workflowPhase: "tournament_gate",
+          acceptance,
+        },
+        workflowType,
+        step,
+        state
+      );
+    }
     const gateResults = state.objectiveGateResults as
       Array<{ candidate_id?: string; passed?: boolean }> | undefined;
     if (Array.isArray(gateResults)) {

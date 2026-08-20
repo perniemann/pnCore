@@ -3,6 +3,7 @@
  * Control flow lives here; the LLM assists each step but does not decide sequence.
  * 2026 best practice: "Gating LLM invocation behind deterministic routing decisions."
  */
+import type { Acceptance } from "./acceptance.js";
 import { type OrchestrationMode } from "./orchestration-lead.js";
 import { type ModelTier, type SubagentRole, type SuggestedModelTier } from "./model-tiers.js";
 export type WorkflowType = "design" | "full_dev" | "project_kickoff" | "prompt_optimize" | "frontend_audit" | "backend_audit" | "image_create" | "visual_tweak" | "game_feature" | "svg_create" | "engine_feature" | "unreal_feature" | "godot_feature" | "fsi_analyst_draft" | "business_strategy" | "media_director" | "feature_program" | "implementation_tournament";
@@ -49,6 +50,8 @@ export interface WorkflowStepResult {
     orchestrationMode?: OrchestrationMode;
     /** Subagent tier hints when orchestrationMode is lead or light_delegate. */
     subagentTierHints?: Partial<Record<SubagentRole, SuggestedModelTier>>;
+    /** Server-computed earned acceptance (disposeVerify / typed gates). */
+    acceptance?: Acceptance;
 }
 /** Internal engine step keys — not exposed on workflowTypeEnum. */
 export declare const INTERNAL_ENGINE_WORKFLOW_TYPES: readonly ["unreal_feature", "godot_feature"];

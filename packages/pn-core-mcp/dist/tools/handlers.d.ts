@@ -1,5 +1,5 @@
 import type { ShapeArgs } from "./tool-runtime.js";
-import type { approvalCheckpointSchema, gateLogAppendSchema, getAgentSchema, getCommandSchema, getRuleSchema, getSkillSchema, listAgentsSchema, listSkillsSchema, paperclipIssueCheckoutSchema, paperclipIssueCommentSchema, paperclipIssueUpdateSchema, reportUsageSchema, suggestModelTierSchema, workflowConfirmSchema, workflowHandoffAppendSchema, workflowHandoffReadSchema, workflowStateLoadSchema, workflowStateSaveSchema, workflowStepSchema, workflowUsageTotalsSchema } from "./schemas-zod.js";
+import type { approvalCheckpointSchema, gateLogAppendSchema, getAgentSchema, getCommandSchema, getRuleSchema, getSkillSchema, listAgentsSchema, listSkillsSchema, paperclipIssueCheckoutSchema, paperclipIssueCommentSchema, paperclipIssueUpdateSchema, reportUsageSchema, suggestModelTierSchema, workflowConfirmSchema, workflowHandoffAppendSchema, workflowHandoffReadSchema, workflowStateLoadSchema, workflowStateSaveSchema, workflowRunQuerySchema, workflowStepSchema, workflowUsageTotalsSchema, workflowVerifySchema } from "./schemas-zod.js";
 export declare function handleHealth(): Promise<import("./tool-runtime.js").ToolContentResult>;
 export declare function handleListWorkflowTypes(): Promise<import("./tool-runtime.js").ToolContentResult>;
 export declare function handleSuggestModelTier(args: ShapeArgs<typeof suggestModelTierSchema>): Promise<import("./tool-runtime.js").ToolContentResult>;
@@ -24,3 +24,5 @@ export declare function handleWorkflowStateLoad(args: ShapeArgs<typeof workflowS
 export declare function handlePaperclipIssueCheckout(args: ShapeArgs<typeof paperclipIssueCheckoutSchema>): Promise<import("./tool-runtime.js").ToolContentResult>;
 export declare function handlePaperclipIssueComment(args: ShapeArgs<typeof paperclipIssueCommentSchema>): Promise<import("./tool-runtime.js").ToolContentResult>;
 export declare function handlePaperclipIssueUpdate(args: ShapeArgs<typeof paperclipIssueUpdateSchema>): Promise<import("./tool-runtime.js").ToolContentResult>;
+export declare function handleWorkflowVerify(args: ShapeArgs<typeof workflowVerifySchema>): Promise<import("./tool-runtime.js").ToolContentResult>;
+export declare function handleWorkflowRunQuery(args: ShapeArgs<typeof workflowRunQuerySchema>): Promise<import("./tool-runtime.js").ToolContentResult>;

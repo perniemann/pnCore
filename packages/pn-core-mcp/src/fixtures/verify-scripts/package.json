@@ -1,0 +1,9 @@
+{
+  "name": "verify-scripts-fixture",
+  "private": true,
+  "scripts": {
+    "test": "node -e \"process.exit(0)\"",
+    "test:full": "node -e \"process.exit(0)\"",
+    "validate": "node -e \"process.exit(0)\""
+  }
+}

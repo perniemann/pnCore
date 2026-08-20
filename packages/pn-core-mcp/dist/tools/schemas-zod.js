@@ -226,6 +226,36 @@ export const paperclipIssueUpdateSchema = {
         .describe("New status (done = workflow complete)"),
     comment: z.string().optional().describe("Optional comment with the update (summary of work)"),
 };
+export const workflowVerifySchema = {
+    run_id: z.string().min(1).describe("Workflow run_id from workflow_step"),
+    commandId: z
+        .string()
+        .min(1)
+        .optional()
+        .describe("Catalog id (npm_test, npm_test_full, npm_validate, ruff_check, pytest)"),
+    argv: z
+        .array(z.string().min(1))
+        .min(1)
+        .optional()
+        .describe("Free-form argv when disposeVerifyAllowArgv is on; no shell"),
+    cwd: z.string().optional().describe("Working directory; must stay inside process cwd"),
+    timeoutMs: z.number().int().min(1000).max(300000).optional().describe("Timeout in ms (capped)"),
+    candidate_id: z.string().optional().describe("Tournament path id (path-a, path-b, path-c)"),
+    workflowType: workflowTypeEnum.optional().describe("Optional workflow type for attestation bind"),
+    step: z.number().int().min(0).optional().describe("Optional workflow step for attestation bind"),
+};
+export const workflowRunQuerySchema = {
+    run_id: z.string().min(1).describe("run_id from workflow_step / workflow_verify"),
+    kinds: z
+        .array(z.enum(["verify", "acceptance", "handoff", "gate", "usage", "step"]))
+        .optional()
+        .describe("Event kinds to include (default: verify + acceptance)"),
+    limit: z.number().int().min(1).max(200).optional().describe("Max events (default 80)"),
+    path: z
+        .string()
+        .optional()
+        .describe("Optional run-events JSONL path (default .pncore/run-events.jsonl)"),
+};
 export const contextArgSchema = {
     context: z.string().optional().describe("Additional context or user request to include"),
 };

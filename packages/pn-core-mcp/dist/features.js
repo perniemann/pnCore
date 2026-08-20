@@ -16,6 +16,9 @@ const DEFAULTS = {
     modelTierOverrides: {},
     tierAliases: {},
     strictSkepticGates: false,
+    disposeVerify: false,
+    typedEnvelopes: false,
+    disposeVerifyAllowArgv: false,
 };
 // Module-scope cache keyed on content version — ensures flag consistency
 // within a tool call while still picking up file edits after a TTL cycle.
@@ -112,6 +115,11 @@ export function loadFeatures() {
         modelTierOverrides: overridesFromEnv ?? overridesFromFile ?? DEFAULTS.modelTierOverrides,
         tierAliases: aliasesFromEnv ?? aliasesFromFile ?? DEFAULTS.tierAliases,
         strictSkepticGates: envPart.strictSkepticGates ?? file.strictSkepticGates ?? DEFAULTS.strictSkepticGates,
+        disposeVerify: envPart.disposeVerify ?? file.disposeVerify ?? DEFAULTS.disposeVerify,
+        typedEnvelopes: envPart.typedEnvelopes ?? file.typedEnvelopes ?? DEFAULTS.typedEnvelopes,
+        disposeVerifyAllowArgv: envPart.disposeVerifyAllowArgv ??
+            file.disposeVerifyAllowArgv ??
+            DEFAULTS.disposeVerifyAllowArgv,
     };
     return _featuresCache;
 }
@@ -125,4 +133,24 @@ export function strictSkepticGatesEnabled() {
     if (env === "1" || env === "true" || env === "yes")
         return true;
     return loadFeatures().strictSkepticGates;
+}
+function envFlag(name) {
+    const env = process.env[name]?.trim().toLowerCase();
+    if (env === "1" || env === "true" || env === "yes")
+        return true;
+    if (env === "0" || env === "false" || env === "no")
+        return false;
+    return undefined;
+}
+/** Env PNCORE_DISPOSE_VERIFY or features.disposeVerify. */
+export function disposeVerifyEnabled() {
+    return envFlag("PNCORE_DISPOSE_VERIFY") ?? loadFeatures().disposeVerify;
+}
+/** Env PNCORE_TYPED_ENVELOPES or features.typedEnvelopes. */
+export function typedEnvelopesEnabled() {
+    return envFlag("PNCORE_TYPED_ENVELOPES") ?? loadFeatures().typedEnvelopes;
+}
+/** Env PNCORE_DISPOSE_VERIFY_ALLOW_ARGV or features.disposeVerifyAllowArgv. */
+export function disposeVerifyAllowArgvEnabled() {
+    return envFlag("PNCORE_DISPOSE_VERIFY_ALLOW_ARGV") ?? loadFeatures().disposeVerifyAllowArgv;
 }

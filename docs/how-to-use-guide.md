@@ -10,7 +10,7 @@ updated: 2026-07-03
 | Mode | What you get |
 |------|----------------|
 | **Plugin** | Slash commands, file-glob rules, hooks |
-| **MCP** | 24 tools, `pn-core://` resources, prompts (agent/command templates); control flow via **`workflow_step`** — see [MCP usage guide](mcp-usage-guide.md) |
+| **MCP** | 26 tools, `pn-core://` resources, prompts (agent/command templates); control flow via **`workflow_step`** — see [MCP usage guide](mcp-usage-guide.md) |
 | **Together** | Run both when you want rules plus deterministic workflow tools |
 
 Deeper orientation: [Plugin reference](plugin-reference.md).

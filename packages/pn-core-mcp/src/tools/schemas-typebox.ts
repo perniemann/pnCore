@@ -146,6 +146,33 @@ export const typeboxSchemas: Record<string, TSchema> = {
     issueId: Type.Optional(Type.String()),
     body: Type.String(),
   }),
+  workflow_verify: Type.Object({
+    run_id: Type.String({ minLength: 1 }),
+    commandId: Type.Optional(Type.String({ minLength: 1 })),
+    argv: Type.Optional(Type.Array(Type.String({ minLength: 1 }), { minItems: 1 })),
+    cwd: Type.Optional(Type.String()),
+    timeoutMs: Type.Optional(Type.Integer({ minimum: 1000, maximum: 300000 })),
+    candidate_id: Type.Optional(Type.String()),
+    workflowType: Type.Optional(workflowTypeSchema),
+    step: Type.Optional(Type.Integer({ minimum: 0 })),
+  }),
+  workflow_run_query: Type.Object({
+    run_id: Type.String({ minLength: 1 }),
+    kinds: Type.Optional(
+      Type.Array(
+        Type.Union([
+          Type.Literal("verify"),
+          Type.Literal("acceptance"),
+          Type.Literal("handoff"),
+          Type.Literal("gate"),
+          Type.Literal("usage"),
+          Type.Literal("step"),
+        ])
+      )
+    ),
+    limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 200 })),
+    path: Type.Optional(Type.String()),
+  }),
   paperclip_issue_update: Type.Object({
     issueId: Type.Optional(Type.String()),
     status: Type.Union([

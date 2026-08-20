@@ -8,7 +8,10 @@ import { evaluateApprovalCheckpoint } from "../approval-checkpoint.js";
 import { issueHumanGateTicket, validateAndConsumeHumanGateTicket, workflowRequiresHumanGateApproval, } from "../human-gate-tickets.js";
 import { resolveWorkflowRunId } from "../run-id.js";
 import { truncateResourceBody } from "../resource-truncate.js";
-import { loadFeatures } from "../features.js";
+import { disposeVerifyAllowArgvEnabled, disposeVerifyEnabled, loadFeatures } from "../features.js";
+import { resolveCatalogArgv } from "../verify-catalog.js";
+import { VerifyPolicyError, assertSafeArgv, resolveSandboxBackend, sandboxLabel, spawnVerify, } from "../verify-sandbox.js";
+import { appendRunEvent, newAttestationId, readRunEvents, } from "../verify-attest.js";
 import { readFileTail } from "../file-tail.js";
 import { appendWorkflowGateLog, createWorkflowGateLogEntry, validateWorkflowConfirmGate, } from "../workflow-gate-log.js";
 import { MCP_VERSION, appendSkillLoadLog, defaultGateLogPath, defaultHandoffPath, defaultHumanGateTicketsPath, defaultStatePath, defaultUsagePath, getContentMaxChars, handoffScanMaxBytes, HANDOFF_READ_MAX_LINES, HANDOFF_SUMMARY_MAX, mcpError, requiredHumanGateWorkflows, resolveSafePath, textContent, usageScanMaxBytes, debug, } from "./tool-runtime.js";
@@ -49,6 +52,8 @@ export async function handleHealth() {
             "workflow_usage_totals",
             "workflow_handoff_append",
             "workflow_handoff_read",
+            "workflow_verify",
+            "workflow_run_query",
             "approval_checkpoint",
             "gate_log_append",
             "paperclip_issue_checkout",
@@ -238,6 +243,16 @@ export async function handleWorkflowStep(args) {
                 err: String(err),
             });
         }
+    }
+    if (result.acceptance) {
+        appendRunEvent({
+            kind: "acceptance",
+            run_id: runId,
+            ts: new Date().toISOString(),
+            workflowType,
+            step,
+            ...result.acceptance,
+        });
     }
     return textContent(JSON.stringify({ ...result, run_id: runId }));
 }
@@ -618,4 +633,100 @@ export async function handlePaperclipIssueUpdate(args) {
             hint: "Check PAPERCLIP_API_URL reachability",
         });
     }
+}
+export async function handleWorkflowVerify(args) {
+    if (!disposeVerifyEnabled()) {
+        return mcpError("DISPOSE_UNAVAILABLE", "workflow_verify is off. Set PNCORE_DISPOSE_VERIFY=1 or PNCORE_FEATURES.disposeVerify true.", {});
+    }
+    const hasCmd = typeof args.commandId === "string" && args.commandId.trim() !== "";
+    const hasArgv = Array.isArray(args.argv) && args.argv.length > 0;
+    if (hasCmd === hasArgv) {
+        return mcpError("INVALID_STATE", "Pass exactly one of commandId or argv", {});
+    }
+    const cwdRel = args.cwd && args.cwd.trim() !== "" ? args.cwd : ".";
+    const cwdSafe = resolveSafePath(cwdRel);
+    if ("error" in cwdSafe)
+        return mcpError("PATH_TRAVERSAL", cwdSafe.error, { path: cwdRel });
+    let argv;
+    if (hasCmd) {
+        const resolved = resolveCatalogArgv(args.commandId, cwdSafe.resolved);
+        if ("error" in resolved)
+            return mcpError("INVALID_STATE", resolved.error, {});
+        argv = resolved.argv;
+    }
+    else {
+        if (!disposeVerifyAllowArgvEnabled()) {
+            return mcpError("INVALID_ARGV", "Free-form argv requires disposeVerifyAllowArgv (PNCORE_DISPOSE_VERIFY_ALLOW_ARGV=1)", {});
+        }
+        try {
+            assertSafeArgv(args.argv, { freeform: true });
+        }
+        catch (err) {
+            if (err instanceof VerifyPolicyError)
+                return mcpError(err.code, err.message, {});
+            throw err;
+        }
+        argv = args.argv;
+    }
+    const backend = resolveSandboxBackend();
+    if (backend === "unavailable") {
+        return mcpError("DISPOSE_UNAVAILABLE", "Dispose-verify jail is unavailable. Install bwrap, set PNCORE_VERIFY_SANDBOX=restricted, or run under Vitest (test backend).", {});
+    }
+    const startedAt = new Date().toISOString();
+    let spawned;
+    try {
+        spawned = await spawnVerify({
+            argv,
+            cwd: cwdSafe.resolved,
+            timeoutMs: args.timeoutMs,
+            backend,
+        });
+    }
+    catch (err) {
+        if (err instanceof VerifyPolicyError)
+            return mcpError(err.code, err.message, {});
+        return mcpError("IO_ERROR", String(err), {});
+    }
+    const finishedAt = new Date().toISOString();
+    const report = {
+        kind: "verify",
+        run_id: args.run_id,
+        commandId: hasCmd ? args.commandId : undefined,
+        argv,
+        cwd: cwdSafe.resolved,
+        exitCode: spawned.exitCode,
+        timedOut: spawned.timedOut,
+        stdoutTail: spawned.stdoutTail,
+        stderrTail: spawned.stderrTail,
+        startedAt,
+        finishedAt,
+        attestationId: newAttestationId(),
+        candidate_id: args.candidate_id,
+        workflowType: args.workflowType,
+        step: args.step,
+        sandbox: sandboxLabel(backend),
+    };
+    const written = appendRunEvent(report);
+    if ("error" in written)
+        return mcpError("PATH_TRAVERSAL", written.error, {});
+    return textContent(JSON.stringify({ ok: true, ...report }));
+}
+export async function handleWorkflowRunQuery(args) {
+    const kinds = args.kinds ?? ["verify", "acceptance"];
+    const result = readRunEvents(args.run_id, {
+        path: args.path,
+        kinds,
+        limit: args.limit,
+    });
+    if ("error" in result)
+        return mcpError("PATH_TRAVERSAL", result.error, { path: args.path });
+    const verify = result.events.filter((e) => e.kind === "verify");
+    const acceptance = result.events.filter((e) => e.kind === "acceptance").slice(-1)[0];
+    return textContent(JSON.stringify({
+        run_id: args.run_id,
+        path: result.path,
+        events: result.events,
+        verify,
+        acceptance: acceptance ?? null,
+    }));
 }
