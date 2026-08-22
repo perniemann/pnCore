@@ -9,7 +9,7 @@ The page operates in either of two modes, transparently:
 - **Live** — when served by the local dashboard server (`npm run dashboard`), the page hydrates from `/api/snapshot` on load and on the **Refresh** button. The header shows a `LIVE` pill. Numbers reflect the current state of the filesystem and `bench/REPORT.md` (generate with `npm run bench:write`) at the moment of fetch.
 - **Static** — when opened via `file://` (no server), the page renders the inline snapshot baked into the HTML. The header shows a `STATIC` pill. Refresh button still works but will fall back to the inline values if the fetch fails.
 
-The inline snapshot is regenerated whenever an agent re-runs the dashboard plan, so it is never far behind reality.
+The inline snapshot is regenerated whenever an agent re-runs the dashboard plan, so it is never far behind reality. **Last static snapshot: 2026-08-20** (inventory aligned to MCP `list_*` + filesystem; alwaysApply tokens live-estimated from rules; MCP description tokens and W1/W3 need `bench/REPORT.md`).
 
 ## How to use
 
@@ -59,14 +59,19 @@ The live server scans the same on-disk content that the MCP server exposes, so c
 |---|---|---|
 | Version + status | `packages/pn-core-mcp/package.json` + literal `"ok"` | `health` MCP tool |
 | Skills + categories | `packages/pn-core-mcp/content/skills/<cat>/<id>/SKILL.md` walk | `list_skills` |
-| Commands | `packages/pn-core-mcp/content/commands/*.md` count (canonical total; includes both palette-visible and `slash: false` palette-hidden surgical commands) | `list_commands` (returns the same canonical set) |
+| Commands | Recursive walk of `packages/pn-core-mcp/content/commands/**/*.md` (and `.mdc`) — matches MCP `walkCommandFiles` (palette + nested `pn/...` surgical commands) | `list_commands` (same canonical set) |
 | Rules | `packages/pn-core-mcp/content/rules/*.{mdc,md}` count | `list_rules` |
 | Agents | `packages/pn-core-mcp/content/agents/*.md` count | `list_agents` |
-| Token budget + build baseline + gates | `bench/REPORT.md` parsed when present (`npm run bench:write`) | same, embedded inline |
+| Token budget (alwaysApply) | Sum of `content/rules/*` with `alwaysApply: true` (chars÷4) — **Cursor host cost**, not general MCP token usage | same, or from `bench/REPORT.md` when present |
+| Token budget (MCP descriptions) | Parsed from `bench/REPORT.md` when present (`npm run bench:write` / measure-tokens) | same |
+| Optimization gates W1/W3 | `bench/REPORT.md` — otherwise live shows **No report** (does not keep stale Shipped) | inline |
+| **T3** (deferred skill-token split) | Always **Pending** until a shipped verdict exists in REPORT; detail text reflects M3 `get_skill` event count. M3 rankings are **input**, not auto-ship | inline Pending |
 | **Skill file sizes** (min / median / p95 / max, histogram, largest 10) | Every `content/skills/<category>/<id>/SKILL.md` read and measured (est. tokens ≈ chars ÷ 4) | Not available without the server; static page shows `—` in those cells |
 | **M3 — hot skills** (ranked load counts) | `.pncore/skill-load-log.jsonl` at repo root — one JSON line per `get_skill` (file is gitignored) | No log on disk → empty state copy |
 
-`skill-load-log.jsonl` is written by the MCP `get_skill` handler when the server runs inside a workspace. If the file is missing, `totalEvents` is 0 and the UI explains how to populate it.
+`skill-load-log.jsonl` is written by the MCP `get_skill` handler when the server runs with this repo as cwd — **any MCP host** (Cursor, Cloud Agents, CLI), not Cursor alone. If the file is missing, `totalEvents` is 0 and the UI explains how to populate it.
+
+**T3 vs M3:** M3 ranks hot skills from the load log. T3 is a separate, deferred token-optimization gate (skill-frequency split). Collecting M3 events does not flip T3 to Shipped.
 
 ## Why HTML, not a Cursor Canvas
 

@@ -26,7 +26,7 @@ Each line is one JSON object, for example:
 {"ts":"2026-04-22T12:00:00.000Z","id":"pn-writing-plans"}
 ```
 
-Optional `run_id` may be present. Used to rank which skills are loaded most often (input for the T3 token gate). Full aggregation example:
+Optional `run_id` may be present. Used to rank which skills are loaded most often (**M3** input for the deferred **T3** skill-token split — rankings alone do not ship T3). Full aggregation example:
 
 ```bash
 node -e "
@@ -54,7 +54,7 @@ node -e "
 | --- | --- |
 | No `.pncore` folder (except this README) | Normal until the first file is written, or you have not committed the version of the repo that includes this README. |
 | No `skill-load-log.jsonl` | No `get_skill` success yet, or the MCP’s `cwd` is not this repo — confirm the project root is the open workspace. |
-| Dashboard shows **0** hot-skill events | Log missing or empty; trigger `get_skill` in Cursor, then refresh the dashboard. |
+| Dashboard shows **0** hot-skill events | Log missing or empty; trigger `get_skill` via any MCP host (Cursor, Cloud Agent, etc.), then refresh the dashboard. |
 
 ## Other files
 

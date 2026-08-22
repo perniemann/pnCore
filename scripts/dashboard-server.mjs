@@ -58,6 +58,22 @@ async function countFlatDir(dir, exts) {
   return entries.filter((e) => e.isFile() && exts.includes(extname(e.name))).length;
 }
 
+/** Recursive command count — matches MCP `walkCommandFiles` (nested under commands/pn/...). */
+async function countCommandFiles(dir) {
+  if (!existsSync(dir)) return 0;
+  let total = 0;
+  const entries = await readdir(dir, { withFileTypes: true });
+  for (const e of entries) {
+    const p = join(dir, e.name);
+    if (e.isDirectory()) {
+      total += await countCommandFiles(p);
+    } else if (e.isFile() && (extname(e.name) === ".md" || extname(e.name) === ".mdc")) {
+      total += 1;
+    }
+  }
+  return total;
+}
+
 function num(s) {
   if (s == null) return null;
   const n = Number(String(s).replace(/[, ]/g, ""));
@@ -222,18 +238,56 @@ async function readHotSkillLoads() {
   return out;
 }
 
+/** Live alwaysApply token estimate — same chars÷4 rule as `scripts/measure-tokens.mjs`. */
+async function computeAlwaysApplyTokens() {
+  const rulesDir = join(CONTENT, "rules");
+  if (!existsSync(rulesDir)) return null;
+  const entries = await readdir(rulesDir);
+  let chars = 0;
+  for (const f of entries) {
+    const ext = extname(f);
+    if (ext !== ".mdc" && ext !== ".md") continue;
+    const text = await readFile(join(rulesDir, f), "utf-8");
+    if (/alwaysApply:\s*true/i.test(text)) chars += text.length;
+  }
+  return chars > 0 ? estTokens(chars) : 0;
+}
+
+function t3DetailFromHotSkills(hotSkills) {
+  const n = hotSkills?.totalEvents ?? 0;
+  if (n === 0) {
+    return "awaiting M3 get_skill frequency (no load events yet)";
+  }
+  return `M3 collecting (${n} get_skill events) — frequency split not shipped`;
+}
+
 async function buildSnapshot() {
   const [version, skills, agentsCount, commandsCount, rulesCount, bench, skillSizes, hotSkills] =
     await Promise.all([
       readPkgVersion(),
       listSkillCategories(),
       countFlatDir(join(CONTENT, "agents"), [".md"]),
-      countFlatDir(join(CONTENT, "commands"), [".md"]),
+      countCommandFiles(join(CONTENT, "commands")),
       countFlatDir(join(CONTENT, "rules"), [".mdc", ".md"]),
       parseBench(),
       computeSkillSizeMetrics(),
       readHotSkillLoads(),
     ]);
+
+  // Prefer REPORT.md when present; otherwise estimate alwaysApply from on-disk rules.
+  if (bench.alwaysApplyTokens == null) {
+    bench.alwaysApplyTokens = await computeAlwaysApplyTokens();
+  }
+
+  // Without REPORT.md, do not inherit stale "Shipped" from the static HTML.
+  if (bench.gates.W1 == null) bench.gates.W1 = "unknown";
+  if (bench.gates.W3 == null) bench.gates.W3 = "unknown";
+  // T3 is a deferred token-optimization gate; M3 rankings are input, not auto-ship.
+  if (bench.gates.T3 == null) bench.gates.T3 = "pending";
+
+  bench.gateDetails = {
+    T3: t3DetailFromHotSkills(hotSkills),
+  };
 
   return {
     capturedAt: new Date().toISOString(),

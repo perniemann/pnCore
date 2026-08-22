@@ -670,14 +670,14 @@
           role="group"
           aria-label="Version, data source, and refresh"
         >
-          <span class="badge" data-key="version">v0.11.0</span>
+          <span class="badge" data-key="version">v0.18.4</span>
           <div
             class="header-state"
             tabindex="0"
             title="Hover or focus here to see snapshot time (after a live load)."
           >
             <span class="pill" data-key="mode-pill" data-mode="static" role="status" aria-live="polite">Static</span>
-            <span class="header-time" data-key="snapshot-label">Snapshot 2026-04-22</span>
+            <span class="header-time" data-key="snapshot-label">Snapshot 2026-08-20</span>
           </div>
           <button class="refresh" type="button" data-action="refresh" aria-label="Refresh dashboard data">
             <svg
@@ -706,19 +706,19 @@
         <p class="eyebrow">Inventory</p>
         <div class="inventory">
           <div class="counter lead">
-            <div class="num" data-key="skills-total">138</div>
+            <div class="num" data-key="skills-total">170</div>
             <div class="label">Skills</div>
           </div>
           <div class="counter">
-            <div class="num" data-key="categories-total">14</div>
+            <div class="num" data-key="categories-total">15</div>
             <div class="label">Categories</div>
           </div>
           <div class="counter">
-            <div class="num" data-key="commands-total">29</div>
+            <div class="num" data-key="commands-total">49</div>
             <div class="label">Commands</div>
           </div>
           <div class="counter">
-            <div class="num" data-key="rules-total">31</div>
+            <div class="num" data-key="rules-total">35</div>
             <div class="label">Rules</div>
           </div>
           <div class="counter">
@@ -733,43 +733,43 @@
         <div class="bars" data-key="skill-bars">
           <div class="bar-row">
             <div class="name">frontend</div>
-            <div class="count">28</div>
+            <div class="count">29</div>
             <div class="bar-track"><div class="bar-fill" style="width: 100%"></div></div>
           </div>
           <div class="bar-row">
             <div class="name">orchestration</div>
-            <div class="count">18</div>
-            <div class="bar-track"><div class="bar-fill" style="width: 64.3%"></div></div>
+            <div class="count">26</div>
+            <div class="bar-track"><div class="bar-fill" style="width: 89.7%"></div></div>
           </div>
           <div class="bar-row">
             <div class="name">backend</div>
             <div class="count">17</div>
-            <div class="bar-track"><div class="bar-fill" style="width: 60.7%"></div></div>
+            <div class="bar-track"><div class="bar-fill" style="width: 58.6%"></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="name">review</div>
+            <div class="count">16</div>
+            <div class="bar-track"><div class="bar-fill" style="width: 55.2%"></div></div>
           </div>
           <div class="bar-row">
             <div class="name">gamedev</div>
             <div class="count">12</div>
-            <div class="bar-track"><div class="bar-fill" style="width: 42.9%"></div></div>
-          </div>
-          <div class="bar-row">
-            <div class="name">review</div>
-            <div class="count">12</div>
-            <div class="bar-track"><div class="bar-fill" style="width: 42.9%"></div></div>
+            <div class="bar-track"><div class="bar-fill" style="width: 41.4%"></div></div>
           </div>
           <div class="bar-row">
             <div class="name">ci</div>
-            <div class="count">10</div>
-            <div class="bar-track"><div class="bar-fill" style="width: 35.7%"></div></div>
-          </div>
-          <div class="bar-row">
-            <div class="name">pm</div>
-            <div class="count">9</div>
-            <div class="bar-track"><div class="bar-fill" style="width: 32.1%"></div></div>
+            <div class="count">11</div>
+            <div class="bar-track"><div class="bar-fill" style="width: 37.9%"></div></div>
           </div>
           <div class="bar-row">
             <div class="name">integrations</div>
-            <div class="count">8</div>
-            <div class="bar-track"><div class="bar-fill" style="width: 28.6%"></div></div>
+            <div class="count">11</div>
+            <div class="bar-track"><div class="bar-fill" style="width: 37.9%"></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="name">pm</div>
+            <div class="count">11</div>
+            <div class="bar-track"><div class="bar-fill" style="width: 37.9%"></div></div>
           </div>
         </div>
       </section>
@@ -828,7 +828,7 @@
         <div class="hot-strip" data-key="hot-strip" role="list" aria-label="Top skills by load count"></div>
         <p class="hot-empty" data-key="hot-empty">
           No M3 data yet. Open via <code>npm run dashboard</code> to load
-          <code>.pncore/skill-load-log.jsonl</code>, or use Cursor so <code>get_skill</code> can append to that log.
+          <code>.pncore/skill-load-log.jsonl</code>, or call MCP <code>get_skill</code> from any host so the log can append.
         </p>
       </section>
 
@@ -836,23 +836,23 @@
         <p class="eyebrow">Token budget</p>
         <div class="tokens">
           <div class="token-cell">
-            <div class="num"><span data-key="token-bundle">3,169</span><span class="unit">tk</span></div>
+            <div class="num"><span data-key="token-bundle">5,714</span><span class="unit">tk</span></div>
             <div class="label">alwaysApply bundle</div>
             <div class="desc">
-              Loaded on every Cursor turn. Compounds across the session.
+              Cursor-only: rules with <code>alwaysApply: true</code> injected every Cursor turn. Not general MCP usage.
             </div>
           </div>
           <div class="token-cell">
-            <div class="num"><span data-key="token-mcp">1,781</span><span class="unit">tk</span></div>
+            <div class="num"><span data-key="token-mcp">—</span><span class="unit">tk</span></div>
             <div class="label">MCP tool descriptions</div>
             <div class="desc">
-              Tool schemas + .describe() strings exposed to the agent at connect.
+              Host-agnostic: tool schemas + .describe() strings at MCP connect. From <code>bench/REPORT.md</code> when present.
             </div>
           </div>
         </div>
         <div class="token-total">
-          <div class="label">Total context overhead</div>
-          <div class="num"><span data-key="token-total">4,950</span><span class="unit">tk</span></div>
+          <div class="label">Total (when both sources present)</div>
+          <div class="num"><span data-key="token-total">—</span><span class="unit">tk</span></div>
         </div>
       </section>
 
@@ -860,14 +860,14 @@
         <p class="eyebrow">Build baseline</p>
         <div class="baseline">
           <div class="baseline-cell">
-            <div class="num"><span data-key="bench-validate">1,714</span><span class="unit">ms</span></div>
+            <div class="num"><span data-key="bench-validate">—</span><span class="unit">ms</span></div>
             <div class="label">validate wall</div>
-            <div class="desc">parallel validators end-to-end (W1)</div>
+            <div class="desc">parallel validators end-to-end (W1) — needs <code>npm run bench:write</code></div>
           </div>
           <div class="baseline-cell">
-            <div class="num"><span data-key="bench-tsc">1,521</span><span class="unit">ms</span></div>
+            <div class="num"><span data-key="bench-tsc">—</span><span class="unit">ms</span></div>
             <div class="label">tsc incremental</div>
-            <div class="desc">repeat build, 29% under clean (W3)</div>
+            <div class="desc">repeat build (W3) — needs <code>npm run bench:write</code></div>
           </div>
         </div>
       </section>
@@ -877,25 +877,25 @@
         <div class="gates">
           <div class="gate">
             <span class="gate-id">W1</span>
-            <span class="gate-status shipped" data-key="gate-W1">Shipped</span>
-            <span class="gate-desc">parallelize validators · −22%</span>
+            <span class="gate-status" data-key="gate-W1">No report</span>
+            <span class="gate-desc" data-key="gate-W1-desc">parallelize validators · needs bench report</span>
           </div>
           <div class="gate">
             <span class="gate-id">W3</span>
-            <span class="gate-status shipped" data-key="gate-W3">Shipped</span>
-            <span class="gate-desc">tsc incremental · −29%</span>
+            <span class="gate-status" data-key="gate-W3">No report</span>
+            <span class="gate-desc" data-key="gate-W3-desc">tsc incremental · needs bench report</span>
           </div>
           <div class="gate">
             <span class="gate-id">T3</span>
             <span class="gate-status" data-key="gate-T3">Pending</span>
-            <span class="gate-desc">awaiting M3 skill-load frequency</span>
+            <span class="gate-desc" data-key="gate-T3-desc">awaiting M3 get_skill frequency (deferred skill-token split)</span>
           </div>
         </div>
       </section>
 
       <footer class="reveal" data-step="10">
         <div>
-          <span data-key="footer-snapshot">Snapshot 2026-04-22</span>
+          <span data-key="footer-snapshot">Snapshot 2026-08-20</span>
         </div>
         <div class="right" data-key="footer-mode">
           Static fallback. Run <code>npm run dashboard</code> for live data.
@@ -1028,16 +1028,16 @@
             return;
           }
           if (h.totalEvents > 0 && hint) {
-            hint.textContent = `${fmt(h.totalEvents)} load events in ${h.log} — ranked below (drives the T3 gate).`;
+            hint.textContent = `${fmt(h.totalEvents)} get_skill load events in ${h.log} — ranked below (M3 input for the deferred T3 skill-token split; T3 does not auto-ship from this list).`;
           } else if (hint) {
             hint.textContent =
-              "Each get_skill appends to .pncore/skill-load-log.jsonl. After enough real usage, refresh to rank hot skills.";
+              "Each MCP get_skill (any host) appends to .pncore/skill-load-log.jsonl. After enough real usage, refresh to rank hot skills for the deferred T3 split.";
           }
           if (h.totalEvents === 0) {
             strip.innerHTML = "";
             empty.style.display = "block";
             empty.textContent =
-              "No load events in .pncore/skill-load-log.jsonl yet. get_skill in Cursor will append lines here over time, then this strip ranks “hot” skills (input for the T3 split).";
+              "No load events in .pncore/skill-load-log.jsonl yet. Any MCP client that calls get_skill appends lines here; this strip ranks “hot” skills as input for the deferred T3 skill-token split.";
             return;
           }
           empty.style.display = "none";
@@ -1069,23 +1069,33 @@
 
           const b = snap.bench || {};
           if (b.alwaysApplyTokens != null) setText("token-bundle", fmt(b.alwaysApplyTokens));
-          if (b.mcpDescriptionTokens != null) setText("token-mcp", fmt(b.mcpDescriptionTokens));
+          if (b.mcpDescriptionTokens != null) {
+            setText("token-mcp", fmt(b.mcpDescriptionTokens));
+          } else if (snap.capturedAt) {
+            setText("token-mcp", "—");
+          }
           if (b.alwaysApplyTokens != null && b.mcpDescriptionTokens != null) {
             setText("token-total", fmt(b.alwaysApplyTokens + b.mcpDescriptionTokens));
+          } else if (snap.capturedAt) {
+            setText("token-total", "—");
           }
           if (b.validateWallMs != null) setText("bench-validate", fmt(b.validateWallMs));
+          else if (snap.capturedAt) setText("bench-validate", "—");
           if (b.tscIncrementalMs != null) setText("bench-tsc", fmt(b.tscIncrementalMs));
+          else if (snap.capturedAt) setText("bench-tsc", "—");
           if (b.gates) {
-            const map = { shipped: "Shipped", pending: "Pending" };
+            const map = { shipped: "Shipped", pending: "Pending", unknown: "No report" };
             for (const k of ["W1", "W3", "T3"]) {
-              if (b.gates[k]) {
-                const el = document.querySelector(`[data-key="gate-${k}"]`);
-                if (el) {
-                  el.textContent = map[b.gates[k]] || b.gates[k];
-                  el.classList.toggle("shipped", b.gates[k] === "shipped");
-                }
+              const status = b.gates[k] || "unknown";
+              const el = document.querySelector(`[data-key="gate-${k}"]`);
+              if (el) {
+                el.textContent = map[status] || status;
+                el.classList.toggle("shipped", status === "shipped");
               }
             }
+          }
+          if (b.gateDetails && b.gateDetails.T3) {
+            setText("gate-T3-desc", b.gateDetails.T3);
           }
 
           const captured = snap.capturedAt
