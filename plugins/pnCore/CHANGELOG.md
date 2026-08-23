@@ -4,6 +4,12 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.18.5] - 2026-08-23
+
+### Changed
+
+- **User-facing README:** teaching structure (why it exists, four principles, user-only install, pain table, honest edges) and four house-styled diagrams under `docs/readme/`. Contributor scripts and local-dev steps live in [CONTRIBUTING.md](../../CONTRIBUTING.md#scripts).
+
 ## [0.18.4] - 2026-08-20
 
 ### Added

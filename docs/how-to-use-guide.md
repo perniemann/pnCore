@@ -5,6 +5,8 @@ updated: 2026-07-03
 
 # How to use pnCore
 
+User-facing orientation (why it exists, install, workflows, honest edges): [root README](../README.md). This guide is the copy-paste prompt book.
+
 ## Overview
 
 | Mode | What you get |

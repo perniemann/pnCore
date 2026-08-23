@@ -60,6 +60,7 @@ The **`approval_checkpoint`** tool succeeds only if `approval_token` matches **`
 
 ### Related docs
 
+- User-facing product README (why, install, workflows): [../../README.md](../../README.md)
 - [Acceptance criteria convention](../acceptance-criteria-convention.md)
 - [agents-md-guide.md](../agents-md-guide.md) â€” AGENTS.md vs rules vs skills
 - MCP runbook: `pn-core://reference/RUNBOOK.md` (when MCP is enabled)

@@ -1,6 +1,6 @@
 # pn-core-mcp
 
-MCP server for [pnCore](https://github.com/perniemann/pnCore) **0.18.4**: same skills, agents, commands, and rules as the Cursor plugin, plus **`workflow_step`** and related tools. Use from any MCP client to run orchestration, discovery, skeptic, audits, assets, and other pnCore workflows without installing the plugin.
+MCP server for [pnCore](https://github.com/perniemann/pnCore) **0.18.5**: same skills, agents, commands, and rules as the Cursor plugin, plus **`workflow_step`** and related tools. Use from any MCP client to run orchestration, discovery, skeptic, audits, assets, and other pnCore workflows without installing the plugin.
 
 ## Installation
 
@@ -100,7 +100,7 @@ From this package or repo root:
 | `npm run build` | Compile TypeScript to `dist/`. |
 | `npm run start` | Run the MCP server (`node dist/index.js`). |
 
-From repo root only: `npm run build:mcp`, `npm run sync:content`, `npm run mcp-config:dev` (local clone) — see [repo README](../../README.md#scripts).
+From repo root only: `npm run build:mcp`, `npm run sync:content`, `npm run mcp-config:dev` (local clone) — see [CONTRIBUTING.md — Scripts](../../CONTRIBUTING.md#scripts).
 
 ## Content (canonical)
 
