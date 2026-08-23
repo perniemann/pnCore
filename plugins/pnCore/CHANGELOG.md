@@ -4,6 +4,20 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.18.6] - 2026-08-23
+
+### Fixed
+
+- **`pn-color-system` skill:** collapsed a duplicated `## Context Gathering` section and restored the missing intro sentence under `## Core Approach` (prior edit merge artifact).
+
+### Changed
+
+- **`pn-design-system` rule:** dedupe the OKLCH light/dark token code block against `pn-color-system`'s canonical example, replaced with a cross-reference to remove the two-file sync burden.
+
+### Added
+
+- **`pn-design-system` skill:** `EVAL.yaml` backfill (token-hierarchy authoring and consistency-audit scenario pairs) per the ADR-0002 quarterly audit convention.
+
 ## [0.18.5] - 2026-08-23
 
 ### Changed

@@ -22,24 +22,9 @@ globs: ["**/*.css", "**/*.scss", "**/*.sass", "**/*.styled.*", "**/tokens/**", "
 - Two-layer token hierarchy:
   - **Primitive:** `--blue-500: oklch(60% 0.15 250)` — never used directly in components
   - **Semantic:** `--color-primary: var(--blue-500)` — what components reference
+- Redefine semantics only per theme (e.g. `[data-theme="dark"]`); primitives stay defined once.
 
-```css
-/* Light theme */
-:root {
-  --color-primary: oklch(60% 0.15 250);
-  --color-text:    oklch(15% 0.01 250);
-  --color-surface: oklch(98% 0.005 250);
-  --color-border:  oklch(88% 0.01 250);
-}
-
-/* Dark theme — redefine semantics only */
-[data-theme="dark"] {
-  --color-primary: oklch(68% 0.13 250);
-  --color-text:    oklch(92% 0.01 250);
-  --color-surface: oklch(14% 0.01 250);
-  --color-border:  oklch(28% 0.02 250);
-}
-```
+→ *Full primitive/semantic/dark-mode OKLCH token example and palette depth: `pn-color-system` skill.*
 
 ## Dark Mode Architecture
 

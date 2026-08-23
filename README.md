@@ -2,7 +2,7 @@
   <img src="plugins/pnCore/assets/pn-logo.svg" width="176" alt="pnCore" />
 </p>
 
-# pnCore — v0.18.5
+# pnCore — v0.18.6
 
 pnCore is an MCP server and Cursor plugin. It runs software delivery as a sequence of named, gated steps instead of one long chat.
 

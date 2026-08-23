@@ -1,0 +1,30 @@
+# Evaluation suite for pn-design-system
+# Convention: pn-core://reference/eval-convention.md
+
+skill: pn-design-system
+owner: pncore-maintainers
+
+scenarios:
+  - id: without-skill-raw-values
+    prompt: "Write the CSS for a card component: white background, dark gray text, 16px padding, blue button."
+    expectation: "Agent ships raw hex/px literals (e.g. `padding: 16px`, `color: #333`, `background: #3b82f6`) directly in the component, with no CSS custom properties, no primitive/semantic token split, and no light/dark theme structure."
+    without_skill: true
+    quadrant: inaccurate_inefficient
+
+  - id: with-skill-token-hierarchy
+    prompt: "Using pn-design-system, write the CSS for a card component: white background, dark gray text, 16px padding, blue button."
+    expectation: "Agent defines primitive tokens (raw values) and semantic tokens (intent-mapped, e.g. `--color-surface`, `--color-text-primary`, `--space-4`) instead of literals, uses a `--color-` / `--space-` naming prefix convention, and the component references semantic tokens only — no inline hex or raw px."
+    with_skill: true
+    quadrant: accurate_efficient
+
+  - id: without-skill-audit-skips-gaps
+    prompt: "Audit this stylesheet for design-system consistency: it has some CSS variables and some inline hex colors, and no dark-mode overrides."
+    expectation: "Agent gives a shallow pass/fail without flagging specific hardcoded literals, without checking primitive-vs-semantic naming discipline, and without noting the missing dark-mode token overrides."
+    without_skill: true
+    quadrant: inaccurate_inefficient
+
+  - id: with-skill-audit-catches-gaps
+    prompt: "Using pn-design-system, audit this stylesheet for design-system consistency: it has some CSS variables and some inline hex colors, and no dark-mode overrides."
+    expectation: "Agent scans for and lists hardcoded hex/px/font literals to replace, verifies semantic tokens are named by intent (not primitive names) in component usage, and flags that semantic color tokens lack a `[data-theme=\"dark\"]` (or equivalent) override — recommending one theme-override location, not scattered inline checks."
+    with_skill: true
+    quadrant: accurate_efficient
