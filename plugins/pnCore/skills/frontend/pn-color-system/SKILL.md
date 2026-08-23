@@ -15,13 +15,11 @@ description: "Color system design and implementation: OKLCH color space, tinted 
 
 ## Context Gathering
 
-Check `.pncore-design.md` in the project root if it exists. Brand personality/tone and visual ambition level directly affect color decisions.
-
-## Context Gathering
-
 Check `.pncore-design.md` in the project root first. Brand personality and visual ambition affect color choices. If missing, recommend running `pn-setup` (design context option).
 
-## Core Approach It is perceptually uniform — equal lightness steps look equal across hues. HSL is not perceptually uniform and produces colors that feel inconsistent.
+## Core Approach
+
+OKLCH is the recommended color space for token systems. It is perceptually uniform — equal lightness steps look equal across hues. HSL is not perceptually uniform and produces colors that feel inconsistent.
 
 **Tint your neutrals.** Pure gray has no personality. Add a tiny amount of your brand hue (chroma 0.005–0.01) to all neutrals for subconscious cohesion.
 
