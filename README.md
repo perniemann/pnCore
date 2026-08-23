@@ -4,15 +4,13 @@
 
 # pnCore — v0.18.5
 
-Structured delivery for Cursor: workflows you can name, gates you can pass, state you can resume.
-
-The MCP owns sequencing. Agents own one step. The plugin is the IDE surface.
+pnCore is an MCP server and Cursor plugin. It runs software delivery as a sequence of named, gated steps instead of one long chat.
 
 <p align="center">
   <img src="docs/readme/01_control_rail.svg" width="850" alt="workflow_step is a deterministic rail. Discovery, plan, skeptic, specialists, and review sit as bounded nodes. The plugin slash palette and Pi are side surfaces, not a second product. The skeptic gate is the live step.">
 </p>
 
-pnCore is an orchestration pack and MCP server for AI-assisted software delivery. It ships discovery, planning, skeptic challenge, design, audits, assets, and delivery as a deterministic `workflow_step` engine — backed by skills, agents, rules, and `pn-core://` resources. It is not a generic prompt pack.
+It ships discovery, planning, skeptic challenge, design, audits, assets, and delivery through a deterministic `workflow_step` engine — backed by skills, agents, rules, and `pn-core://` resources, not a folder of prompts.
 
 **Catalog:** 170 skills, 9 public agents + 6 internal orchestration agents, 31 visible slash palette files (30 under **`pn`** submenu + **`/pn`** stub) + 18 palette-hidden surgical commands (49 command files total), 26 MCP tools, 16 workflow types, plus `pn-core://` resources and prompts.
 
@@ -21,31 +19,27 @@ pnCore is an orchestration pack and MCP server for AI-assisted software delivery
 ## Why this exists
 
 <p align="center">
-  <img src="docs/readme/02_who_owns_the_loop.svg" width="850" alt="Left: one chat owns the whole SDLC with no seams and no named done. Right: workflow_step owns sequencing; agents are bounded, gated nodes. Same models, same repo; the difference is who owns the step list.">
+  <img src="docs/readme/02_who_owns_the_loop.svg" width="850" alt="Left: a single chat plans, codes, and checks its own work with no checkpoint in between. Right: workflow_step runs one gated step at a time, with skeptic, human, or workflow_verify deciding pass or fail. Same models either way — the MCP keeps the state between calls.">
 </p>
 
-Hand a capable model your whole SDLC and you get a machine with no seams. There is no phase boundary, so you cannot say which step failed. There is no acceptance you can name, so "done" means the agent stopped talking. A retry is a new chat that throws away the run. The only trace is a transcript you have to read like a novel. Run it twice, get two different systems.
+A single chat can plan a feature, write the code, and tell you it's done — but there's no checkpoint in between. If it goes sideways on step three, you're rereading the whole transcript to find out where. Asking it to redo one part usually means starting the conversation over, and whatever context got it that far is gone.
 
-The fix is not a better prompt. The fix is deciding that **code owns the step list**, and the agent owns only the work inside one bounded step. Everything else falls out of that line. `workflow_step` names the phase. Skeptic, human, and `workflow_verify` define done. `workflow_state_save` / `workflow_state_load` make a correction cheaper than a restart.
-
-> *Same models. Same repo. The difference is who owns the step list.*
+pnCore moves that step list out of the chat. `workflow_step(type, index, state)` runs one step at a time — discovery, plan, build, review — and hands back the next instruction. A skeptic pass, a human gate, or `workflow_verify` decides whether a step actually passed, not the model's own say-so. If you get disconnected, `workflow_state_save` and `workflow_state_load` pick the run back up where it left off.
 
 ---
 
 ## What it is
 
-Four properties constrain the product. Catalog counts do not.
+**Deterministic.** `workflow_step(type, index, state)` decides the next instruction. Steps aren't skipped by assumption — skipping one is a gate decision, logged in state.
 
-**Deterministic.** `workflow_step(type, index, state)` is the control plane. Skip is a gate, not a vibe. The instruction for each step comes from the engine, not from a remembered prompt.
-
-**Gated.** Skeptic, human, and `workflow_verify` are first-class. Intent is `full auto`, `design focused`, or `involved`. Involved means you approve discovery, plan, specialists, and review.
+**Gated.** Skeptic, human, and `workflow_verify` gates are built into the engine. Intent is `full auto`, `design focused`, or `involved` — involved means you approve discovery, plan, specialists, and review before they run.
 
 **Multi-surface.** One canonical tree in `packages/pn-core-mcp/content/`. The MCP runs the engine in any client. The Cursor plugin adds the `/` palette, file-glob rules, agent selector, and stop hook. Pi registers the same 26 tools natively.
 
 **Resumable.** Every run has a `run_id`. Handoff lines and usage land in JSONL. After a disconnect, load state and continue the same step list.
 
 <p align="center">
-  <img src="docs/readme/03_three_surfaces.svg" width="850" alt="Canonical content under packages/pn-core-mcp/content/ stamps into the MCP server, the Cursor plugin, and Pi native tools. Edit the source once; surfaces stay in sync.">
+  <img src="docs/readme/03_three_surfaces.svg" width="850" alt="Canonical content under packages/pn-core-mcp/content/ installs into the MCP server, the Cursor plugin, and Pi native tools. Edit the source once; all three stay in sync.">
 </p>
 
 ---
@@ -54,7 +48,7 @@ Four properties constrain the product. Catalog counts do not.
 
 **Prerequisite:** Node.js 22+.
 
-Green means `health` returns version, `calendarDateUtc`, and capabilities. Fix that before composing a workflow — every chain rides this path.
+Call `health` first — it should return version, `calendarDateUtc`, and capabilities. If it doesn't, nothing downstream (skills, agents, `workflow_step`) will load either.
 
 <a id="mcp-any-mcp-client"></a>
 
@@ -135,13 +129,13 @@ More prompts: [docs/how-to-use-guide.md](docs/how-to-use-guide.md).
 ## Workflows
 
 <p align="center">
-  <img src="docs/readme/04_full_dev_lanes.svg" width="850" alt="You start /pn-build. The MCP runs discovery and plan. You pass the skeptic gate. Specialists build. The MCP reviews. /pn-deliver waits as the next named step.">
+  <img src="docs/readme/04_full_dev_lanes.svg" width="850" alt="You start /pn-build. The MCP runs discovery and plan. You pass the skeptic gate. Specialists build. The MCP reviews. A step only counts once its gate passes; /pn-deliver waits as the next named step.">
 </p>
 
-Reach for the workflow that matches the job. Call `list_workflow_types` for live step counts.
+Call `list_workflow_types` for live step counts.
 
-| Reach for it when | Workflow | Cursor | MCP entry |
-|-------------------|----------|--------|-----------|
+| Use it for | Workflow | Cursor | MCP entry |
+|-------------|----------|--------|-----------|
 | New project: refs, discovery, PRD, design | `project_kickoff` | `/pn-new` → Involved | `workflow_step("project_kickoff", 0, {})` |
 | Build a feature or product end-to-end | `full_dev` | `/pn-build` | `workflow_step("full_dev", 0, {})` |
 | Design-first UI | `design` | `/pn-design` | `workflow_step("design", 0, {})` |
@@ -177,15 +171,15 @@ Tool steps are 0-based. Resume after disconnect: `workflow_state_save` then `wor
 
 ---
 
-## How it improves the pain
+## What changes
 
-| Pain | Without pnCore | With pnCore |
-|------|----------------|-------------|
-| No seam | One transcript | Named steps + `run_id` |
-| "Done" is silence | The agent stopped | Skeptic / verify / deliver pack |
-| Retry is amnesia | New chat | `workflow_state_load` |
-| Prompt soup | Skills in a folder | Engine + gates + `pn-core://` resources |
-| IDE-only | Cursor slash or nothing | MCP in any client; Pi native tools |
+| Without pnCore | With pnCore |
+|-----------------|-------------|
+| One long transcript | Named steps, each with a `run_id` |
+| "Done" means the model stopped talking | Skeptic, `workflow_verify`, or a delivery pack decide |
+| A retry starts a new chat | `workflow_state_load` picks up where it stopped |
+| Skills live in a folder you have to remember to load | The engine loads gates and skills automatically |
+| Works in Cursor chat, nowhere else | MCP runs in any client; Pi has native tools |
 
 **Three tier concepts** (do not conflate them): **delivery tier** (MVP/Full), **context tier** (1–4 reading depth), **model tier** (`fast` / `standard` / `premium` / `premium_thinking` / `long_horizon`). Loop orchestration: `suggest_model_tier` with `role: orchestrator` → `long_horizon`. See `pn-core://reference/delivery-tier-criteria.md` and [MCP tools](packages/pn-core-mcp/README.md#tools).
 
@@ -197,7 +191,7 @@ Load before a build session: `pn-core://reference/best-practices.md`, `pn-core:/
 
 | Situation | What happens | What to do |
 |-----------|--------------|------------|
-| A one-line typo fix | Full workflows are overkill | Prompt the agent and move on |
+| A one-line typo fix | The workflow overhead isn't worth it | Ask directly, skip `workflow_step` |
 | Plugin without MCP | Slash templates only — no `workflow_step` engine | Install MCP for Cursor, or both |
 | First npx on a private git URL | Cursor MCP can time out on a cold clone | Pre-warm once, then reload. Matrix: [MCP README](packages/pn-core-mcp/README.md#troubleshooting-mcp-wont-connect-in-cursor) |
 | `feature_program` / `bestOfN` | Preview flags; off by default | Set `featureProgram: true` or `bestOfN.enabled: true` |
@@ -228,8 +222,6 @@ Load before a build session: `pn-core://reference/best-practices.md`, `pn-core:/
 Contributor scripts, local MCP config, and how to develop pnCore live in [CONTRIBUTING.md](CONTRIBUTING.md#scripts). Repo layout: [docs/folder-structure.md](docs/folder-structure.md).
 
 ---
-
-The logo’s cursor is the product metaphor. You stay in the loop.
 
 ## License
 

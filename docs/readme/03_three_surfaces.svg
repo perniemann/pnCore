@@ -2,7 +2,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 560" width="1120" height="560"
      role="img" aria-labelledby="surf-title surf-desc">
   <title id="surf-title">One content body, three surfaces</title>
-  <desc id="surf-desc">Canonical content under packages/pn-core-mcp/content/ stamps into the MCP server, the Cursor plugin, and Pi native tools. Edit the source once; surfaces stay in sync.</desc>
+  <desc id="surf-desc">Canonical content under packages/pn-core-mcp/content/ installs into the MCP server, the Cursor plugin, and Pi native tools. Edit the source once; all three stay in sync.</desc>
   <defs>
     <style><![CDATA[
 
@@ -83,14 +83,14 @@
     <text class="mono" x="76" y="332" font-size="14" fill="#e8e8e8">reference/</text>
     <text class="mono" x="220" y="332" font-size="13" fill="#7a7672">pn-core://</text>
     <line x1="76" y1="352" x2="388" y2="352" stroke="#2a2a2a" stroke-width="1"/>
-    <text class="mono" x="76" y="384" font-size="13" fill="#7a7672">npm run sync:content</text>
-    <text class="mono" x="76" y="412" font-size="13" fill="#7a7672">edit here, never the copies</text>
+    <text class="mono" x="76" y="384" font-size="13" fill="#7a7672">same skills, agents, rules</text>
+    <text class="mono" x="76" y="412" font-size="13" fill="#7a7672">one source, kept in sync</text>
   </g>
 
   <line class="arr" x1="432" y1="284" x2="560" y2="284" stroke="#e8e8e8" stroke-width="2"/>
   <g class="mark">
     <polygon points="496,236 520,276 472,276" fill="none" stroke="#dc2626" stroke-width="1.4"/>
-    <text class="mono" x="496" y="312" text-anchor="middle" font-size="12" fill="#7a7672">stamp</text>
+    <text class="mono" x="496" y="312" text-anchor="middle" font-size="12" fill="#7a7672">install</text>
   </g>
 
   <g class="tgt t1">
@@ -110,5 +110,5 @@
     <text class="mono" x="660" y="404" font-size="13" fill="#7a7672">native tools · no MCP subprocess</text>
   </g>
 
-  <text class="mono ft" x="56" y="508" font-size="14" fill="#7a7672">One product. Three surfaces. The engine lives in the MCP.</text>
+  <text class="mono ft" x="56" y="508" font-size="14" fill="#7a7672">One source. Three surfaces. The engine lives in the MCP.</text>
 </svg>

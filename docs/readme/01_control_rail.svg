@@ -74,7 +74,7 @@
     <text class="mono" x="844" y="77" text-anchor="middle" font-size="13" fill="#7a7672">/pn</text>
     <rect x="900" y="56" width="88" height="32" rx="2" fill="#0e0e0e" stroke="#686868" stroke-width="1"/>
     <text class="mono" x="944" y="77" text-anchor="middle" font-size="13" fill="#7a7672">pi</text>
-    <text class="mono" x="994" y="112" text-anchor="end" font-size="12" fill="#686868">surfaces, not engines</text>
+    <text class="mono" x="994" y="112" text-anchor="end" font-size="12" fill="#686868">same steps, two entry points</text>
   </g>
 
   <line class="rail" x1="80" y1="292" x2="1040" y2="292" stroke="#686868" stroke-width="8" stroke-linecap="square"/>
@@ -93,7 +93,7 @@
     <rect x="464" y="248" width="160" height="88" rx="4" fill="#0e0e0e" stroke="#dc2626" stroke-width="2"/>
     <text class="pix" x="544" y="288" text-anchor="middle" font-size="10" fill="#e8e8e8">GATE</text>
     <text class="mono" x="544" y="312" text-anchor="middle" font-size="12" fill="#dc2626">skeptic</text>
-    <rect class="cur" x="612" y="268" width="8" height="20" fill="#e8e8e8"/>
+    <rect class="cur" x="612" y="268" width="8" height="20" fill="#e8e8e8" opacity="0.85"/>
   </g>
   <g class="nd n4">
     <rect x="672" y="252" width="144" height="80" rx="4" fill="#0e0e0e" stroke="#e8e8e8" stroke-width="1.2"/>
@@ -106,7 +106,7 @@
     <text class="mono" x="936" y="312" text-anchor="middle" font-size="12" fill="#7a7672">review</text>
   </g>
 
-  <text class="mono ft" x="80" y="420" font-size="14" fill="#7a7672">skip is a gate, not a vibe</text>
-  <text class="mono ft" x="80" y="448" font-size="14" fill="#7a7672">the plugin is the IDE surface · the MCP owns sequencing</text>
+  <text class="mono ft" x="80" y="420" font-size="14" fill="#7a7672">skipping a step takes a state key, not a guess</text>
+  <text class="mono ft" x="80" y="448" font-size="14" fill="#7a7672">MCP runs the steps · plugin adds the / palette in Cursor</text>
   <text class="mono ft" x="80" y="500" font-size="13" fill="#686868">_pn</text>
 </svg>

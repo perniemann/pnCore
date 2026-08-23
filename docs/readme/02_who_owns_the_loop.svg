@@ -2,7 +2,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 600" width="1120" height="600"
      role="img" aria-labelledby="loop-title loop-desc">
   <title id="loop-title">Who owns the loop</title>
-  <desc id="loop-desc">Left: one chat owns the whole SDLC with no seams and no named done. Right: workflow_step owns sequencing; agents are bounded, gated nodes. Same models, same repo; the difference is who owns the step list.</desc>
+  <desc id="loop-desc">Left: a single chat plans, codes, and checks its own work with no checkpoint in between. Right: workflow_step runs one gated step at a time, with skeptic, human, or workflow_verify deciding pass or fail. Same models either way — the MCP keeps the state between calls.</desc>
   <defs>
     <style><![CDATA[
 
@@ -69,14 +69,14 @@
   <g class="left">
     <rect x="48" y="100" width="496" height="400" rx="4" fill="none" stroke="#2a2a2a" stroke-width="1" stroke-dasharray="6 5"/>
     <text class="pix" x="296" y="140" text-anchor="middle" font-size="11" fill="#7a7672">THE CHAT</text>
-    <text class="mono" x="296" y="164" text-anchor="middle" font-size="13" fill="#686868">prompt → hope</text>
+    <text class="mono" x="296" y="164" text-anchor="middle" font-size="13" fill="#686868">no checkpoints in between</text>
     <rect x="176" y="200" width="240" height="88" rx="4" fill="#0e0e0e" stroke="#7a7672" stroke-width="1.2"/>
-    <text class="mono" x="296" y="240" text-anchor="middle" font-size="14" fill="#e8e8e8">one transcript</text>
-    <text class="mono" x="296" y="264" text-anchor="middle" font-size="12" fill="#7a7672">plans, builds, grades itself</text>
-    <text class="mono" x="80" y="340" font-size="13" fill="#7a7672">x  no phase boundary</text>
-    <text class="mono" x="80" y="368" font-size="13" fill="#7a7672">x  done = the agent stopped</text>
-    <text class="mono" x="80" y="396" font-size="13" fill="#7a7672">x  retry is a cold start</text>
-    <text class="mono" x="80" y="424" font-size="13" fill="#7a7672">x  run twice, two systems</text>
+    <text class="mono" x="296" y="240" text-anchor="middle" font-size="14" fill="#e8e8e8">single session</text>
+    <text class="mono" x="296" y="264" text-anchor="middle" font-size="12" fill="#7a7672">plans, codes, checks its own work</text>
+    <text class="mono" x="80" y="340" font-size="13" fill="#7a7672">x  no named steps</text>
+    <text class="mono" x="80" y="368" font-size="13" fill="#7a7672">x  nothing marks it done</text>
+    <text class="mono" x="80" y="396" font-size="13" fill="#7a7672">x  retry means a new chat</text>
+    <text class="mono" x="80" y="424" font-size="13" fill="#7a7672">x  two runs, two different results</text>
   </g>
   <path class="loop" d="M176,244 C120,244 120,184 296,184 C472,184 472,244 416,244"
         fill="none" stroke="#686868" stroke-width="1.6"/>
@@ -84,7 +84,7 @@
   <g class="right">
     <rect x="576" y="100" width="496" height="400" rx="4" fill="none" stroke="#2a2a2a" stroke-width="1"/>
     <text class="pix" x="824" y="140" text-anchor="middle" font-size="11" fill="#e8e8e8">THE MCP</text>
-    <text class="mono" x="824" y="164" text-anchor="middle" font-size="13" fill="#7a7672">agents are bounded nodes</text>
+    <text class="mono" x="824" y="164" text-anchor="middle" font-size="13" fill="#7a7672">each agent runs one gated step</text>
   </g>
   <line class="rr" x1="608" y1="244" x2="1040" y2="244" stroke="#686868" stroke-width="6" stroke-linecap="square"/>
   <g class="rn r1">
@@ -109,10 +109,10 @@
   </g>
   <g class="right">
     <text class="mono" x="608" y="340" font-size="13" fill="#e8e8e8">+  every step named</text>
-    <text class="mono" x="608" y="368" font-size="13" fill="#e8e8e8">+  skeptic / human / verify</text>
-    <text class="mono" x="608" y="396" font-size="13" fill="#e8e8e8">+  state save, then load</text>
-    <text class="mono" x="608" y="424" font-size="13" fill="#e8e8e8">+  run twice, same shape</text>
+    <text class="mono" x="608" y="368" font-size="13" fill="#e8e8e8">+  skeptic / human / verify decide</text>
+    <text class="mono" x="608" y="396" font-size="13" fill="#e8e8e8">+  save state, resume later</text>
+    <text class="mono" x="608" y="424" font-size="13" fill="#e8e8e8">+  reruns follow the same steps</text>
   </g>
 
-  <text class="mono vd" x="560" y="548" text-anchor="middle" font-size="14" fill="#e8e8e8">Same models. Same repo. The difference is who owns the step list.</text>
+  <text class="mono vd" x="560" y="548" text-anchor="middle" font-size="14" fill="#e8e8e8">Same models either way. The MCP just keeps the state between calls.</text>
 </svg>
