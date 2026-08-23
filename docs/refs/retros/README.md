@@ -5,7 +5,7 @@ Blameless retrospectives of pnCore sessions, produced by the [`pn-session-retro`
 ## What lives here
 
 - `_template.md` — starting point copied for every new retro.
-- `YYYY-MM-DD-<short-slug>.md` — one report per session (or per re-review).
+- `YYYY-MM-DD-<short-slug>.md` — one report per session (or per re-review). Do not commit retros that name client or private project workspaces.
 - Empty `## Detected mistakes` tables are valid: clean-session retros are evidence for the quarterly skill/rule audit per [ADR-0002](../../adr/0002-skill-rule-audit-cadence.md).
 
 ## How to read a retro

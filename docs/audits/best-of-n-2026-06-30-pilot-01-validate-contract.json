@@ -15,7 +15,7 @@
     },
     {
       "id": "path-b",
-      "worktree": ".worktrees/bon-pilot-01-path-b-a1b2c3d4",
+      "worktree": ".worktrees/bon-pilot-01-path-b",
       "summary": "Happy-path optimized: schema compiled once, first-error fast fail, worktree-aware schema discovery via git worktree list",
       "constraint": "Optimize happy path",
       "model": "gpt-5.3-codex",

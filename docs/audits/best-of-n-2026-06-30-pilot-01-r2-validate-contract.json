@@ -15,7 +15,7 @@
     },
     {
       "id": "path-b",
-      "worktree": ".worktrees/bon-pilot-01-r2-path-b-a1b2c3d4",
+      "worktree": ".worktrees/bon-pilot-01-r2-path-b",
       "summary": "Fast first-error CLI as validate-best-of-n.mjs (spec name mismatch)",
       "constraint": "Optimize happy path",
       "model": "gpt-5.3-codex",

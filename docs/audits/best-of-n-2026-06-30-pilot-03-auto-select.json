@@ -14,7 +14,7 @@
     },
     {
       "id": "path-b",
-      "worktree": ".worktrees/bon-pilot-03-path-b-a1b2c3d4",
+      "worktree": ".worktrees/bon-pilot-03-path-b",
       "summary": "Single-pass resolveBestOfNSelection + CLI; best-of-n-contract-lib.mjs split; 6 tests",
       "constraint": "Optimize happy path",
       "model": "gpt-5.3-codex",

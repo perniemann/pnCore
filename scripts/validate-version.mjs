@@ -29,6 +29,7 @@ const checks = [
   { path: "plugins/pnCore/.cursor-plugin/plugin.json", get: (j) => j.version },
   { path: ".cursor-plugin/plugin.json", get: (j) => j.version },
   { path: "packages/pn-core-mcp/package.json", get: (j) => j.version },
+  { path: "plugins/pnCore/package.json", get: (j) => j.version },
   { path: ".cursor-plugin/marketplace.json", get: (j) => j.metadata?.version },
 ];
 

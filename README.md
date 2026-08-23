@@ -2,7 +2,7 @@
   <img src="plugins/pnCore/assets/pn-logo.svg" width="176" alt="pnCore" />
 </p>
 
-# pnCore — v0.18.6
+# pnCore — v0.18.7
 
 pnCore is an MCP server and Cursor plugin. It runs software delivery as a sequence of named, gated steps instead of one long chat.
 
@@ -70,7 +70,7 @@ Or add manually to `~/.cursor/mcp.json`:
 }
 ```
 
-`GIT_TERMINAL_PROMPT=0` and `GIT_ASKPASS=echo` fail fast when git cannot authenticate (this repo is private). Without them, a credential prompt on piped stdin leaves Cursor in a forever loading state.
+`GIT_TERMINAL_PROMPT=0` and `GIT_ASKPASS=echo` fail fast when git cannot authenticate (missing credentials, rate limit, or a bad URL). Without them, a credential prompt on piped stdin leaves Cursor in a forever loading state.
 
 ### Cursor — Plugin
 
@@ -193,7 +193,7 @@ Load before a build session: `pn-core://reference/best-practices.md`, `pn-core:/
 |-----------|--------------|------------|
 | A one-line typo fix | The workflow overhead isn't worth it | Ask directly, skip `workflow_step` |
 | Plugin without MCP | Slash templates only — no `workflow_step` engine | Install MCP for Cursor, or both |
-| First npx on a private git URL | Cursor MCP can time out on a cold clone | Pre-warm once, then reload. Matrix: [MCP README](packages/pn-core-mcp/README.md#troubleshooting-mcp-wont-connect-in-cursor) |
+| First npx on a git+https package URL | Cursor MCP can time out on a cold clone | Pre-warm once, then reload. Matrix: [MCP README](packages/pn-core-mcp/README.md#troubleshooting-mcp-wont-connect-in-cursor) |
 | `feature_program` / `bestOfN` | Preview flags; off by default | Set `featureProgram: true` or `bestOfN.enabled: true` |
 | Vue, Svelte, Angular, Unity | Limited support | Prefer React, Astro, Next, vanilla web, Node, Three.js / Babylon, n8n, web3 |
 

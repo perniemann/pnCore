@@ -4,7 +4,7 @@
 
 Accepted — 2026-07-04 (Pi extension menu amended 2026-07-06, v0.17.1+)
 
-Supersedes [ADR-0007](0007-command-palette-pm-router.md) (never merged; PM-router approach abandoned).
+Supersedes ADR-0007 (`command-palette-pm-router`; never merged; number retired). Do not reuse `0007`.
 
 ## Context
 

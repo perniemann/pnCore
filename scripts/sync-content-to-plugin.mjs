@@ -129,16 +129,20 @@ for (const dir of dirs) {
 
 // Pi package manifest (pi.dev package install — skills only; /pn menu via root extension)
 const piPackagePath = join(pluginRoot, "package.json");
+const rootVersion = JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf8")).version;
 if (existsSync(piPackagePath)) {
   const pluginPkg = JSON.parse(readFileSync(piPackagePath, "utf8"));
-  writeFileSync(piPackagePath, JSON.stringify(applyPluginPiManifest(pluginPkg), null, 2) + "\n");
+  writeFileSync(
+    piPackagePath,
+    JSON.stringify(applyPluginPiManifest({ ...pluginPkg, version: rootVersion }), null, 2) + "\n"
+  );
 } else {
   writeFileSync(
     piPackagePath,
     JSON.stringify(
       applyPluginPiManifest({
         name: "pn-core-plugin",
-        version: "0.15.0",
+        version: rootVersion,
         private: true,
         description:
           "pnCore plugin — Pi skills and command templates for /pn menu (Cursor plugin ships separately)",
