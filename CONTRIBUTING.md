@@ -86,6 +86,10 @@ Skill authoring: [packages/pn-core-mcp/content/skills/README.md](packages/pn-cor
 
 After editing `packages/pn-core-mcp/content/`, run `npm run sync:content` before commit. CI runs `npm run test:full` on content changes.
 
+## Security
+
+Report vulnerabilities via [SECURITY.md](SECURITY.md). Do not file public issues for security reports.
+
 ## Escalation
 
 - Open an issue or discussion on the project tracker with scope, spec vs observed behavior, and exact repro or verification command.

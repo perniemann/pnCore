@@ -49,6 +49,14 @@ if (existsSync(mcpPkgPath)) {
   console.log("Synced version to packages/pn-core-mcp/package.json");
 }
 
+const pluginPkgPath = join(repoRoot, "plugins", "pnCore", "package.json");
+if (existsSync(pluginPkgPath)) {
+  const pluginPkg = JSON.parse(readFileSync(pluginPkgPath, "utf8"));
+  pluginPkg.version = version;
+  writeFileSync(pluginPkgPath, JSON.stringify(pluginPkg, null, 2) + "\n", "utf8");
+  console.log("Synced version to plugins/pnCore/package.json");
+}
+
 const marketplacePath = join(repoRoot, ".cursor-plugin", "marketplace.json");
 if (existsSync(marketplacePath)) {
   const marketplace = JSON.parse(readFileSync(marketplacePath, "utf8"));

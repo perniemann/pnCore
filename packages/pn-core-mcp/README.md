@@ -1,6 +1,6 @@
 # pn-core-mcp
 
-MCP server for [pnCore](https://github.com/perniemann/pnCore) **0.18.6**: same skills, agents, commands, and rules as the Cursor plugin, plus **`workflow_step`** and related tools. Use from any MCP client to run orchestration, discovery, skeptic, audits, assets, and other pnCore workflows without installing the plugin.
+MCP server for [pnCore](https://github.com/perniemann/pnCore) **0.18.7**: same skills, agents, commands, and rules as the Cursor plugin, plus **`workflow_step`** and related tools. Use from any MCP client to run orchestration, discovery, skeptic, audits, assets, and other pnCore workflows without installing the plugin.
 
 ## Installation
 
@@ -28,7 +28,7 @@ Add to your MCP config (e.g. `~/.cursor/mcp.json` or Cursor Settings → MCP):
 }
 ```
 
-`GIT_TERMINAL_PROMPT=0` and `GIT_ASKPASS=echo` stop git from blocking on a credential prompt when the package URL is a private repo (Cursor then shows an error instead of spinning forever). Override a TTY pre-warm exit with `PNCORE_MCP_ALLOW_TTY=1`.
+`GIT_TERMINAL_PROMPT=0` and `GIT_ASKPASS=echo` stop git from blocking on a credential prompt (Cursor then shows an error instead of spinning forever). Override a TTY pre-warm exit with `PNCORE_MCP_ALLOW_TTY=1`.
 
 **This pnCore checkout (Cursor Desktop):** use the committed [`.cursor/mcp.json`](../../.cursor/mcp.json) — `"command": "node"`, `"args": ["packages/pn-core-mcp/dist/index.js"]` — with cwd = repo root. That skips `npx` git clone. Do **not** append `node packages/…` after `npx`.
 
@@ -69,7 +69,7 @@ Then reload Cursor. `mcp-config:dev` writes your global `~/.cursor/mcp.json` (or
 | Module / zod errors in MCP log | **Node &lt; 22** or wrong major on PATH | Install Node 22+; set `PNCORE_MCP_NODE` to Node 22 binary |
 | `'pn-core' is not recognized` (Windows) | Old config without `--package=git+…` | Use current npx + `-- pn-core` config |
 | Terminal `npx … -- pn-core` sits forever with no output | Stdio server waiting on stdin | The bin now exits on a TTY after a stderr line (cache stays warm). Override: `PNCORE_MCP_ALLOW_TTY=1` |
-| Cursor tile stays **loading** then errors | Missing GitHub auth for the private git package, first clone &gt; timeout, or Cloud Agent still on injected npx | Add git credentials; Desktop: this repo’s `.cursor/mcp.json` `node` entry; Cloud Agents: set dashboard MCP to `node` + `packages/pn-core-mcp/dist/index.js`; pre-warm npx once |
+| Cursor tile stays **loading** then errors | Missing GitHub auth for the git+https package, first clone &gt; timeout, or Cloud Agent still on injected npx | Add git credentials if the registry requires them; Desktop: this repo’s `.cursor/mcp.json` `node` entry; Cloud Agents: set dashboard MCP to `node` + `packages/pn-core-mcp/dist/index.js`; pre-warm npx once |
 
 **Pre-warm npx (once per machine if first connect times out):**
 

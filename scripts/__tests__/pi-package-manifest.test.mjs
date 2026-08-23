@@ -33,3 +33,11 @@ test("root package.json pi block matches expected paths", () => {
   assert.equal(pkg.pi.extensions[0], ROOT_PI_EXTENSIONS);
   assert.equal(pkg.pi.prompts, undefined);
 });
+
+test("plugin package.json version matches root", () => {
+  const root = JSON.parse(readFileSync(join(repoRoot, "package.json"), "utf8"));
+  const plugin = JSON.parse(
+    readFileSync(join(repoRoot, "plugins", "pnCore", "package.json"), "utf8")
+  );
+  assert.equal(plugin.version, root.version);
+});

@@ -4,6 +4,17 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.18.7] - 2026-08-23
+
+### Changed
+
+- Plugin README MIT link now points at the repo-root `LICENSE`.
+- Plugin `package.json` version is kept in lockstep with the root package (0.18.7).
+
+### Security
+
+- Added repo-root `SECURITY.md` (private vulnerability reporting).
+
 ## [0.18.6] - 2026-08-23
 
 ### Fixed
