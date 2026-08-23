@@ -45,6 +45,47 @@ Product stance: we borrow **lifecycle and governance discipline** from agent-pro
 
 After a session that felt off (user corrections, reverted work, skipped verification, hallucinated paths), invoke `/pn-retro` (skill: [`pn-session-retro`](packages/pn-core-mcp/content/skills/learning/pn-session-retro/SKILL.md)) to produce a blameless retrospective. Reports land under [`docs/refs/retros/`](docs/refs/retros/README.md) and feed the quarterly skill/rule audit per [ADR-0002](docs/adr/0002-skill-rule-audit-cadence.md).
 
+## Scripts
+
+From repo root (Node 22+):
+
+| Script | Description |
+|--------|-------------|
+| `npm run setup` | Install deps, build MCP, configure git hooks |
+| `npm run build:mcp` | Compile `packages/pn-core-mcp` |
+| `npm run sync:content` | Sync canonical `content/` → `plugins/pnCore/` |
+| `npm run validate` | Format check + plugin/workflow/skill validators |
+| `npm run test:full` | CI parity: lint, sync, build, coverage, script tests, npx smoke, validate |
+| `npm run mcp-config:portable` | Contributor convenience: write npx git entry to `~/.cursor/mcp.json` |
+| `npm run mcp-config:dev` | DEV ONLY: local absolute `node` path for this clone |
+| `npm run mcp-pin` | Rebuild MCP and refresh dev MCP config |
+| `npm run check:mcp` | Validate pn-core MCP config (flags non-portable paths) |
+| `npm run smoke:npx-mcp` | Smoke test npx git install connect + health |
+| `npm run bench` | CPU baseline check (`bench:write` to persist) |
+| `npm run measure-tokens` | Token budget capture (`measure-tokens:write` to persist) |
+| `npm run dashboard` | Local metrics dashboard at `http://localhost:4173/` |
+
+Repo layout: [docs/folder-structure.md](docs/folder-structure.md).
+
+## Developing pnCore
+
+Clone and develop locally (contributors only):
+
+```bash
+git clone https://github.com/perniemann/pnCore.git
+cd pnCore
+npm run setup              # install deps + build MCP
+npm run mcp-config:dev     # DEV ONLY: local absolute node path (this machine)
+```
+
+For portable install on any machine, use the **one-click deeplink** or MCP JSON in the [root README](README.md#install) — not `mcp-config:dev`.
+
+Reload Cursor after changing MCP config. After upgrades on a dev checkout, re-run `npm run build:mcp` and reload. The server uses stdio transport only.
+
+Skill authoring: [packages/pn-core-mcp/content/skills/README.md](packages/pn-core-mcp/content/skills/README.md). Commits: [docs/commits.md](docs/commits.md). ADRs: [docs/adr/](docs/adr/). Session retros: `/pn-retro` → `docs/refs/retros/`.
+
+After editing `packages/pn-core-mcp/content/`, run `npm run sync:content` before commit. CI runs `npm run test:full` on content changes.
+
 ## Escalation
 
 - Open an issue or discussion on the project tracker with scope, spec vs observed behavior, and exact repro or verification command.

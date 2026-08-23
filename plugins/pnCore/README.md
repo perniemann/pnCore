@@ -1,6 +1,6 @@
 # pnCore (plugin)
 
-Cursor plugin for **pnCore 0.18.4**: rules, skills, agents, and commands for Node, React, Astro, Next.js, vanilla web, CI, n8n, Three.js, shaders, web3, Figma, Blender, and Unreal. Overview: [repo README](https://github.com/perniemann/pnCore). Full catalog: [docs/plugin-reference.md](https://github.com/perniemann/pnCore/blob/main/docs/plugin-reference.md).
+Cursor plugin for **pnCore 0.18.5**: rules, skills, agents, and commands for Node, React, Astro, Next.js, vanilla web, CI, n8n, Three.js, shaders, web3, Figma, Blender, and Unreal. User-facing orientation: [why it exists](https://github.com/perniemann/pnCore#why-this-exists), [install](https://github.com/perniemann/pnCore#install), [workflows](https://github.com/perniemann/pnCore#workflows). Full catalog: [docs/plugin-reference.md](https://github.com/perniemann/pnCore/blob/main/docs/plugin-reference.md). This file is the plugin operator note.
 
 ## Install
 
@@ -50,7 +50,7 @@ The same workflows are available as an MCP server for any client: **26 tools** (
 
 ## Scripts
 
-Full script table (validate, build, sync, MCP config, etc.): [repo README — Scripts](https://github.com/perniemann/pnCore#scripts). For **plugin folder** work from a clone:
+Full script table (validate, build, sync, MCP config, etc.): [CONTRIBUTING.md — Scripts](https://github.com/perniemann/pnCore/blob/main/CONTRIBUTING.md#scripts). For **plugin folder** work from a clone:
 
 - `npm run validate` (repo root) — includes content/plugin sync check.
 - `node scripts/validate-plugin-lib.mjs plugins/pnCore` — plugin manifest and paths only.
