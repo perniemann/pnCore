@@ -125,5 +125,5 @@
     <text class="mono" x="962" y="196" text-anchor="middle" font-size="12" fill="#7a7672">/pn-deliver</text>
   </g>
 
-  <text class="mono ft" x="56" y="512" font-size="14" fill="#7a7672">Status defaults to fail. A clean gate earns the next step. Resume with workflow_state_load.</text>
+  <text class="mono ft" x="56" y="512" font-size="14" fill="#7a7672">A step only counts once its gate passes. Resume with workflow_state_load.</text>
 </svg>
