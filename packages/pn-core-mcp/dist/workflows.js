@@ -32,7 +32,7 @@ const designSteps = [
         tierRationale: "Structured design Q&A presentation; synthesis happens in step 1.",
     },
     {
-        instruction: "Load pn-core://reference/design-intent.md. Emit Design Read one-liner and tuning dials (DESIGN_VARIANCE, MOTION_INTENSITY, VISUAL_DENSITY). From discoverySpec, produce a design plan (Design Read + dials, page mode, typography, tokens, components). Reference get_skill('pn-frontend-design-philosophy') Phase 0 then Phase 1–3. REQUIRED: run get_skill('pn-skeptic-challenge') on the plan — output both plan and skeptic verdict. After user confirms, call workflow_step(step=2) with state: { plan, skepticPassed: <gate record from workflow_confirm>, skepticVerdict }." +
+        instruction: "Load pn-core://reference/design-intent.md. Emit Design Read one-liner and tuning dials (DESIGN_VARIANCE, MOTION_INTENSITY, VISUAL_DENSITY). If narrative intent is present (user asked for a scroll-told story, Design Read is editorial scroll-story, or the brief names a scroll narrative), load get_skill('pn-scroll-narrative') and emit a Narrative Map; do not load it because MOTION_INTENSITY is high. From discoverySpec, produce a design plan (Design Read + dials, narrative-intent yes/no, page mode, typography, tokens, components). Reference get_skill('pn-frontend-design-philosophy') Phase 0 then Phase 1–3. REQUIRED: run get_skill('pn-skeptic-challenge') on the plan — output both plan and skeptic verdict. After user confirms, call workflow_step(step=2) with state: { plan, skepticPassed: <gate record from workflow_confirm>, skepticVerdict }." +
             GATE_STATE_FROM_CONFIRM,
         gate: "human",
         nextStep: 2,
@@ -49,7 +49,7 @@ const designSteps = [
         tierRationale: "Mechanical asset taxonomy fan-out; image generation is offloaded.",
     },
     {
-        instruction: "Build the design using get_skill('pn-frontend-design'), get_skill('pn-frontend-design-philosophy'), get_skill('pn-frontend-scaffolding'). If discoverySpec specifies a component library, enforce library-first via get_skill('pn-ui-component-libraries'). Apply best practices (pn-core://reference/best-practices.md). When page mode is Portfolio, Product marketing, or Editorial, run get_command('pn-preflight') (studio tier if embedded-studio DNA applies); do not complete on SHIP: NO-GO. When done, call workflow_step(step=4) with state: { buildComplete: true }.",
+        instruction: "Build the design using get_skill('pn-frontend-design'), get_skill('pn-frontend-design-philosophy'), get_skill('pn-frontend-scaffolding'). If narrative intent is present, also load get_skill('pn-scroll-narrative') and run get_skill('pn-evidence-qa') timeline sampling; do not use the pn-landing-page SaaS recipe for that page. If discoverySpec specifies a component library, enforce library-first via get_skill('pn-ui-component-libraries'). Apply best practices (pn-core://reference/best-practices.md). When page mode is Portfolio, Product marketing, or Editorial, run get_command('pn-preflight') (studio tier if embedded-studio DNA applies; emit N-01–N-04 when narrative intent applies); do not complete on SHIP: NO-GO. When done, call workflow_step(step=4) with state: { buildComplete: true }.",
         gate: "model",
         nextStep: 4,
         requiredFromState: ["plan", "skepticPassed", "skepticVerdict", "assetsComplete"],

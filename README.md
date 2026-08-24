@@ -12,7 +12,7 @@ pnCore is an MCP server and Cursor plugin. It runs software delivery as a sequen
 
 It ships discovery, planning, skeptic challenge, design, audits, assets, and delivery through a deterministic `workflow_step` engine — backed by skills, agents, rules, and `pn-core://` resources, not a folder of prompts.
 
-**Catalog:** 170 skills, 9 public agents + 6 internal orchestration agents, 31 visible slash palette files (30 under **`pn`** submenu + **`/pn`** stub) + 18 palette-hidden surgical commands (49 command files total), 26 MCP tools, 16 workflow types, plus `pn-core://` resources and prompts.
+**Catalog:** 171 skills, 9 public agents + 6 internal orchestration agents, 31 visible slash palette files (30 under **`pn`** submenu + **`/pn`** stub) + 18 palette-hidden surgical commands (49 command files total), 26 MCP tools, 16 workflow types, plus `pn-core://` resources and prompts.
 
 ---
 
