@@ -28,7 +28,7 @@ Emit a table:
 |----|-------|-----------|-------------|
 | P-01 | … | PASS | — |
 
-End with: **`SHIP: GO`** (all PASS) or **`SHIP: NO-GO`** (any FAIL on P-01–P-15).
+End with: **`SHIP: GO`** (all PASS) or **`SHIP: NO-GO`** (any FAIL on P-01–P-15, or on N-01–N-04 when narrative intent applies).
 
 ---
 
@@ -94,6 +94,21 @@ When `pn-design-dna` or `pn-embedded-studio-dna` applies, also verify:
 - Register (commercial vs lab) stated once; no accidental register mix.
 - Case studies include evidence strip (who / role / stack / proof).
 - Embeds: title on iframe, no autoplay audio without gesture; reduced-motion poster path.
+
+---
+
+## Narrative addendum (N-01–N-04)
+
+Apply **only** when **narrative intent** is present (`pn-core://reference/design-intent.md` §2b). High `MOTION_INTENSITY` alone does **not** activate this table. Agency and designer-portfolio presets stay on P-01–P-15 unless the Design Read or user asked for a scroll-told story.
+
+| ID | Check | FAIL when |
+|----|-------|-----------|
+| N-01 | Narrative Map present | Missing beats, feeling sequence, one peak, or remembered interaction |
+| N-02 | One peak | Two or more competing peaks, or no remember-sentence |
+| N-03 | Timeline samples | Scroll-driven deliverable has no contact-strip samples. **Skip allowed only when the motion map lists zero scroll triggers.** A free-text “no scroll-driven motion” line is not enough. |
+| N-04 | Reduced-motion comprehensible | Motion off leaves content missing, blank, or unreadable. Defer mechanics to `pn-animation` (end state visible; `gsap.matchMedia` / `animation-timeline: auto`). |
+
+Remembered-interaction quality (not a retuned stagger) is a `pn-scroll-narrative` skill rule, not a ship-blocker.
 
 ---
 

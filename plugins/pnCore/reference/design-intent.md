@@ -12,7 +12,7 @@ Canonical brief-inference and tuning surface for **landing pages, portfolios, an
 
 Read signals **before** choosing fonts or layout:
 
-1. **Page kind** — landing (SaaS / consumer / agency), portfolio (dev / designer / studio), redesign (preserve vs overhaul), editorial / blog.
+1. **Page kind** — landing (SaaS / consumer / agency), portfolio (dev / designer / studio), redesign (preserve vs overhaul), editorial / blog, **editorial scroll-story** (scroll-told narrative; not a default blog or SaaS landing).
 2. **Vibe words** — e.g. minimalist, Linear-style, brutalist, premium consumer, playful, public-sector, agency.
 3. **References** — URLs, screenshots, named products.
 4. **Audience** — who judges the surface (buyer, recruiter, consumer).
@@ -29,6 +29,7 @@ Examples:
 
 - `Reading this as: B2B SaaS landing for technical buyers, with a Linear-style minimalist language, leaning toward shadcn + restrained motion.`
 - `Reading this as: designer portfolio for hiring managers, with an editorial kinetic-type language, leaning toward native CSS + scroll-driven motion.`
+- `Reading this as: editorial scroll-story for gallery visitors, with a documentary chaptered language, leaning toward CSS scroll-driven motion.`
 
 ### Ambiguity
 
@@ -85,6 +86,24 @@ Persist optional defaults in `.pncore-design.md` under **Tuning dials** (see tem
 
 ---
 
+## 2b. Narrative intent (scroll-told stories)
+
+`MOTION_INTENSITY` measures how loud motion is. It does **not** decide whether the page is a scroll-told story. Agency landings default to motion **8** and designer portfolios to **7**; those presets stay on `get_skill("pn-landing-page")` unless narrative intent is present.
+
+**Narrative intent** is present when any one of these is true:
+
+- The user asks for a scroll-told story, scrollytelling, a pin/scrub film, or “not a SaaS template landing.”
+- Design Read page kind is **editorial scroll-story**.
+- Discovery or the brief names a scroll narrative as the deliverable.
+
+When narrative intent is present: emit a **Narrative Map** (beats, feeling sequence, one peak, remembered interaction) and load `get_skill("pn-scroll-narrative")`. Pre-ship adds N-01–N-04 (`pn-core://reference/marketing-ship-gate.md`).
+
+When MOTION is high but narrative intent is absent: stay on `pn-landing-page`. You may note “consider `pn-scroll-narrative` if the story is told by scroll.” Do **not** require the skill or the N-* table.
+
+If this repo’s last marketing page used the same open + close + peak device, change the plan. Do not keep a fingerprint registry.
+
+---
+
 ## 3. Aesthetic presets (optional shortcut)
 
 Lock **one** preset when discovery direction is already chosen; still emit Design Read + dials (may match preset skew).
@@ -119,6 +138,6 @@ Marketing UI often mixes **Product** (marketing) + **Portfolio** sections; flag 
 
 | Step | Action |
 |------|--------|
-| Plan | Load this file → Design Read + dials → philosophy Phase 1 |
-| Build | `pn-frontend-design` + stack skills |
-| Pre-ship | `get_command("pn-preflight")` when page mode is Portfolio, Product marketing, or Editorial |
+| Plan | Load this file → Design Read + dials → narrative intent check → philosophy Phase 1 |
+| Build | `pn-frontend-design` + stack skills; `pn-scroll-narrative` only when narrative intent is present |
+| Pre-ship | `get_command("pn-preflight")` when page mode is Portfolio, Product marketing, or Editorial; add N-01–N-04 when narrative intent is present |
