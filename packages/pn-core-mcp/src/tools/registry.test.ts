@@ -13,9 +13,9 @@ function typeboxPropertyKeys(schema: TSchema): string[] {
 }
 
 describe("PN_CORE tool registry", () => {
-  it("exports 26 tools with matching TypeBox schemas", () => {
-    expect(PN_CORE_TOOLS).toHaveLength(26);
-    expect(PN_CORE_TOOL_NAMES).toHaveLength(26);
+  it("exports 27 tools with matching TypeBox schemas", () => {
+    expect(PN_CORE_TOOLS).toHaveLength(27);
+    expect(PN_CORE_TOOL_NAMES).toHaveLength(27);
     for (const tool of PN_CORE_TOOLS) {
       expect(typeboxSchemas[tool.name]).toBeDefined();
       expect(tool.name).toBe(tool.name.toLowerCase());
@@ -34,6 +34,7 @@ describe("PN_CORE tool registry", () => {
     const names = new Set(PN_CORE_TOOLS.map((t) => t.name));
     for (const required of [
       "health",
+      "project_context",
       "list_skills",
       "get_skill",
       "get_command",

@@ -1,6 +1,6 @@
 /**
  * Per-tool integration tests via StdioClientTransport.
- * Covers all 26 tools: one happy-path + one negative case each.
+ * Covers all 27 tools: one happy-path + one negative case each.
  * Negatives assert the unified error envelope: { isError: true, content: [{ type: "text", text: JSON({ code, error }) }] }
  * Depends on: F1.1 (error envelope shape), F1.4 (list_agents cardinality)
  */
@@ -70,6 +70,29 @@ describe("MCP per-tool integration", () => {
       arguments: { typoArg: "isIgnored" },
     });
     expect(result.isError).toBeFalsy();
+  });
+
+  // ── project_context ─────────────────────────────────────────────────────
+  it("project_context: operator mode returns counts packet", async () => {
+    const result = await client.callTool({
+      name: "project_context",
+      arguments: { mode: "operator" },
+    });
+    const parsed = parseFirst(result);
+    expect(parsed.mode).toBe("operator");
+    expect(typeof parsed.counts).toBe("object");
+    expect(parsed.context_index).toBeDefined();
+  });
+
+  it("project_context: agent mode includes artifacts array when index present", async () => {
+    const result = await client.callTool({
+      name: "project_context",
+      arguments: { mode: "agent", max_trail: 5 },
+    });
+    expect(result.isError).toBeFalsy();
+    const parsed = parseFirst(result);
+    expect(parsed.mode).toBe("agent");
+    expect(Array.isArray(parsed.artifacts)).toBe(true);
   });
 
   // ── list_workflow_types ──────────────────────────────────────────────────
