@@ -15,6 +15,7 @@
     "report:gates": "node scripts/report-gates.mjs",
     "check:content-sync": "node scripts/check-content-plugin-sync.mjs",
     "check:context-index": "node scripts/check-context-index.mjs",
+    "check:artifact-status": "node scripts/check-artifact-status.mjs",
     "migrate:context-index": "node scripts/migrate-context-index.mjs",
     "check:ac-traceability": "node scripts/check-ac-traceability.mjs",
     "check:changelog": "node scripts/validate-changelog.mjs",
