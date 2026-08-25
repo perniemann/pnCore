@@ -309,7 +309,13 @@ export function buildProjectContextPacket(opts = {}) {
     const maxTrail = Math.min(Math.max(opts.max_trail ?? 20, 1), 80);
     const { index, path: indexPath, present } = loadContextIndex(cwd);
     const activeRunId = opts.run_id?.trim() || readActiveRunId(cwd);
-    const artifacts = Array.isArray(index?.artifacts) ? index.artifacts : [];
+    const artifactsRaw = Array.isArray(index?.artifacts) ? index.artifacts : [];
+    const artifacts = artifactsRaw.filter((a) => !!a &&
+        typeof a === "object" &&
+        typeof a.id === "string" &&
+        typeof a.path === "string" &&
+        typeof a.type === "string" &&
+        ARTIFACT_TYPES.includes(a.type));
     const eventsByRunId = new Map();
     const runIds = new Set();
     for (const a of artifacts) {
@@ -321,13 +327,7 @@ export function buildProjectContextPacket(opts = {}) {
     for (const id of runIds) {
         eventsByRunId.set(id, loadRunEventsForCwd(id, cwd, 80));
     }
-    const reports = artifacts
-        .filter((a) => !!a &&
-        typeof a.id === "string" &&
-        typeof a.path === "string" &&
-        typeof a.type === "string" &&
-        ARTIFACT_TYPES.includes(a.type))
-        .map((a) => deriveArtifactStatus(a, cwd, eventsByRunId));
+    const reports = artifacts.map((a) => deriveArtifactStatus(a, cwd, eventsByRunId));
     const drift = reports.filter((r) => r.derived_status === "drift" || r.derived_status === "missing");
     const packet = {
         mode,

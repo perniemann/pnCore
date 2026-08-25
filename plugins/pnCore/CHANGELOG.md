@@ -4,6 +4,8 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.18.8] - 2026-08-25
+
 ### Added
 
 - **MCP `project_context`:** dual-mode cold-session packet (operator counts / agent artifacts + handoff and run-events trail). Bootstrap via `pn-mcp-proactive` and `/pn-setup` project-context.mdc.
