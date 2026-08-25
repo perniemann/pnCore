@@ -21,6 +21,11 @@ const workflowTypeSchema = Type.Union(WORKFLOW_TYPES.map((v) => Type.Literal(v))
 const runIdOpt = Type.Optional(Type.String({ description: "Workflow run_id from workflow_step; include for correlation" }));
 export const typeboxSchemas = {
     health: Type.Object({}),
+    project_context: Type.Object({
+        mode: Type.Optional(Type.Union([Type.Literal("operator"), Type.Literal("agent")])),
+        run_id: Type.Optional(Type.String()),
+        max_trail: Type.Optional(Type.Integer({ minimum: 1, maximum: 80 })),
+    }),
     list_workflow_types: Type.Object({}),
     suggest_model_tier: Type.Object({
         workflowType: Type.Optional(workflowTypeSchema),
