@@ -12,7 +12,7 @@ pnCore is an MCP server and Cursor plugin. It runs software delivery as a sequen
 
 It ships discovery, planning, skeptic challenge, design, audits, assets, and delivery through a deterministic `workflow_step` engine — backed by skills, agents, rules, and `pn-core://` resources, not a folder of prompts.
 
-**Catalog:** 170 skills, 9 public agents + 6 internal orchestration agents, 31 visible slash palette files (30 under **`pn`** submenu + **`/pn`** stub) + 18 palette-hidden surgical commands (49 command files total), 26 MCP tools, 16 workflow types, plus `pn-core://` resources and prompts.
+**Catalog:** 170 skills, 9 public agents + 6 internal orchestration agents, 31 visible slash palette files (30 under **`pn`** submenu + **`/pn`** stub) + 18 palette-hidden surgical commands (49 command files total), 27 MCP tools, 16 workflow types, plus `pn-core://` resources and prompts.
 
 ---
 
@@ -34,7 +34,7 @@ pnCore moves that step list out of the chat. `workflow_step(type, index, state)`
 
 **Gated.** Skeptic, human, and `workflow_verify` gates are built into the engine. Intent is `full auto`, `design focused`, or `involved` — involved means you approve discovery, plan, specialists, and review before they run.
 
-**Multi-surface.** One canonical tree in `packages/pn-core-mcp/content/`. The MCP runs the engine in any client. The Cursor plugin adds the `/` palette, file-glob rules, agent selector, and stop hook. Pi registers the same 26 tools natively.
+**Multi-surface.** One canonical tree in `packages/pn-core-mcp/content/`. The MCP runs the engine in any client. The Cursor plugin adds the `/` palette, file-glob rules, agent selector, and stop hook. Pi registers the same 27 tools natively.
 
 **Resumable.** Every run has a `run_id`. Handoff lines and usage land in JSONL. After a disconnect, load state and continue the same step list.
 
@@ -208,7 +208,7 @@ Load before a build session: `pn-core://reference/best-practices.md`, `pn-core:/
 | [docs/how-to-use-guide.md](docs/how-to-use-guide.md) | Copy-paste prompts, example flows, MCP-only bootstrap |
 | [docs/mcp-usage-guide.md](docs/mcp-usage-guide.md) | MCP tools, resources, workflow patterns, state/handoff |
 | [docs/plugin-reference.md](docs/plugin-reference.md) | Rules, skills, agents, commands, hooks |
-| [packages/pn-core-mcp/README.md](packages/pn-core-mcp/README.md) | MCP config, 26 tools, env vars, error codes, resources |
+| [packages/pn-core-mcp/README.md](packages/pn-core-mcp/README.md) | MCP config, 27 tools, env vars, error codes, resources |
 | [docs/companion-mcp-catalog.md](docs/companion-mcp-catalog.md) | Companion MCPs (Octocode, Stripe, n8n, …) |
 | [docs/pitch-to-app-example.md](docs/pitch-to-app-example.md) | End-to-end pitch-to-app walkthrough |
 | [packages/pn-core-mcp/content/docs/starting-new-project.md](packages/pn-core-mcp/content/docs/starting-new-project.md) | Kickoff and `docs/refs/` setup |

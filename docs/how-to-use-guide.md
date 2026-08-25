@@ -12,7 +12,7 @@ User-facing orientation (why it exists, install, workflows, honest edges): [root
 | Mode | What you get |
 |------|----------------|
 | **Plugin** | Slash commands, file-glob rules, hooks |
-| **MCP** | 26 tools, `pn-core://` resources, prompts (agent/command templates); control flow via **`workflow_step`** — see [MCP usage guide](mcp-usage-guide.md) |
+| **MCP** | 27 tools, `pn-core://` resources, prompts (agent/command templates); control flow via **`workflow_step`** — see [MCP usage guide](mcp-usage-guide.md) |
 | **Together** | Run both when you want rules plus deterministic workflow tools |
 
 Deeper orientation: [Plugin reference](plugin-reference.md).

@@ -301,7 +301,7 @@ pnCore is a **multi-surface product** built on one canonical content body (skill
 
 - **MCP (stdio)** — All executable logic lives in this server: the deterministic `workflow_step` engine plus the other tools, resources, and prompts. Works in any MCP client (Cursor, Claude Code, …).
 - **Cursor plugin** — Slash palette, file-glob rules, stop hook, agent selector. Same commands via `get_command`; rules via `get_rule`.
-- **Pi native extension** — `pi install git:…/pnCore` loads `packages/pn-core-mcp/extensions/pn-core.ts`, which registers the same 26 tools via `pi.registerTool()` (no subprocess MCP on Pi). See [ADR-0009](../../docs/adr/0009-pi-native-tools.md).
+- **Pi native extension** — `pi install git:…/pnCore` loads `packages/pn-core-mcp/extensions/pn-core.ts`, which registers the same 27 tools via `pi.registerTool()` (no subprocess MCP on Pi). See [ADR-0009](../../docs/adr/0009-pi-native-tools.md).
 
 Choose MCP for cross-client orchestration; add the Cursor plugin for native IDE UX; use `pi install` from repo root on [pi.dev](https://pi.dev) for prompts, skills, and native tools together.
 

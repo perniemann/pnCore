@@ -4,6 +4,13 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **MCP `project_context`:** dual-mode cold-session packet (operator counts / agent artifacts + handoff and run-events trail). Bootstrap via `pn-mcp-proactive` and `/pn-setup` project-context.mdc.
+- **context-index 1.3.0:** optional typed `artifacts` array; `npm run check:artifact-status` for attested derived status (no checkbox truth).
+- **sessionStart canary** (fail-open): `plugins/pnCore/scripts/pn-session-start-canary.mjs` — telemetry only; primary path remains `project_context`.
+- **`/pn-setup` Section E:** scaffold `docs/refs/context-index.json` + artifacts for adopters.
+
 ## [0.18.7] - 2026-08-23
 
 ### Changed
