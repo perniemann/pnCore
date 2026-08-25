@@ -55,4 +55,22 @@ for (const [key, rel] of Object.entries(pointers)) {
   }
 }
 
-console.log("context-index OK:", index.version, index.last_reviewed);
+const artifacts = Array.isArray(index.artifacts) ? index.artifacts : [];
+for (const art of artifacts) {
+  if (!art || typeof art !== "object") continue;
+  const rel = art.path;
+  if (typeof rel !== "string" || rel === "") {
+    fail(`Artifact "${art.id ?? "?"}" missing path`);
+  }
+  const abs = path.join(repoRoot, rel);
+  if (!fs.existsSync(abs)) {
+    fail(`Artifact "${art.id}" path does not exist: ${rel}`);
+  }
+}
+
+console.log(
+  "context-index OK:",
+  index.version,
+  index.last_reviewed,
+  `artifacts=${artifacts.length}`
+);

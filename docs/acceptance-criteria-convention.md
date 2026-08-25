@@ -20,6 +20,10 @@ Stable identifiers in PRDs and discovery specs so implementation, tests, and aut
 ### AC-1 (this repo)
 
 **AC-1:** Context index and repo validation pipeline stay wired: `docs/refs/context-index.json` lists `AC-1` under `acceptance_criteria_ids`, and the same id appears outside that file (see `scripts/check-ac-traceability.mjs`). CI runs `npm run validate`, which includes schema check + traceability.
+
+### AC-2 (this repo)
+
+**AC-2:** Cold-session project context is an MCP **pull** (`project_context` tool), not a `sessionStart` inject. `docs/refs/context-index.json` may list typed `artifacts`; derived completion requires attestations (`workflow_verify` / acceptance in `.pncore/run-events.jsonl`), never markdown checkboxes or authored `status: complete` alone. `npm run check:artifact-status` enforces that.
 - One criterion per ID; do not reuse IDs after removal (use a new number or document supersession in prose).
 
 ---
