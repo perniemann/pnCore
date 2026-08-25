@@ -54,13 +54,23 @@ Create **`docs/refs/README.md`**—a human-readable index of project documents. 
 
 4. **Save to:** **`docs/refs/README.md`**. Create **`docs/refs/`** if missing.
 
+5. **Update `docs/refs/context-index.json` (one catalog):** If the file exists (or create a minimal 1.3.0 index), refresh the `artifacts` array for files you just indexed:
+
+   - Types: `discovery` | `plan` | `prd` | `design` | `workflow` | `convention`
+   - Fields: `id`, `type`, `path`; optional `tracker`, `authored_status` (claim only), `run_id` (for attested completion)
+   - Do **not** invent a second index file. Do **not** set `authored_status: complete` unless a `run_id` with passing `workflow_verify` / acceptance exists.
+   - Bump `last_reviewed` to today's ISO date (`health` → `calendarDateUtc` when MCP is available).
+   - Run `npm run check:context-index` and `npm run check:artifact-status` when those scripts exist.
+
 ## Output
 
 - Index at **`docs/refs/README.md`**
+- Updated **`docs/refs/context-index.json`** `artifacts` when applicable
 - File path reported to user
 - Gate: "Refs index complete. Proceed?" Use ask_question or workflow_confirm when available.
 
 ## Integration
 
 - **`project_kickoff` (MCP):** Step 6 runs this after optional stack/MCP/UI docs
+- **`project_context` MCP tool:** Reads this catalog for cold-session packets
 - **Legacy layouts** that used `docs/REF-INDEX.md` may migrate by moving content into **`docs/refs/README.md`** for consistency with the engine
