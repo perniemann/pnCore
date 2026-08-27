@@ -1,6 +1,6 @@
 {
-  "version": "1.2.0",
-  "last_reviewed": "2026-07-03",
+  "version": "1.3.0",
+  "last_reviewed": "2026-08-25",
   "intent_source": "prd",
   "pointers": {
     "prd": null,
@@ -17,7 +17,29 @@
     "docs/",
     ".github/"
   ],
-  "acceptance_criteria_ids": ["AC-1"],
+  "acceptance_criteria_ids": ["AC-1", "AC-2"],
+  "artifacts": [
+    {
+      "id": "convention-ac",
+      "type": "convention",
+      "path": "docs/acceptance-criteria-convention.md"
+    },
+    {
+      "id": "convention-commits",
+      "type": "convention",
+      "path": "docs/commits.md"
+    },
+    {
+      "id": "convention-context-adopters",
+      "type": "convention",
+      "path": "docs/context-index-adopters.md"
+    },
+    {
+      "id": "workflow-state-schema",
+      "type": "workflow",
+      "path": "packages/pn-core-mcp/content/reference/workflow-state-schema.md"
+    }
+  ],
   "verify": [
     {
       "command": "npm run validate",
@@ -26,6 +48,10 @@
     {
       "command": "npm run check:context-index",
       "expect": "exit 0 — this index matches schema and pointer paths exist"
+    },
+    {
+      "command": "npm run check:artifact-status",
+      "expect": "exit 0 — artifact paths exist; no authored-complete without attestation"
     }
   ]
 }

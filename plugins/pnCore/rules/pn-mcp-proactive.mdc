@@ -9,11 +9,14 @@ When **pn-core MCP is available** and the user's task clearly matches a pn skill
 
 **Discovery:** Use `list_skills` or `list_agents` when unsure which id applies. Use `get_skill`, `get_agent`, `get_command`, or `get_rule` to load full content. Call `list_workflow_types` when the user asks "what workflows are available?"
 
+**Session start:** When pn-core MCP is available, call `project_context` (default `mode: "agent"`) once at the start of a coding session to load the cold-session packet (context-index artifacts, resume line, attested drift, recent handoff/run-events trail). Do not rely on Cursor `sessionStart` hook inject for this packet.
+
 **Quick map** (common intents):
 
 | User intent | pn-core id |
 |-------------|--------------|
 | Today's date (changelog, "as of", copyright) | `health` → use `calendarDateUtc` / `timestampUtc` |
+| Session start / resume / what is drifted | `project_context` (`mode: "agent"` default; `operator` for counts) |
 | New project or feature, kickoff | `get_command("pn-new")` |
 | Configure / onboard existing project | `get_command("pn-setup")` |
 | Full dev loop, multi-step feature | `workflow_step("full_dev", 0, {})` |

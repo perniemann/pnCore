@@ -14,6 +14,7 @@ import { VerifyPolicyError, assertSafeArgv, resolveSandboxBackend, sandboxLabel,
 import { appendRunEvent, newAttestationId, readRunEvents, } from "../verify-attest.js";
 import { readFileTail } from "../file-tail.js";
 import { appendWorkflowGateLog, createWorkflowGateLogEntry, validateWorkflowConfirmGate, } from "../workflow-gate-log.js";
+import { buildProjectContextPacket } from "../project-context.js";
 import { MCP_VERSION, appendSkillLoadLog, defaultGateLogPath, defaultHandoffPath, defaultHumanGateTicketsPath, defaultStatePath, defaultUsagePath, getContentMaxChars, handoffScanMaxBytes, HANDOFF_READ_MAX_LINES, HANDOFF_SUMMARY_MAX, mcpError, requiredHumanGateWorkflows, resolveSafePath, textContent, usageScanMaxBytes, debug, } from "./tool-runtime.js";
 function paperclipNotConfigured() {
     return mcpError("INVALID_STATE", "Paperclip not configured. Set PAPERCLIP_API_URL and PAPERCLIP_API_KEY.", { hint: "Get API key from Paperclip agent settings" });
@@ -47,6 +48,7 @@ export async function handleHealth() {
             "agents",
             "commands",
             "rules",
+            "project_context",
             "workflow_step",
             "workflow_confirm",
             "workflow_usage_totals",
@@ -65,6 +67,14 @@ export async function handleHealth() {
         ],
     };
     return textContent(JSON.stringify(status));
+}
+export async function handleProjectContext(args) {
+    const packet = buildProjectContextPacket({
+        mode: args.mode,
+        run_id: args.run_id,
+        max_trail: args.max_trail,
+    });
+    return textContent(JSON.stringify(packet));
 }
 export async function handleListWorkflowTypes() {
     const table = Object.fromEntries(PUBLIC_WORKFLOW_TYPES.map((k) => [k, { steps: workflowSteps[k].length }]));

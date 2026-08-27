@@ -8,6 +8,7 @@ import {
   getRuleSchema,
   getSkillSchema,
   healthSchema,
+  projectContextSchema,
   listAgentsSchema,
   listCommandsSchema,
   listRulesSchema,
@@ -37,6 +38,7 @@ import {
   handleGetRule,
   handleGetSkill,
   handleHealth,
+  handleProjectContext,
   handleListAgents,
   handleListCommands,
   handleListRules,
@@ -104,6 +106,14 @@ export const PN_CORE_TOOLS: ToolDefinition[] = [
     healthSchema,
     readOnly,
     handleHealth
+  ),
+  def(
+    "project_context",
+    "Project Context",
+    "Cold-session project context packet (MCP pull). mode=operator returns counts, resume line, active run_id, and drift; mode=agent (default) also lists context-index artifacts with attested derived status and recent workflow-handoff / run-events trail. Call at session start when pn-core MCP is available.",
+    projectContextSchema,
+    readOnly,
+    handleProjectContext
   ),
   def(
     "list_workflow_types",

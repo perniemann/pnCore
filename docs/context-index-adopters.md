@@ -5,14 +5,15 @@ updated: 2026-04-22
 
 # Adopting `context-index.json` in your project
 
-The context index is a small handoff manifest: semver, review date, pointers to workspace and product docs, optional PRD/discovery paths, optional acceptance-criteria ids, and suggested verify commands. pnCore validates its own index in CI; you can reuse the same pattern.
+The context index is a small handoff manifest: semver, review date, pointers to workspace and product docs, optional PRD/discovery paths, optional typed **`artifacts`** (schema 1.3.0+), optional acceptance-criteria ids, and suggested verify commands. pnCore validates its own index in CI; you can reuse the same pattern. Agents load it via the MCP **`project_context`** tool (pull), not via a sessionStart hook inject.
 
 ---
 
 ## Why
 
 - Gives agents a single JSON entry point for "where is the truth?" (workspace bootstrap, PRD, workflow state schema).
-- `check:context-index` ensures the file matches schema and that every non-null pointer path exists on disk.
+- `check:context-index` ensures the file matches schema and that every non-null pointer path (and each `artifacts[].path`) exists on disk.
+- `check:artifact-status` fails when an artifact claims `authored_status: complete` without a passing verify/acceptance event for its `run_id`.
 - `check:ac-traceability` (when you list `AC-*` ids) ensures those ids appear somewhere in the repo outside the index.
 
 ---
@@ -30,6 +31,7 @@ The context index is a small handoff manifest: semver, review date, pointers to 
 From pnCore repo root, validation is:
 
 - `npm run check:context-index` — schema + non-null pointer paths exist.
+- `npm run check:artifact-status` — artifact paths + no unattested complete claims.
 - `npm run check:ac-traceability` — every `AC-*` in the index appears elsewhere in text files.
 
 Include both in `npm run validate` or your own pipeline. Non-null pointers already imply "file must exist" (for example if `prd` is a string path, that path is checked).
