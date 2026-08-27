@@ -10,6 +10,8 @@ description: "Builds or refines landing pages: hero anatomy, social proof, prici
 - Building a new marketing or product landing page from scratch.
 
 **Intent:** Load **`pn-core://reference/design-intent.md`** first. Declare **Design Read** + tuning dials; default landing SaaS preset is variance 7 / motion 6 / density 4 unless the brief overrides. Pre-ship: **`get_command("pn-preflight")`** (strict tier).
+
+**Narrative fork:** If **narrative intent** is present (user asked for a scroll-told story, Design Read is **editorial scroll-story**, or the brief names a scroll narrative), stop this skill and load **`get_skill("pn-scroll-narrative")`**. High `MOTION_INTENSITY` alone is not a fork — agency (8) and designer-portfolio (7) presets stay here.
 - Refining an existing landing page — hero copy, CTA hierarchy, social proof placement.
 - Optimizing LCP and Core Web Vitals for a landing page.
 - Reviewing above-the-fold strategy, pricing table structure, or trust signal placement.
@@ -83,4 +85,4 @@ description: "Builds or refines landing pages: hero anatomy, social proof, prici
 ## Output
 
 - Conversion-oriented landing page with clear flow and CTA hierarchy.
-- Reference pn-frontend-design for aesthetics and design thinking; pn-design-system for tokens; pn-ux-patterns for a11y.
+- Reference pn-frontend-design for aesthetics and design thinking; pn-design-system for tokens; pn-ux-patterns for a11y. Scroll-told stories: `pn-scroll-narrative`.

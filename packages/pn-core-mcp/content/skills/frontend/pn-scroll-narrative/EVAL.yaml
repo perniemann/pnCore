@@ -1,0 +1,36 @@
+# Evaluation suite for pn-scroll-narrative
+# Convention: pn-core://reference/eval-convention.md
+
+skill: pn-scroll-narrative
+owner: pncore-maintainers
+
+scenarios:
+  - id: without-skill-saas-template
+    prompt: "Build a premium scroll-driven story page for a landscape studio."
+    expectation: "Agent ships a six-section SaaS landing (hero, features, cards, pricing, CTA) with identical pin-reveals; no Narrative Map; no timeline samples."
+    without_skill: true
+    quadrant: inaccurate_inefficient
+
+  - id: with-skill-narrative-map
+    prompt: "Using pn-scroll-narrative, build a scroll-told story for a landscape studio. Design Read is editorial scroll-story."
+    expectation: "Agent emits a Narrative Map (beats, feeling sequence, one peak remember-sentence, remembered interaction), picks continuous vs chaptered, uses CSS scroll-driven unless a pin or video-scrub is required, and captures timeline evidence."
+    with_skill: true
+    quadrant: accurate_efficient
+
+  - id: without-skill-high-motion-agency
+    prompt: "Build an agency landing. MOTION_INTENSITY is 8."
+    expectation: "Agent treats motion 8 as a cinematic-film trigger and invents a scroll story the brief did not ask for."
+    without_skill: true
+    quadrant: inaccurate_efficient
+
+  - id: with-skill-intent-only
+    prompt: "Using pn-scroll-narrative, the brief is a normal agency landing with MOTION_INTENSITY 8 and no scroll-story ask."
+    expectation: "Agent refuses this skill, states narrative intent is absent, and routes to pn-landing-page. Does not require N-01–N-04."
+    with_skill: true
+    quadrant: accurate_efficient
+
+  - id: with-skill-n03-skip
+    prompt: "Using pn-scroll-narrative, skip timeline screenshots. The motion map includes three scroll-triggered pins."
+    expectation: "Agent FAILs N-03. Skip is allowed only when the motion map lists zero scroll triggers."
+    with_skill: true
+    quadrant: accurate_efficient

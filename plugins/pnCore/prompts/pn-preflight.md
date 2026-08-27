@@ -22,6 +22,7 @@ Runs the **marketing ship gate** for landing pages, portfolios, and editorial ma
 | After `pn-design` / `pn-design-dna` on Portfolio / Product marketing / Editorial (not Tool/app) | **strict** |
 | `pn-design-dna` / embedded studio DNA | **studio** |
 | App shell, dashboard, conversion form in product | **standard** (Slop Test only; skip P-01–P-15 table) |
+| Narrative intent (editorial scroll-story, or user asked for a scroll-told story) | **strict** + **N-01–N-04**. High MOTION alone does not add N-*. |
 
 ## 2. Inspect deliverable
 
@@ -29,14 +30,14 @@ Review implemented UI (code + optional screenshot/HTML via `pn-render-verify` wh
 
 ## 3. Emit checklist
 
-Output the PASS/FAIL table from marketing-ship-gate (IDs P-01–P-15 for strict/studio; studio adds DNA bullets from that reference).
+Output the PASS/FAIL table from marketing-ship-gate (IDs P-01–P-15 for strict/studio; studio adds DNA bullets from that reference). When **narrative intent** is present (`design-intent` §2b), also emit N-01–N-04. Do not emit N-* because MOTION is high.
 
 Run **AI Slop Test** from `get_skill("pn-frontend-design")`. Count hits; **NO-GO** if ≥3 on strict unless spec documents template intent.
 
 ## 4. Verdict
 
-- **`SHIP: GO`** — all strict checks PASS and Slop Test under 3 hits.
-- **`SHIP: NO-GO`** — list failing IDs with one-line fixes; map to `pn-typeset`, `pn-colorize`, `pn-arrange`, `pn-bolder`, or `pn-delight` as appropriate.
+- **`SHIP: GO`** — all strict checks PASS, Slop Test under 3 hits, and N-01–N-04 PASS when narrative intent applies.
+- **`SHIP: NO-GO`** — list failing IDs with one-line fixes; map to `pn-typeset`, `pn-colorize`, `pn-arrange`, `pn-bolder`, or `pn-delight` as appropriate. Any N-ID FAIL is NO-GO.
 
 **Gate:** On NO-GO, do not declare the page done until fixes are applied and preflight re-run (or user explicitly accepts risk).
 

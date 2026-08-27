@@ -4,6 +4,19 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.18.8] - 2026-08-24
+
+### Added
+
+- **`pn-scroll-narrative` skill:** journey-first procedure for scroll-told marketing pages (Narrative Map, one peak, CSS scroll-driven or GSAP pin/scrub, timeline evidence). Trigger is narrative intent only — high `MOTION_INTENSITY` is not a load condition.
+- Marketing ship-gate **N-01–N-04** (map present, one peak, timeline samples, reduced-motion readable).
+- **ADR-0014:** original scroll-narrative procedure, prior-art attribution, and an explicit non-clone list.
+
+### Changed
+
+- Design workflow load-paths (`design-intent`, `pn-preflight`, `pn-design`, `pn-landing-page`, `pn-evidence-qa`) fork to the narrative skill when intent is present.
+- Plugin and MCP package versions stay in lockstep with the root package (0.18.8).
+
 ## [0.18.7] - 2026-08-23
 
 ### Changed

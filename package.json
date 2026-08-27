@@ -1,6 +1,6 @@
 {
   "name": "pn-core",
-  "version": "0.18.7",
+  "version": "0.18.8",
   "description": "pnCore — MCP server, skills, agents, commands, rules",
   "private": true,
   "type": "module",

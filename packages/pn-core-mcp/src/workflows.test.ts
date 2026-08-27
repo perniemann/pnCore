@@ -80,6 +80,9 @@ describe("workflows contract", () => {
       expect(result).not.toHaveProperty("error");
       expect(result).toHaveProperty("instruction");
       expect(result).toHaveProperty("gate");
+      expect(result.instruction).toContain("pn-scroll-narrative");
+      expect(result.instruction).toContain("narrative intent");
+      expect(result.instruction).toContain("do not load it because MOTION_INTENSITY is high");
     });
 
     it("returns error when state misses required priorArt for full_dev step 2", () => {
@@ -1525,6 +1528,8 @@ describe("workflows contract", () => {
         const r = result as WorkflowStepResult;
         expect(r.suggestedModelTier?.tier).toBe("standard");
         expect(r.instruction.startsWith("**Suggested model tier:**")).toBe(false);
+        expect(r.instruction).toContain("pn-scroll-narrative");
+        expect(r.instruction).toContain("N-01–N-04");
       });
 
       it("DOES prepend inline hint when tier is fast (design step 0 discovery)", () => {

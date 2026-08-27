@@ -337,6 +337,13 @@ describe("content contract", () => {
         }
       }
     });
+
+    it("loads pn-scroll-narrative skill", () => {
+      const content = getSkill("pn-scroll-narrative");
+      expect(content).toBeTypeOf("string");
+      expect(content).toContain("Narrative Map");
+      expect(content).toContain("Do not use");
+    });
   });
 
   describe("getResource", () => {
@@ -402,6 +409,9 @@ describe("content contract", () => {
       expect(r).not.toBeNull();
       expect(r!.text).toContain("# Design intent");
       expect(r!.mimeType).toBe("text/markdown");
+      expect(r!.text).toContain("Narrative Map");
+      expect(r!.text).toContain("Narrative intent");
+      expect(r!.text).toContain("does **not** decide whether the page is a scroll-told story");
     });
 
     it("returns marketing-ship-gate markdown", () => {
@@ -409,6 +419,9 @@ describe("content contract", () => {
       expect(r).not.toBeNull();
       expect(r!.text).toContain("# Marketing ship gate");
       expect(r!.mimeType).toBe("text/markdown");
+      expect(r!.text).toContain("N-01");
+      expect(r!.text).toContain("N-04");
+      expect(r!.text).toContain("zero scroll triggers");
     });
 
     it("returns human-facing-artifacts markdown", () => {

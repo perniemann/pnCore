@@ -1,6 +1,6 @@
 # pnCore (plugin)
 
-Cursor plugin for **pnCore 0.18.7**: rules, skills, agents, and commands for Node, React, Astro, Next.js, vanilla web, CI, n8n, Three.js, shaders, web3, Figma, Blender, and Unreal. User-facing orientation: [why it exists](https://github.com/perniemann/pnCore#why-this-exists), [install](https://github.com/perniemann/pnCore#install), [workflows](https://github.com/perniemann/pnCore#workflows). Full catalog: [docs/plugin-reference.md](https://github.com/perniemann/pnCore/blob/main/docs/plugin-reference.md). This file is the plugin operator note.
+Cursor plugin for **pnCore 0.18.8**: rules, skills, agents, and commands for Node, React, Astro, Next.js, vanilla web, CI, n8n, Three.js, shaders, web3, Figma, Blender, and Unreal. User-facing orientation: [why it exists](https://github.com/perniemann/pnCore#why-this-exists), [install](https://github.com/perniemann/pnCore#install), [workflows](https://github.com/perniemann/pnCore#workflows). Full catalog: [docs/plugin-reference.md](https://github.com/perniemann/pnCore/blob/main/docs/plugin-reference.md). This file is the plugin operator note.
 
 ## Install
 
