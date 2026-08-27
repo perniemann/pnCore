@@ -1,6 +1,6 @@
 # pnCore (plugin)
 
-Cursor plugin for **pnCore 0.18.8**: rules, skills, agents, and commands for Node, React, Astro, Next.js, vanilla web, CI, n8n, Three.js, shaders, web3, Figma, Blender, and Unreal. User-facing orientation: [why it exists](https://github.com/perniemann/pnCore#why-this-exists), [install](https://github.com/perniemann/pnCore#install), [workflows](https://github.com/perniemann/pnCore#workflows). Full catalog: [docs/plugin-reference.md](https://github.com/perniemann/pnCore/blob/main/docs/plugin-reference.md). This file is the plugin operator note.
+Cursor plugin for **pnCore 0.18.9**: rules, skills, agents, and commands for Node, React, Astro, Next.js, vanilla web, CI, n8n, Three.js, shaders, web3, Figma, Blender, and Unreal. User-facing orientation: [why it exists](https://github.com/perniemann/pnCore#why-this-exists), [install](https://github.com/perniemann/pnCore#install), [workflows](https://github.com/perniemann/pnCore#workflows). Full catalog: [docs/plugin-reference.md](https://github.com/perniemann/pnCore/blob/main/docs/plugin-reference.md). This file is the plugin operator note.
 
 ## Install
 
@@ -46,7 +46,7 @@ Answer Step 0: Yes, Both. Step 1: (3) Involved.
 
 pnCore is one product on two surfaces sharing the same content. The **MCP server** holds all executable logic (the `workflow_step` engine plus the other tools) and runs in any MCP client; this **plugin** adds Cursor-only UX the MCP cannot provide — the `/` command palette, file-glob rules, the agent selector, and the continual-learning stop hook. Use them together. Full breakdown: [Plugin vs MCP](https://github.com/perniemann/pnCore/blob/main/packages/pn-core-mcp/README.md#plugin-vs-mcp).
 
-The same workflows are available as an MCP server for any client: **26 tools** (including `workflow_step`, `workflow_verify`, `workflow_run_query`, `suggest_model_tier`, usage and handoff helpers, optional Paperclip), **`pn-core://` resources**, and MCP **prompts** aligned with agents/commands. Concise map: [MCP usage guide](https://github.com/perniemann/pnCore/blob/main/docs/mcp-usage-guide.md). Install, env vars, and error codes: [packages/pn-core-mcp README — Installation](https://github.com/perniemann/pnCore/blob/main/packages/pn-core-mcp/README.md#installation). Repo entry: [README — MCP](https://github.com/perniemann/pnCore#mcp-any-mcp-client). Pairing **pn-core** with **Octocode**: [companion MCP catalog](https://github.com/perniemann/pnCore/blob/main/docs/companion-mcp-catalog.md).
+The same workflows are available as an MCP server for any client: **27 tools** (including `workflow_step`, `workflow_verify`, `workflow_run_query`, `suggest_model_tier`, usage and handoff helpers, optional Paperclip), **`pn-core://` resources**, and MCP **prompts** aligned with agents/commands. Concise map: [MCP usage guide](https://github.com/perniemann/pnCore/blob/main/docs/mcp-usage-guide.md). Install, env vars, and error codes: [packages/pn-core-mcp README — Installation](https://github.com/perniemann/pnCore/blob/main/packages/pn-core-mcp/README.md#installation). Repo entry: [README — MCP](https://github.com/perniemann/pnCore#mcp-any-mcp-client). Pairing **pn-core** with **Octocode**: [companion MCP catalog](https://github.com/perniemann/pnCore/blob/main/docs/companion-mcp-catalog.md).
 
 ## Scripts
 

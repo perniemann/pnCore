@@ -24,7 +24,8 @@ Persistent memory for this workspace. Updated from transcript deltas by pn-conti
 - npm run validate runs Prettier **format:check** first, then all plugin/workflow validators (run **`npm run format`** to fix TS/scripts style before commit)
 - `npm run test:full` matches CI **Sync MCP content** (lint, `sync:content`, `build:mcp`, test coverage, script tests, and full `validate`); use it before push when you change the MCP package, root scripts, or content sync
 - install-to-project.mjs: when run from repo root, writes root manifest pointing at plugins/pnCore
-- Context handoff manifest: docs/refs/context-index.json (+ schema); npm run check:context-index; npm run check:ac-traceability (in validate); see docs/refs/README.md
+- Context handoff manifest: docs/refs/context-index.json (+ schema, optional `artifacts` array since 1.3.0); npm run check:context-index; npm run check:artifact-status; npm run check:ac-traceability (in validate); see docs/refs/README.md
+- Cold-session packet: MCP tool `project_context` (modes operator|agent) — call at session start per `pn-mcp-proactive`; do not rely on Cursor sessionStart inject (optional fail-open canary only)
 - Hard HITL MCP: approval_checkpoint tool + PNCORE_APPROVAL_TOKEN in MCP server env (see packages/pn-core-mcp/README.md)
 - Current date for dated output: MCP **`health`** returns **`calendarDateUtc`** and **`timestampUtc`** (server clock, UTC). Best-practices reference: **`pn-core://reference/best-practices.md`**. Rule **`pn-current-date`** (always apply) encodes this for the plugin
 - House UI context for this repo: **`.pncore-design.md`** at the workspace root; global aesthetics stance in **`CLAUDE.md`**. Aesthetics checklist resource: **`pn-core://reference/aesthetics-baseline.md`**. Rule **`pn-aesthetics-baseline`** (always apply) ships with the plugin for downstream projects

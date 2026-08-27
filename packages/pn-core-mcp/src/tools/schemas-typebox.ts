@@ -27,6 +27,11 @@ const runIdOpt = Type.Optional(
 
 export const typeboxSchemas: Record<string, TSchema> = {
   health: Type.Object({}),
+  project_context: Type.Object({
+    mode: Type.Optional(Type.Union([Type.Literal("operator"), Type.Literal("agent")])),
+    run_id: Type.Optional(Type.String()),
+    max_trail: Type.Optional(Type.Integer({ minimum: 1, maximum: 80 })),
+  }),
   list_workflow_types: Type.Object({}),
   suggest_model_tier: Type.Object({
     workflowType: Type.Optional(workflowTypeSchema),

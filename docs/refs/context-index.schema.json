@@ -78,6 +78,43 @@
           "expect": { "type": "string", "minLength": 1 }
         }
       }
+    },
+    "artifacts": {
+      "type": "array",
+      "description": "Typed project artifacts (one catalog). Authored status is a claim; derived status comes from attestations.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "type", "path"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Stable artifact id (e.g. convention-ac, plan-auth)"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["discovery", "plan", "prd", "design", "workflow", "convention"]
+          },
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Repo-relative path to the markdown/doc file"
+          },
+          "tracker": {
+            "type": ["string", "null"],
+            "description": "Optional GitHub/Paperclip issue id; not derived truth by itself"
+          },
+          "authored_status": {
+            "type": ["string", "null"],
+            "description": "Human/agent claim only — never treat as derived completion"
+          },
+          "run_id": {
+            "type": ["string", "null"],
+            "description": "Optional workflow run_id for attested completion via run-events"
+          }
+        }
+      }
     }
   }
 }

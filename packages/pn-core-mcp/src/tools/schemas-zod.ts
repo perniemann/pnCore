@@ -33,6 +33,26 @@ export const workflowGateVerdictEnum = z
 
 export const healthSchema = {} as const;
 
+export const projectContextSchema = {
+  mode: z
+    .enum(["operator", "agent"])
+    .optional()
+    .describe(
+      "operator = counts, resume, drift summary; agent = full artifact list + JSONL trail (default agent)"
+    ),
+  run_id: z
+    .string()
+    .optional()
+    .describe("Optional run_id; defaults to .pncore/workflow-state.json when present"),
+  max_trail: z
+    .number()
+    .int()
+    .min(1)
+    .max(80)
+    .optional()
+    .describe("Max trail lines in agent mode (default 20)"),
+} as const;
+
 export const listWorkflowTypesSchema = {} as const;
 
 export const suggestModelTierSchema = {

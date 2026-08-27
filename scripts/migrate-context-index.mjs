@@ -53,8 +53,17 @@ function migrate_1_0_0_to_1_1_0(d) {
   d.version = "1.1.0";
 }
 
+/** @param {Record<string, unknown>} d */
+function migrate_1_2_0_to_1_3_0(d) {
+  if (!Array.isArray(d.artifacts)) {
+    d.artifacts = [];
+  }
+  d.version = "1.3.0";
+}
+
 const chain = {
   "1.0.0": migrate_1_0_0_to_1_1_0,
+  "1.2.0": migrate_1_2_0_to_1_3_0,
 };
 
 let v = fromVersion;

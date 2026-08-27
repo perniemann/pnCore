@@ -26,6 +26,7 @@ const PARALLEL_SCRIPTS = [
   "scripts/validate-workflow-skill-refs.mjs",
   "scripts/validate-workflow-enums.mjs",
   "scripts/check-context-index.mjs",
+  "scripts/check-artifact-status.mjs",
   "scripts/check-ac-traceability.mjs",
   "scripts/check-commit-no-ide-trailers.mjs",
   "scripts/check-no-legacy-names.mjs",

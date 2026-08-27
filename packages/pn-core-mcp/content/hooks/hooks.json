@@ -1,1 +1,16 @@
-{"version":1,"hooks":{"stop":[{"command":"node plugins/pnCore/scripts/pn-continual-learning-stop.mjs"}]}}
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": "node plugins/pnCore/scripts/pn-session-start-canary.mjs",
+        "failClosed": false
+      }
+    ],
+    "stop": [
+      {
+        "command": "node plugins/pnCore/scripts/pn-continual-learning-stop.mjs"
+      }
+    ]
+  }
+}

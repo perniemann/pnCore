@@ -55,6 +55,7 @@ import {
   type WorkflowGateType,
   type WorkflowGateVerdict,
 } from "../workflow-gate-log.js";
+import { buildProjectContextPacket } from "../project-context.js";
 import type { ShapeArgs } from "./tool-runtime.js";
 import {
   MCP_VERSION,
@@ -87,6 +88,7 @@ import type {
   paperclipIssueCheckoutSchema,
   paperclipIssueCommentSchema,
   paperclipIssueUpdateSchema,
+  projectContextSchema,
   reportUsageSchema,
   suggestModelTierSchema,
   workflowConfirmSchema,
@@ -139,6 +141,7 @@ export async function handleHealth() {
       "agents",
       "commands",
       "rules",
+      "project_context",
       "workflow_step",
       "workflow_confirm",
       "workflow_usage_totals",
@@ -157,6 +160,15 @@ export async function handleHealth() {
     ],
   };
   return textContent(JSON.stringify(status));
+}
+
+export async function handleProjectContext(args: ShapeArgs<typeof projectContextSchema>) {
+  const packet = buildProjectContextPacket({
+    mode: args.mode,
+    run_id: args.run_id,
+    max_trail: args.max_trail,
+  });
+  return textContent(JSON.stringify(packet));
 }
 
 export async function handleListWorkflowTypes() {

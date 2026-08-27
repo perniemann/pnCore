@@ -28,6 +28,23 @@ export const workflowGateVerdictEnum = z
     .optional()
     .describe("Skeptic or plan verdict; required context when gate_type=skeptic and verdict=revise.");
 export const healthSchema = {};
+export const projectContextSchema = {
+    mode: z
+        .enum(["operator", "agent"])
+        .optional()
+        .describe("operator = counts, resume, drift summary; agent = full artifact list + JSONL trail (default agent)"),
+    run_id: z
+        .string()
+        .optional()
+        .describe("Optional run_id; defaults to .pncore/workflow-state.json when present"),
+    max_trail: z
+        .number()
+        .int()
+        .min(1)
+        .max(80)
+        .optional()
+        .describe("Max trail lines in agent mode (default 20)"),
+};
 export const listWorkflowTypesSchema = {};
 export const suggestModelTierSchema = {
     workflowType: workflowTypeEnum

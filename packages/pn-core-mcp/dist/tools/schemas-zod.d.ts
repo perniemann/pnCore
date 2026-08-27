@@ -30,6 +30,14 @@ export declare const workflowGateVerdictEnum: z.ZodOptional<z.ZodEnum<{
     conditional_go: "conditional_go";
 }>>;
 export declare const healthSchema: {};
+export declare const projectContextSchema: {
+    readonly mode: z.ZodOptional<z.ZodEnum<{
+        operator: "operator";
+        agent: "agent";
+    }>>;
+    readonly run_id: z.ZodOptional<z.ZodString>;
+    readonly max_trail: z.ZodOptional<z.ZodNumber>;
+};
 export declare const listWorkflowTypesSchema: {};
 export declare const suggestModelTierSchema: {
     readonly workflowType: z.ZodOptional<z.ZodEnum<{
@@ -238,11 +246,11 @@ export declare const paperclipIssueCommentSchema: {
 export declare const paperclipIssueUpdateSchema: {
     readonly issueId: z.ZodOptional<z.ZodString>;
     readonly status: z.ZodEnum<{
-        done: "done";
         backlog: "backlog";
         todo: "todo";
         in_progress: "in_progress";
         in_review: "in_review";
+        done: "done";
         blocked: "blocked";
         cancelled: "cancelled";
     }>;
@@ -278,12 +286,12 @@ export declare const workflowVerifySchema: {
 export declare const workflowRunQuerySchema: {
     readonly run_id: z.ZodString;
     readonly kinds: z.ZodOptional<z.ZodArray<z.ZodEnum<{
-        step: "step";
-        gate: "gate";
-        acceptance: "acceptance";
         verify: "verify";
+        acceptance: "acceptance";
         handoff: "handoff";
+        gate: "gate";
         usage: "usage";
+        step: "step";
     }>>>;
     readonly limit: z.ZodOptional<z.ZodNumber>;
     readonly path: z.ZodOptional<z.ZodString>;

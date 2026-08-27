@@ -32,6 +32,7 @@ For full document templates and format structures, see [reference.md](reference.
 - **DOMAIN:** `docs/refs/DOMAIN-DOC.md` (when mechanics in scope)
 - **STACK / MCP / UI (optional):** `docs/refs/STACK.md`, `MCP-ARCHITECTURE.md`, `UI-DESIGN-SPEC.md`
 - **Refs index:** **`docs/refs/README.md`** (not `REF-INDEX.md` for MCP kickoff)
+- **Context index:** **`docs/refs/context-index.json`** (schema 1.3.0+ may list typed `artifacts`; keep one catalog — update via `pn-create-refs-index`)
 
 **Legacy flat layout** (older repos): `docs/PRD.md`, `docs/DESIGN.md`, `docs/DOMAIN.md`, `docs/REF-INDEX.md`—preserve if already present; new kickoff flows should use **`docs/refs/`**.
 
