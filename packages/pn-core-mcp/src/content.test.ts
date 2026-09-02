@@ -383,6 +383,15 @@ describe("content contract", () => {
       expect(r!.mimeType).toBe("text/markdown");
     });
 
+    it("returns consumer-gating markdown", () => {
+      const r = getResource("pn-core://reference/consumer-gating.md");
+      expect(r).not.toBeNull();
+      expect(r!.text).toContain("# Consumer-project gating");
+      expect(r!.text).toContain("workflow_step");
+      expect(r!.text).toContain("Merge button");
+      expect(r!.mimeType).toBe("text/markdown");
+    });
+
     it("returns eval-convention markdown", () => {
       const r = getResource("pn-core://reference/eval-convention.md");
       expect(r).not.toBeNull();

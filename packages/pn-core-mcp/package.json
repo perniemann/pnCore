@@ -1,6 +1,6 @@
 {
   "name": "pn-core-mcp",
-  "version": "0.18.9",
+  "version": "0.18.10",
   "description": "MCP server exposing full pnCore plugin content (skills, agents, commands, rules) for orchestration, skeptic, full dev cycle, research, questionnaire, SVG creator, and all workflows.",
   "author": {
     "name": "perniemann",

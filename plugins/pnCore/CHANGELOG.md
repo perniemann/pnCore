@@ -4,6 +4,18 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.18.10] - 2026-09-02
+
+### Added
+
+- **Consumer-project gating** (ADR-0015): `/pn-setup` and `/pn-new` in git repos write the trailer Cursor rule **and** portable `.githooks` (strip IDE trailers). Optional trailer-only GitHub Actions workflow (ask first). MCP resource `pn-core://reference/consumer-gating.md`. Installer: `scripts/install-consumer-gating.mjs`.
+- Templates under `docs/templates/consumer-gating/` (hook, strip/check scripts, `no-ide-trailers.yml`).
+
+### Changed
+
+- Docs and MCP README state the split: MCP gates `workflow_step` in chat; it does not own the GitHub Merge button and does not copy this repo’s `pn-gates` / automerge CI into adopters.
+- Plugin and MCP package versions stay in lockstep with the root package (0.18.10).
+
 ## [0.18.9] - 2026-08-27
 
 ### Added

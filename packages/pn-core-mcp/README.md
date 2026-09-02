@@ -1,6 +1,6 @@
 # pn-core-mcp
 
-MCP server for [pnCore](https://github.com/perniemann/pnCore) **0.18.9**: same skills, agents, commands, and rules as the Cursor plugin, plus **`workflow_step`** and related tools. Use from any MCP client to run orchestration, discovery, skeptic, audits, assets, and other pnCore workflows without installing the plugin.
+MCP server for [pnCore](https://github.com/perniemann/pnCore) **0.18.10**: same skills, agents, commands, and rules as the Cursor plugin, plus **`workflow_step`** and related tools. Use from any MCP client to run orchestration, discovery, skeptic, audits, assets, and other pnCore workflows without installing the plugin.
 
 ## Installation
 
@@ -150,6 +150,8 @@ Path parameters for **report_usage**, **gate_log_append**, **workflow_state_save
 **Hard approval:** Set **`PNCORE_APPROVAL_TOKEN`** in the MCP server `env` (same config file as the command). Use **`approval_checkpoint`** before high-risk steps; the user pastes or injects the same token in the tool call so the server can verify it. Rotate the token like any shared secret.
 
 **Opt-in mandatory human gates:** Set **`PNCORE_REQUIRE_APPROVAL_FOR_WORKFLOWS`** to a comma-separated list of workflow types (e.g. `full_dev,project_kickoff`). For those workflows, each **`workflow_step`** where the response `gate` is **`human`** requires a fresh **`approval_checkpoint`** with matching **`workflow_type`** and **`workflow_step`**, then passing **`pncoreHumanGateTicket`** in the `state` object on `workflow_step`. Tickets are stored under **`.pncore/human-gate-tickets.jsonl`** (override with **`PNCORE_HUMAN_GATE_TICKETS_PATH`**). Tickets expire after 24 hours and are single-use.
+
+These HITL locks apply to **`workflow_step` only**. The MCP server does not block `git commit`, `gh pr create`, or the GitHub Merge button. Downstream trailer hooks/CI: `pn-core://reference/consumer-gating.md`.
 
 ### Error codes
 
