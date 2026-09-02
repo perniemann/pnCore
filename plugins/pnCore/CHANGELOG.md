@@ -4,6 +4,13 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.18.10] - 2026-09-02
+
+### Changed
+
+- **Fable 5.1 adapt (v1):** `long_horizon` exemplar is `claude-fable-5-1` (`claude-fable-5` remains an alternate). Prompt knobs, `pn-prompt-optimize`, `pn-budget-cost-monitor`, and `pn-context-engineering` teach Fable 5.1 effort, $0.25/MTok cache, append-only history, and anti-patterns. Opus remains the daily-driver premium. Labels and teaching only — MCP does not set Cursor effort or cache.
+- Plugin and MCP package versions stay in lockstep with the root package (0.18.10).
+
 ## [0.18.9] - 2026-08-27
 
 ### Added

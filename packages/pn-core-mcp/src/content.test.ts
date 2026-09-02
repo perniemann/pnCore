@@ -431,6 +431,15 @@ describe("content contract", () => {
       expect(r!.mimeType).toBe("text/markdown");
     });
 
+    it("returns prompt-provider-knobs markdown with Fable 5.1 effort guidance", () => {
+      const r = getResource("pn-core://reference/prompt-provider-knobs.md");
+      expect(r).not.toBeNull();
+      expect(r!.text).toContain("# Prompt provider knobs");
+      expect(r!.text).toContain("Fable 5.1");
+      expect(r!.text).toMatch(/effort/i);
+      expect(r!.mimeType).toBe("text/markdown");
+    });
+
     it("returns loop-orchestration-guide markdown", () => {
       const r = getResource("pn-core://reference/loop-orchestration-guide.md");
       expect(r).not.toBeNull();
