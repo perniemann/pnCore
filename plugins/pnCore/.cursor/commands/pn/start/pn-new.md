@@ -96,7 +96,7 @@ Create these two files after the relevant execution step:
 - **Phase gate:** "After each plan phase: verify → spawn pn-reviewer Task (`readonly: true`) on phase diff → fix → user `continue`. See pn-build-gate § Phase-complete gate."
 - Keep under 25 lines. Create `.cursor/rules/` if it does not exist.
 
-**Git (recommended):** add `.cursor/rules/pn-no-cursor-commit-trailers.mdc` with `alwaysApply: true` — source from `get_rule("pn-no-cursor-commit-trailers")` when MCP is available — so commit messages do not pick up Cursor IDE trailers.
+**Git (recommended):** write `.cursor/rules/pn-no-cursor-commit-trailers.mdc` (`alwaysApply: true`) from `get_rule("pn-no-cursor-commit-trailers")`. Then follow `pn-core://reference/consumer-gating.md` (or `node scripts/install-consumer-gating.mjs <projectRoot>`) for portable `.githooks`. Do not overwrite an existing `core.hooksPath`. Optional trailer-only Actions workflow — ask first. Do not copy pnCore `pn-gates` or branch protection.
 
 **Optional (communication, not always-on):** copy `.cursor/rules/pn-communication-contract.mdc` with **`alwaysApply: false`** from `get_rule("pn-communication-contract")`. Do **not** set `alwaysApply: true`.
 

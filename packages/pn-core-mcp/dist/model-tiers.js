@@ -48,9 +48,9 @@ export const TIER_META = {
         description: "Premium + MAX Mode (extended thinking): security audit, financial models, strategic frame, contract design, best-of-N judge.",
     },
     long_horizon: {
-        exemplar: "claude-fable-5",
-        alternates: ["claude-opus-4-8-thinking-high"],
-        description: "Long-horizon tier: multi-hour loop orchestration, sustained planning, escalation after cheap-tier verify failures (Anthropic Fable 5).",
+        exemplar: "claude-fable-5-1",
+        alternates: ["claude-fable-5", "claude-opus-4-8-thinking-high"],
+        description: "Long-horizon tier: multi-hour loop orchestration, sustained planning, escalation after cheap-tier verify failures (Anthropic Fable 5.1). Opus remains the daily-driver premium.",
     },
 };
 export const SUBAGENT_ROLE_TIERS = {
@@ -71,7 +71,7 @@ export function resolveRoleTier(role, tierAliases) {
         builder: "Builder subagents: scoped implementation in worktrees (best-of-n-runner, generalPurpose).",
         judge: "Judge pass: separate premium tier after objective gates (maker ≠ checker).",
         checker: "Checker/reviewer subagents: readonly review, bugbot, same-session verify.",
-        orchestrator: "Long-horizon loop lead: sustained orchestration, escalation queue, multi-hour scheduled runs (Fable 5).",
+        orchestrator: "Long-horizon loop lead: sustained orchestration, escalation queue, multi-hour scheduled runs (Fable 5.1).",
     };
     return buildSuggestedTier(tier, roleRationale[role] ?? TIER_META[tier].description);
 }

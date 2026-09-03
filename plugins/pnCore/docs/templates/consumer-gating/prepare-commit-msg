@@ -1,0 +1,5 @@
+#!/bin/sh
+# pnCore consumer hook: strip Cursor IDE commit trailers.
+# Enable once per clone: git config core.hooksPath .githooks
+# See pn-core://reference/consumer-gating.md
+exec node "$(dirname "$0")/strip-commit-trailers.mjs" "$1"

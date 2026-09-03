@@ -1,6 +1,6 @@
 # Loop orchestration guide
 
-How to design agent loops, route subagents across model tiers (including long-horizon models such as Anthropic Fable 5), and map frontier patterns onto pnCore. Pair with [`best-practices.md`](best-practices.md) §10, [`subagent-routing.md`](subagent-routing.md), and the starter templates under [`loop-catalog/`](loop-catalog/README.md).
+How to design agent loops, route subagents across model tiers (including long-horizon models such as Anthropic Fable 5.1), and map frontier patterns onto pnCore. Pair with [`best-practices.md`](best-practices.md) §10, [`subagent-routing.md`](subagent-routing.md), and the starter templates under [`loop-catalog/`](loop-catalog/README.md).
 
 **Resource:** `pn-core://reference/loop-orchestration-guide.md`.
 
@@ -103,7 +103,7 @@ See [`subagent-routing.md`](subagent-routing.md) for Task parameters. Summary:
 | **standard** | claude-4.6-sonnet-medium-thinking | Implementation, checker |
 | **premium** | claude-opus-4-8-thinking-high | Security review, skeptic, planning |
 | **premium_thinking** | Opus + MAX | Judge, strategic frame, best-of-N |
-| **long_horizon** | claude-fable-5 | Sustained orchestration, escalation |
+| **long_horizon** | claude-fable-5-1 | Sustained orchestration, escalation |
 
 Resolve tiers via MCP `suggest_model_tier` (`role`: explorer | builder | judge | checker | **orchestrator**). Override with `PNCORE_FEATURES.modelTierOverrides` and `tierAliases`.
 
@@ -116,7 +116,7 @@ Default loop tick: **fast** or **standard**. Escalate to **long_horizon** (Fable
 
 Document each escalation in STATE (`escalations` table). Downgrade back to standard after the escalated pass succeeds or hits its turn cap.
 
-**Fable knobs:** adaptive thinking (no manual `budget_tokens`); file/memory state for multi-window runs; task budgets when available; prompt-cache stable prefix — see `prompt-provider-knobs.md` (Anthropic / Fable 5).
+**Fable knobs:** Fable 5.1 thinking is always on (tune **effort**, not `budget_tokens`); file/memory state for multi-window runs; task budgets when available; prompt-cache stable prefix ($0.25/MTok reads) — see `prompt-provider-knobs.md` (Anthropic / Fable 5.1).
 
 ---
 

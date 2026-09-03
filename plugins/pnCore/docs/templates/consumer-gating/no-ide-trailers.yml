@@ -1,0 +1,25 @@
+# pnCore consumer template — reject Cursor IDE commit trailers.
+# Copy to .github/workflows/no-ide-trailers.yml after a yes from the user.
+# Requires .githooks/check-commit-no-ide-trailers.mjs (same template folder).
+# See pn-core://reference/consumer-gating.md
+name: Commit message policy
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  no-ide-trailers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Block IDE commit trailers
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.event.after }}
+          PR_BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || '' }}
+          PR_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || '' }}
+        run: node .githooks/check-commit-no-ide-trailers.mjs

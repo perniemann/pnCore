@@ -372,6 +372,13 @@ export const resourceDefs = [
         mimeType: "text/markdown",
     },
     {
+        uri: "pn-core://reference/consumer-gating.md",
+        name: "consumer-gating.md",
+        description: "What pnCore gates in a downstream project (chat workflow + opt-in git trailer hooks/CI) versus this repo’s land-on-main path; MCP never owns the GitHub Merge button",
+        path: "reference/consumer-gating.md",
+        mimeType: "text/markdown",
+    },
+    {
         uri: "pn-core://reference/prompt-provider-knobs.md",
         name: "prompt-provider-knobs.md",
         description: "Model-specific prompting knobs (OpenAI reasoning.effort, Anthropic adaptive thinking, Gemini thinking_level) for pn-prompt-optimize when the target model is known",

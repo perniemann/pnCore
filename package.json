@@ -1,6 +1,6 @@
 {
   "name": "pn-core",
-  "version": "0.18.9",
+  "version": "0.18.10",
   "description": "pnCore — MCP server, skills, agents, commands, rules",
   "private": true,
   "type": "module",
@@ -64,7 +64,8 @@
   },
   "overrides": {
     "zod": "4.4.3",
-    "ip-address": "10.4.0"
+    "ip-address": "10.4.0",
+    "fast-uri": "3.1.7"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

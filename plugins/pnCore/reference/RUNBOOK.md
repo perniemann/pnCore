@@ -61,6 +61,7 @@ Tradeoffs: HTML is often slower to generate and **noisier in git diffs** than ma
 ## Project rules
 
 - **project-context.mdc:** pn-new, pn-setup, and full_dev create `.cursor/rules/project-context.mdc` if missing. When absent: pn-build-gate routes to pn-new or pn-setup.
+- **Consumer git/PR gating:** MCP gates `workflow_step` only. Trailer hooks / Merge-button split: `pn-core://reference/consumer-gating.md`.
 - **Design questionnaire:** When frontend/UI in scope, Discovery includes Design 3a–3g. Answer all subsections for award-winning design.
 - **Assets when UI present:** Orchestrator flows include pn-assets-manager automatically; logos, icons, hero images, or placeholders are created even if not explicitly mentioned.
 
@@ -70,7 +71,7 @@ Tradeoffs: HTML is often slower to generate and **noisier in git diffs** than ma
 - **Stacks:** `config/stacks.json` (or `pn-core://config/stacks.json`).
 - **Features:** `pn-core://config/features.json` merged with env **`PNCORE_FEATURES`** (JSON object). Keys: `strictPlanSummary`, `mergePhaseFullDev`, `truncateSkills`, `modelTierOverrides`, `tierAliases`.
 - **Subagent routing:** `pn-core://reference/subagent-routing.md` — Task `subagent_type`, model tier per role, parallel review panel on auth/RLS/payments slices.
-- **Model tiers:** `workflow_step` returns `suggestedModelTier` (`fast` / `standard` / `premium` / `premium_thinking` / `long_horizon`). Exemplars: composer-2.5-fast, claude-4.6-sonnet-medium-thinking, claude-opus-4-8-thinking-high, claude-fable-5 (orchestrator / long loops). Override via `PNCORE_FEATURES.modelTierOverrides` (`<workflowType>.<step>`) and `tierAliases`. Loop catalog: `pn-core://reference/loop-catalog/README.md`.
+- **Model tiers:** `workflow_step` returns `suggestedModelTier` (`fast` / `standard` / `premium` / `premium_thinking` / `long_horizon`). Exemplars: composer-2.5-fast, claude-4.6-sonnet-medium-thinking, claude-opus-4-8-thinking-high, claude-fable-5-1 (orchestrator / long loops). Override via `PNCORE_FEATURES.modelTierOverrides` (`<workflowType>.<step>`) and `tierAliases`. Loop catalog: `pn-core://reference/loop-catalog/README.md`.
 - **Orchestrator-lead smoke (manual):** After MCP reload, pick a long-horizon model (e.g. Fable). Run `workflow_step("feature_program", 3, { slices, slicesPlanned: true, leadModelTier: "long_horizon" })` — expect `orchestrationMode: "lead"`, `subagentTierHints`, and delegation contract in `instruction`. Step 1 with `leadModelTier` only → `implementer` + soft hint; step 1 with `orchestrationIntent: true` → `lead` contract even without `parallel`. Delegate each `tasks[]` entry via Task subagents per rule **`pn-orchestrator-lead`**.
 
 ## Run correlation and budgets

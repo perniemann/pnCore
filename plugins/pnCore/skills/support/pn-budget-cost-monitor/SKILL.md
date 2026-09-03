@@ -47,6 +47,8 @@ Mitigation pairs with **pn-context-engineering**: load only tiers needed; cap RA
 **Provider prompt cache ordering:**
 Place stable content (system rules, always-on skills, tool schemas) at the **top** of the context so it falls within the provider's cached prefix. Volatile content (conversation tail, tool results, per-turn user input) goes **last**. Re-sending static blocks outside the cache boundary cancels the discount.
 
+**Fable 5.1:** cache reads are **$0.25/MTok**. Keep the prefix byte-stable and the history **append-only** (do not rewrite `system` / `tools` or inject-then-delete reminders). Watch hit rate in the host console; MCP cannot set cache markers. See `pn-core://reference/prompt-provider-knobs.md`.
+
 ## Workflow
 
 1. **Establish baseline:** If workspace has `.pncore/usage.jsonl` or similar, read recent usage. Establish per-workflow or per-session budget (optional).

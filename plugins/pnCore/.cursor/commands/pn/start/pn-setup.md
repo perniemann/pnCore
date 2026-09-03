@@ -51,7 +51,7 @@ Create `.cursor/rules/project-context.mdc` with `alwaysApply: true`. Include:
 
 Keep under 30 lines. Create `.cursor/rules/` if it does not exist.
 
-**If the project uses Git:** also create `.cursor/rules/pn-no-cursor-commit-trailers.mdc` with `alwaysApply: true`. Use `get_rule("pn-no-cursor-commit-trailers")` from MCP as the source text (or copy from the pnCore plugin `rules/` folder). That keeps `Made-with:` / Cursor `Co-authored-by` lines out of commits so hooks and CI stay green.
+**If the project uses Git:** write `.cursor/rules/pn-no-cursor-commit-trailers.mdc` (`alwaysApply: true`) from `get_rule("pn-no-cursor-commit-trailers")`. Then follow `pn-core://reference/consumer-gating.md` (or `node scripts/install-consumer-gating.mjs <projectRoot>` from a pnCore checkout) for portable `.githooks`. Do not overwrite an existing `core.hooksPath`. Optional trailer-only Actions workflow — ask first. Do not copy pnCore `pn-gates`, automerge, or branch protection.
 
 **Optional (communication, not always-on):** offer to copy `.cursor/rules/pn-communication-contract.mdc` with **`alwaysApply: false`** via `get_rule("pn-communication-contract")`. Do **not** set `alwaysApply: true` — this stays agent-requested so it does not grow every-turn token cost.
 
@@ -243,7 +243,7 @@ Scan `docs/refs/`, `docs/discovery/`, `docs/plans/`, `docs/WORKFLOW.md`. Map: di
 
 After completing selected sections, output:
 
-- What was created/updated: project-context.mdc, project skill, .pncore-design.md, .pncore-stack.md, docs/refs/context-index.json (whichever ran).
+- What was created/updated: project-context.mdc, project skill, .pncore-design.md, .pncore-stack.md, docs/refs/context-index.json, `.githooks` trailer hook / optional no-ide-trailers workflow (whichever ran).
 - Brief recap of inferred stack and constraints (when Section A ran).
 - Next steps: "You can now use `pn-build` for new features or `workflow_step('full_dev'|'design', ...)` for incremental builds. `pn-build-gate` will recognize this as an existing project. Design skills read `.pncore-design.md` automatically. Backend skills read `.pncore-stack.md` automatically. Call `project_context` at session start when pn-core MCP is available."
 
