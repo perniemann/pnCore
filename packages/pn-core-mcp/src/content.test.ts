@@ -389,6 +389,8 @@ describe("content contract", () => {
       expect(r!.text).toContain("# Consumer-project gating");
       expect(r!.text).toContain("workflow_step");
       expect(r!.text).toContain("Merge button");
+      expect(r!.text).toContain("do not overwrite");
+      expect(r!.text).toContain("--replace-hooks-path");
       expect(r!.mimeType).toBe("text/markdown");
     });
 

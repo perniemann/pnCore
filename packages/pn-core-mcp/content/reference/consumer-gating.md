@@ -18,7 +18,7 @@ git commit / gh pr create / gh pr merge  ──► not in this graph
 |-------|----------------|---------------------|
 | `workflow_step` + related tools | Chat workflow progress | Yes — MCP config only |
 | Cursor rule `pn-no-cursor-commit-trailers` | Agent-proposed commit text | Yes, when the project uses git |
-| `.githooks` + `core.hooksPath` | Trailer strip on local commit | Yes, when the project uses git |
+| `.githooks` + `core.hooksPath` | Trailer strip on local commit | Yes when git and `hooksPath` is unset or already `.githooks`. If another manager is set (Husky, Lefthook), write files and compose — do not overwrite |
 | Trailer-only Actions workflow | PR/push commit messages | Optional — ask first |
 | `/pn-deliver` `do_not_ship` | Chat ship verdict | Command only |
 | GitHub branch protection / required checks | Merge button | **Never** — adopter repo policy |
@@ -35,7 +35,9 @@ An agent with a shell can still commit, open a PR, or merge. Treat chat gates as
    - `prepare-commit-msg`
    - `strip-commit-trailers.mjs`
    - `check-commit-no-ide-trailers.mjs` (needed if CI is installed)
-3. Run `git config core.hooksPath .githooks` in that clone (idempotent).
+3. Check `git config --get core.hooksPath` (local or global). If unset or already `.githooks`, run `git config core.hooksPath .githooks`. If another path is set, **do not overwrite**. Leave the files in `.githooks/` and add this line to the existing `prepare-commit-msg` hook:
+   `node .githooks/strip-commit-trailers.mjs "$1"`
+   Ask before `--replace-hooks-path` (replaces the current hook manager).
 4. Offer CI: copy `no-ide-trailers.yml` to `.github/workflows/no-ide-trailers.yml`. Do not add it without a yes.
 
 From a pnCore checkout you can also run:
@@ -43,6 +45,8 @@ From a pnCore checkout you can also run:
 ```bash
 node scripts/install-consumer-gating.mjs [targetDir] [--ci]
 ```
+
+The installer skips `core.hooksPath` when another manager is already configured. Pass `--replace-hooks-path` only after a yes.
 
 ## Hard HITL (chat only)
 

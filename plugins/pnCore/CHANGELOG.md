@@ -14,6 +14,7 @@ All notable changes to pnCore are documented in this file.
 ### Changed
 
 - Docs and MCP README state the split: MCP gates `workflow_step` in chat; it does not own the GitHub Merge button and does not copy this repo’s `pn-gates` / automerge CI into adopters.
+- **Consumer installer** leaves an existing `core.hooksPath` (Husky, Lefthook, global) in place and prints a compose line. `--replace-hooks-path` is explicit and ask-first.
 - Plugin and MCP package versions stay in lockstep with the root package (0.18.10).
 
 ## [0.18.9] - 2026-08-27

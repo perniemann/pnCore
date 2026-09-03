@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 /**
  * Installs portable consumer git/CI trailer gates into a target project.
- * Usage: node scripts/install-consumer-gating.mjs [targetDir] [--ci] [--overwrite] [--force] [--no-hooks-path]
+ * Usage: node scripts/install-consumer-gating.mjs [targetDir] [--ci] [--overwrite] [--force] [--no-hooks-path] [--replace-hooks-path]
  *        Default targetDir = current working directory.
  *        --ci: also copy no-ide-trailers.yml to .github/workflows/
  *        --overwrite: replace existing hook / workflow files
  *        --force: allow target outside process.cwd()
  *        --no-hooks-path: write files only; do not run git config core.hooksPath
+ *        --replace-hooks-path: set core.hooksPath=.githooks even when another manager is already configured
  *
  * Does not copy pnCore release CI (pn-gates, version/CHANGELOG, automerge).
  * See pn-core://reference/consumer-gating.md and docs/adr/0015-consumer-project-gating.md.
@@ -29,12 +30,43 @@ const templateDir = join(
 );
 
 const argv = process.argv.slice(2);
-const FLAGS = new Set(["--ci", "--overwrite", "--force", "--no-hooks-path"]);
+const FLAGS = new Set([
+  "--ci",
+  "--overwrite",
+  "--force",
+  "--no-hooks-path",
+  "--replace-hooks-path",
+]);
 const withCi = argv.includes("--ci");
 const allowOverwrite = argv.includes("--overwrite");
 const forcePath = argv.includes("--force");
 const skipHooksPath = argv.includes("--no-hooks-path");
+const replaceHooksPath = argv.includes("--replace-hooks-path");
 const targetArg = argv.find((a) => !FLAGS.has(a));
+
+function gitConfig(cwd, args) {
+  return spawnSync("git", ["config", ...args], { cwd, encoding: "utf8" });
+}
+
+/** Resolve a hooksPath value relative to the target clone. */
+function resolveHooksPath(value, root) {
+  const trimmed = String(value ?? "")
+    .trim()
+    .replace(/[\\/]+$/, "");
+  if (!trimmed) return "";
+  return resolve(isAbsolute(trimmed) ? trimmed : join(root, trimmed));
+}
+
+function isPncoreHooksPath(value, root) {
+  const got = resolveHooksPath(value, root);
+  return Boolean(got) && got === resolveHooksPath(".githooks", root);
+}
+
+function readExistingHooksPath(cwd) {
+  const r = gitConfig(cwd, ["--get", "core.hooksPath"]);
+  if (r.status !== 0) return "";
+  return (r.stdout || "").trim();
+}
 
 let targetRoot = targetArg
   ? isAbsolute(targetArg)
@@ -103,17 +135,28 @@ for (const { src, dest, mode } of files) {
 }
 
 if (!skipHooksPath) {
-  const r = spawnSync("git", ["config", "core.hooksPath", ".githooks"], {
-    cwd: targetRoot,
-    encoding: "utf8",
-  });
-  if (r.status !== 0) {
+  const existing = readExistingHooksPath(targetRoot);
+  const ours = isPncoreHooksPath(existing, targetRoot);
+  if (existing && !ours && !replaceHooksPath) {
+    console.warn(`install-consumer-gating: left core.hooksPath = ${existing} (not overwritten).`);
     console.warn(
-      "install-consumer-gating: git config core.hooksPath failed — run it in the clone:",
-      (r.stderr || r.stdout || "").trim() || `exit ${r.status}`
+      'Compose: add this line to the existing prepare-commit-msg hook:\n  node .githooks/strip-commit-trailers.mjs "$1"'
+    );
+    console.warn(
+      "Or pass --replace-hooks-path to point Git at .githooks (replaces the current hook manager)."
     );
   } else {
-    console.log("install-consumer-gating: git core.hooksPath = .githooks");
+    const r = gitConfig(targetRoot, ["core.hooksPath", ".githooks"]);
+    if (r.status !== 0) {
+      console.warn(
+        "install-consumer-gating: git config core.hooksPath failed — run it in the clone:",
+        (r.stderr || r.stdout || "").trim() || `exit ${r.status}`
+      );
+    } else if (existing && !ours && replaceHooksPath) {
+      console.log(`install-consumer-gating: replaced core.hooksPath ${existing} → .githooks`);
+    } else {
+      console.log("install-consumer-gating: git core.hooksPath = .githooks");
+    }
   }
 }
 

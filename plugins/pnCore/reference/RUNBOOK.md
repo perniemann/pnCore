@@ -61,7 +61,7 @@ Tradeoffs: HTML is often slower to generate and **noisier in git diffs** than ma
 ## Project rules
 
 - **project-context.mdc:** pn-new, pn-setup, and full_dev create `.cursor/rules/project-context.mdc` if missing. When absent: pn-build-gate routes to pn-new or pn-setup.
-- **Consumer git/PR gating:** MCP gates chat workflow progress only. Git projects also get the trailer Cursor rule + portable `.githooks`; optional trailer-only Actions workflow (ask first). MCP never installs branch protection or this repo’s `pn-gates`. See `pn-core://reference/consumer-gating.md`.
+- **Consumer git/PR gating:** MCP gates chat workflow progress only. Git projects also get the trailer Cursor rule + portable `.githooks`; `core.hooksPath` is set only when unset or already `.githooks`. Optional trailer-only Actions workflow (ask first). MCP never installs branch protection or this repo’s `pn-gates`. See `pn-core://reference/consumer-gating.md`.
 - **Design questionnaire:** When frontend/UI in scope, Discovery includes Design 3a–3g. Answer all subsections for award-winning design.
 - **Assets when UI present:** Orchestrator flows include pn-assets-manager automatically; logos, icons, hero images, or placeholders are created even if not explicitly mentioned.
 

@@ -14,22 +14,29 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, "..", "..");
 const installer = join(repoRoot, "scripts", "install-consumer-gating.mjs");
 const repoStrip = join(repoRoot, "scripts", "strip-commit-trailers.mjs");
-const templateStrip = join(
+const templateDir = join(
   repoRoot,
   "packages",
   "pn-core-mcp",
   "content",
   "docs",
   "templates",
-  "consumer-gating",
-  "strip-commit-trailers.mjs"
+  "consumer-gating"
 );
+const templateStrip = join(templateDir, "strip-commit-trailers.mjs");
+const repoCheck = join(repoRoot, "scripts", "check-commit-no-ide-trailers.mjs");
+const templateCheck = join(templateDir, "check-commit-no-ide-trailers.mjs");
 
 function runInstaller(args, opts = {}) {
   return spawnSync(process.execPath, [installer, ...args], {
     cwd: opts.cwd ?? repoRoot,
     encoding: "utf8",
-    env: process.env,
+    env: {
+      ...process.env,
+      GIT_CONFIG_GLOBAL: "/dev/null",
+      GIT_CONFIG_SYSTEM: "/dev/null",
+      ...(opts.env ?? {}),
+    },
   });
 }
 
@@ -128,6 +135,84 @@ test("repo and consumer strip scripts remove the same IDE trailers", () => {
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
+});
+
+test("leaves an existing hook manager hooksPath in place", () => {
+  const target = mkdtempSync(join(repoRoot, "tmp-pn-gating-husky-"));
+  try {
+    spawnSync("git", ["init"], { cwd: target, encoding: "utf8" });
+    const set = spawnSync("git", ["config", "core.hooksPath", ".husky/_"], {
+      cwd: target,
+      encoding: "utf8",
+    });
+    assert.equal(set.status, 0, set.stderr);
+    const r = runInstaller([target]);
+    assert.equal(r.status, 0, `${r.stdout}\n${r.stderr}`);
+    assert.ok(existsSync(join(target, ".githooks", "strip-commit-trailers.mjs")));
+    const cfg = spawnSync("git", ["config", "--get", "core.hooksPath"], {
+      cwd: target,
+      encoding: "utf8",
+    });
+    assert.equal(cfg.stdout.trim(), ".husky/_");
+    assert.match(`${r.stdout}\n${r.stderr}`, /left core\.hooksPath = \.husky\/_/);
+    assert.match(`${r.stdout}\n${r.stderr}`, /Compose:/);
+    assert.doesNotMatch(`${r.stdout}\n${r.stderr}`, /git core\.hooksPath = \.githooks/);
+  } finally {
+    rmSync(target, { recursive: true, force: true });
+  }
+});
+
+test("--replace-hooks-path overwrites an existing hook manager", () => {
+  const target = mkdtempSync(join(repoRoot, "tmp-pn-gating-replace-"));
+  try {
+    spawnSync("git", ["init"], { cwd: target, encoding: "utf8" });
+    spawnSync("git", ["config", "core.hooksPath", ".husky/_"], {
+      cwd: target,
+      encoding: "utf8",
+    });
+    const r = runInstaller([target, "--replace-hooks-path"]);
+    assert.equal(r.status, 0, `${r.stdout}\n${r.stderr}`);
+    const cfg = spawnSync("git", ["config", "--get", "core.hooksPath"], {
+      cwd: target,
+      encoding: "utf8",
+    });
+    assert.equal(cfg.stdout.trim(), ".githooks");
+    assert.match(`${r.stdout}\n${r.stderr}`, /replaced core\.hooksPath/);
+  } finally {
+    rmSync(target, { recursive: true, force: true });
+  }
+});
+
+test("treats an existing .githooks hooksPath as already ours", () => {
+  const target = mkdtempSync(join(repoRoot, "tmp-pn-gating-ours-"));
+  try {
+    spawnSync("git", ["init"], { cwd: target, encoding: "utf8" });
+    spawnSync("git", ["config", "core.hooksPath", ".githooks/"], {
+      cwd: target,
+      encoding: "utf8",
+    });
+    const r = runInstaller([target]);
+    assert.equal(r.status, 0, `${r.stdout}\n${r.stderr}`);
+    const cfg = spawnSync("git", ["config", "--get", "core.hooksPath"], {
+      cwd: target,
+      encoding: "utf8",
+    });
+    assert.equal(cfg.stdout.trim(), ".githooks");
+    assert.match(`${r.stdout}\n${r.stderr}`, /git core\.hooksPath = \.githooks/);
+  } finally {
+    rmSync(target, { recursive: true, force: true });
+  }
+});
+
+test("repo and consumer check scripts share forbidden-line logic", () => {
+  const repoSrc = readFileSync(repoCheck, "utf8");
+  const tmplSrc = readFileSync(templateCheck, "utf8");
+  const extract = (src) => {
+    const m = src.match(/function forbiddenLine\([\s\S]*?\n\}/);
+    assert.ok(m, "forbiddenLine function");
+    return m[0];
+  };
+  assert.equal(extract(repoSrc), extract(tmplSrc));
 });
 
 test("installed hook strips trailers from a commit message file", () => {
