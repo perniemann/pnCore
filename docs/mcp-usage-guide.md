@@ -51,7 +51,7 @@ pn-core is the **MCP server** for the pnCore plugin pack. It exposes skills, age
 
 **ask_question (Cursor-specific):** Skills and commands instruct the AI to use Cursor's `ask_question` tool when available for questionnaires and confirmation gates (structured options, proceed/yes/no). When using pn-core MCP from a client that does not expose `ask_question` (e.g. MCP-only, non-Cursor IDE), the AI uses `workflow_confirm` for gates (returns formatted prompt + options) or outputs questions in chat. For gates: call `workflow_confirm`, output the prompt, then stop until you reply. You may get plain-text questions instead of structured prompts.
 
-**Hard approval and mandatory human gates:** Configure `PNCORE_APPROVAL_TOKEN`, optional `PNCORE_REQUIRE_APPROVAL_FOR_WORKFLOWS`, and ticket path `PNCORE_HUMAN_GATE_TICKETS_PATH` as documented in [packages/pn-core-mcp/README.md](../packages/pn-core-mcp/README.md). `approval_checkpoint` verifies the token; prompt-only gates do not prove the server secret.
+**Hard approval and mandatory human gates:** Configure `PNCORE_APPROVAL_TOKEN`, optional `PNCORE_REQUIRE_APPROVAL_FOR_WORKFLOWS`, and ticket path `PNCORE_HUMAN_GATE_TICKETS_PATH` as documented in [packages/pn-core-mcp/README.md](../packages/pn-core-mcp/README.md). `approval_checkpoint` verifies the token; prompt-only gates do not prove the server secret. These locks apply to `workflow_step` only — not `git commit` or the GitHub Merge button. Downstream git/CI trailer defense: `pn-core://reference/consumer-gating.md`.
 
 **Gate audit log:** Use `gate_log_append` to record outcomes (`outcome`, `gate_type`, etc.) append-only for review.
 

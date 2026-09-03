@@ -17,6 +17,11 @@ describe("resolveSessionModelTier", () => {
     expect(resolveSessionModelTier("claude-fable-5")).toBe("long_horizon");
   });
 
+  it("maps Fable 5.1 exemplar and provider-prefixed slug to long_horizon", () => {
+    expect(resolveSessionModelTier("claude-fable-5-1")).toBe("long_horizon");
+    expect(resolveSessionModelTier("anthropic/claude-fable-5-1")).toBe("long_horizon");
+  });
+
   it("maps codex to standard", () => {
     expect(resolveSessionModelTier("gpt-5.3-codex")).toBe("standard");
   });

@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "pnCore: rules, skills, and agents for frontend (React, Astro, Next, vanilla) and 3D (Three.js, shaders, R3F). Includes CI, n8n, web3, Blender, Unreal.",
-    "version": "0.18.9",
+    "version": "0.18.10",
     "pluginRoot": "plugins"
   },
   "plugins": [

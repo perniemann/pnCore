@@ -13,8 +13,14 @@ Model-specific prompting knobs for `pn-prompt-optimize`. Stay model-agnostic by 
 - **Prompts as code:** Reusable hosted prompt objects (`v1/prompts`) are deprecated (shutdown 2026-11-30). Keep prompts in versioned files with typed parameters; cover changes with evals (Promptfoo is the recommended successor to the OpenAI Evals platform).
 - **Pin snapshots:** Pin production prompts to a specific model snapshot and re-run evals when upgrading.
 
-## Anthropic (Claude 4.6+ / Opus 4.8 / Fable 5)
+## Anthropic (Claude 4.6+ / Opus 5 / Fable 5.1)
 
+- **Start on Opus:** Daily-driver work stays on Opus (`premium` / `premium_thinking`). Use **Fable 5.1** (`long_horizon`) for multi-hour loops, orchestration, or when Opus at high effort still fails your evals.
+- **Thinking is always on** for Fable 5.1. Control spend with **effort** (`low` → `max`), not `thinking: disabled`. MCP cannot set `output_config`; this is operator / Cursor-slider guidance.
+- **Effort (Fable 5.1):** Default **low/medium** for routine / explore / mechanical turns. Raise for skeptic, judge, security, or strategy **without swapping model** (keeps the prompt cache). Mid-conversation effort change does not bust cache on Fable 5.1.
+- **Cache:** Fable 5.1 cache reads are **$0.25/MTok**. Keep history **append-only**; do not rewrite `system` or `tools` mid-session. Load a skill once; do not inject-then-delete per-turn reminders.
+- **Anti-patterns (Fable 5.1):** Drop emphasis boosters (“IMPORTANT”, “you MUST”), scratchpad / “think step by step” scaffolds, stale few-shots, contradictory rules, and restacked “verify then verify” liturgy. Keep pnCore MCP gates (`workflow_step`, maker≠checker, `/pn-deliver`) — slim the *prose*, not the refuse path.
+- **Forced `tool_choice`:** `any` or a named tool is invalid on Fable 5.1 (HTTP 400). Do not recommend it in optimized prompts. Use `auto` plus explicit “when to call this tool” text.
 - **Adaptive thinking:** Prefer adaptive thinking for multi-step tool use and long-horizon agent loops over manual `budget_tokens`.
 - **Structure:** XML tags (or Markdown headers) to delimit instructions, context, examples, and inputs. Consistent, descriptive tag names; nest when content is hierarchical.
 - **Examples:** 3–5 diverse, canonical few-shot examples wrapped in tags — not an exhaustive edge-case list.

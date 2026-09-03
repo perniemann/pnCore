@@ -1,6 +1,6 @@
 {
   "version": "1.3.0",
-  "last_reviewed": "2026-08-25",
+  "last_reviewed": "2026-09-02",
   "intent_source": "prd",
   "pointers": {
     "prd": null,
@@ -38,6 +38,16 @@
       "id": "workflow-state-schema",
       "type": "workflow",
       "path": "packages/pn-core-mcp/content/reference/workflow-state-schema.md"
+    },
+    {
+      "id": "convention-consumer-gating",
+      "type": "convention",
+      "path": "packages/pn-core-mcp/content/reference/consumer-gating.md"
+    },
+    {
+      "id": "adr-0015-consumer-gating",
+      "type": "convention",
+      "path": "docs/adr/0015-consumer-project-gating.md"
     }
   ],
   "verify": [

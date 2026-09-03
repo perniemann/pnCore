@@ -383,6 +383,17 @@ describe("content contract", () => {
       expect(r!.mimeType).toBe("text/markdown");
     });
 
+    it("returns consumer-gating markdown", () => {
+      const r = getResource("pn-core://reference/consumer-gating.md");
+      expect(r).not.toBeNull();
+      expect(r!.text).toContain("# Consumer-project gating");
+      expect(r!.text).toContain("workflow_step");
+      expect(r!.text).toContain("Merge button");
+      expect(r!.text).toContain("do not overwrite");
+      expect(r!.text).toContain("--replace-hooks-path");
+      expect(r!.mimeType).toBe("text/markdown");
+    });
+
     it("returns eval-convention markdown", () => {
       const r = getResource("pn-core://reference/eval-convention.md");
       expect(r).not.toBeNull();
@@ -428,6 +439,15 @@ describe("content contract", () => {
       const r = getResource("pn-core://reference/human-facing-artifacts.md");
       expect(r).not.toBeNull();
       expect(r!.text).toContain("# Human-facing workflow artifacts");
+      expect(r!.mimeType).toBe("text/markdown");
+    });
+
+    it("returns prompt-provider-knobs markdown with Fable 5.1 effort guidance", () => {
+      const r = getResource("pn-core://reference/prompt-provider-knobs.md");
+      expect(r).not.toBeNull();
+      expect(r!.text).toContain("# Prompt provider knobs");
+      expect(r!.text).toContain("Fable 5.1");
+      expect(r!.text).toMatch(/effort/i);
       expect(r!.mimeType).toBe("text/markdown");
     });
 
