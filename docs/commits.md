@@ -1,6 +1,6 @@
 ---
 title: Commit messages
-updated: 2026-09-02
+updated: 2026-09-03
 ---
 
 # Commit messages
@@ -18,7 +18,7 @@ The check scans **every commit** in the pull request range (`base..head`) or in 
 
 **Defense in depth:** repo hook (strip) + **Cursor project rule** `.cursor/rules/pn-no-cursor-commit-trailers.mdc` (`alwaysApply: true`) + this CI job. The rule stops the model from proposing or keeping those lines; the hook catches the editor; CI catches whatever still lands on the branch.
 
-**Downstream projects** (repos that *use* pnCore, not this repository): MCP does not install this land-on-main path. `/pn-setup` / `/pn-new` write the Cursor rule plus portable `.githooks` and optionally a trailer-only Actions workflow. They set `core.hooksPath` only when it is unset or already `.githooks`. They never copy `pn-gates`, automerge, or branch protection. Canonical write-up: `pn-core://reference/consumer-gating.md` and [ADR-0015](adr/0015-consumer-project-gating.md).
+**Downstream projects:** this land-on-main path is not installed. Trailer hooks and the Merge-button split: `pn-core://reference/consumer-gating.md` / [ADR-0015](adr/0015-consumer-project-gating.md).
 
 **Enable this repo’s hook** (one time per clone):
 

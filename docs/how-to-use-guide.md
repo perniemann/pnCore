@@ -25,7 +25,7 @@ Deeper orientation: [Plugin reference](plugin-reference.md).
 
 ### Orchestration and dev loops
 
-- **Configure existing project** — `/pn-setup` or "Configure pnCore for this project" or "Run pn-setup". Choose: (1) Everything, (2) Project integration only (codebase analysis, project-context.mdc, project skill, file-glob rules), (3) Design context only (.pncore-design.md), (4) Stack context only (.pncore-stack.md). Section A / `/pn-new` in git projects also write the trailer Cursor rule + portable `.githooks` (set `core.hooksPath` only when unset; compose into Husky/Lefthook). Optional trailer-only Actions workflow. See `pn-core://reference/consumer-gating.md`.
+- **Configure existing project** — `/pn-setup` or "Configure pnCore for this project" or "Run pn-setup". Choose: (1) Everything, (2) Project integration only (codebase analysis, project-context.mdc, project skill, file-glob rules), (3) Design context only (.pncore-design.md), (4) Stack context only (.pncore-stack.md). Git trailer hooks: `pn-core://reference/consumer-gating.md`.
 - **New project or feature kickoff** — `/pn-new` or "Start a new project" or "Run pn-new". Strict first questionnaire: (1) references yes/no — if yes, choose prior-art / design / both analysis; (2) intent — full auto (short confirm then autonomous), design focused (workflow_step design), or involved in every step (with optional full doc set: PRD, DESIGN, prior art, workflow roadmap, refs index). Plugin: slash command. MCP only: "Start a new project."
 - **Full dev flow with discovery and skeptic** — "Build [X]. Use the full dev workflow." MCP: `workflow_step` enforces discovery → prior art → plan → skeptic → specialists → review. Fallback: `/pn-build`.
 - **Design-only UI build** — "Build [X]. Use the design workflow." Design discovery → skeptic-on-plan → build → skeptic-on-output. Fallback: `/pn-design`.
@@ -138,7 +138,7 @@ When you use only the pn-core MCP server (no plugin in the project):
 
 **Project rules:** pn-new, pn-setup, and full_dev create `.cursor/rules/project-context.mdc` with the triangle ([pn-default] ▲), project context, and MCP bootstrap. When missing: pn-build-gate routes to pn-new for new builds or pn-setup for existing repos. Use `/pn-new` with nothing else—the agent asks references and intent, then runs the flow. Use `/pn-setup` for existing repos with code.
 
-**What pnCore gates in your repo:** chat workflow progress (`workflow_step`, optional hard HITL). In git projects, `/pn-setup` Section A and `/pn-new` also write the trailer Cursor rule and portable `.githooks`. `core.hooksPath` is set only when unset or already `.githooks`. Optional trailer-only Actions workflow — ask first. pnCore does **not** own the GitHub Merge button and does not copy this repo’s `pn-gates` / automerge CI. See `pn-core://reference/consumer-gating.md`.
+**What pnCore gates in your repo:** chat workflow progress (`workflow_step`, optional hard HITL). Git trailer defense and the Merge-button split: `pn-core://reference/consumer-gating.md`.
 
 ---
 

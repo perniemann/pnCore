@@ -14,6 +14,7 @@ All notable changes to pnCore are documented in this file.
 
 - **Fable 5.1 adapt (v1):** `long_horizon` exemplar is `claude-fable-5-1` (`claude-fable-5` remains an alternate). Prompt knobs teach effort, $0.25/MTok cache, append-only history, and anti-patterns. Opus remains the daily-driver premium.
 - **`fast-uri` 3.1.7 override:** pin past GHSA-5jgf-p345-68v8 / GHSA-f65p-4m7j-42xc so Sync MCP content `npm audit --audit-level=high` passes.
+- MCP package: `typebox` 1.3.19 and `@types/node` 26.4.0 (leftover from stale Dependabot #8).
 - Plugin and MCP package versions stay in lockstep with the root package (0.18.10).
 
 ## [0.18.9] - 2026-08-27
