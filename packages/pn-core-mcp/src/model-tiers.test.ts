@@ -181,7 +181,14 @@ describe("resolveRoleTier", () => {
     const { resolveRoleTier } = await import("./model-tiers.js");
     const r = resolveRoleTier("orchestrator");
     expect(r.tier).toBe("long_horizon");
-    expect(r.exemplar).toMatch(/fable/i);
+    expect(r.exemplar).toBe("claude-fable-5-1");
+  });
+
+  it("maps Fable 5.1 slugs via TIER_META long_horizon exemplar and prefix match", async () => {
+    const { TIER_META } = await import("./model-tiers.js");
+    expect(TIER_META.long_horizon.exemplar).toBe("claude-fable-5-1");
+    expect(TIER_META.long_horizon.alternates).toContain("claude-fable-5");
+    expect(TIER_META.long_horizon.description).toMatch(/Fable 5\.1/);
   });
 
   it("applies tierAliases when provided", async () => {

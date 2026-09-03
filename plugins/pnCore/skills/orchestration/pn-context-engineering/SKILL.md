@@ -23,7 +23,7 @@ description: "Curate what the agent sees and when — rules vs specs vs task fil
 ## Process
 
 1. **State what matters now:** one sentence on goal and non-goals for this step.
-2. **Load tier 1 if missing:** ensure rules/agents reflect repo truth (commands, paths, forbidden actions).
+2. **Load tier 1 if missing:** ensure rules/agents reflect repo truth (commands, paths, forbidden actions). **Load a skill once** per session; do not restack the same rule dump every turn (breaks prompt cache and, on Fable 5.1, thinking-block binding).
 3. **Pull tier 2 only for the active feature** — not the whole docs tree.
 4. **Expand tier 3 surgically:** open callers, contracts, and tests tied to the edit; avoid "read the whole package."
 5. **After each failure:** replace guesswork with tier 4 evidence; if evidence contradicts the plan, update the plan/spec (orchestration philosophy: map is not the territory).
@@ -71,6 +71,7 @@ When presenting **three or more** findings, decisions, options, risks, questions
 
 - Do not duplicate full project documentation in chat; link paths and read what you use.
 - Prefer **MCP and repo tools** to verify live state over stale training assumptions.
+- **Append-only session text** when the host model is Fable 5.1: do not rewrite earlier turns, `system`, or `tools`. Add new instructions as new messages. See `pn-core://reference/prompt-provider-knobs.md`.
 
 ## Integration
 

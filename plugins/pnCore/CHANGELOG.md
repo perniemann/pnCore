@@ -4,17 +4,16 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
-## [0.18.10] - 2026-09-02
+## [0.18.10] - 2026-09-03
 
 ### Added
 
-- **Consumer-project gating** (ADR-0015): `/pn-setup` and `/pn-new` in git repos write the trailer Cursor rule **and** portable `.githooks` (strip IDE trailers). Optional trailer-only GitHub Actions workflow (ask first). MCP resource `pn-core://reference/consumer-gating.md`. Installer: `scripts/install-consumer-gating.mjs`.
-- Templates under `docs/templates/consumer-gating/` (hook, strip/check scripts, `no-ide-trailers.yml`).
+- **Consumer-project gating** (ADR-0015): `/pn-setup` and `/pn-new` write the trailer Cursor rule plus portable `.githooks`. Installer leaves an existing `core.hooksPath` (Husky/Lefthook) in place; `--replace-hooks-path` is ask-first. Canonical: `pn-core://reference/consumer-gating.md`.
 
 ### Changed
 
-- Docs and MCP README state the split: MCP gates `workflow_step` in chat; it does not own the GitHub Merge button and does not copy this repo’s `pn-gates` / automerge CI into adopters.
-- **Consumer installer** leaves an existing `core.hooksPath` (Husky, Lefthook, global) in place and prints a compose line. `--replace-hooks-path` is explicit and ask-first.
+- **Fable 5.1 adapt (v1):** `long_horizon` exemplar is `claude-fable-5-1` (`claude-fable-5` remains an alternate). Prompt knobs teach effort, $0.25/MTok cache, append-only history, and anti-patterns. Opus remains the daily-driver premium.
+- **`fast-uri` 3.1.7 override:** pin past GHSA-5jgf-p345-68v8 / GHSA-f65p-4m7j-42xc so Sync MCP content `npm audit --audit-level=high` passes.
 - Plugin and MCP package versions stay in lockstep with the root package (0.18.10).
 
 ## [0.18.9] - 2026-08-27
