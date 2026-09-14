@@ -128,7 +128,7 @@ Skills, agents, rules, config, docs, reference, and hooks in this package live i
 | **workflow_handoff_append** | append | Append bounded step summary line for a **`run_id`**. |
 | **workflow_handoff_read** | read | Read recent handoff lines for a **`run_id`**. |
 | **workflow_verify** | write | No-shell catalog verify; returns a GateReport. Requires **`disposeVerify`**. Fail-closed without a jail unless **`PNCORE_VERIFY_SANDBOX=restricted`** or the Vitest test backend. |
-| **workflow_run_query** | read | Query server-written verify/acceptance events for a **`run_id`**. |
+| **workflow_run_query** | read | Query one **`run_id`** across the `.pncore` trails: verify/acceptance (default), `kinds` `step` (spans: `stepIndex`, `sinceLastStepMs`, `engineMs`, routing), `load`, `usage`, `handoff`, `gate`; `timeline: true` joins them per step with totals and the slowest step (ADR-0018). |
 | **report_usage** | append | Append usage line; include optional **`run_id`**. |
 | **workflow_state_save** | append | Persist workflow state JSON. |
 | **workflow_state_load** | read | Load workflow state JSON. |
@@ -190,6 +190,10 @@ Append one JSON line per call for gate audits (complements `approval_checkpoint`
 ### Run log and trajectory replay (ADR-0019)
 
 Every successful `workflow_step` appends one line to `.pncore/workflow-runs.jsonl` (`PNCORE_RUN_LOG` overrides the path; empty disables): `ts`, `runId`, `workflowType`, `step`, `nextStep`, `gate`, `done`, and when present `workflowPhase`, `parallel`, `taskIds`, plus `stateKeys`. Set **`PNCORE_RUN_LOG_STATE=1`** in the server env to also record a `state` snapshot (strings capped at 240 chars, tickets redacted) — that makes a run replayable. `npm run trajectory:record -- --list` shows recorded runs; `npm run trajectory:record -- --run-id <id> --name <kebab-name>` writes `src/fixtures/trajectories/<name>.json`, which `src/trajectory.test.ts` replays through the engine in `npm run test:full` and fails on any routing drift. Schema: `pn-core://reference/workflow-runs-schema.md`.
+
+### Step spans (ADR-0018)
+
+The same run-log line is a span: `stepIndex` (0-based, monotonic per `runId`), `sinceLastStepMs` (agent wall time since the previous step of that run; `null` on the first), and `engineMs` (time inside the engine). `get_skill` / `get_agent` / `get_command` / `get_rule` calls that pass `run_id` are tagged with the current `stepIndex` in `skill-load-log.jsonl`. `workflow_run_query` reads all of it: `kinds: ["step", "load", "usage", "handoff", "gate"]` returns the trails as one time-ordered event list, and `timeline: true` joins them per step — loads, tokens, handoff, gates, verify attestations per step; `totals`; `wallMs`; `slowest` (the step whose preceding agent work took longest); `accepted`. Nothing is exported to an OTel backend; the trails stay local JSONL.
 
 ## Prompts
 
