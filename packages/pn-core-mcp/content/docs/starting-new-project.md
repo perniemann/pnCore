@@ -9,7 +9,7 @@ Guide for starting a new project with pnCore MCP. **`workflow_step("project_kick
 
 ## Prerequisites
 
-- pn-core MCP enabled in your Cursor config (`.cursor/mcp.json` or equivalent)
+- pn-core MCP enabled in your harness config (Cursor `.cursor/mcp.json`, Claude Code `.mcp.json`, Codex `.codex/config.toml`) or Pi native tools (`pi install git:github.com/perniemann/pnCore@main`)
 - Workspace open at project root
 
 ## Canonical flow: `project_kickoff` (8 steps, MCP)
@@ -25,7 +25,7 @@ Run `workflow_step("project_kickoff", 0, {})` and advance per tool instructions.
 | 4 | Prior art (pn-prior-art-research) | `docs/research/YYYY-MM-DD-<slug>-prior-art.md` |
 | 5 | Optional: stack / MCP architecture / UI spec | `docs/refs/STACK.md`, `MCP-ARCHITECTURE.md`, `UI-DESIGN-SPEC.md` as applicable |
 | 6 | Refs index (pn-create-refs-index) | **`docs/refs/README.md`** (index of refs + links) |
-| 7 | Project context | `.cursor/rules/project-context.mdc`, `.cursor/skills/project/SKILL.md`. Git: trailer rule + portable `.githooks` per `pn-core://reference/consumer-gating.md` |
+| 7 | Project context | `harness_detect` → `harness_scaffold`: project-context + project skill in the active harness's folders (Cursor `.cursor/`, Claude Code `.claude/`, Codex/Pi `.agents/skills` + `AGENTS.md` block — `pn-core://reference/harness-matrix.md`). Git: trailer rule + portable `.githooks` per `pn-core://reference/consumer-gating.md` |
 
 **Not in this workflow:** `pn-writing-plans`, `docs/plans/`, and **`docs/WORKFLOW.md`** (from pn-create-workflow-roadmap). Those run during **`full_dev`** after discovery or when you explicitly plan.
 

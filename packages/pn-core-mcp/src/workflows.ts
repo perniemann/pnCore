@@ -196,14 +196,14 @@ const fullDevSteps: StepDef[] = [
   },
   {
     instruction:
-      "If .cursor/rules/project-context.mdc does not exist, create it (alwaysApply: true, triangle tag, one-sentence goal/stack/scope from discoverySpec, pn-build-gate + pn-mcp-proactive references; ≤25 lines). Then load get_skill('pn-prior-art-research'), run it from discoverySpec, save to docs/research/. Recommend adapt vs build. After user confirms, call workflow_step(step=2) with state: { priorArt }.",
+      "If no project-context exists for the active harness (Cursor .cursor/rules/project-context.mdc, Claude Code .claude/rules/project-context.md, Codex/Pi pncore block in AGENTS.md): call harness_detect, then harness_scaffold({ harnesses, project: { name, goal, stack, scope, constraints } from discoverySpec, include: ['project_context'] }) — writes only the detected harness's folder (≤25 lines; triangle tag, pn-build-gate + pn-mcp-proactive references). Then load get_skill('pn-prior-art-research'), run it from discoverySpec, save to docs/research/. Recommend adapt vs build. After user confirms, call workflow_step(step=2) with state: { priorArt }.",
     gate: "human",
     nextStep: 2,
     requiredFromState: ["discoverySpec"],
   },
   {
     instruction:
-      "Load get_skill('pn-writing-plans'). Create plan from discoverySpec and priorArt. Save to docs/plans/. Set state.planArtifactPath and state.planSummary (≤800 words). Update project-context.mdc if present. Run get_skill('pn-skeptic-challenge') on the plan — output both. After user confirms, call workflow_step(step=3) with state: { plan, skepticPassed: <gate record from workflow_confirm>, planArtifactPath, planSummary }." +
+      "Load get_skill('pn-writing-plans'). Create plan from discoverySpec and priorArt. Save to docs/plans/. Set state.planArtifactPath and state.planSummary (≤800 words). Update the project-context file (or AGENTS.md pncore block) if present. Run get_skill('pn-skeptic-challenge') on the plan — output both. After user confirms, call workflow_step(step=3) with state: { plan, skepticPassed: <gate record from workflow_confirm>, planArtifactPath, planSummary }." +
       GATE_STATE_FROM_CONFIRM +
       " Optional: set **createGithubIssues: true** to run gated GitHub Issue slicing on step 3 (get_skill('pn-github-vertical-slices') via official GitHub MCP) before specialist routing.",
     gate: "human",
@@ -228,7 +228,7 @@ const fullDevSteps: StepDef[] = [
   },
   {
     instruction:
-      "Load get_command('pn-review'). Run review+optimize pass (quality gates, deslop, pn-reality-check). Apply best practices (pn-core://reference/best-practices.md). Fix and re-run once if issues found. Run get_skill('pn-skeptic-challenge') post-build. Run get_skill('pn-docs-sync'). Update project-context.mdc if scope changed. Output summary. After user confirms, call workflow_step(step=6) with state: { reviewComplete: <gate record>, skepticOutputPassed: <gate record> }." +
+      "Load get_command('pn-review'). Run review+optimize pass (quality gates, deslop, pn-reality-check). Apply best practices (pn-core://reference/best-practices.md). Fix and re-run once if issues found. Run get_skill('pn-skeptic-challenge') post-build. Run get_skill('pn-docs-sync'). Update the project-context file (or AGENTS.md pncore block) if scope changed. Output summary. After user confirms, call workflow_step(step=6) with state: { reviewComplete: <gate record>, skepticOutputPassed: <gate record> }." +
       GATE_STATE_FROM_CONFIRM,
     gate: "human",
     nextStep: 6,
@@ -311,7 +311,7 @@ const projectKickoffSteps: StepDef[] = [
   },
   {
     instruction:
-      "Create .cursor/rules/project-context.mdc (alwaysApply: true, triangle tag, goal/stack/scope, pn-build-gate + pn-mcp-proactive refs). Create .cursor/skills/project/SKILL.md with domain guidance. Output: 'Refs complete. Next: run full_dev or design workflow.' Project kickoff complete." +
+      "Call harness_detect, then harness_scaffold({ harnesses, project: { name, goal, stack, scope, constraints } from the refs, include: ['project_context', 'project_skill', 'no_trailers_rule'] }). This writes project-context (Cursor .cursor/rules/*.mdc, Claude Code .claude/rules/*.md, Codex/Pi managed AGENTS.md block) and <skillsDir>/project/SKILL.md only for the detected harness(es); fill the '(fill in)' placeholders with domain guidance. Output: 'Refs complete. Next: run full_dev or design workflow.' Project kickoff complete." +
       paperclipWorkflowHint() +
       " Do not call workflow_step again.",
     gate: "model",

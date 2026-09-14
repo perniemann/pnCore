@@ -11,6 +11,8 @@ When **pn-core MCP is available** and the user's task clearly matches a pn skill
 
 **Session start:** When pn-core MCP is available, call `project_context` (default `mode: "agent"`) once at the start of a coding session to load the cold-session packet (context-index artifacts, resume line, attested drift, recent handoff/run-events trail). Do not rely on Cursor `sessionStart` hook inject for this packet.
 
+**Harness-aware writes:** pnCore runs on Cursor, Claude Code, Codex, and Pi. Before creating rules, skills, commands, or project-context files, call `harness_detect` and write only into the folders the detected harness reads (`.cursor/`, `.claude/`, `.agents/skills` + `AGENTS.md`, `.pi/`). Never create `.cursor/` on a non-Cursor surface.
+
 **Quick map** (common intents):
 
 | User intent | pn-core id |
@@ -19,6 +21,8 @@ When **pn-core MCP is available** and the user's task clearly matches a pn skill
 | Session start / resume / what is drifted | `project_context` (`mode: "agent"` default; `operator` for counts) |
 | New project or feature, kickoff | `get_command("pn-new")` |
 | Configure / onboard existing project | `get_command("pn-setup")` |
+| Which harness am I in (Cursor / Claude Code / Codex / Pi), where do project files go | `harness_detect` → `pn-core://reference/harness-matrix.md` |
+| Write project-context / project skill for the active harness only | `harness_scaffold` (default: detected harnesses; `dryRun: true` for the plan) |
 | Full dev loop, multi-step feature | `workflow_step("full_dev", 0, {})` |
 | New project or feature, discovery | `pn-discovery-questionnaire` |
 | Review code quality | `get_command("pn-review")` or `get_skill("pn-review-optimize-loop")` |

@@ -68,7 +68,7 @@ Use `workflow_step("project_kickoff", 0, {})` when MCP available (8 steps; match
 5. **Prior art** — pn-prior-art-research. Save to `docs/research/YYYY-MM-DD-<slug>-prior-art.md`. Gate.
 6. **Optional refs** — When applicable: pn-create-stack-doc → **`docs/refs/STACK.md`**, pn-create-mcp-architecture → **`docs/refs/MCP-ARCHITECTURE.md`**, pn-ui-design-specs → **`docs/refs/UI-DESIGN-SPEC.md`**. Gate.
 7. **Refs index** — pn-create-refs-index. Save to **`docs/refs/README.md`**. Gate.
-8. **Project context** — `.cursor/rules/project-context.mdc` and `.cursor/skills/project/SKILL.md`.
+8. **Project context** — `harness_detect` → `harness_scaffold` (project context + project skill in the active harness's folders; see [Project setup template](#project-setup-template)).
 
 **Not part of `project_kickoff`:** implementation plan (`docs/plans/`) and **`docs/WORKFLOW.md`**—those run inside **`full_dev`** or after **`pn-writing-plans`** once you start building.
 
@@ -87,20 +87,29 @@ After kickoff: run `workflow_step("full_dev", 0, {})` or `workflow_step("design"
 
 ## Project setup template
 
-Create these two files after the relevant execution step:
+Create the project files after the relevant execution step — in the folders the **active harness** reads (Cursor, Claude Code, Codex, or Pi), never a default `.cursor/` on another surface.
 
-**`.cursor/rules/project-context.mdc`** (`alwaysApply: true`):
+1. **Detect:** `harness_detect` when pn-core MCP is available (precedence: `PNCORE_HARNESS` > process env > workspace folders). If empty or no MCP, ask: "Which agent harness are you using here? (1) Cursor (2) Claude Code (3) Codex (4) Pi (5) several." Layout table: `pn-core://reference/harness-matrix.md`.
+2. **Write:** `harness_scaffold({ harnesses, project: { name, goal, stack, scope, constraints }, include: ["project_context", "project_skill", "no_trailers_rule"] })` with facts from the spec/plan. Use `dryRun: true` and write the returned `contents` yourself when the MCP cwd is not the project root.
+
+| Harness | Project context | Project skill |
+|---------|-----------------|---------------|
+| Cursor | `.cursor/rules/project-context.mdc` (`alwaysApply: true`) | `.cursor/skills/project/SKILL.md` |
+| Claude Code | `.claude/rules/project-context.md` | `.claude/skills/project/SKILL.md` |
+| Codex / Pi | managed `<!-- pncore:start -->` block in `AGENTS.md` | `.agents/skills/project/SKILL.md` |
+
+**Project context body (every harness):**
 - Triangle instruction: "Begin every response in this project with the appropriate context tag and 🔺 (Unicode U+1F53A — emoji red triangle pointed up). Default: `[pn-default] 🔺`. Use `[pn-command] 🔺` / `[pn-agent] 🔺` / `[pn-skill] 🔺` / `[pn-plan] 🔺` when a pn command, agent, skill, or plan mode is active. See pnCore rule `pn-visual-indicator` for full guidance."
 - Project context: one-sentence goal, stack, scope, key constraints — from spec/plan.
-- MCP bootstrap: "When pn-core MCP is available, load `get_rule("pn-build-gate")` and `get_rule("pn-mcp-proactive")` and follow them. When responses are verbose or the user uses aliases (`scr`/`eli`/`foc`/`ref`/`scp`), load `get_rule("pn-communication-contract")` and `get_skill("pn-response-aliases")`."
+- MCP bootstrap: "When pn-core MCP (or Pi native tools) is available, call `project_context` at session start, load `get_rule("pn-build-gate")` and `get_rule("pn-mcp-proactive")` and follow them. When responses are verbose or the user uses aliases (`scr`/`eli`/`foc`/`ref`/`scp`), load `get_rule("pn-communication-contract")` and `get_skill("pn-response-aliases")`."
 - **Phase gate:** "After each plan phase: verify → spawn pn-reviewer Task (`readonly: true`) on phase diff → fix → user `continue`. See pn-build-gate § Phase-complete gate."
-- Keep under 25 lines. Create `.cursor/rules/` if it does not exist.
+- Keep under 25 lines; replace every `(fill in)` placeholder.
 
-**Git (recommended):** write `.cursor/rules/pn-no-cursor-commit-trailers.mdc` (`alwaysApply: true`) from `get_rule("pn-no-cursor-commit-trailers")`. Then follow `pn-core://reference/consumer-gating.md` (or `node scripts/install-consumer-gating.mjs <projectRoot>`) for portable `.githooks`. Do not overwrite an existing `core.hooksPath`. Optional trailer-only Actions workflow — ask first. Do not copy pnCore `pn-gates` or branch protection.
+**Git (recommended):** `no_trailers_rule` places `pn-no-cursor-commit-trailers` in the rules dir (Cursor `.mdc`, Claude Code `.md`) or as a line in the `AGENTS.md` block (Codex, Pi). Then follow `pn-core://reference/consumer-gating.md` (or `node scripts/install-consumer-gating.mjs <projectRoot>`) for portable `.githooks`. Do not overwrite an existing `core.hooksPath`. Optional trailer-only Actions workflow — ask first. Do not copy pnCore `pn-gates` or branch protection.
 
-**Optional (communication, not always-on):** copy `.cursor/rules/pn-communication-contract.mdc` with **`alwaysApply: false`** from `get_rule("pn-communication-contract")`. Do **not** set `alwaysApply: true`.
+**Optional (communication, not always-on):** Cursor only — copy `.cursor/rules/pn-communication-contract.mdc` with **`alwaysApply: false`** from `get_rule("pn-communication-contract")`. Do **not** set `alwaysApply: true`. Other harnesses load it via `get_rule` on demand.
 
-**`.cursor/skills/project/SKILL.md`**:
+**Project skill (`<skillsDir>/project/SKILL.md`)**:
 - Frontmatter: `name: project`, `description: "Project-specific domain guidance for [project name]."`
 - Content: purpose, key constraints, patterns from the spec/plan.
 - Keep under 30 lines.
