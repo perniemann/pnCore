@@ -74,6 +74,11 @@ export function parseRunLog(text) {
                     taskIds: Array.isArray(o.taskIds) && o.taskIds.every((x) => typeof x === "string")
                         ? o.taskIds
                         : undefined,
+                    stepIndex: typeof o.stepIndex === "number" ? o.stepIndex : undefined,
+                    sinceLastStepMs: typeof o.sinceLastStepMs === "number" || o.sinceLastStepMs === null
+                        ? o.sinceLastStepMs
+                        : undefined,
+                    engineMs: typeof o.engineMs === "number" ? o.engineMs : undefined,
                     stateKeys: Array.isArray(o.stateKeys) ? o.stateKeys : [],
                     state: o.state && typeof o.state === "object" && !Array.isArray(o.state)
                         ? o.state

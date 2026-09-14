@@ -306,7 +306,7 @@ export const PN_CORE_TOOLS: ToolDefinition[] = [
   def(
     "workflow_run_query",
     "Workflow Run Query",
-    "Query server-written run events (verify attestations and acceptance) for a run_id from .pncore/run-events.jsonl.",
+    "Query one run_id across the .pncore trails: verify attestations and acceptance (run-events.jsonl, default), plus kinds step (workflow_step spans: stepIndex, sinceLastStepMs, engineMs, routing), load (get_* loads), usage, handoff, gate. timeline: true joins them into a per-step view with totals and the slowest step — answers where a run spent its time.",
     workflowRunQuerySchema,
     readOnly,
     handleWorkflowRunQuery

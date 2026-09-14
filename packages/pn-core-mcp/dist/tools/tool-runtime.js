@@ -9,6 +9,7 @@ import { debug } from "../debug.js";
 import { parseRequiredApprovalWorkflows } from "../human-gate-tickets.js";
 import { tailScanBytesFromEnv } from "../file-tail.js";
 import { defaultGateLogPath } from "../workflow-gate-log.js";
+import { currentStepIndex } from "../run-spans.js";
 export const ErrorCode = {
     NOT_FOUND: "NOT_FOUND",
     INVALID_STATE: "INVALID_STATE",
@@ -76,6 +77,7 @@ export function appendSkillLoadLog(tool, id, run_id) {
     if (!shouldLog)
         return;
     try {
+        const stepIndex = currentStepIndex(run_id);
         const logPath = resolve(safeBase, ".pncore", "skill-load-log.jsonl");
         const logDir = dirname(logPath);
         if (!existsSync(logDir))
@@ -85,6 +87,8 @@ export function appendSkillLoadLog(tool, id, run_id) {
             tool,
             id,
             ...(run_id ? { run_id } : {}),
+            // Which workflow_step span this load happened under (ADR-0018).
+            ...(stepIndex !== undefined ? { stepIndex } : {}),
         }) + "\n", "utf-8");
     }
     catch (err) {
