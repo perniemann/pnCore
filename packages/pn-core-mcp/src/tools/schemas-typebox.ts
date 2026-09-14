@@ -200,11 +200,13 @@ export const typeboxSchemas: Record<string, TSchema> = {
           Type.Literal("gate"),
           Type.Literal("usage"),
           Type.Literal("step"),
+          Type.Literal("load"),
         ])
       )
     ),
     limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 200 })),
     path: Type.Optional(Type.String()),
+    timeline: Type.Optional(Type.Boolean()),
   }),
   paperclip_issue_update: Type.Object({
     issueId: Type.Optional(Type.String()),

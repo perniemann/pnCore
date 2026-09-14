@@ -323,15 +323,17 @@ export declare const workflowVerifySchema: {
 export declare const workflowRunQuerySchema: {
     readonly run_id: z.ZodString;
     readonly kinds: z.ZodOptional<z.ZodArray<z.ZodEnum<{
-        step: "step";
-        gate: "gate";
-        acceptance: "acceptance";
-        verify: "verify";
-        handoff: "handoff";
         usage: "usage";
+        handoff: "handoff";
+        gate: "gate";
+        verify: "verify";
+        acceptance: "acceptance";
+        step: "step";
+        load: "load";
     }>>>;
     readonly limit: z.ZodOptional<z.ZodNumber>;
     readonly path: z.ZodOptional<z.ZodString>;
+    readonly timeline: z.ZodOptional<z.ZodBoolean>;
 };
 export declare const contextArgSchema: {
     readonly context: z.ZodOptional<z.ZodString>;

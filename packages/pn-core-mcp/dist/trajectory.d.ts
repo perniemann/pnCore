@@ -21,6 +21,10 @@ export type RunLogEntry = {
     workflowPhase?: string;
     parallel?: boolean;
     taskIds?: string[];
+    /** Step-span fields (ADR-0018); absent in logs written before spans existed. */
+    stepIndex?: number;
+    sinceLastStepMs?: number | null;
+    engineMs?: number;
     stateKeys: string[];
     /** Present when the server ran with PNCORE_RUN_LOG_STATE=1. */
     state?: Record<string, unknown>;

@@ -754,4 +754,64 @@ describe("MCP per-tool integration", () => {
     const err = assertErrorEnvelope(result);
     expect(err.code).toBe("PATH_TRAVERSAL");
   });
+
+  it("workflow_run_query: step spans + tagged loads + timeline for a run (ADR-0018)", async () => {
+    const run_id = `spans-test-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const s0 = await client.callTool({
+      name: "workflow_step",
+      arguments: { workflowType: "design", step: 0, state: { run_id } },
+    });
+    expect(s0.isError).toBeFalsy();
+    await client.callTool({ name: "get_rule", arguments: { id: "pn-mcp-proactive", run_id } });
+    const s1 = await client.callTool({
+      name: "workflow_step",
+      arguments: { workflowType: "design", step: 1, state: { run_id, discoverySpec: "spec" } },
+    });
+    expect(s1.isError).toBeFalsy();
+    await client.callTool({ name: "get_rule", arguments: { id: "pn-build-gate", run_id } });
+
+    const q = await client.callTool({
+      name: "workflow_run_query",
+      arguments: { run_id, kinds: ["step", "load"], timeline: true },
+    });
+    expect(q.isError).toBeFalsy();
+    const parsed = parseFirst(q);
+    const steps = (parsed.events as Array<Record<string, unknown>>).filter(
+      (e) => e.kind === "step"
+    );
+    const loads = (parsed.events as Array<Record<string, unknown>>).filter(
+      (e) => e.kind === "load"
+    );
+    expect(steps.map((e) => e.stepIndex)).toEqual([0, 1]);
+    expect(steps[0]).toMatchObject({
+      run_id,
+      workflowType: "design",
+      step: 0,
+      sinceLastStepMs: null,
+    });
+    expect(typeof steps[0].engineMs).toBe("number");
+    expect(typeof steps[1].sinceLastStepMs).toBe("number");
+    expect(steps[1]).not.toHaveProperty("state");
+    expect(loads.map((l) => [l.id, l.stepIndex])).toEqual([
+      ["pn-mcp-proactive", 0],
+      ["pn-build-gate", 1],
+    ]);
+    // Default kinds are untouched: verify + acceptance only.
+    const dflt = parseFirst(
+      await client.callTool({ name: "workflow_run_query", arguments: { run_id } })
+    );
+    expect(dflt.events).toEqual([]);
+    expect(dflt.timeline).toBeUndefined();
+
+    const tl = parsed.timeline as Record<string, unknown>;
+    expect(tl).toMatchObject({ run_id, workflowType: "design", done: false, accepted: null });
+    const tlSteps = tl.steps as Array<Record<string, unknown>>;
+    expect(tlSteps).toHaveLength(2);
+    expect((tlSteps[0].loads as unknown[]).length).toBe(1);
+    expect((tlSteps[1].loads as Array<Record<string, unknown>>)[0].id).toBe("pn-build-gate");
+    expect((tl.totals as Record<string, unknown>).loads).toBe(2);
+    expect((tl.slowest as Record<string, unknown>).stepIndex).toBe(1);
+    expect(typeof tl.wallMs).toBe("number");
+    expect((parsed.paths as Record<string, string>).steps).toMatch(/workflow-runs\.jsonl$/);
+  });
 });

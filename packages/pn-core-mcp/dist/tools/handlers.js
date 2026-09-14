@@ -7,7 +7,8 @@ import { loadPaperclipConfig, resolvePaperclipIssueId, parsePaperclipResponse, }
 import { evaluateApprovalCheckpoint } from "../approval-checkpoint.js";
 import { issueHumanGateTicket, validateAndConsumeHumanGateTicket, workflowRequiresHumanGateApproval, } from "../human-gate-tickets.js";
 import { resolveWorkflowRunId } from "../run-id.js";
-import { runLogStateEnabled, snapshotStateForLog } from "../trajectory.js";
+import { parseRunLog, runLogStateEnabled, snapshotStateForLog } from "../trajectory.js";
+import { beginStepSpan, buildRunTimeline, readTrail, roundMs, trailPaths, } from "../run-spans.js";
 import { truncateResourceBody } from "../resource-truncate.js";
 import { disposeVerifyAllowArgvEnabled, disposeVerifyEnabled, loadFeatures } from "../features.js";
 import { resolveCatalogArgv } from "../verify-catalog.js";
@@ -266,6 +267,7 @@ export async function handleWorkflowStep(args) {
     const { workflowType, step, state } = args;
     const st = (state ?? {});
     const runId = resolveWorkflowRunId(st);
+    const engineStart = performance.now();
     const result = getWorkflowStep(workflowType, step, st);
     if ("error" in result)
         return mcpError("INVALID_STATE", result.error, { workflowType, step });
@@ -289,7 +291,9 @@ export async function handleWorkflowStep(args) {
             });
         }
     }
+    const engineMs = roundMs(performance.now() - engineStart);
     const logPath = process.env.PNCORE_RUN_LOG ?? ".pncore/workflow-runs.jsonl";
+    const span = beginStepSpan(runId, { logPath: logPath || undefined });
     if (logPath) {
         try {
             const safe = resolveSafePath(logPath);
@@ -305,6 +309,9 @@ export async function handleWorkflowStep(args) {
                     nextStep: result.nextStep,
                     gate: result.gate,
                     done: result.done ?? false,
+                    stepIndex: span.stepIndex,
+                    sinceLastStepMs: span.sinceLastStepMs,
+                    engineMs,
                     ...(result.workflowPhase ? { workflowPhase: result.workflowPhase } : {}),
                     ...(result.parallel ? { parallel: true } : {}),
                     ...(result.tasks && result.tasks.length > 0
@@ -792,22 +799,82 @@ export async function handleWorkflowVerify(args) {
         return mcpError("PATH_TRAVERSAL", written.error, {});
     return textContent(JSON.stringify({ ok: true, ...report }));
 }
+/** kinds served from the non-events trails; verify + acceptance stay in run-events.jsonl. */
+const TRAIL_KIND = {
+    step: "steps",
+    load: "loads",
+    usage: "usage",
+    handoff: "handoff",
+    gate: "gate",
+};
 export async function handleWorkflowRunQuery(args) {
     const kinds = args.kinds ?? ["verify", "acceptance"];
-    const result = readRunEvents(args.run_id, {
+    const runId = args.run_id;
+    const paths = trailPaths();
+    // Server-written events are read in full once: the timeline needs verify/acceptance even
+    // when the caller only asked for other kinds.
+    const result = readRunEvents(runId, {
         path: args.path,
-        kinds,
-        limit: args.limit,
+        kinds: ["verify", "acceptance"],
+        limit: 200,
     });
     if ("error" in result)
         return mcpError("PATH_TRAVERSAL", result.error, { path: args.path });
+    const trailRecords = {};
+    const readTrailOrFail = (trail) => {
+        if (trailRecords[trail])
+            return trailRecords[trail];
+        const r = readTrail(paths[trail], runId);
+        if ("error" in r)
+            throw new Error(r.error);
+        trailRecords[trail] = r.records;
+        return r.records;
+    };
+    let merged = result.events.filter((e) => kinds.includes(e.kind));
+    let timeline;
+    try {
+        for (const k of kinds) {
+            if (k === "verify" || k === "acceptance")
+                continue;
+            const trail = TRAIL_KIND[k];
+            for (const rec of readTrailOrFail(trail)) {
+                // Step entries can carry a state snapshot; the query returns keys only.
+                const { state: _state, runId: _runId, ...rest } = rec;
+                void _state;
+                void _runId;
+                merged.push({ kind: k, run_id: runId, ...rest });
+            }
+        }
+        if (args.timeline) {
+            const stepRecords = readTrailOrFail("steps");
+            const { entries } = parseRunLog(stepRecords.map((r) => JSON.stringify(r)).join("\n"));
+            timeline = buildRunTimeline(runId, {
+                steps: entries,
+                loads: readTrailOrFail("loads"),
+                usage: readTrailOrFail("usage"),
+                handoff: readTrailOrFail("handoff"),
+                gate: readTrailOrFail("gate"),
+                events: result.events,
+            });
+        }
+    }
+    catch (err) {
+        return mcpError("PATH_TRAVERSAL", err instanceof Error ? err.message : String(err), {
+            run_id: runId,
+        });
+    }
+    merged.sort((a, b) => String(a.ts ?? "").localeCompare(String(b.ts ?? "")));
+    const cap = args.limit && args.limit > 0 ? Math.min(args.limit, 200) : 80;
+    merged = merged.slice(-cap);
     const verify = result.events.filter((e) => e.kind === "verify");
     const acceptance = result.events.filter((e) => e.kind === "acceptance").slice(-1)[0];
     return textContent(JSON.stringify({
-        run_id: args.run_id,
+        run_id: runId,
         path: result.path,
-        events: result.events,
+        paths: { ...paths, events: result.path },
+        events: merged,
         verify,
         acceptance: acceptance ?? null,
+        ...(timeline ? { timeline } : {}),
     }));
 }
