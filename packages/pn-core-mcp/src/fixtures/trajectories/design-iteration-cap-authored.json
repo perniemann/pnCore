@@ -1,0 +1,77 @@
+{
+  "name": "design-iteration-cap-authored",
+  "workflowType": "design",
+  "source": "authored",
+  "steps": [
+    {
+      "step": 4,
+      "note": "Second skeptic-on-output failure without approval: engine must refuse and point at approval_checkpoint.",
+      "state": {
+        "discoverySpec": "Landing page",
+        "plan": "plan",
+        "skepticPassed": true,
+        "skepticVerdict": "go",
+        "assetsComplete": true,
+        "buildComplete": true,
+        "skepticOutputPassed": false,
+        "skepticOutputVerdict": "contrast still fails",
+        "iterationCount": 2
+      },
+      "expect": { "error": "Design iteration cap reached (iterationCount: 2)" }
+    },
+    {
+      "step": 4,
+      "note": "Same call with the human approval recorded: loop back to build one more time.",
+      "state": {
+        "discoverySpec": "Landing page",
+        "plan": "plan",
+        "skepticPassed": true,
+        "skepticVerdict": "go",
+        "assetsComplete": true,
+        "buildComplete": true,
+        "skepticOutputPassed": false,
+        "skepticOutputVerdict": "contrast still fails",
+        "iterationCount": 2,
+        "iterationCapApproved": true,
+        "pncoreHumanGateTicket": "[redacted]"
+      },
+      "expect": {
+        "nextStep": 3,
+        "gate": "human",
+        "done": false,
+        "instructionContains": ["iteration 3 of 2", "iterationCount: 3"]
+      }
+    },
+    {
+      "step": 3,
+      "note": "Rebuild after the approved extra iteration.",
+      "state": {
+        "discoverySpec": "Landing page",
+        "plan": "plan",
+        "skepticPassed": true,
+        "skepticVerdict": "go",
+        "assetsComplete": true,
+        "iterationCount": 3,
+        "iterationCapApproved": true
+      },
+      "expect": { "nextStep": 4, "gate": "model", "done": false }
+    },
+    {
+      "step": 4,
+      "note": "Skeptic passes; proceed to the final step.",
+      "state": {
+        "discoverySpec": "Landing page",
+        "plan": "plan",
+        "skepticPassed": true,
+        "skepticVerdict": "go",
+        "assetsComplete": true,
+        "buildComplete": true,
+        "skepticOutputPassed": true,
+        "skepticOutputVerdict": "pass",
+        "iterationCount": 3,
+        "iterationCapApproved": true
+      },
+      "expect": { "nextStep": 5, "gate": "human", "done": false }
+    }
+  ]
+}
