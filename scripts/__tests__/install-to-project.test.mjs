@@ -10,7 +10,15 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, writeFileSync, existsSync, readdirSync, rmSync } from "node:fs";
+import {
+  mkdtempSync,
+  mkdirSync,
+  writeFileSync,
+  existsSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -23,8 +31,22 @@ function runInstaller(args, opts = {}) {
   return spawnSync(process.execPath, [installer, ...args], {
     cwd: opts.cwd ?? repoRoot,
     encoding: "utf8",
-    env: process.env,
+    env: opts.env ?? process.env,
   });
+}
+
+/** Environment with every harness signal removed so auto-detect depends only on the target folder. */
+function cleanEnv(extra = {}) {
+  const env = {};
+  for (const [k, v] of Object.entries(process.env)) {
+    if (/^(CURSOR_|CLAUDE|CODEX_|PI_|PNCORE_HARNESS)/.test(k)) continue;
+    env[k] = v;
+  }
+  return { ...env, ...extra };
+}
+
+function listTop(dir) {
+  return readdirSync(dir).sort();
 }
 
 test("rejects target outside process.cwd() without --force", () => {
@@ -102,6 +124,132 @@ test("--overwrite skips backup creation", () => {
     runInstaller([target, "--overwrite"]);
     const backups = readdirSync(target).filter((n) => n.startsWith(".cursor.bak-"));
     assert.equal(backups.length, 0, "no backup should be created when --overwrite is set");
+  } finally {
+    rmSync(target, { recursive: true, force: true });
+  }
+});
+
+// ─── Harness-aware install ─────────────────────────────────────────────────
+
+test("--harness claude_code writes only .claude/ (no .cursor/, no .agents/)", () => {
+  const target = mkdtempSync(join(repoRoot, "tmp-pn-install-claude-"));
+  try {
+    const r = runInstaller([target, "--harness", "claude_code"], { env: cleanEnv() });
+    assert.equal(r.status, 0, r.stderr);
+    assert.deepEqual(listTop(target), [".claude"]);
+    assert.deepEqual(listTop(join(target, ".claude")), ["agents", "commands", "rules", "skills"]);
+    assert.ok(existsSync(join(target, ".claude", "skills", "pn-writing-plans", "SKILL.md")));
+    assert.ok(existsSync(join(target, ".claude", "commands", "pn-setup.md")));
+    const react = readFileSync(join(target, ".claude", "rules", "pn-react.md"), "utf8");
+    assert.match(react, /^---\ndescription: /, "converted rule keeps description");
+    assert.match(react, /paths:\n {2}- "\*\*\/\*\.tsx"/, "globs become Claude paths");
+    assert.doesNotMatch(react, /alwaysApply/);
+    assert.equal(
+      existsSync(join(target, ".claude", "rules", "pn-communication-contract.md")),
+      false,
+      "agent-requested rule stays MCP-only"
+    );
+  } finally {
+    rmSync(target, { recursive: true, force: true });
+  }
+});
+
+test("--harness codex writes .agents/skills + AGENTS.md block and nothing Cursor-specific", () => {
+  const target = mkdtempSync(join(repoRoot, "tmp-pn-install-codex-"));
+  try {
+    writeFileSync(join(target, "AGENTS.md"), "# Team\n\n- keep this\n");
+    const r = runInstaller([target, "--harness", "codex", "--with-mcp-config"], {
+      env: cleanEnv(),
+    });
+    assert.equal(r.status, 0, r.stderr);
+    assert.deepEqual(listTop(target), [".agents", ".codex", "AGENTS.md"]);
+    assert.ok(existsSync(join(target, ".agents", "skills", "pn-writing-plans", "SKILL.md")));
+    const agents = readFileSync(join(target, "AGENTS.md"), "utf8");
+    assert.ok(agents.startsWith("# Team\n\n- keep this\n"), "user text preserved");
+    assert.match(
+      agents,
+      /<!-- pncore:start -->[\s\S]*## pnCore \(Codex\)[\s\S]*<!-- pncore:end -->/
+    );
+    assert.match(agents, /\$skill-name/);
+    const toml = readFileSync(join(target, ".codex", "config.toml"), "utf8");
+    assert.match(toml, /\[mcp_servers\.pn-core\]/);
+
+    // Re-run is idempotent: block replaced in place, not appended twice.
+    const r2 = runInstaller([target, "--harness", "codex", "--overwrite"], { env: cleanEnv() });
+    assert.equal(r2.status, 0, r2.stderr);
+    const again = readFileSync(join(target, "AGENTS.md"), "utf8");
+    assert.equal((again.match(/<!-- pncore:start -->/g) ?? []).length, 1);
+  } finally {
+    rmSync(target, { recursive: true, force: true });
+  }
+});
+
+test("--harness codex,pi shares .agents/skills and writes .pi/prompts once", () => {
+  const target = mkdtempSync(join(repoRoot, "tmp-pn-install-codex-pi-"));
+  try {
+    const r = runInstaller([target, "--harness", "codex,pi", "--with-mcp-config"], {
+      env: cleanEnv(),
+    });
+    assert.equal(r.status, 0, r.stderr);
+    assert.deepEqual(listTop(target), [".agents", ".codex", ".pi", "AGENTS.md"]);
+    assert.deepEqual(listTop(join(target, ".pi")), ["prompts", "settings.json"]);
+    assert.ok(existsSync(join(target, ".pi", "prompts", "pn-new.md")));
+    const settings = JSON.parse(readFileSync(join(target, ".pi", "settings.json"), "utf8"));
+    assert.deepEqual(settings.packages, ["git:github.com/perniemann/pnCore@main"]);
+    const agents = readFileSync(join(target, "AGENTS.md"), "utf8");
+    assert.match(agents, /## pnCore \(Codex \+ Pi\)/);
+    assert.match(r.stdout, /171 skills, flat ids/);
+    assert.equal((r.stdout.match(/flat ids/g) ?? []).length, 1, "skills copied once for both");
+  } finally {
+    rmSync(target, { recursive: true, force: true });
+  }
+});
+
+test("--inline-rules inlines always-apply rule bodies into the AGENTS.md block", () => {
+  const target = mkdtempSync(join(repoRoot, "tmp-pn-install-inline-"));
+  try {
+    const r = runInstaller([target, "--harness", "pi", "--inline-rules"], { env: cleanEnv() });
+    assert.equal(r.status, 0, r.stderr);
+    const agents = readFileSync(join(target, "AGENTS.md"), "utf8");
+    assert.match(agents, /### Always-on pnCore rules \(inlined\)/);
+    assert.match(agents, /<!-- rule: pn-build-gate -->/);
+    assert.doesNotMatch(agents, /alwaysApply:/);
+  } finally {
+    rmSync(target, { recursive: true, force: true });
+  }
+});
+
+test("--harness auto detects from target folders and falls back to cursor", () => {
+  const detected = mkdtempSync(join(repoRoot, "tmp-pn-install-auto-"));
+  const empty = mkdtempSync(join(repoRoot, "tmp-pn-install-auto-empty-"));
+  try {
+    mkdirSync(join(detected, ".claude"));
+    const r = runInstaller([detected], { env: cleanEnv() });
+    assert.equal(r.status, 0, r.stderr);
+    assert.match(r.stdout, /Harness auto-detect -> claude_code/);
+    assert.equal(existsSync(join(detected, ".cursor")), false, "no .cursor/ for a Claude project");
+
+    const r2 = runInstaller([empty], { env: cleanEnv() });
+    assert.equal(r2.status, 0, r2.stderr);
+    assert.match(r2.stdout, /nothing detected; defaulting to cursor/);
+    assert.ok(existsSync(join(empty, ".cursor", "rules")));
+
+    const r3 = runInstaller([empty, "--harness", "emacs"], { env: cleanEnv() });
+    assert.notEqual(r3.status, 0);
+    assert.match(r3.stderr, /unknown --harness/);
+  } finally {
+    rmSync(detected, { recursive: true, force: true });
+    rmSync(empty, { recursive: true, force: true });
+  }
+});
+
+test("PNCORE_HARNESS env drives auto-detect", () => {
+  const target = mkdtempSync(join(repoRoot, "tmp-pn-install-env-"));
+  try {
+    const r = runInstaller([target], { env: cleanEnv({ PNCORE_HARNESS: "pi" }) });
+    assert.equal(r.status, 0, r.stderr);
+    assert.match(r.stdout, /Harness auto-detect -> pi/);
+    assert.deepEqual(listTop(target), [".agents", ".pi", "AGENTS.md"]);
   } finally {
     rmSync(target, { recursive: true, force: true });
   }
