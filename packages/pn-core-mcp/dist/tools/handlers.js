@@ -7,6 +7,7 @@ import { loadPaperclipConfig, resolvePaperclipIssueId, parsePaperclipResponse, }
 import { evaluateApprovalCheckpoint } from "../approval-checkpoint.js";
 import { issueHumanGateTicket, validateAndConsumeHumanGateTicket, workflowRequiresHumanGateApproval, } from "../human-gate-tickets.js";
 import { resolveWorkflowRunId } from "../run-id.js";
+import { runLogStateEnabled, snapshotStateForLog } from "../trajectory.js";
 import { truncateResourceBody } from "../resource-truncate.js";
 import { disposeVerifyAllowArgvEnabled, disposeVerifyEnabled, loadFeatures } from "../features.js";
 import { resolveCatalogArgv } from "../verify-catalog.js";
@@ -304,7 +305,14 @@ export async function handleWorkflowStep(args) {
                     nextStep: result.nextStep,
                     gate: result.gate,
                     done: result.done ?? false,
+                    ...(result.workflowPhase ? { workflowPhase: result.workflowPhase } : {}),
+                    ...(result.parallel ? { parallel: true } : {}),
+                    ...(result.tasks && result.tasks.length > 0
+                        ? { taskIds: result.tasks.map((t) => t.id) }
+                        : {}),
                     stateKeys: Object.keys(st).filter((k) => st[k] != null),
+                    // Opt-in: state values make the entry replayable (ADR-0017 trajectory fixtures).
+                    ...(runLogStateEnabled() ? { state: snapshotStateForLog(st) } : {}),
                 };
                 appendFileSync(safe.resolved, JSON.stringify(entry) + "\n", "utf-8");
             }
