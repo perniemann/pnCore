@@ -8,8 +8,8 @@ Learned preferences and durable workspace facts live in **AGENTS.md**, updated b
 |----------|---------|----------|
 | **Cursor User Rules** (Settings → Rules) | Non-negotiable rules that apply to all your projects | "Never add Co-authored-by trailer"; "Always terminate running servers before starting a new one" |
 | **.cursor/rules/** (project rules) | Project-specific non-negotiable rules | "Use TypeScript for all new files"; "This repo uses pnpm only" |
-| **.cursor/rules/project-context.mdc** | Project scope + [pn-default] 🔺 + MCP bootstrap; pn-new, pn-setup, or full_dev creates this | Context tag + triangle + what we're building + load pn-build-gate/pn-mcp-proactive when MCP available; every new chat gets it |
-| **.cursor/skills/project/SKILL.md** | Project-specific domain guidance; pn-new or pn-setup creates this | Domain, constraints, patterns from discovery or codebase analysis; specialists reference when executing |
+| **Project context** — `.cursor/rules/project-context.mdc` (Cursor), `.claude/rules/project-context.md` (Claude Code), or the `<!-- pncore:start -->` block in `AGENTS.md` (Codex, Pi) | Project scope + [pn-default] 🔺 + MCP bootstrap; pn-new, pn-setup, or full_dev creates this via `harness_scaffold` | Context tag + triangle + what we're building + load pn-build-gate/pn-mcp-proactive when MCP available; every new chat gets it |
+| **Project skill** — `<skillsDir>/project/SKILL.md` (`.cursor/skills`, `.claude/skills`, or `.agents/skills`) | Project-specific domain guidance; pn-new or pn-setup creates this | Domain, constraints, patterns from discovery or codebase analysis; specialists reference when executing |
 | **AGENTS.md** | Learned preferences inferred from behavior; can evolve | "Prefer plans before implementation"; "Use ; not && in PowerShell" |
 
 **Rule of thumb:** If it must never be violated, put it in User Rules or a project rule. If it improves behavior but can be overridden, AGENTS.md is fine.

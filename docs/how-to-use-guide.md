@@ -11,9 +11,9 @@ User-facing orientation (why it exists, install, workflows, honest edges): [root
 
 | Mode | What you get |
 |------|----------------|
-| **Plugin** | Slash commands, file-glob rules, hooks |
-| **MCP** | 27 tools, `pn-core://` resources, prompts (agent/command templates); control flow via **`workflow_step`** — see [MCP usage guide](mcp-usage-guide.md) |
-| **Together** | Run both when you want rules plus deterministic workflow tools |
+| **Harness files** | Per-harness slash commands / prompts, rules, skills, agents (`plugin-install --harness cursor|claude_code|codex|pi`) — only that harness's folders are created |
+| **MCP** | 29 tools, `pn-core://` resources, prompts (agent/command templates); control flow via **`workflow_step`** — see [MCP usage guide](mcp-usage-guide.md) |
+| **Together** | Run both when you want rules plus deterministic workflow tools — same engine on Cursor, Claude Code, Codex, Pi (`pn-core://reference/harness-matrix.md`) |
 
 Deeper orientation: [Plugin reference](plugin-reference.md).
 
@@ -25,7 +25,7 @@ Deeper orientation: [Plugin reference](plugin-reference.md).
 
 ### Orchestration and dev loops
 
-- **Configure existing project** — `/pn-setup` or "Configure pnCore for this project" or "Run pn-setup". Choose: (1) Everything, (2) Project integration only (codebase analysis, project-context.mdc, project skill, file-glob rules), (3) Design context only (.pncore-design.md), (4) Stack context only (.pncore-stack.md). Git trailer hooks: `pn-core://reference/consumer-gating.md`.
+- **Configure existing project** — `/pn-setup` or "Configure pnCore for this project" or "Run pn-setup". Choose: (1) Everything, (2) Project integration only (codebase analysis, `harness_detect` → `harness_scaffold` project-context + project skill in the active harness's folders, file-glob rules), (3) Design context only (.pncore-design.md), (4) Stack context only (.pncore-stack.md). Git trailer hooks: `pn-core://reference/consumer-gating.md`.
 - **New project or feature kickoff** — `/pn-new` or "Start a new project" or "Run pn-new". Strict first questionnaire: (1) references yes/no — if yes, choose prior-art / design / both analysis; (2) intent — full auto (short confirm then autonomous), design focused (workflow_step design), or involved in every step (with optional full doc set: PRD, DESIGN, prior art, workflow roadmap, refs index). Plugin: slash command. MCP only: "Start a new project."
 - **Full dev flow with discovery and skeptic** — "Build [X]. Use the full dev workflow." MCP: `workflow_step` enforces discovery → prior art → plan → skeptic → specialists → review. Fallback: `/pn-build`.
 - **Design-only UI build** — "Build [X]. Use the design workflow." Design discovery → skeptic-on-plan → build → skeptic-on-output. Fallback: `/pn-design`.
@@ -136,7 +136,7 @@ When you use only the pn-core MCP server (no plugin in the project):
 
 **Best prompt for full involvement:** `Run get_command("pn-new"). I want to build [project name]. Refs in .ref/. I want Involved — ask each discovery section, gate on plan, specialists, and review.` This ensures pn-new runs first, you choose Involved, and you get gates at every step. Avoid starting with only "Build [X]" for new projects; that can bypass pn-new and behave like full auto.
 
-**Project rules:** pn-new, pn-setup, and full_dev create `.cursor/rules/project-context.mdc` with the triangle ([pn-default] ▲), project context, and MCP bootstrap. When missing: pn-build-gate routes to pn-new for new builds or pn-setup for existing repos. Use `/pn-new` with nothing else—the agent asks references and intent, then runs the flow. Use `/pn-setup` for existing repos with code.
+**Project rules:** pn-new, pn-setup, and full_dev create the project-context file for the active harness (`.cursor/rules/project-context.mdc` on Cursor, `.claude/rules/project-context.md` on Claude Code, a managed `AGENTS.md` block on Codex and Pi — see `harness_detect`) with the triangle ([pn-default] ▲), project context, and MCP bootstrap. When missing: pn-build-gate routes to pn-new for new builds or pn-setup for existing repos. Use `/pn-new` with nothing else—the agent asks references and intent, then runs the flow. Use `/pn-setup` for existing repos with code.
 
 **What pnCore gates in your repo:** chat workflow progress (`workflow_step`, optional hard HITL). Git trailer defense and the Merge-button split: `pn-core://reference/consumer-gating.md`.
 
