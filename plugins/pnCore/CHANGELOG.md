@@ -4,6 +4,17 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.19.2] - 2026-09-17
+
+### Added
+
+- **Deterministic trajectory replay in CI** (ADR-0017): a recorded `workflow_step` run — the ordered calls one agent makes through a workflow, including same-step phases, parallel fan-outs, loop-backs, and iteration-cap errors — becomes a fixture under `packages/pn-core-mcp/src/fixtures/trajectories/` and is replayed through `getWorkflowStep` by `src/trajectory.test.ts` in `npm run test:full`. Any routing drift (`nextStep`, `gate`, `done`, `workflowPhase`, `parallel`, task ids, expected errors) fails CI with expected-vs-actual per step. Six fixtures ship (full_dev parallel + merge, full_dev phased specialists, design skeptic loop-back, project_kickoff, business_strategy Weak loop, authored design iteration-cap → approval). No LLM in the loop.
+- **`npm run trajectory:record`** (`scripts/record-trajectory.mjs`): `--list` recorded runs; `--run-id <id> --name <kebab>` (or `--latest`) exports a fixture and replays it immediately. Refuses runs without state snapshots, non-continuous runs, and mixed workflow types.
+- **`PNCORE_RUN_LOG_STATE=1`**: `workflow_step` adds a `state` snapshot to `.pncore/workflow-runs.jsonl` (strings capped at 240 chars, `pncoreHumanGateTicket` / approval tokens redacted, depth ≤ 6). Off by default.
+
+### Changed
+
+- `.pncore/workflow-runs.jsonl` entries now include `workflowPhase`, `parallel`, and `taskIds` when the step produced them. `pn-core://reference/workflow-runs-schema.md` documents the full entry and the replay flow; RUNBOOK and the MCP README point at it.
 ## [0.19.1] - 2026-09-16
 
 ### Added
