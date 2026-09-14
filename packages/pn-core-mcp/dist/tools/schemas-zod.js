@@ -298,14 +298,18 @@ export const workflowVerifySchema = {
 export const workflowRunQuerySchema = {
     run_id: z.string().min(1).describe("run_id from workflow_step / workflow_verify"),
     kinds: z
-        .array(z.enum(["verify", "acceptance", "handoff", "gate", "usage", "step"]))
+        .array(z.enum(["verify", "acceptance", "handoff", "gate", "usage", "step", "load"]))
         .optional()
-        .describe("Event kinds to include (default: verify + acceptance)"),
+        .describe("Event kinds to include (default: verify + acceptance). step = workflow_step spans from workflow-runs.jsonl (stepIndex, sinceLastStepMs, engineMs, routing); load = get_* loads from skill-load-log.jsonl; usage / handoff / gate = the matching .pncore trails."),
     limit: z.number().int().min(1).max(200).optional().describe("Max events (default 80)"),
     path: z
         .string()
         .optional()
         .describe("Optional run-events JSONL path (default .pncore/run-events.jsonl)"),
+    timeline: z
+        .boolean()
+        .optional()
+        .describe("Also return a per-step timeline joining every trail by run_id: loads, usage, handoff, gates, verify per step; totals; slowest step by agent wall time; wallMs; accepted."),
 };
 export const contextArgSchema = {
     context: z.string().optional().describe("Additional context or user request to include"),
