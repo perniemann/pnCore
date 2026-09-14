@@ -4,7 +4,7 @@ Single pipeline implemented by pn-build and pn-project-builder. All steps use re
 
 ## Project kickoff (when no refs)
 
-When starting a **new project** with no kickoff output (no `docs/refs/PRD.md`, no `.ref/`): run `workflow_step("project_kickoff", 0, {})` first (or use `pn-new` with Involved intent). Produces **`docs/refs/`** (PRD, DESIGN-DOC, optional DOMAIN-DOC, optional stack/MCP/UI specs, **README.md** index), **`docs/discovery/`**, **`docs/research/`**, and project context (`.cursor/rules/project-context.mdc`, `.cursor/skills/project/SKILL.md`). **Plan and `docs/WORKFLOW.md`** are not part of this workflow; they come from **`full_dev`** / **`pn-writing-plans`** after kickoff. Then run `full_dev` or `design`.
+When starting a **new project** with no kickoff output (no `docs/refs/PRD.md`, no `.ref/`): run `workflow_step("project_kickoff", 0, {})` first (or use `pn-new` with Involved intent). Produces **`docs/refs/`** (PRD, DESIGN-DOC, optional DOMAIN-DOC, optional stack/MCP/UI specs, **README.md** index), **`docs/discovery/`**, **`docs/research/`**, and project context in the active harness's folders via `harness_detect` → `harness_scaffold` (Cursor `.cursor/rules/project-context.mdc`, Claude Code `.claude/rules/project-context.md`, Codex/Pi `AGENTS.md` block; project skill under the harness skills dir — see `pn-core://reference/harness-matrix.md`). **Plan and `docs/WORKFLOW.md`** are not part of this workflow; they come from **`full_dev`** / **`pn-writing-plans`** after kickoff. Then run `full_dev` or `design`.
 
 ## Standard flow
 

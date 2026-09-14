@@ -55,6 +55,49 @@ export const projectContextSchema = {
 
 export const listWorkflowTypesSchema = {} as const;
 
+export const harnessIdEnum = z.enum(["cursor", "claude_code", "codex", "pi"]);
+
+export const harnessDetectSchema = {
+  harness: harnessIdEnum
+    .optional()
+    .describe(
+      "Return the layout for one harness only. Omit to detect the active harness(es) and return all layouts."
+    ),
+} as const;
+
+export const harnessScaffoldSchema = {
+  harnesses: z
+    .array(harnessIdEnum)
+    .min(1)
+    .optional()
+    .describe(
+      "Target harnesses. Default: detected via PNCORE_HARNESS, process env, then workspace folders. Error when nothing is detected and this is omitted."
+    ),
+  project: z
+    .object({
+      name: z.string().min(1),
+      goal: z.string().optional(),
+      stack: z.string().optional(),
+      scope: z.string().optional(),
+      constraints: z.array(z.string()).optional(),
+    })
+    .describe("Project facts written into project-context and the project skill."),
+  include: z
+    .array(z.enum(["project_context", "project_skill", "no_trailers_rule", "mcp_config"]))
+    .optional()
+    .describe(
+      "Artifacts to generate. Default: project_context, project_skill, no_trailers_rule. mcp_config adds the pn-core server entry (Cursor .cursor/mcp.json, Claude .mcp.json, Codex .codex/config.toml, Pi .pi/settings.json packages)."
+    ),
+  dryRun: z
+    .boolean()
+    .optional()
+    .describe("Return the file plan with full contents and write nothing (default false)."),
+  overwrite: z
+    .boolean()
+    .optional()
+    .describe("Replace existing generated files (default false: existing files are skipped)."),
+} as const;
+
 export const suggestModelTierSchema = {
   workflowType: workflowTypeEnum
     .optional()

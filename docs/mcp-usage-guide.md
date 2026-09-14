@@ -7,18 +7,20 @@ updated: 2026-07-03
 
 ## What pn-core MCP is
 
-pn-core is the **MCP server** for the pnCore plugin pack. It exposes skills, agents, commands, rules, and a deterministic **`workflow_step`** engine as **27 tools**, plus **`pn-core://` resources** and **MCP prompts** (see below). Stacks and scope limits: [plugin reference](plugin-reference.md). **Orientation** (plugin vs MCP, slash commands, when to use which workflow): [How to use pnCore](how-to-use-guide.md).
+pn-core is the **MCP server** for the pnCore plugin pack. It exposes skills, agents, commands, rules, and a deterministic **`workflow_step`** engine as **29 tools**, plus **`pn-core://` resources** and **MCP prompts** (see below). Stacks and scope limits: [plugin reference](plugin-reference.md). **Orientation** (plugin vs MCP, slash commands, when to use which workflow): [How to use pnCore](how-to-use-guide.md).
 
 **Reference:** Env vars, tool risk labels, and structured error codes are documented in [packages/pn-core-mcp/README.md](../packages/pn-core-mcp/README.md). This guide focuses on usage patterns.
 
 ---
 
-## The 27 tools: who uses them and how
+## The 29 tools: who uses them and how
 
 | Tool | Purpose | Who uses it |
 |------|---------|-------------|
 | `health` | Status, version, **`calendarDateUtc`** / **`timestampUtc`** (server clock, UTC), capability summary | Gateways, probes, **dating changelogs or "as of" lines** |
 | `project_context` | Cold-session packet from `docs/refs/context-index.json` + `.pncore` trails; `mode=operator` (counts/drift) or `agent` (artifacts + handoff/run-events trail); derived status is attested, not checkbox truth | AI — **call at session start** |
+| `harness_detect` | Which harness this session runs in (`cursor` / `claude_code` / `codex` / `pi`) with evidence, plus every harness's file layout (instructions, rules, skills, commands, agents, MCP config). Precedence `PNCORE_HARNESS` > env signals > workspace folders | AI — **call before writing project files** |
+| `harness_scaffold` | Write project-context, project skill, trailer rule, optional MCP config **only** into the selected harness's folders (`.cursor/`, `.claude/`, `.agents/skills` + `AGENTS.md` block, `.pi/`); `dryRun` returns the plan with contents | AI (`/pn-setup`, `/pn-new`, `project_kickoff`) |
 | `list_workflow_types` | List workflow types and step counts: `project_kickoff`, `design`, `full_dev`, `prompt_optimize`, `frontend_audit`, `backend_audit`, `image_create`, `visual_tweak`, `game_feature`, `svg_create`, `engine_feature`, `fsi_analyst_draft`, `business_strategy`, `media_director`, `feature_program`, `implementation_tournament` | AI (discoverability) |
 | `suggest_model_tier` | Suggested LLM model tier for a workflow step or subagent role (`fast` / `standard` / `premium` / `premium_thinking` / `long_horizon`); pass `role` for subagent routing (`orchestrator` → long_horizon); omit `step` for the full per-step table | AI |
 | `list_skills` | List skill ids + descriptions | AI |

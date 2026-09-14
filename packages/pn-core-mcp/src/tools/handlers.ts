@@ -56,6 +56,16 @@ import {
   type WorkflowGateVerdict,
 } from "../workflow-gate-log.js";
 import { buildProjectContextPacket } from "../project-context.js";
+import {
+  HARNESS_IDS,
+  HARNESS_LAYOUTS,
+  applyScaffoldPlan,
+  buildScaffoldPlan,
+  detectHarness,
+  layoutTable,
+  type AppliedFile,
+  type ScaffoldInclude,
+} from "../harness.js";
 import type { ShapeArgs } from "./tool-runtime.js";
 import {
   MCP_VERSION,
@@ -72,6 +82,7 @@ import {
   mcpError,
   requiredHumanGateWorkflows,
   resolveSafePath,
+  safeBase,
   textContent,
   usageScanMaxBytes,
   debug,
@@ -83,6 +94,8 @@ import type {
   getCommandSchema,
   getRuleSchema,
   getSkillSchema,
+  harnessDetectSchema,
+  harnessScaffoldSchema,
   listAgentsSchema,
   listSkillsSchema,
   paperclipIssueCheckoutSchema,
@@ -142,6 +155,8 @@ export async function handleHealth() {
       "commands",
       "rules",
       "project_context",
+      "harness_detect",
+      "harness_scaffold",
       "workflow_step",
       "workflow_confirm",
       "workflow_usage_totals",
@@ -169,6 +184,80 @@ export async function handleProjectContext(args: ShapeArgs<typeof projectContext
     max_trail: args.max_trail,
   });
   return textContent(JSON.stringify(packet));
+}
+
+export async function handleHarnessDetect(args: ShapeArgs<typeof harnessDetectSchema>) {
+  const detection = detectHarness({ cwd: safeBase });
+  if (args.harness) {
+    return textContent(
+      JSON.stringify({
+        harness: args.harness,
+        layout: HARNESS_LAYOUTS[args.harness],
+        detection,
+      })
+    );
+  }
+  return textContent(
+    JSON.stringify({
+      ...detection,
+      layouts: layoutTable(),
+      hint:
+        detection.detected.length === 0
+          ? "No harness detected. Pass harnesses explicitly to harness_scaffold, or set PNCORE_HARNESS (cursor | claude_code | codex | pi) in the MCP server env."
+          : `Scaffold with harness_scaffold({ harnesses: ${JSON.stringify(detection.detected)}, project: {...} }). Files land only in the folders each selected harness reads.`,
+    })
+  );
+}
+
+export async function handleHarnessScaffold(args: ShapeArgs<typeof harnessScaffoldSchema>) {
+  const detection = detectHarness({ cwd: safeBase });
+  const harnesses =
+    args.harnesses && args.harnesses.length > 0 ? args.harnesses : detection.detected;
+  if (harnesses.length === 0) {
+    return mcpError(
+      "INVALID_STATE",
+      "No harness selected and none detected. Pass harnesses: [cursor | claude_code | codex | pi].",
+      { detection }
+    );
+  }
+  const include = args.include as ScaffoldInclude[] | undefined;
+  const plan = buildScaffoldPlan({
+    harnesses,
+    project: args.project,
+    include,
+    noTrailersRule: getRule("pn-no-cursor-commit-trailers"),
+  });
+  let files: AppliedFile[];
+  try {
+    files = applyScaffoldPlan({
+      root: safeBase,
+      plan,
+      overwrite: args.overwrite === true,
+      dryRun: args.dryRun === true,
+    });
+  } catch (err) {
+    const msg = String(err);
+    if (msg.includes("escapes workspace")) return mcpError("PATH_TRAVERSAL", msg, {});
+    return mcpError("IO_ERROR", msg, {});
+  }
+  const topFolder = (h: (typeof HARNESS_IDS)[number]) => HARNESS_LAYOUTS[h].skillsDir.split("/")[0];
+  const usedFolders = new Set(harnesses.map(topFolder));
+  const untouched = HARNESS_IDS.filter(
+    (h) => !harnesses.includes(h) && !usedFolders.has(topFolder(h))
+  );
+  return textContent(
+    JSON.stringify({
+      harnesses,
+      detection: { detected: detection.detected, explicit: detection.explicit },
+      dryRun: args.dryRun === true,
+      files,
+      ...(args.dryRun === true
+        ? { contents: Object.fromEntries(plan.map((f) => [f.path, f.content])) }
+        : {}),
+      untouchedHarnessFolders: [...new Set(untouched.map(topFolder))],
+      next: "Fill in any '(fill in)' placeholders from the codebase analysis. Re-run with overwrite: true to regenerate; managed AGENTS.md blocks are replaced in place.",
+    })
+  );
 }
 
 export async function handleListWorkflowTypes() {

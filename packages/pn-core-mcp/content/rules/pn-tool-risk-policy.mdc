@@ -7,8 +7,10 @@ alwaysApply: true
 
 | Tier | Tools | Expectation |
 |------|-------|-------------|
-| Read-only | `list_*`, `get_*`, `health`, `list_workflow_types`, `workflow_step`, `workflow_confirm`, `workflow_usage_totals`, `workflow_handoff_read`, `workflow_state_load` | No workspace writes; safe to call freely. |
+| Read-only | `list_*`, `get_*`, `health`, `project_context`, `harness_detect`, `list_workflow_types`, `suggest_model_tier`, `workflow_step`, `workflow_confirm`, `workflow_usage_totals`, `workflow_handoff_read`, `workflow_state_load`, `workflow_run_query` | No workspace writes; safe to call freely. |
 | Append-only JSONL | `report_usage`, `gate_log_append`, `workflow_handoff_append`, `workflow_state_save` | Writes under cwd only via path rules; prefer `.pncore/` paths. Idempotent or append-only semantics. |
+| Workspace scaffold | `harness_scaffold` | Writes onboarding files only into the selected harness folders (`.cursor/`, `.claude/`, `.agents/skills`, `.pi/`, `AGENTS.md` managed block); workspace-contained; existing files skipped unless `overwrite`; `dryRun` returns the plan. Confirm harness selection with the user when detection is empty. |
+| Verify (no shell) | `workflow_verify` | Catalog argv only; requires `disposeVerify`; returns a GateReport. |
 | Gate / secret | `approval_checkpoint` | Requires `PNCORE_APPROVAL_TOKEN` on server; optional `workflow_type` + `workflow_step` + `run_id` for human-gate tickets. |
 | External side effects | `paperclip_issue_*` | Requires Paperclip env; treat as production API calls. |
 

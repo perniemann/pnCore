@@ -17,7 +17,7 @@ Configure pnCore to understand this project. Creates context files that all skil
 
 ## Step 0: What to capture
 
-Ask: "What context do you want to set up? (1) Everything — project integration, design context, stack context, and context-index harness. (2) Project integration only — codebase analysis, project-context.mdc, project skill. (3) Design context only — brand, tone, visual ambition. (4) Stack context only — runtime, framework, database, auth. (5) Context-index harness only — docs/refs/context-index.json + artifacts catalog."
+Ask: "What context do you want to set up? (1) Everything — project integration, design context, stack context, and context-index harness. (2) Project integration only — codebase analysis, harness detection, project-context, project skill. (3) Design context only — brand, tone, visual ambition. (4) Stack context only — runtime, framework, database, auth. (5) Context-index harness only — docs/refs/context-index.json + artifacts catalog."
 
 Wait for reply (1, 2, 3, 4, or 5). Then run only the selected sections below. Option 1 runs A + B + C + E. Option 5 runs Section E only.
 
@@ -25,7 +25,7 @@ Wait for reply (1, 2, 3, 4, or 5). Then run only the selected sections below. Op
 
 ## Section A: Project Integration (runs for options 1 and 2)
 
-**Progress:** "pn-setup: Project integration — Step N of 4."
+**Progress:** "pn-setup: Project integration — Step N of 4." (Section E's "context-index harness" means the `docs/refs/context-index.json` catalog, not the agent harness detected in A2.)
 
 ### A1. Analyze the codebase
 
@@ -40,30 +40,39 @@ Explore the workspace to understand its structure, stack, and conventions. Inspe
 
 Save a brief analysis summary to `docs/discovery/YYYY-MM-DD-integrate-analysis.md` (create `docs/` if missing). Include: stack, scope, key paths, conventions, inferred constraints.
 
-### A2. Create project-context.mdc
+### A2. Detect the harness and write project context
 
-Create `.cursor/rules/project-context.mdc` with `alwaysApply: true`. Include:
+pnCore runs on Cursor, Claude Code, Codex, and Pi. Only create the folders the active harness reads — never default to `.cursor/` on another surface.
 
-- **(a) Triangle:** "Begin every response in this project with the appropriate context tag and 🔺 (Unicode U+1F53A — emoji red triangle pointed up). Default: `[pn-default] 🔺`. Use `[pn-command] 🔺` / `[pn-agent] 🔺` / `[pn-skill] 🔺` / `[pn-plan] 🔺` when a pn command, agent, skill, or plan mode is active. Do this before any other output or tool call. See pnCore rule `pn-visual-indicator` for full guidance."
-- **(b) Project context:** One-sentence goal, stack, scope, key constraints — synthesized from the codebase analysis. Be specific to this project.
-- **(c) MCP bootstrap:** "When pn-core MCP is available, load `get_rule("pn-build-gate")` and `get_rule("pn-mcp-proactive")` and follow them. At session start call `project_context` (default agent mode) for the cold-session packet. When responses are verbose or the user uses aliases (`scr`/`eli`/`foc`/`ref`/`scp`), load `get_rule("pn-communication-contract")` and `get_skill("pn-response-aliases")`."
-- **(d) Phase gate:** "After each plan phase: verify → spawn pn-reviewer Task (`readonly: true`) on phase diff → fix → user `continue`. See pn-build-gate § Phase-complete gate."
+1. **Detect:** call `harness_detect` when pn-core MCP is available. It returns `detected` (precedence: `PNCORE_HARNESS` env > process env signals > workspace folders) and the layout table. Without MCP, read `pn-core://reference/harness-matrix.md` or ask: "Which agent harness are you using here? (1) Cursor (2) Claude Code (3) Codex (4) Pi (5) several — list them." If detection is empty, ask the same question.
+2. **Write:** call `harness_scaffold({ harnesses, project: { name, goal, stack, scope, constraints }, include: ["project_context", "project_skill", "no_trailers_rule"] })` with facts from A1. Pass `dryRun: true` first when the MCP cwd is not the project root, then write the returned `contents` with your own file tools at the same paths. Existing files are skipped unless `overwrite: true`; the `AGENTS.md` block is replaced in place.
 
-Keep under 30 lines. Create `.cursor/rules/` if it does not exist.
+What lands per harness (identical guidance, harness-native location):
 
-**If the project uses Git:** write `.cursor/rules/pn-no-cursor-commit-trailers.mdc` (`alwaysApply: true`) from `get_rule("pn-no-cursor-commit-trailers")`. Then follow `pn-core://reference/consumer-gating.md` (or `node scripts/install-consumer-gating.mjs <projectRoot>` from a pnCore checkout) for portable `.githooks`. Do not overwrite an existing `core.hooksPath`. Optional trailer-only Actions workflow — ask first. Do not copy pnCore `pn-gates`, automerge, or branch protection.
+| Harness | Project context | Project skill |
+|---------|-----------------|---------------|
+| Cursor | `.cursor/rules/project-context.mdc` (`alwaysApply: true`) | `.cursor/skills/project/SKILL.md` |
+| Claude Code | `.claude/rules/project-context.md` | `.claude/skills/project/SKILL.md` |
+| Codex | managed `<!-- pncore:start -->` block in `AGENTS.md` | `.agents/skills/project/SKILL.md` |
+| Pi | managed block in `AGENTS.md` | `.agents/skills/project/SKILL.md` |
 
-**Optional (communication, not always-on):** offer to copy `.cursor/rules/pn-communication-contract.mdc` with **`alwaysApply: false`** via `get_rule("pn-communication-contract")`. Do **not** set `alwaysApply: true` — this stays agent-requested so it does not grow every-turn token cost.
+The project-context body always carries: **(a) Triangle** — "Begin every response in this project with the appropriate context tag and 🔺 (Unicode U+1F53A). Default `[pn-default] 🔺`; `[pn-command] 🔺` / `[pn-agent] 🔺` / `[pn-skill] 🔺` / `[pn-plan] 🔺` when active. See rule `pn-visual-indicator`." **(b) Project context** — one-sentence goal, stack, scope, key constraints from A1. **(c) MCP bootstrap** — "When pn-core MCP (or Pi native tools) is available: call `project_context` at session start; load `get_rule("pn-build-gate")` and `get_rule("pn-mcp-proactive")`; for verbose replies or the aliases `scr`/`eli`/`foc`/`ref`/`scp` load `get_rule("pn-communication-contract")` and `get_skill("pn-response-aliases")`." **(d) Phase gate** — "After each plan phase: verify → pn-reviewer (read-only) on the phase diff → fix → user `continue`. See pn-build-gate § Phase-complete gate."
 
-### A3. Create project skill
+Keep the generated file under 30 lines; replace every `(fill in)` placeholder from the A1 analysis.
 
-Create `.cursor/skills/project/SKILL.md` with domain guidance inferred from the codebase:
+**If the project uses Git:** `no_trailers_rule` writes `pn-no-cursor-commit-trailers` into the rules dir on Cursor / Claude Code and as a line in the `AGENTS.md` block on Codex / Pi. Then follow `pn-core://reference/consumer-gating.md` (or `node scripts/install-consumer-gating.mjs <projectRoot>` from a pnCore checkout) for portable `.githooks`. Do not overwrite an existing `core.hooksPath`. Optional trailer-only Actions workflow — ask first. Do not copy pnCore `pn-gates`, automerge, or branch protection.
+
+**Optional (communication, not always-on):** on Cursor offer `.cursor/rules/pn-communication-contract.mdc` with **`alwaysApply: false`** via `get_rule("pn-communication-contract")`. Do **not** set `alwaysApply: true`. Claude Code has no agent-requested rule mode and Codex / Pi have no rules dir — there the rule stays MCP-only (`get_rule`).
+
+### A3. Fill the project skill
+
+`harness_scaffold` creates `<skillsDir>/project/SKILL.md` (frontmatter `name: project`, `description: "Project-specific domain guidance for [project name]."`). Replace the placeholders with domain guidance inferred from the codebase:
 
 - **Purpose:** What this project does (from README, entry points, domain).
 - **Key constraints:** Stack-specific patterns, auth model, data layer, API style.
 - **Patterns:** Conventions observed (file layout, naming, testing approach).
 
-Frontmatter: `name: project`, `description: "Project-specific domain guidance for [project name]."` Keep under 30 lines.
+Keep under 30 lines. Same file body on every harness; only the directory differs.
 
 ### A4 (Optional): File-glob rules
 
@@ -71,7 +80,7 @@ If the analysis revealed strong conventions, offer to create file-glob rules. Us
 
 "Do you want file-specific rules for [e.g. **/*.ts, **/*.tsx] based on the conventions I found? (1) Yes. (2) No."
 
-- **Yes:** Create one or more `.cursor/rules/*.mdc` with appropriate `globs`. Keep each rule under 50 lines.
+- **Yes (Cursor):** create `.cursor/rules/*.mdc` with `globs`. **Yes (Claude Code):** create `.claude/rules/*.md` with `paths:`. **Codex / Pi:** no glob rules exist — write the convention as a skill under `.agents/skills/<name>/SKILL.md` instead, or a short line in the `AGENTS.md` block. Keep each rule under 50 lines.
 - **No:** Skip.
 
 ---
@@ -231,11 +240,11 @@ Scaffold the **one** project catalog agents pull via MCP `project_context`. Do n
 
 ### E1. Create or refresh `docs/refs/context-index.json`
 
-If missing, create `docs/refs/` and write a 1.3.0 index with `version`, `last_reviewed` (today from MCP `health` → `calendarDateUtc` when available), `pointers.workspace` pointing at `AGENTS.md` or `.cursor/rules/project-context.mdc`, empty `artifacts`, and empty `verify`. Copy `docs/refs/context-index.schema.json` from pnCore when the adopter does not have it (see `docs/context-index-adopters.md`).
+If missing, create `docs/refs/` and write a 1.3.0 index with `version`, `last_reviewed` (today from MCP `health` → `calendarDateUtc` when available), `pointers.workspace` pointing at the project-context location from A2 (`AGENTS.md`, `.cursor/rules/project-context.mdc`, or `.claude/rules/project-context.md`), empty `artifacts`, and empty `verify`. Copy `docs/refs/context-index.schema.json` from pnCore when the adopter does not have it (see `docs/context-index-adopters.md`).
 
 ### E2. Populate `artifacts` from existing docs
 
-Scan `docs/refs/`, `docs/discovery/`, `docs/plans/`, `docs/WORKFLOW.md`. Map: discovery → `discovery`, plans → `plan`, `PRD.md` → `prd`, `DESIGN*.md` → `design`, `WORKFLOW.md` → `workflow`, other durable docs → `convention`. Fields: `id`, `type`, `path`; optional `tracker` / `run_id`. Never set `authored_status: complete` without a linked `run_id` that has passing verify/acceptance. Run `npm run check:context-index` and `npm run check:artifact-status` when those scripts exist. Ensure project-context.mdc includes the A2(c) `project_context` session-start bootstrap line.
+Scan `docs/refs/`, `docs/discovery/`, `docs/plans/`, `docs/WORKFLOW.md`. Map: discovery → `discovery`, plans → `plan`, `PRD.md` → `prd`, `DESIGN*.md` → `design`, `WORKFLOW.md` → `workflow`, other durable docs → `convention`. Fields: `id`, `type`, `path`; optional `tracker` / `run_id`. Never set `authored_status: complete` without a linked `run_id` that has passing verify/acceptance. Run `npm run check:context-index` and `npm run check:artifact-status` when those scripts exist. Ensure the project-context file (or `AGENTS.md` block) includes the A2(c) `project_context` session-start bootstrap line.
 
 ---
 
@@ -243,7 +252,7 @@ Scan `docs/refs/`, `docs/discovery/`, `docs/plans/`, `docs/WORKFLOW.md`. Map: di
 
 After completing selected sections, output:
 
-- What was created/updated: project-context.mdc, project skill, .pncore-design.md, .pncore-stack.md, docs/refs/context-index.json, `.githooks` trailer hook / optional no-ide-trailers workflow (whichever ran).
+- Which harness(es) were detected and what was created/updated: project-context (rule file or `AGENTS.md` block), project skill, .pncore-design.md, .pncore-stack.md, docs/refs/context-index.json, `.githooks` trailer hook / optional no-ide-trailers workflow (whichever ran).
 - Brief recap of inferred stack and constraints (when Section A ran).
 - Next steps: "You can now use `pn-build` for new features or `workflow_step('full_dev'|'design', ...)` for incremental builds. `pn-build-gate` will recognize this as an existing project. Design skills read `.pncore-design.md` automatically. Backend skills read `.pncore-stack.md` automatically. Call `project_context` at session start when pn-core MCP is available."
 

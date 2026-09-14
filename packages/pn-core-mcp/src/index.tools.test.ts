@@ -1,6 +1,6 @@
 /**
  * Per-tool integration tests via StdioClientTransport.
- * Covers all 27 tools: one happy-path + one negative case each.
+ * Covers all 29 tools: one happy-path + one negative case each.
  * Negatives assert the unified error envelope: { isError: true, content: [{ type: "text", text: JSON({ code, error }) }] }
  * Depends on: F1.1 (error envelope shape), F1.4 (list_agents cardinality)
  */
@@ -93,6 +93,66 @@ describe("MCP per-tool integration", () => {
     const parsed = parseFirst(result);
     expect(parsed.mode).toBe("agent");
     expect(Array.isArray(parsed.artifacts)).toBe(true);
+  });
+
+  // ── harness_detect ──────────────────────────────────────────────────────
+  it("harness_detect: returns detection + all four layouts", async () => {
+    const result = await client.callTool({ name: "harness_detect", arguments: {} });
+    const parsed = parseFirst(result);
+    expect(Array.isArray(parsed.detected)).toBe(true);
+    expect(Array.isArray(parsed.evidence)).toBe(true);
+    const layouts = parsed.layouts as Record<string, { skillsDir: string }>;
+    expect(Object.keys(layouts).sort()).toEqual(["claude_code", "codex", "cursor", "pi"]);
+    expect(layouts.claude_code.skillsDir).toBe(".claude/skills");
+    expect(typeof parsed.hint).toBe("string");
+  });
+
+  it("harness_detect: single harness returns its layout", async () => {
+    const result = await client.callTool({
+      name: "harness_detect",
+      arguments: { harness: "codex" },
+    });
+    const parsed = parseFirst(result);
+    expect(parsed.harness).toBe("codex");
+    expect((parsed.layout as { skillsDir: string }).skillsDir).toBe(".agents/skills");
+  });
+
+  it("harness_detect: unknown harness id is a validation error", async () => {
+    const result = await client.callTool({
+      name: "harness_detect",
+      arguments: { harness: "emacs" },
+    });
+    expect(result.isError).toBe(true);
+  });
+
+  // ── harness_scaffold ────────────────────────────────────────────────────
+  it("harness_scaffold: dryRun returns a plan scoped to the selected harness and writes nothing", async () => {
+    const result = await client.callTool({
+      name: "harness_scaffold",
+      arguments: {
+        harnesses: ["claude_code"],
+        project: { name: "Tools Test", goal: "g", stack: "s", scope: "sc" },
+        dryRun: true,
+      },
+    });
+    expect(result.isError).toBeFalsy();
+    const parsed = parseFirst(result);
+    expect(parsed.dryRun).toBe(true);
+    const files = parsed.files as Array<{ path: string; action: string }>;
+    expect(files.length).toBeGreaterThan(0);
+    expect(files.every((f) => f.action === "planned")).toBe(true);
+    expect(files.every((f) => f.path.startsWith(".claude/"))).toBe(true);
+    const contents = parsed.contents as Record<string, string>;
+    expect(contents[".claude/rules/project-context.md"]).toContain("Tools Test");
+    expect(parsed.untouchedHarnessFolders).toEqual(expect.arrayContaining([".cursor", ".agents"]));
+  });
+
+  it("harness_scaffold: missing project.name is a validation error", async () => {
+    const result = await client.callTool({
+      name: "harness_scaffold",
+      arguments: { harnesses: ["cursor"], project: {}, dryRun: true },
+    });
+    expect(result.isError).toBe(true);
   });
 
   // ── list_workflow_types ──────────────────────────────────────────────────

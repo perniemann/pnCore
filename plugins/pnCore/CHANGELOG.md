@@ -4,6 +4,19 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.19.0] - 2026-09-14
+
+### Added
+
+- **Harness adapters** (ADR-0016): pnCore is one MCP engine with four surfaces — Cursor, Claude Code, Codex, Pi. `packages/pn-core-mcp/src/harness.ts` holds the single layout table (instructions file, rules dir + format, skills dir, commands dir, agents dir, MCP config, hooks) and detection (`PNCORE_HARNESS` > process env signals > workspace folders). Reference: `pn-core://reference/harness-matrix.md`.
+- **MCP tools `harness_detect` and `harness_scaffold`** (29 tools): detect the active harness and write project-context / project skill / trailer rule / optional MCP config **only** into the folders that harness reads — `.cursor/rules/*.mdc`, `.claude/rules/*.md`, or a managed `<!-- pncore:start -->` block in `AGENTS.md` (Codex, Pi); `.cursor/skills`, `.claude/skills`, or shared `.agents/skills`. `dryRun` returns the plan with contents; existing files are skipped unless `overwrite`; managed blocks are replaced in place.
+- **Installer `--harness <cursor|claude_code|codex|pi|auto|all>`** for `scripts/install-to-project.mjs` (`npx github:perniemann/pnCore plugin-install`): Claude Code gets `.claude/{skills,agents,rules,commands}` with `.mdc` → `.md` rule conversion (`globs` → `paths`, agent-requested rules stay MCP-only); Codex gets `.agents/skills` + an `AGENTS.md` pnCore block; Pi gets `.agents/skills` + `.pi/prompts` + the block. `--with-mcp-config` writes the harness-native server entry; `--inline-rules` inlines always-apply rules for Codex / Pi. `auto` falls back to Cursor and says so.
+- Pi native extension sets `PNCORE_HARNESS=pi` on load so detection is authoritative on Pi.
+
+### Changed
+
+- `/pn-setup`, `/pn-new`, `project_kickoff` step 7, and `full_dev` step 1 no longer hardcode `.cursor/`; they call `harness_detect` → `harness_scaffold` and ask for the harness when detection is empty. `pn-mcp-proactive` adds a harness-aware-writes rule; `pn-tool-risk-policy` lists the new tools; RUNBOOK, FLOW, `starting-new-project`, `pn-build`, `pn-project-builder`, and `pn-agents-md` reference the harness-native project-skill / project-context locations.
+
 ## [0.18.10] - 2026-09-03
 
 ### Added
