@@ -9,6 +9,8 @@ import { PN_CORE_TOOLS } from "../dist/tools/registry.js";
 import { registerPnCommandMenu } from "./pn-command-menu.js";
 
 export default function registerPnCoreTools(pi: ExtensionAPI): void {
+  // Native Pi load is an authoritative harness signal for harness_detect / harness_scaffold.
+  if (!process.env.PNCORE_HARNESS) process.env.PNCORE_HARNESS = "pi";
   registerPnCommandMenu(pi);
   for (const tool of PN_CORE_TOOLS) {
     pi.registerTool({

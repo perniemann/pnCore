@@ -372,6 +372,13 @@ export const resourceDefs = [
         mimeType: "text/markdown",
     },
     {
+        uri: "pn-core://reference/harness-matrix.md",
+        name: "harness-matrix.md",
+        description: "Where pnCore files live per harness (Cursor, Claude Code, Codex, Pi): instructions, rules, skills, commands, agents, MCP config; detection precedence; what harness_scaffold writes; rule conversion",
+        path: "reference/harness-matrix.md",
+        mimeType: "text/markdown",
+    },
+    {
         uri: "pn-core://reference/consumer-gating.md",
         name: "consumer-gating.md",
         description: "What pnCore gates in a downstream project (chat workflow + opt-in git trailer hooks/CI) versus this repo’s land-on-main path; MCP never owns the GitHub Merge button",

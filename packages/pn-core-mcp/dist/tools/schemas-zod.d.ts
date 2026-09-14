@@ -39,6 +39,43 @@ export declare const projectContextSchema: {
     readonly max_trail: z.ZodOptional<z.ZodNumber>;
 };
 export declare const listWorkflowTypesSchema: {};
+export declare const harnessIdEnum: z.ZodEnum<{
+    cursor: "cursor";
+    claude_code: "claude_code";
+    codex: "codex";
+    pi: "pi";
+}>;
+export declare const harnessDetectSchema: {
+    readonly harness: z.ZodOptional<z.ZodEnum<{
+        cursor: "cursor";
+        claude_code: "claude_code";
+        codex: "codex";
+        pi: "pi";
+    }>>;
+};
+export declare const harnessScaffoldSchema: {
+    readonly harnesses: z.ZodOptional<z.ZodArray<z.ZodEnum<{
+        cursor: "cursor";
+        claude_code: "claude_code";
+        codex: "codex";
+        pi: "pi";
+    }>>>;
+    readonly project: z.ZodObject<{
+        name: z.ZodString;
+        goal: z.ZodOptional<z.ZodString>;
+        stack: z.ZodOptional<z.ZodString>;
+        scope: z.ZodOptional<z.ZodString>;
+        constraints: z.ZodOptional<z.ZodArray<z.ZodString>>;
+    }, z.core.$strip>;
+    readonly include: z.ZodOptional<z.ZodArray<z.ZodEnum<{
+        project_context: "project_context";
+        project_skill: "project_skill";
+        no_trailers_rule: "no_trailers_rule";
+        mcp_config: "mcp_config";
+    }>>>;
+    readonly dryRun: z.ZodOptional<z.ZodBoolean>;
+    readonly overwrite: z.ZodOptional<z.ZodBoolean>;
+};
 export declare const suggestModelTierSchema: {
     readonly workflowType: z.ZodOptional<z.ZodEnum<{
         design: "design";
@@ -286,12 +323,12 @@ export declare const workflowVerifySchema: {
 export declare const workflowRunQuerySchema: {
     readonly run_id: z.ZodString;
     readonly kinds: z.ZodOptional<z.ZodArray<z.ZodEnum<{
-        verify: "verify";
-        acceptance: "acceptance";
-        handoff: "handoff";
-        gate: "gate";
-        usage: "usage";
         step: "step";
+        gate: "gate";
+        acceptance: "acceptance";
+        verify: "verify";
+        handoff: "handoff";
+        usage: "usage";
     }>>>;
     readonly limit: z.ZodOptional<z.ZodNumber>;
     readonly path: z.ZodOptional<z.ZodString>;

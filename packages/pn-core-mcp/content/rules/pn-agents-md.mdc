@@ -17,4 +17,4 @@ When `AGENTS.md` exists in the workspace, use it for learned user preferences an
 - Example: before committing, read the actual diff; before deploying, confirm the target env. AGENTS.md guides; tools verify.
 
 **Hard constraints:**
-- Non-negotiable rules (e.g. "never do X") belong in **Cursor User Rules** (Settings → Rules) or **.cursor/rules/** (project rules). AGENTS.md holds learned, inferred preferences that can evolve. For strict enforcement, use explicit rules.
+- Non-negotiable rules (e.g. "never do X") belong in explicit harness rules — **Cursor User Rules** (Settings → Rules) or **.cursor/rules/**, Claude Code **.claude/rules/**; on Codex and Pi (no rules dir) put them in the `AGENTS.md` pnCore block (`pn-core://reference/harness-matrix.md`). AGENTS.md otherwise holds learned, inferred preferences that can evolve. For strict enforcement, use explicit rules.

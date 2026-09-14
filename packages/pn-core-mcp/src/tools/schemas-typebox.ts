@@ -21,6 +21,9 @@ const WORKFLOW_TYPES = [
 
 const workflowTypeSchema = Type.Union(WORKFLOW_TYPES.map((v) => Type.Literal(v)));
 
+const HARNESS_IDS = ["cursor", "claude_code", "codex", "pi"] as const;
+const harnessIdSchema = Type.Union(HARNESS_IDS.map((v) => Type.Literal(v)));
+
 const runIdOpt = Type.Optional(
   Type.String({ description: "Workflow run_id from workflow_step; include for correlation" })
 );
@@ -33,6 +36,31 @@ export const typeboxSchemas: Record<string, TSchema> = {
     max_trail: Type.Optional(Type.Integer({ minimum: 1, maximum: 80 })),
   }),
   list_workflow_types: Type.Object({}),
+  harness_detect: Type.Object({
+    harness: Type.Optional(harnessIdSchema),
+  }),
+  harness_scaffold: Type.Object({
+    harnesses: Type.Optional(Type.Array(harnessIdSchema, { minItems: 1 })),
+    project: Type.Object({
+      name: Type.String({ minLength: 1 }),
+      goal: Type.Optional(Type.String()),
+      stack: Type.Optional(Type.String()),
+      scope: Type.Optional(Type.String()),
+      constraints: Type.Optional(Type.Array(Type.String())),
+    }),
+    include: Type.Optional(
+      Type.Array(
+        Type.Union([
+          Type.Literal("project_context"),
+          Type.Literal("project_skill"),
+          Type.Literal("no_trailers_rule"),
+          Type.Literal("mcp_config"),
+        ])
+      )
+    ),
+    dryRun: Type.Optional(Type.Boolean()),
+    overwrite: Type.Optional(Type.Boolean()),
+  }),
   suggest_model_tier: Type.Object({
     workflowType: Type.Optional(workflowTypeSchema),
     step: Type.Optional(Type.Integer({ minimum: 0 })),

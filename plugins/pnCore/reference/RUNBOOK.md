@@ -60,7 +60,7 @@ Tradeoffs: HTML is often slower to generate and **noisier in git diffs** than ma
 
 ## Project rules
 
-- **project-context.mdc:** pn-new, pn-setup, and full_dev create `.cursor/rules/project-context.mdc` if missing. When absent: pn-build-gate routes to pn-new or pn-setup.
+- **project-context:** pn-new, pn-setup, and full_dev create it if missing via `harness_detect` → `harness_scaffold` — Cursor `.cursor/rules/project-context.mdc`, Claude Code `.claude/rules/project-context.md`, Codex/Pi managed block in `AGENTS.md` (`pn-core://reference/harness-matrix.md`). When absent: pn-build-gate routes to pn-new or pn-setup.
 - **Consumer git/PR gating:** MCP gates `workflow_step` only. Trailer hooks / Merge-button split: `pn-core://reference/consumer-gating.md`.
 - **Design questionnaire:** When frontend/UI in scope, Discovery includes Design 3a–3g. Answer all subsections for award-winning design.
 - **Assets when UI present:** Orchestrator flows include pn-assets-manager automatically; logos, icons, hero images, or placeholders are created even if not explicitly mentioned.
