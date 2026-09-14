@@ -10,3 +10,4 @@ Two files share `0001` (early collision; left as-is rather than recycling a late
 `0007` was claimed by a command-palette PM-router draft that never merged. [ADR-0008](./0008-command-palette-pn-submenu.md) retires that number. Do not reuse `0007`.
 
 - [0015-consumer-project-gating.md](./0015-consumer-project-gating.md) — downstream gating is chat + opt-in git trailer defense; MCP never owns the Merge button
+- [0016-harness-adapters.md](./0016-harness-adapters.md) — one MCP engine, four harness adapters (Cursor, Claude Code, Codex, Pi); onboarding writes only the active harness's folders

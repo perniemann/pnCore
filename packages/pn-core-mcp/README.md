@@ -1,6 +1,6 @@
 # pn-core-mcp
 
-MCP server for [pnCore](https://github.com/perniemann/pnCore) **0.18.10**: same skills, agents, commands, and rules as the Cursor plugin, plus **`workflow_step`** and related tools. Use from any MCP client to run orchestration, discovery, skeptic, audits, assets, and other pnCore workflows without installing the plugin.
+MCP server for [pnCore](https://github.com/perniemann/pnCore) **0.19.0**: same skills, agents, commands, and rules as the Cursor plugin, plus **`workflow_step`** and related tools. Use from any MCP client to run orchestration, discovery, skeptic, audits, assets, and other pnCore workflows without installing the plugin.
 
 ## Installation
 
@@ -112,6 +112,8 @@ Skills, agents, rules, config, docs, reference, and hooks in this package live i
 |------|------|-------------|
 | **health** | read | Health check: status, version, **`calendarDateUtc`** / **`timestampUtc`** (UTC), capabilities. |
 | **list_workflow_types** | read | Workflow types and step counts. |
+| **harness_detect** | read | Active harness (`cursor` / `claude_code` / `codex` / `pi`) with evidence, plus the per-harness layout table (instructions file, rules dir + format, skills dir, commands dir, agents dir, MCP config, hooks). Precedence: **`PNCORE_HARNESS`** > process env signals > workspace folders. |
+| **harness_scaffold** | write | Onboarding files for the selected harnesses only: project context (`.cursor/rules/*.mdc`, `.claude/rules/*.md`, or managed `AGENTS.md` block), project skill in the harness skills dir, trailer rule, opt-in `mcp_config`. `dryRun` returns the plan with contents; existing files skipped unless `overwrite`; workspace-contained. Reference: `pn-core://reference/harness-matrix.md`. |
 | **suggest_model_tier** | read | Suggested LLM model tier for a workflow step or subagent role (`fast` / `standard` / `premium` / `premium_thinking` / `long_horizon`). Pass `role` (`explorer` | `builder` | `judge` | `checker` | `orchestrator`) for subagent routing; omit `step` for the full per-step table. Resolves `PNCORE_FEATURES.modelTierOverrides` and `tierAliases`. |
 | **list_skills** | read | Skill ids and descriptions. |
 | **get_skill** | read | Full skill markdown (truncated per **`PNCORE_MAX_RESOURCE_CHARS`** / features). |
@@ -141,7 +143,7 @@ Skills, agents, rules, config, docs, reference, and hooks in this package live i
 
 See rule **`pn-tool-risk-policy`** for the full matrix.
 
-Path parameters for **report_usage**, **gate_log_append**, **workflow_state_save**, **workflow_state_load**, **workflow_handoff_***, and **workflow_usage_totals** should be under the workspace (e.g. `.pncore/...`). When `process.cwd()` is not the workspace root, pass explicit paths. Env: **`PNCORE_STATE_PATH`**, **`PNCORE_HANDOFF_LOG`**, **`PNCORE_FEATURES`** (JSON overrides `pn-core://config/features.json`), **`PNCORE_USAGE_SCAN_BYTES`**, **`PNCORE_USAGE_WARN_INPUT_TOKENS`**, **`PNCORE_MAX_RESOURCE_CHARS`**, **`PNCORE_SKILL_LOG_SAMPLE_RATE`** (integer N; writes 1-in-N entries to skill-load log; default 1 = log every call).
+Path parameters for **report_usage**, **gate_log_append**, **workflow_state_save**, **workflow_state_load**, **workflow_handoff_***, and **workflow_usage_totals** should be under the workspace (e.g. `.pncore/...`). When `process.cwd()` is not the workspace root, pass explicit paths. Env: **`PNCORE_STATE_PATH`**, **`PNCORE_HANDOFF_LOG`**, **`PNCORE_FEATURES`** (JSON overrides `pn-core://config/features.json`), **`PNCORE_USAGE_SCAN_BYTES`**, **`PNCORE_USAGE_WARN_INPUT_TOKENS`**, **`PNCORE_MAX_RESOURCE_CHARS`**, **`PNCORE_SKILL_LOG_SAMPLE_RATE`** (integer N; writes 1-in-N entries to skill-load log; default 1 = log every call), **`PNCORE_HARNESS`** (comma list `cursor` / `claude_code` / `codex` / `pi`; authoritative for `harness_detect` / `harness_scaffold` when the host exposes no env signal).
 
 **Model-tier suggestions:** `workflow_step` responses include a `suggestedModelTier` field — `{ tier, exemplar, rationale }` — and prepend a short `**Suggested model tier:**` hint to the instruction when the tier is non-default. Pass **`leadModelTier`**, **`sessionModel`**, or **`orchestrationIntent`** in state to receive **`orchestrationMode`** (`lead` | `light_delegate` | `implementer`) and **`subagentTierHints`** on parallel fan-out (see rule **`pn-orchestrator-lead`**). Tiers: `fast` (e.g. composer-2.5-fast), `standard` (e.g. claude-4.6-sonnet-medium-thinking), `premium` (e.g. claude-opus-4-8-thinking-high), `premium_thinking` (e.g. claude-opus-4-8-thinking-high + MAX Mode), `long_horizon` (e.g. claude-fable-5-1 — loop orchestration / escalation; alternates in `TIER_META`). Subagent routing: `pn-core://reference/subagent-routing.md`; loops: `pn-core://reference/loop-orchestration-guide.md`. Disambiguation: pnCore uses *delivery tier* (MVP/Full), *context tier* (1–4), and *model tier* — see [model-tiers.ts](src/model-tiers.ts). Override per-step via `PNCORE_FEATURES.modelTierOverrides` keyed `<workflowType>.<step>`; remap globally via `PNCORE_FEATURES.tierAliases` (e.g. `{"premium_thinking":"premium"}` or `{"long_horizon":"premium"}` when Fable is unavailable). **Pi:** pass the same state keys when using pn-core MCP native tools; `/pn program` and `/pn build` templates document lead orchestration.
 
@@ -228,6 +230,7 @@ MCP resources expose config and reference content by URI. When your workspace do
 | `pn-core://reference/workflow-state-schema.md` | Workflow state schema and task contract for persistence/resume and parallel execution |
 | `pn-core://reference/best-practices.md` | Best practices checklist (a11y, security, performance, design, orchestration, mobile, WebXR) |
 | `pn-core://reference/aesthetics-baseline.md` | Distinctive UI checklist, inspiration presets, optional `<frontend_aesthetics>` block for CLAUDE.md |
+| `pn-core://reference/harness-matrix.md` | Per-harness file layout (Cursor, Claude Code, Codex, Pi), detection precedence, what `harness_scaffold` writes, rule conversion |
 | `pn-core://reference/human-facing-artifacts.md` | HTML vs canvas vs markdown for subset workflow outputs; dual digest for orchestration; example gallery link |
 | `pn-core://reference/discovery-and-plan-format.md` | Format reference for discovery specs and plans |
 | `pn-core://reference/schemas/delivery_pack.contract.json` | Delivery pack contract for pn-deliver |
@@ -303,7 +306,7 @@ pnCore is a **multi-surface product** built on one canonical content body (skill
 
 - **MCP (stdio)** — All executable logic lives in this server: the deterministic `workflow_step` engine plus the other tools, resources, and prompts. Works in any MCP client (Cursor, Claude Code, …).
 - **Cursor plugin** — Slash palette, file-glob rules, stop hook, agent selector. Same commands via `get_command`; rules via `get_rule`.
-- **Pi native extension** — `pi install git:…/pnCore` loads `packages/pn-core-mcp/extensions/pn-core.ts`, which registers the same 27 tools via `pi.registerTool()` (no subprocess MCP on Pi). See [ADR-0009](../../docs/adr/0009-pi-native-tools.md).
+- **Pi native extension** — `pi install git:…/pnCore` loads `packages/pn-core-mcp/extensions/pn-core.ts`, which registers the same 29 tools via `pi.registerTool()` (no subprocess MCP on Pi). See [ADR-0009](../../docs/adr/0009-pi-native-tools.md).
 
 Choose MCP for cross-client orchestration; add the Cursor plugin for native IDE UX; use `pi install` from repo root on [pi.dev](https://pi.dev) for prompts, skills, and native tools together.
 

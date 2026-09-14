@@ -2,9 +2,9 @@
   <img src="plugins/pnCore/assets/pn-logo.svg" width="176" alt="pnCore" />
 </p>
 
-# pnCore — v0.18.10
+# pnCore — v0.19.0
 
-pnCore is an MCP server and Cursor plugin. It runs software delivery as a sequence of named, gated steps instead of one long chat.
+pnCore is an MCP engine with harness adapters for Cursor, Claude Code, Codex, and Pi. It runs software delivery as a sequence of named, gated steps instead of one long chat.
 
 <p align="center">
   <img src="docs/readme/01_control_rail.svg" width="850" alt="workflow_step is a deterministic rail. Discovery, plan, skeptic, specialists, and review sit as bounded nodes. The plugin slash palette and Pi are side surfaces, not a second product. The skeptic gate is the live step.">
@@ -12,7 +12,7 @@ pnCore is an MCP server and Cursor plugin. It runs software delivery as a sequen
 
 It ships discovery, planning, skeptic challenge, design, audits, assets, and delivery through a deterministic `workflow_step` engine — backed by skills, agents, rules, and `pn-core://` resources, not a folder of prompts.
 
-**Catalog:** 171 skills, 9 public agents + 6 internal orchestration agents, 31 visible slash palette files (30 under **`pn`** submenu + **`/pn`** stub) + 18 palette-hidden surgical commands (49 command files total), 27 MCP tools, 16 workflow types, plus `pn-core://` resources and prompts.
+**Catalog:** 171 skills, 9 public agents + 6 internal orchestration agents, 31 visible slash palette files (30 under **`pn`** submenu + **`/pn`** stub) + 18 palette-hidden surgical commands (49 command files total), 29 MCP tools, 16 workflow types, plus `pn-core://` resources and prompts.
 
 ---
 
@@ -34,7 +34,7 @@ pnCore moves that step list out of the chat. `workflow_step(type, index, state)`
 
 **Gated.** Skeptic, human, and `workflow_verify` gates are built into the engine. Intent is `full auto`, `design focused`, or `involved` — involved means you approve discovery, plan, specialists, and review before they run.
 
-**Multi-surface.** One canonical tree in `packages/pn-core-mcp/content/`. The MCP runs the engine in any client. The Cursor plugin adds the `/` palette, file-glob rules, agent selector, and stop hook. Pi registers the same 27 tools natively.
+**Multi-harness.** One canonical tree in `packages/pn-core-mcp/content/`; one engine; four adapters. `harness_detect` finds the active surface and `harness_scaffold` / `plugin-install --harness` write only the folders that surface reads — `.cursor/` (Cursor), `.claude/` + `.mcp.json` (Claude Code), `.agents/skills` + `AGENTS.md` block (Codex), `.agents/skills` + `.pi/prompts` (Pi). Pi registers the same 29 tools natively. Matrix: `pn-core://reference/harness-matrix.md`, [ADR-0016](docs/adr/0016-harness-adapters.md).
 
 **Resumable.** Every run has a `run_id`. Handoff lines and usage land in JSONL. After a disconnect, load state and continue the same step list.
 
@@ -72,17 +72,36 @@ Or add manually to `~/.cursor/mcp.json`:
 
 `GIT_TERMINAL_PROMPT=0` and `GIT_ASKPASS=echo` fail fast when git cannot authenticate (missing credentials, rate limit, or a bad URL). Without them, a credential prompt on piped stdin leaves Cursor in a forever loading state.
 
-### Cursor — Plugin
+### Project files per harness — `plugin-install --harness`
 
 From your **target project** directory:
 
 ```bash
-npx github:perniemann/pnCore plugin-install
+npx github:perniemann/pnCore plugin-install                        # auto-detect (PNCORE_HARNESS > env > folders; falls back to cursor)
+npx github:perniemann/pnCore plugin-install --harness claude_code  # or cursor | codex | pi | codex,pi | all
+npx github:perniemann/pnCore plugin-install --harness codex --with-mcp-config --inline-rules
 ```
 
-Copies commands, rules, skills, agents, config, and hooks into `.cursor/` and `.cursor-plugin/`. Reload Cursor, then run `/pn-new`.
+Only the selected harness's folders are created:
 
-> **MCP or plugin?** MCP is the engine. The plugin is the Cursor surface (slash palette, rules, agents, stop hook). The intended Cursor setup is both. Details: [Plugin vs MCP](packages/pn-core-mcp/README.md#plugin-vs-mcp).
+| Harness | What lands | Engine config (`--with-mcp-config`) |
+|---------|------------|-------------------------------------|
+| `cursor` | `.cursor/{commands,rules,skills,agents,hooks,scripts}`, `config/`, `.cursor-plugin/plugin.json` | `.cursor/mcp.json` |
+| `claude_code` | `.claude/{skills,agents,commands}` + `.claude/rules/*.md` (`.mdc` converted; `globs` → `paths:`) | `.mcp.json` (repo root) |
+| `codex` | `.agents/skills/<id>` (`$pn-<name>`), pnCore block in `AGENTS.md` | `.codex/config.toml` `[mcp_servers.pn-core]` |
+| `pi` | `.agents/skills/<id>`, `.pi/prompts/pn-*.md`, pnCore block in `AGENTS.md` | `.pi/settings.json` `packages` |
+
+Onboarding inside a session (`/pn-setup`, `/pn-new`, `project_kickoff`) uses the same table through `harness_detect` → `harness_scaffold`. Full matrix and rule-conversion notes: [harness-matrix.md](packages/pn-core-mcp/content/reference/harness-matrix.md).
+
+> **MCP or plugin files?** MCP is the engine. The per-harness files add the surface (slash palette / prompts, file-glob rules, agents, stop hook on Cursor). The intended setup is both. Details: [Plugin vs MCP](packages/pn-core-mcp/README.md#plugin-vs-mcp).
+
+### Claude Code
+
+Add the same MCP JSON to `.mcp.json` at the repo root (or `claude mcp add --scope user`), then `plugin-install --harness claude_code` for `.claude/` skills, agents, rules, and `/pn-*` commands. See [Anthropic's MCP documentation](https://docs.anthropic.com/en/docs/claude-code/mcp).
+
+### Codex
+
+Add `[mcp_servers.pn-core]` to `.codex/config.toml` or `~/.codex/config.toml` (`plugin-install --harness codex --with-mcp-config` writes it), then restart Codex. Skills are `$pn-<name>` from `.agents/skills`; slash commands are MCP prompts (`get_command("pn-build")`); the `AGENTS.md` pnCore block carries the bootstrap.
 
 ### pi.dev (Pi coding agent)
 
@@ -90,11 +109,7 @@ Copies commands, rules, skills, agents, config, and hooks into `.cursor/` and `.
 pi install git:github.com/perniemann/pnCore@main
 ```
 
-Pi surfaces a single **`/pn`** entry. Direct invoke: `/pn pn-build`. Native tools ship with `pi install git:…/pnCore` or `pi install .` from this repo root after `npm run build:mcp`. Cursor and Claude Code still use the stdio MCP server. See [ADR-0008](docs/adr/0008-command-palette-pn-submenu.md) and [ADR-0009](docs/adr/0009-pi-native-tools.md).
-
-### Claude Code
-
-Use the same MCP JSON. Settings → MCP Servers, paste the block, enable it. See [Anthropic's MCP documentation](https://docs.anthropic.com/en/docs/claude-code/mcp).
+Pi surfaces a single **`/pn`** entry. Direct invoke: `/pn pn-build`. Native tools ship with `pi install git:…/pnCore` or `pi install .` from this repo root after `npm run build:mcp`; `plugin-install --harness pi` adds project-level `.pi/prompts` and `.agents/skills`. See [ADR-0008](docs/adr/0008-command-palette-pn-submenu.md) and [ADR-0009](docs/adr/0009-pi-native-tools.md).
 
 Windows, Cloud Agents, this-checkout `node` paths, and first-npx timeouts: [packages/pn-core-mcp/README.md](packages/pn-core-mcp/README.md#installation). Clone-and-develop: [CONTRIBUTING.md](CONTRIBUTING.md).
 
@@ -179,7 +194,7 @@ Tool steps are 0-based. Resume after disconnect: `workflow_state_save` then `wor
 | "Done" means the model stopped talking | Skeptic, `workflow_verify`, or a delivery pack decide |
 | A retry starts a new chat | `workflow_state_load` picks up where it stopped |
 | Skills live in a folder you have to remember to load | The engine loads gates and skills automatically |
-| Works in Cursor chat, nowhere else | MCP runs in any client; Pi has native tools |
+| Works in Cursor chat, nowhere else | Same engine on Cursor, Claude Code, Codex, Pi; files land in each harness's own folders |
 
 **Three tier concepts** (do not conflate them): **delivery tier** (MVP/Full), **context tier** (1–4 reading depth), **model tier** (`fast` / `standard` / `premium` / `premium_thinking` / `long_horizon`). Loop orchestration: `suggest_model_tier` with `role: orchestrator` → `long_horizon`. See `pn-core://reference/delivery-tier-criteria.md` and [MCP tools](packages/pn-core-mcp/README.md#tools).
 
@@ -197,7 +212,7 @@ Load before a build session: `pn-core://reference/best-practices.md`, `pn-core:/
 | `feature_program` / `bestOfN` | Preview flags; off by default | Set `featureProgram: true` or `bestOfN.enabled: true` |
 | Vue, Svelte, Angular, Unity | Limited support | Prefer React, Astro, Next, vanilla web, Node, Three.js / Babylon, n8n, web3 |
 
-**Best fit:** teams building with Cursor on React, Astro, Next.js, vanilla web, Node backends, Three.js / Babylon / gamedev, n8n, and web3. Inventory: [docs/plugin-reference.md](docs/plugin-reference.md).
+**Best fit:** teams building with Cursor, Claude Code, Codex, or Pi on React, Astro, Next.js, vanilla web, Node backends, Three.js / Babylon / gamedev, n8n, and web3. Inventory: [docs/plugin-reference.md](docs/plugin-reference.md).
 
 ---
 
@@ -208,7 +223,7 @@ Load before a build session: `pn-core://reference/best-practices.md`, `pn-core:/
 | [docs/how-to-use-guide.md](docs/how-to-use-guide.md) | Copy-paste prompts, example flows, MCP-only bootstrap |
 | [docs/mcp-usage-guide.md](docs/mcp-usage-guide.md) | MCP tools, resources, workflow patterns, state/handoff |
 | [docs/plugin-reference.md](docs/plugin-reference.md) | Rules, skills, agents, commands, hooks |
-| [packages/pn-core-mcp/README.md](packages/pn-core-mcp/README.md) | MCP config, 27 tools, env vars, error codes, resources |
+| [packages/pn-core-mcp/README.md](packages/pn-core-mcp/README.md) | MCP config, 29 tools, env vars, error codes, resources |
 | [docs/companion-mcp-catalog.md](docs/companion-mcp-catalog.md) | Companion MCPs (Octocode, Stripe, n8n, …) |
 | [docs/pitch-to-app-example.md](docs/pitch-to-app-example.md) | End-to-end pitch-to-app walkthrough |
 | [packages/pn-core-mcp/content/docs/starting-new-project.md](packages/pn-core-mcp/content/docs/starting-new-project.md) | Kickoff and `docs/refs/` setup |
