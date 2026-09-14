@@ -7,6 +7,8 @@ import {
   getCommandSchema,
   getRuleSchema,
   getSkillSchema,
+  harnessDetectSchema,
+  harnessScaffoldSchema,
   healthSchema,
   projectContextSchema,
   listAgentsSchema,
@@ -37,6 +39,8 @@ import {
   handleGetCommand,
   handleGetRule,
   handleGetSkill,
+  handleHarnessDetect,
+  handleHarnessScaffold,
   handleHealth,
   handleProjectContext,
   handleListAgents,
@@ -122,6 +126,22 @@ export const PN_CORE_TOOLS: ToolDefinition[] = [
     listWorkflowTypesSchema,
     readOnly,
     handleListWorkflowTypes
+  ),
+  def(
+    "harness_detect",
+    "Harness Detect",
+    "Detect which agent harness (cursor | claude_code | codex | pi) this session runs in and return the per-harness file layout: instructions file, rules dir + format, skills dir, commands dir, agents dir, MCP config path, hooks. Precedence: PNCORE_HARNESS env > process env signals > workspace folders. Call before writing project-context, rules, or skills so files land only where the active harness reads them.",
+    harnessDetectSchema,
+    readOnly,
+    handleHarnessDetect
+  ),
+  def(
+    "harness_scaffold",
+    "Harness Scaffold",
+    "Write pnCore onboarding files for the selected harnesses only (default: detected). project_context → .cursor/rules/*.mdc (Cursor), .claude/rules/*.md (Claude Code), or a managed block in AGENTS.md (Codex, Pi); project_skill → the harness skills dir (.cursor/skills, .claude/skills, .agents/skills); no_trailers_rule → rule file where a rules dir exists; mcp_config (opt-in) → .cursor/mcp.json, .mcp.json, .codex/config.toml, or .pi/settings.json packages. dryRun returns the plan with contents; existing files are skipped unless overwrite. Paths are workspace-contained (process cwd).",
+    harnessScaffoldSchema,
+    write,
+    handleHarnessScaffold
   ),
   def(
     "suggest_model_tier",
