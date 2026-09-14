@@ -1,0 +1,119 @@
+{
+  "name": "project-kickoff-straight",
+  "workflowType": "project_kickoff",
+  "source": "recorded",
+  "runId": "traj-project-kickoff",
+  "recordedAt": "2026-09-14T13:20:48.005Z",
+  "steps": [
+    {
+      "step": 0,
+      "state": {
+        "run_id": "traj-project-kickoff"
+      },
+      "expect": {
+        "nextStep": 1,
+        "gate": "human",
+        "done": false
+      }
+    },
+    {
+      "step": 1,
+      "state": {
+        "run_id": "traj-project-kickoff",
+        "discoverySpec": "SaaS invoicing"
+      },
+      "expect": {
+        "nextStep": 2,
+        "gate": "human",
+        "done": false
+      }
+    },
+    {
+      "step": 2,
+      "state": {
+        "run_id": "traj-project-kickoff",
+        "discoverySpec": "SaaS invoicing",
+        "prdPath": "docs/prd.md"
+      },
+      "expect": {
+        "nextStep": 3,
+        "gate": "human",
+        "done": false
+      }
+    },
+    {
+      "step": 3,
+      "state": {
+        "run_id": "traj-project-kickoff",
+        "discoverySpec": "SaaS invoicing",
+        "prdPath": "docs/prd.md",
+        "designDocPath": "docs/design.md"
+      },
+      "expect": {
+        "nextStep": 4,
+        "gate": "human",
+        "done": false
+      }
+    },
+    {
+      "step": 4,
+      "state": {
+        "run_id": "traj-project-kickoff",
+        "discoverySpec": "SaaS invoicing",
+        "prdPath": "docs/prd.md",
+        "designDocPath": "docs/design.md"
+      },
+      "expect": {
+        "nextStep": 5,
+        "gate": "human",
+        "done": false
+      }
+    },
+    {
+      "step": 5,
+      "state": {
+        "run_id": "traj-project-kickoff",
+        "discoverySpec": "SaaS invoicing",
+        "prdPath": "docs/prd.md",
+        "designDocPath": "docs/design.md",
+        "priorArtPath": "docs/research/prior-art.md"
+      },
+      "expect": {
+        "nextStep": 6,
+        "gate": "human",
+        "done": false
+      }
+    },
+    {
+      "step": 6,
+      "state": {
+        "run_id": "traj-project-kickoff",
+        "discoverySpec": "SaaS invoicing",
+        "prdPath": "docs/prd.md",
+        "designDocPath": "docs/design.md",
+        "priorArtPath": "docs/research/prior-art.md"
+      },
+      "expect": {
+        "nextStep": 7,
+        "gate": "human",
+        "done": false
+      }
+    },
+    {
+      "step": 7,
+      "state": {
+        "run_id": "traj-project-kickoff",
+        "discoverySpec": "SaaS invoicing",
+        "prdPath": "docs/prd.md",
+        "designDocPath": "docs/design.md",
+        "priorArtPath": "docs/research/prior-art.md",
+        "refsIndexPath": "docs/refs/context-index.json"
+      },
+      "expect": {
+        "nextStep": 7,
+        "gate": "model",
+        "done": true
+      }
+    }
+  ]
+}

@@ -64,6 +64,7 @@ From repo root (Node 22+):
 | `npm run smoke:npx-mcp` | Smoke test npx git install connect + health |
 | `npm run bench` | CPU baseline check (`bench:write` to persist) |
 | `npm run measure-tokens` | Token budget capture (`measure-tokens:write` to persist) |
+| `npm run trajectory:record` | Turn a recorded `workflow_step` run (`PNCORE_RUN_LOG_STATE=1`) into a replay fixture graded in `test:full` (ADR-0017) |
 | `npm run dashboard` | Local metrics dashboard at `http://localhost:4173/` |
 
 Repo layout: [docs/folder-structure.md](docs/folder-structure.md).

@@ -1,0 +1,204 @@
+{
+  "name": "business-strategy-weak-loop",
+  "workflowType": "business_strategy",
+  "source": "recorded",
+  "runId": "traj-business-strategy-weak-loop",
+  "recordedAt": "2026-09-14T13:20:48.005Z",
+  "steps": [
+    {
+      "step": 0,
+      "state": {
+        "run_id": "traj-business-strategy-weak-loop"
+      },
+      "expect": {
+        "nextStep": 1,
+        "gate": "human",
+        "done": false
+      }
+    },
+    {
+      "step": 1,
+      "state": {
+        "run_id": "traj-business-strategy-weak-loop",
+        "mode": "thesis",
+        "framing": "Enter EU mid-market payroll"
+      },
+      "expect": {
+        "nextStep": 2,
+        "gate": "human",
+        "done": false
+      }
+    },
+    {
+      "step": 2,
+      "state": {
+        "run_id": "traj-business-strategy-weak-loop",
+        "mode": "thesis",
+        "framing": "Enter EU mid-market payroll"
+      },
+      "expect": {
+        "nextStep": 3,
+        "gate": "model",
+        "done": false
+      }
+    },
+    {
+      "step": 3,
+      "state": {
+        "run_id": "traj-business-strategy-weak-loop",
+        "mode": "thesis",
+        "framing": "Enter EU mid-market payroll",
+        "evidenceLogPath": "docs/strategy/evidence.md"
+      },
+      "expect": {
+        "nextStep": 4,
+        "gate": "model",
+        "done": false
+      }
+    },
+    {
+      "step": 4,
+      "state": {
+        "run_id": "traj-business-strategy-weak-loop",
+        "mode": "thesis",
+        "framing": "Enter EU mid-market payroll",
+        "evidenceLogPath": "docs/strategy/evidence.md",
+        "frames": [
+          "porter",
+          "jtbd"
+        ]
+      },
+      "expect": {
+        "nextStep": 5,
+        "gate": "human",
+        "done": false
+      }
+    },
+    {
+      "step": 5,
+      "state": {
+        "run_id": "traj-business-strategy-weak-loop",
+        "mode": "thesis",
+        "framing": "Enter EU mid-market payroll",
+        "evidenceLogPath": "docs/strategy/evidence.md",
+        "frames": [
+          "porter",
+          "jtbd"
+        ],
+        "grillComplete": true,
+        "pressureTestVerdict": "Weak"
+      },
+      "expect": {
+        "nextStep": 4,
+        "gate": "human",
+        "done": false
+      }
+    },
+    {
+      "step": 4,
+      "state": {
+        "run_id": "traj-business-strategy-weak-loop",
+        "mode": "thesis",
+        "framing": "Enter EU mid-market payroll",
+        "evidenceLogPath": "docs/strategy/evidence.md",
+        "frames": [
+          "porter",
+          "jtbd"
+        ],
+        "grillComplete": false,
+        "pressureTestVerdict": "Weak",
+        "discussionIterations": 1
+      },
+      "expect": {
+        "nextStep": 5,
+        "gate": "human",
+        "done": false
+      }
+    },
+    {
+      "step": 5,
+      "state": {
+        "run_id": "traj-business-strategy-weak-loop",
+        "mode": "thesis",
+        "framing": "Enter EU mid-market payroll",
+        "evidenceLogPath": "docs/strategy/evidence.md",
+        "frames": [
+          "porter",
+          "jtbd"
+        ],
+        "grillComplete": true,
+        "pressureTestVerdict": "Strong",
+        "discussionIterations": 1
+      },
+      "expect": {
+        "nextStep": 6,
+        "gate": "human",
+        "done": false
+      }
+    },
+    {
+      "step": 6,
+      "state": {
+        "run_id": "traj-business-strategy-weak-loop",
+        "mode": "thesis",
+        "framing": "Enter EU mid-market payroll",
+        "evidenceLogPath": "docs/strategy/evidence.md",
+        "frames": [
+          "porter",
+          "jtbd"
+        ],
+        "grillComplete": true,
+        "pressureTestVerdict": "Strong",
+        "discussionIterations": 1
+      },
+      "expect": {
+        "nextStep": 7,
+        "gate": "human",
+        "done": false
+      }
+    },
+    {
+      "step": 7,
+      "state": {
+        "run_id": "traj-business-strategy-weak-loop",
+        "mode": "thesis",
+        "framing": "Enter EU mid-market payroll",
+        "evidenceLogPath": "docs/strategy/evidence.md",
+        "frames": [
+          "porter",
+          "jtbd"
+        ],
+        "grillComplete": true,
+        "pressureTestVerdict": "Strong",
+        "discussionIterations": 1
+      },
+      "expect": {
+        "nextStep": 8,
+        "gate": "human",
+        "done": false
+      }
+    },
+    {
+      "step": 8,
+      "state": {
+        "run_id": "traj-business-strategy-weak-loop",
+        "mode": "thesis",
+        "framing": "Enter EU mid-market payroll",
+        "evidenceLogPath": "docs/strategy/evidence.md",
+        "frames": [
+          "porter",
+          "jtbd"
+        ],
+        "grillComplete": true,
+        "pressureTestVerdict": "Strong",
+        "discussionIterations": 1,
+        "verdictLocked": true
+      },
+      "expect": {
+        "nextStep": 8,
+        "gate": "model",
+        "done": true
+      }
+    }
+  ]
+}
