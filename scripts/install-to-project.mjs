@@ -13,7 +13,9 @@
  *   --with-mcp-config   Also write the pn-core server entry for each harness (.cursor/mcp.json,
  *                       .mcp.json, .codex/config.toml [mcp_servers.pn-core], .pi/settings.json packages).
  *   --inline-rules      Codex / Pi: inline always-apply rule bodies into the AGENTS.md pnCore block
- *                       (default: the block points at get_rule so AGENTS.md stays small).
+ *                       (default: the block points at get_rule so AGENTS.md stays small). For Codex
+ *                       the whole AGENTS.md is kept under the 32 KiB chain cap (PNCORE_AGENTS_MD_CAP_BYTES
+ *                       overrides): lowest-priority rules are left out and listed as get_rule pointers.
  *   --with-shadcn       Cursor only: run `npx shadcn@latest mcp init --client cursor` in target.
  *   --overwrite         Skip backups and overwrite existing harness folders.
  *   --force             Allow a target outside process.cwd() (path-containment bypass).
@@ -56,10 +58,13 @@ const {
   parseHarnessList,
   convertRule,
   parseCursorRule,
-  bootstrapBlock,
+  fitInstructionsBlock,
   buildScaffoldPlan,
   applyScaffoldPlan,
 } = harness;
+const { agentsMdCapBytes } = await import(
+  pathToFileURL(join(dirname(harnessModulePath), "context-budget.js")).href
+);
 
 const FLAGS = new Set([
   "--with-shadcn",
@@ -283,20 +288,41 @@ function writeMcpConfig(ids) {
 function writeInstructionsBlock(ids) {
   const layout = HARNESS_LAYOUTS[ids[0]];
   const inline = inlineRules ? readRules().filter((r) => parseCursorRule(r.raw).alwaysApply) : [];
+  const abs = join(targetRoot, layout.instructionsFile);
+  const existing = existsSync(abs) ? readFileSync(abs, "utf8") : null;
+  // Codex truncates the AGENTS.md chain at 32 KiB; other harnesses get the same measurement, no cap.
+  const capped = ids.some((h) => HARNESS_LAYOUTS[h].instructionsCapBytes != null);
+  const capBytes = capped ? agentsMdCapBytes() : Number.POSITIVE_INFINITY;
+  const fitted = fitInstructionsBlock({
+    harnesses: ids,
+    existing,
+    path: layout.instructionsFile,
+    inlineRules: inline,
+    capBytes,
+  });
   const plan = [
     {
       path: layout.instructionsFile,
       harnesses: ids,
       kind: "project_context",
       strategy: "managed_block",
-      content: bootstrapBlock(ids, { inlineRules: inline }),
+      content: fitted.block,
     },
   ];
   const [applied] = applyScaffoldPlan({ root: targetRoot, plan, overwrite: true });
+  const kib = (n) => `${(n / 1024).toFixed(1)} KiB`;
+  const size = capped
+    ? `${kib(fitted.budget.bytes)} of ${kib(capBytes)} cap`
+    : `${kib(fitted.budget.bytes)}`;
+  const rules = inline.length
+    ? fitted.omitted.length
+      ? ` (${fitted.inlined.length} of ${inline.length} always-apply rules inlined; omitted for the cap: ${fitted.omitted.join(", ")})`
+      : ` (${inline.length} always-apply rules inlined)`
+    : " (rules via get_rule)";
   console.log(
-    `Instructions -> ./${applied.path} pnCore block ${applied.action.replace("block_", "")}` +
-      (inline.length ? ` (${inline.length} always-apply rules inlined)` : " (rules via get_rule)")
+    `Instructions -> ./${applied.path} pnCore block ${applied.action.replace("block_", "")} — ${size}, ≈${fitted.budget.estimatedTokens} tokens${rules}`
   );
+  if (!fitted.budget.fits) console.warn(`WARNING: ${fitted.budget.warning}`);
 }
 
 // ─── Cursor ─────────────────────────────────────────────────────────────────

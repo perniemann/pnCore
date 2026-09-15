@@ -214,6 +214,66 @@ test("--inline-rules inlines always-apply rule bodies into the AGENTS.md block",
     assert.match(agents, /### Always-on pnCore rules \(inlined\)/);
     assert.match(agents, /<!-- rule: pn-build-gate -->/);
     assert.doesNotMatch(agents, /alwaysApply:/);
+    assert.match(
+      r.stdout,
+      /Instructions -> \.\/AGENTS\.md pnCore block created — [\d.]+ KiB, ≈\d+ tokens \(\d+ always-apply rules inlined\)/
+    );
+    assert.doesNotMatch(r.stdout, /of 32\.0 KiB cap/, "Pi has no instructions cap");
+  } finally {
+    rmSync(target, { recursive: true, force: true });
+  }
+});
+
+test("--harness codex --inline-rules keeps AGENTS.md under the 32 KiB cap by omitting low-priority rules (ADR-0019)", () => {
+  const target = mkdtempSync(join(repoRoot, "tmp-pn-install-cap-"));
+  try {
+    const existing =
+      "# Team notes\n\n" + "Existing guidance that must survive untouched.\n".repeat(260);
+    writeFileSync(join(target, "AGENTS.md"), existing);
+    const r = runInstaller([target, "--harness", "codex", "--inline-rules"], { env: cleanEnv() });
+    assert.equal(r.status, 0, r.stderr);
+    const agents = readFileSync(join(target, "AGENTS.md"), "utf8");
+    assert.ok(
+      Buffer.byteLength(agents) <= 32768,
+      `AGENTS.md is ${Buffer.byteLength(agents)} bytes`
+    );
+    assert.ok(agents.startsWith(existing), "content outside the pnCore block is untouched");
+    assert.match(agents, /<!-- rule: pn-mcp-proactive -->/, "highest-priority rule is inlined");
+    assert.match(agents, /- Not inlined \(instructions-file byte cap\): `pn-[a-z-]+`/);
+    assert.match(
+      r.stdout,
+      /of 32\.0 KiB cap, ≈\d+ tokens \(\d+ of \d+ always-apply rules inlined; omitted for the cap: pn-/
+    );
+    assert.doesNotMatch(r.stderr, /WARNING/);
+
+    // Re-running is idempotent for the block.
+    const again = runInstaller([target, "--harness", "codex", "--inline-rules", "--overwrite"], {
+      env: cleanEnv(),
+    });
+    assert.equal(again.status, 0, again.stderr);
+    assert.equal(readFileSync(join(target, "AGENTS.md"), "utf8"), agents);
+    assert.match(again.stdout, /pnCore block unchanged/);
+
+    // Over the cap with nothing inlined: block still written, loud warning, exit 0.
+    const over = mkdtempSync(join(repoRoot, "tmp-pn-install-over-"));
+    try {
+      writeFileSync(join(over, "AGENTS.md"), "x".repeat(40_000) + "\n");
+      const r2 = runInstaller([over, "--harness", "codex", "--inline-rules"], { env: cleanEnv() });
+      assert.equal(r2.status, 0, r2.stderr);
+      assert.match(r2.stdout, /0 of \d+ always-apply rules inlined/);
+      assert.match(
+        r2.stderr,
+        /WARNING: AGENTS\.md is \d+ bytes, over the 32768-byte cap by \d+ with no pnCore rules inlined/
+      );
+      // A larger cap via env lets everything in.
+      const r3 = runInstaller([over, "--harness", "codex", "--inline-rules", "--overwrite"], {
+        env: cleanEnv({ PNCORE_AGENTS_MD_CAP_BYTES: "131072" }),
+      });
+      assert.equal(r3.status, 0, r3.stderr);
+      assert.match(r3.stdout, /of 128\.0 KiB cap, ≈\d+ tokens \(\d+ always-apply rules inlined\)/);
+    } finally {
+      rmSync(over, { recursive: true, force: true });
+    }
   } finally {
     rmSync(target, { recursive: true, force: true });
   }
