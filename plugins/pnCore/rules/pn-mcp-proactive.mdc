@@ -9,7 +9,7 @@ When **pn-core MCP is available** and the user's task clearly matches a pn skill
 
 **Discovery:** Use `list_skills` or `list_agents` when unsure which id applies. Unfiltered `list_skills` returns a category index (not the full description catalog). Use `get_skill`, `get_agent`, `get_command`, or `get_rule` to load full content. Call `list_workflow_types` when the user asks "what workflows are available?"
 
-**Session start:** When pn-core MCP is available, call `project_context` (default `mode: "agent"`) once at the start of a coding session to load the cold-session packet (context-index artifacts, resume line, attested drift, recent handoff/run-events trail). Do not rely on Cursor `sessionStart` hook inject for this packet.
+**Session start:** When pn-core MCP is available, call `project_context` (default `mode: "agent"`) once at the start of a coding session to load the cold-session packet (context-index artifacts, resume line, attested drift, recent handoff/run-events trail). Do not rely on Cursor `sessionStart` hook inject for this packet. On a tight context window pass `max_tokens`; the packet packs deterministically (trail first, settled artifacts next; drift and `next_incomplete` never) and `budget.steps` says what was cut.
 
 **Harness-aware writes:** pnCore runs on Cursor, Claude Code, Codex, and Pi. Before creating rules, skills, commands, or project-context files, call `harness_detect` and write only into the folders the detected harness reads (`.cursor/`, `.claude/`, `.agents/skills` + `AGENTS.md`, `.pi/`). Never create `.cursor/` on a non-Cursor surface.
 

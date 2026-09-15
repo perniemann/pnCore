@@ -41,9 +41,13 @@ The project-context body is identical on every harness: triangle tag, goal / sta
 
 | Cursor frontmatter | Claude Code `.claude/rules/*.md` | Codex / Pi |
 |--------------------|----------------------------------|------------|
-| `alwaysApply: true` | file with `description` only (always loaded) | `--inline-rules` inlines the body in the `AGENTS.md` block; default = pointer to `get_rule` |
+| `alwaysApply: true` | file with `description` only (always loaded) | `--inline-rules` inlines the body in the `AGENTS.md` block; default = pointer to `get_rule`. For Codex the whole `AGENTS.md` is kept under the 32 KiB chain cap: rules are inlined in priority order (`pn-mcp-proactive`, `pn-build-gate`, `pn-current-date`, `pn-agents-md`, `pn-tool-risk-policy`, `pn-orchestrator-lead`, `pn-aesthetics-baseline`, `pn-visual-indicator`, `pn-no-cursor-commit-trailers`) and the ones that do not fit are listed as `get_rule` pointers (ADR-0019) |
 | `globs: [...]` | `paths:` list (loaded when matching files are touched) | not representable — MCP `get_rule` |
 | `alwaysApply: false`, no globs (agent-requested) | skipped — no Claude rule mode; reachable via `get_rule` | MCP `get_rule` |
+
+## Instructions-file budget (Codex)
+
+Codex truncates the `AGENTS.md` chain at `project_doc_max_bytes` (32 KiB default). pnCore measures against that cap in two places: `harness_scaffold` (Codex selected) returns `instructionsBudget` — `{ path, bytes, capBytes, estimatedTokens, fits, warning? }` for the resulting file, also in `dryRun` — and `plugin-install --harness codex` prints `AGENTS.md` size against the cap and, with `--inline-rules`, drops inlined rules lowest-priority first until the file fits. `PNCORE_AGENTS_MD_CAP_BYTES` overrides the cap (for a raised `project_doc_max_bytes`). Content outside the `<!-- pncore:start -->` … `<!-- pncore:end -->` block is never changed; a file that is over the cap with nothing inlined gets `fits: false` and a warning to shorten the surrounding content.
 
 ## Quality parity
 
