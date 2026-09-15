@@ -13,3 +13,4 @@ Two files share `0001` (early collision; left as-is rather than recycling a late
 - [0016-harness-adapters.md](./0016-harness-adapters.md) — one MCP engine, four harness adapters (Cursor, Claude Code, Codex, Pi); onboarding writes only the active harness's folders
 - [0017-trajectory-replay.md](./0017-trajectory-replay.md) — deterministic trajectory replay: recorded `workflow_step` runs become fixtures graded in `test:full`; no LLM in the loop
 - [0018-step-spans.md](./0018-step-spans.md) — step spans on the run log (`stepIndex`, `sinceLastStepMs`, `engineMs`), loads tagged per step, `workflow_run_query` joins the `.pncore` trails into a timeline; local JSONL, no OTel backend
+- [0019-context-budget.md](./0019-context-budget.md) — narrow context packing on the existing chars ÷ 4 measurement: `project_context` `max_tokens` with a fixed drop order, and the Codex `AGENTS.md` 32 KiB cap honoured by priority-ordered rule inlining; no general assembler
