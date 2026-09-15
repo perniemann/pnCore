@@ -51,6 +51,15 @@ export const projectContextSchema = {
     .max(80)
     .optional()
     .describe("Max trail lines in agent mode (default 20)"),
+  max_tokens: z
+    .number()
+    .int()
+    .min(200)
+    .max(200_000)
+    .optional()
+    .describe(
+      "Token budget (chars ÷ 4) for the packet. When set, sections are shrunk/dropped in a fixed order (trail oldest-first, settled artifacts' notes, settled artifacts, pointers, trail, artifacts, drift notes) until it fits; `budget.steps` lists what was cut. Drift, next_incomplete, resume, counts are never dropped."
+    ),
 } as const;
 
 export const listWorkflowTypesSchema = {} as const;

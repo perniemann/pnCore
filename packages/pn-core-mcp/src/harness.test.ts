@@ -14,6 +14,10 @@ import {
   parseHarnessList,
   upsertManagedBlock,
   bootstrapBlock,
+  fitInstructionsBlock,
+  instructionsBudgetFor,
+  sortRulesByPriority,
+  ALWAYS_ON_RULE_PRIORITY,
   layoutTable,
   projectContextBody,
   projectSkillContent,
@@ -516,5 +520,143 @@ describe("bootstrapBlock", () => {
     expect(inlined).toContain("<!-- rule: pn-no-cursor-commit-trailers -->");
     expect(inlined).toContain("# No Cursor commit trailers");
     expect(inlined).not.toContain("alwaysApply");
+  });
+
+  it("lists omitted rules as get_rule pointers", () => {
+    const b = bootstrapBlock(["codex"], { omittedRules: ["pn-visual-indicator", "pn-x"] });
+    expect(b).toContain(
+      "- Not inlined (instructions-file byte cap): `pn-visual-indicator`, `pn-x` — load with `get_rule` at session start."
+    );
+    expect(bootstrapBlock(["codex"], { omittedRules: [] })).not.toContain("Not inlined");
+  });
+});
+
+describe("instructions-file budget (ADR-0019)", () => {
+  const rule = (id: string, bodyChars: number) => ({
+    id,
+    raw: `---\ndescription: ${id}\nalwaysApply: true\n---\n\n# ${id}\n\n${"r".repeat(bodyChars)}\n`,
+  });
+
+  it("layouts declare the Codex 32 KiB cap only", () => {
+    expect(HARNESS_LAYOUTS.codex.instructionsCapBytes).toBe(32768);
+    expect(HARNESS_LAYOUTS.cursor.instructionsCapBytes).toBeNull();
+    expect(HARNESS_LAYOUTS.claude_code.instructionsCapBytes).toBeNull();
+    expect(HARNESS_LAYOUTS.pi.instructionsCapBytes).toBeNull();
+  });
+
+  it("sortRulesByPriority orders by the always-on list, unknown ids last (alphabetical)", () => {
+    const sorted = sortRulesByPriority([
+      { id: "zz-custom" },
+      { id: "pn-visual-indicator" },
+      { id: "aa-custom" },
+      { id: "pn-mcp-proactive" },
+      { id: "pn-build-gate" },
+    ]).map((r) => r.id);
+    expect(sorted).toEqual([
+      "pn-mcp-proactive",
+      "pn-build-gate",
+      "pn-visual-indicator",
+      "aa-custom",
+      "zz-custom",
+    ]);
+    expect(ALWAYS_ON_RULE_PRIORITY[0]).toBe("pn-mcp-proactive");
+  });
+
+  it("inlines everything when the file fits, with no warning", () => {
+    const r = fitInstructionsBlock({
+      harnesses: ["codex"],
+      existing: "# Notes\n",
+      path: "AGENTS.md",
+      inlineRules: [rule("pn-build-gate", 500), rule("pn-mcp-proactive", 500)],
+      capBytes: 32768,
+    });
+    expect(r.inlined).toEqual(["pn-mcp-proactive", "pn-build-gate"]);
+    expect(r.omitted).toEqual([]);
+    expect(r.budget).toMatchObject({ path: "AGENTS.md", capBytes: 32768, fits: true });
+    expect(r.budget.warning).toBeUndefined();
+    expect(r.budget.bytes).toBe(Buffer.byteLength(r.text, "utf-8"));
+    expect(r.budget.estimatedTokens).toBe(Math.ceil(r.text.length / 4));
+    expect(r.text.startsWith("# Notes\n")).toBe(true);
+    expect(r.text).toContain("<!-- rule: pn-build-gate -->");
+  });
+
+  it("drops inlined rules lowest-priority first until the whole file fits, and says so", () => {
+    const existing = "# Team notes\n" + "keep me\n".repeat(100);
+    const rules = [
+      rule("pn-visual-indicator", 3000),
+      rule("pn-mcp-proactive", 3000),
+      rule("pn-build-gate", 3000),
+      rule("pn-current-date", 3000),
+    ];
+    const cap = Buffer.byteLength(existing) + 9000;
+    const r = fitInstructionsBlock({
+      harnesses: ["codex"],
+      existing,
+      path: "AGENTS.md",
+      inlineRules: rules,
+      capBytes: cap,
+    });
+    expect(r.budget.fits).toBe(true);
+    expect(r.budget.bytes).toBeLessThanOrEqual(cap);
+    expect(r.inlined).toEqual(["pn-mcp-proactive", "pn-build-gate"]);
+    expect(r.omitted).toEqual(["pn-current-date", "pn-visual-indicator"]);
+    expect(r.block).toContain(
+      "Not inlined (instructions-file byte cap): `pn-current-date`, `pn-visual-indicator`"
+    );
+    expect(r.block).not.toContain("<!-- rule: pn-visual-indicator -->");
+    expect(r.budget.warning).toMatch(
+      /2 rule\(s\) not inlined to keep AGENTS\.md under \d+ bytes \(was \d+\): pn-current-date, pn-visual-indicator\./
+    );
+    // Idempotent: applying the fitted block again changes nothing.
+    const again = fitInstructionsBlock({
+      harnesses: ["codex"],
+      existing: r.text,
+      path: "AGENTS.md",
+      inlineRules: rules,
+      capBytes: cap,
+    });
+    expect(again.text).toBe(r.text);
+    expect(again.omitted).toEqual(r.omitted);
+  });
+
+  it("reports fits:false when the file is over the cap with nothing inlined", () => {
+    const existing = "x".repeat(5000);
+    const r = fitInstructionsBlock({
+      harnesses: ["codex", "pi"],
+      existing,
+      path: "AGENTS.md",
+      inlineRules: [rule("pn-build-gate", 100)],
+      capBytes: 4096,
+    });
+    expect(r.inlined).toEqual([]);
+    expect(r.omitted).toEqual(["pn-build-gate"]);
+    expect(r.budget.fits).toBe(false);
+    expect(r.budget.warning).toMatch(/over the 4096-byte cap by \d+ with no pnCore rules inlined/);
+    expect(r.text).toContain("## pnCore (Codex + Pi)");
+    const none = fitInstructionsBlock({
+      harnesses: ["pi"],
+      existing: null,
+      path: "AGENTS.md",
+      capBytes: Number.POSITIVE_INFINITY,
+    });
+    expect(none.budget.fits).toBe(true);
+    expect(none.inlined).toEqual([]);
+    expect(none.text.startsWith("<!-- pncore:start -->")).toBe(true);
+  });
+
+  it("instructionsBudgetFor measures an existing file read-only", () => {
+    expect(instructionsBudgetFor("AGENTS.md", null, 100)).toEqual({
+      path: "AGENTS.md",
+      bytes: 0,
+      capBytes: 100,
+      estimatedTokens: 0,
+      fits: true,
+    });
+    const ok = instructionsBudgetFor("AGENTS.md", "abcd".repeat(10), 100);
+    expect(ok).toMatchObject({ bytes: 40, estimatedTokens: 10, fits: true });
+    expect(ok.warning).toBeUndefined();
+    const over = instructionsBudgetFor("AGENTS.md", "é".repeat(60), 100);
+    expect(over).toMatchObject({ bytes: 120, estimatedTokens: 15, fits: false });
+    expect(over.warning).toMatch(/over the 100-byte cap by 20/);
   });
 });
