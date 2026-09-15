@@ -19,10 +19,10 @@ export declare const workflowTypeEnum: z.ZodEnum<{
     implementation_tournament: "implementation_tournament";
 }>;
 export declare const workflowGateTypeEnum: z.ZodOptional<z.ZodEnum<{
+    discovery: "discovery";
+    plan: "plan";
     design: "design";
     skeptic: "skeptic";
-    plan: "plan";
-    discovery: "discovery";
 }>>;
 export declare const workflowGateVerdictEnum: z.ZodOptional<z.ZodEnum<{
     proceed: "proceed";
@@ -37,6 +37,7 @@ export declare const projectContextSchema: {
     }>>;
     readonly run_id: z.ZodOptional<z.ZodString>;
     readonly max_trail: z.ZodOptional<z.ZodNumber>;
+    readonly max_tokens: z.ZodOptional<z.ZodNumber>;
 };
 export declare const listWorkflowTypesSchema: {};
 export declare const harnessIdEnum: z.ZodEnum<{
@@ -203,10 +204,10 @@ export declare const workflowConfirmSchema: {
     readonly options: z.ZodArray<z.ZodString>;
     readonly context: z.ZodOptional<z.ZodString>;
     readonly gate_type: z.ZodOptional<z.ZodEnum<{
+        discovery: "discovery";
+        plan: "plan";
         design: "design";
         skeptic: "skeptic";
-        plan: "plan";
-        discovery: "discovery";
     }>>;
     readonly verdict: z.ZodOptional<z.ZodEnum<{
         proceed: "proceed";
@@ -283,9 +284,9 @@ export declare const paperclipIssueCommentSchema: {
 export declare const paperclipIssueUpdateSchema: {
     readonly issueId: z.ZodOptional<z.ZodString>;
     readonly status: z.ZodEnum<{
+        in_progress: "in_progress";
         backlog: "backlog";
         todo: "todo";
-        in_progress: "in_progress";
         in_review: "in_review";
         done: "done";
         blocked: "blocked";
@@ -323,13 +324,13 @@ export declare const workflowVerifySchema: {
 export declare const workflowRunQuerySchema: {
     readonly run_id: z.ZodString;
     readonly kinds: z.ZodOptional<z.ZodArray<z.ZodEnum<{
+        step: "step";
+        gate: "gate";
+        acceptance: "acceptance";
+        verify: "verify";
+        load: "load";
         usage: "usage";
         handoff: "handoff";
-        gate: "gate";
-        verify: "verify";
-        acceptance: "acceptance";
-        step: "step";
-        load: "load";
     }>>>;
     readonly limit: z.ZodOptional<z.ZodNumber>;
     readonly path: z.ZodOptional<z.ZodString>;

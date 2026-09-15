@@ -4,6 +4,13 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.19.3] - 2026-09-14
+
+### Added
+
+- **Context budget packing, narrow** (ADR-0019): `project_context` gains `max_tokens` (chars ÷ 4). The packet is packed deterministically in a fixed order — trail oldest-first, settled artifacts' notes, settled artifacts, pointers, trail, artifacts, drift notes — and every packet (budgeted or not) now carries `budget: { maxTokens, estimatedTokens, chars, fits, steps[], hint? }` plus `artifacts_omitted` counts when artifacts were dropped. Drift, `next_incomplete`, `resume`, `counts`, `context_index` are never removed; `fits: false` is reported when the core alone is over.
+- **Codex `AGENTS.md` cap honoured**: `plugin-install --harness codex --inline-rules` keeps the whole `AGENTS.md` under the 32 KiB chain cap (`PNCORE_AGENTS_MD_CAP_BYTES` overrides) by inlining always-on rules in priority order (`ALWAYS_ON_RULE_PRIORITY`) and listing the ones that do not fit as `get_rule` pointers; content outside the pnCore block is untouched; the installer prints bytes against the cap and warns when the file is over it on its own. `harness_scaffold` returns `instructionsBudget` for Codex (also in `dryRun`). `HarnessLayout.instructionsCapBytes` records the cap per harness.
+
 ## [0.19.2] - 2026-09-14
 
 ### Added

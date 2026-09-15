@@ -93,6 +93,55 @@ describe("MCP per-tool integration", () => {
     const parsed = parseFirst(result);
     expect(parsed.mode).toBe("agent");
     expect(Array.isArray(parsed.artifacts)).toBe(true);
+    // Every packet carries its own measurement (ADR-0019).
+    const budget = parsed.budget as Record<string, unknown>;
+    expect(budget.maxTokens).toBeNull();
+    expect(budget.fits).toBe(true);
+    expect(budget.steps).toEqual([]);
+    expect(budget.estimatedTokens).toBe(Math.ceil((budget.chars as number) / 4));
+  });
+
+  it("project_context: max_tokens packs the packet and reports what was cut (ADR-0019)", async () => {
+    const run_id = `ctx-budget-${Date.now()}`;
+    for (let i = 0; i < 12; i++) {
+      await client.callTool({
+        name: "workflow_handoff_append",
+        arguments: { run_id, step: i, summary: `handoff ${i} ${"detail ".repeat(40)}` },
+      });
+    }
+    const full = parseFirst(
+      await client.callTool({
+        name: "project_context",
+        arguments: { mode: "agent", run_id, max_trail: 80 },
+      })
+    );
+    expect((full.trail as unknown[]).length).toBe(12);
+    const fullTokens = (full.budget as Record<string, number>).estimatedTokens;
+    expect(fullTokens).toBeGreaterThan(400);
+    const result = await client.callTool({
+      name: "project_context",
+      arguments: { mode: "agent", run_id, max_trail: 80, max_tokens: 400 },
+    });
+    expect(result.isError).toBeFalsy();
+    const parsed = parseFirst(result);
+    const budget = parsed.budget as Record<string, unknown>;
+    expect(budget.maxTokens).toBe(400);
+    expect(budget.estimatedTokens as number).toBeLessThan(fullTokens);
+    const steps = budget.steps as Array<{ action: string; savedChars: number }>;
+    expect(steps[0].action).toBe("trail.trim");
+    expect((parsed.trail as unknown[]).length).toBeLessThan(12);
+    expect(steps.every((st) => st.savedChars > 0)).toBe(true);
+    expect(budget.hint).toMatch(/larger max_tokens/);
+    // Core fields survive packing.
+    expect(parsed.mode).toBe("agent");
+    expect(parsed.counts).toBeDefined();
+    expect(parsed.context_index).toBeDefined();
+    expect(Array.isArray(parsed.drift)).toBe(true);
+    const tooSmall = await client.callTool({
+      name: "project_context",
+      arguments: { max_tokens: 10 },
+    });
+    expect(tooSmall.isError).toBe(true);
   });
 
   // ── harness_detect ──────────────────────────────────────────────────────
@@ -145,6 +194,32 @@ describe("MCP per-tool integration", () => {
     const contents = parsed.contents as Record<string, string>;
     expect(contents[".claude/rules/project-context.md"]).toContain("Tools Test");
     expect(parsed.untouchedHarnessFolders).toEqual(expect.arrayContaining([".cursor", ".agents"]));
+    expect(parsed.instructionsBudget).toBeUndefined();
+  });
+
+  it("harness_scaffold: Codex dryRun measures the resulting AGENTS.md against the 32 KiB cap", async () => {
+    const result = await client.callTool({
+      name: "harness_scaffold",
+      arguments: {
+        harnesses: ["codex"],
+        project: { name: "Cap Test" },
+        include: ["project_context"],
+        dryRun: true,
+      },
+    });
+    expect(result.isError).toBeFalsy();
+    const parsed = parseFirst(result);
+    const budget = parsed.instructionsBudget as Array<Record<string, unknown>>;
+    expect(budget).toHaveLength(1);
+    expect(budget[0]).toMatchObject({ path: "AGENTS.md", capBytes: 32768 });
+    expect(typeof budget[0].bytes).toBe("number");
+    expect(typeof budget[0].estimatedTokens).toBe("number");
+    expect(typeof budget[0].fits).toBe("boolean");
+    const contents = parsed.contents as Record<string, string>;
+    // The planned block is part of the measured size.
+    expect(budget[0].bytes as number).toBeGreaterThanOrEqual(
+      Buffer.byteLength(contents["AGENTS.md"])
+    );
   });
 
   it("harness_scaffold: missing project.name is a validation error", async () => {
