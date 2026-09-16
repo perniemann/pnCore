@@ -87,7 +87,7 @@ export const RESPONSE_ALIASES: readonly ResponseAlias[] = [
   {
     alias: "ref",
     expand:
-      "Rewrite using reference points: F# findings, D# decisions, O# options, R# risks, Q# questions, A# actions.",
+      "Rewrite using reference points: F# findings, D# decisions, O# options, R# risks, Q# questions, A# actions. Preserve codes for the rest of the session.",
   },
   {
     alias: "scp",

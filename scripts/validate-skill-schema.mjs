@@ -43,7 +43,7 @@ const SIZE_WARN_LINES = 400;
 /** Per-skill description cap for newly added skills (existing: warning). */
 export const DESC_MAX_CHARS = 220;
 
-const SKILL_MD_RE = /^packages\/pn-core-mcp\/content\/skills\/[^/]+\/([^/]+)\/SKILL\.md$/;
+export const SKILL_MD_RE = /^packages\/pn-core-mcp\/content\/skills\/[^/]+\/([^/]+)\/SKILL\.md$/;
 
 /**
  * Broad WHEN phrases that over-trigger skill load (OpenAI Astra / Codex catalog).
@@ -63,6 +63,29 @@ export function descriptionHasBroadWhen(description) {
 
 export function descriptionOverCharCap(description, max = DESC_MAX_CHARS) {
   return (description ?? "").length > max;
+}
+
+/**
+ * Error strings for newly added canonical SKILL.md files whose description exceeds DESC_MAX_CHARS.
+ * @param {string[]} addedPaths git paths (diff-filter=A)
+ * @param {{ root?: string }} [opts]
+ * @returns {string[]}
+ */
+export function newSkillOverCapErrors(addedPaths, { root = repoRoot } = {}) {
+  const errors = [];
+  for (const f of addedPaths) {
+    const norm = f.replace(/\\/g, "/");
+    if (!SKILL_MD_RE.test(norm)) continue;
+    const abs = join(root, ...norm.split("/"));
+    if (!existsSync(abs)) continue;
+    const { meta } = parseFrontmatter(readFileSync(abs, "utf-8"));
+    if (descriptionOverCharCap(meta.description ?? "")) {
+      errors.push(
+        `${norm}: new skill description is ${(meta.description ?? "").length} chars (max ${DESC_MAX_CHARS} for newly added skills)`
+      );
+    }
+  }
+  return errors;
 }
 
 function* walkSkillMd(dir, base = "") {
@@ -205,18 +228,7 @@ function main() {
     } catch {
       added = [];
     }
-    for (const f of added) {
-      const norm = f.replace(/\\/g, "/");
-      if (!SKILL_MD_RE.test(norm)) continue;
-      const abs = join(repoRoot, ...norm.split("/"));
-      if (!existsSync(abs)) continue;
-      const { meta } = parseFrontmatter(readFileSync(abs, "utf-8"));
-      if (descriptionOverCharCap(meta.description ?? "")) {
-        errors.push(
-          `${norm}: new skill description is ${(meta.description ?? "").length} chars (max ${DESC_MAX_CHARS} for newly added skills)`
-        );
-      }
-    }
+    errors.push(...newSkillOverCapErrors(added));
   } else if (skip) {
     warnings.push(`new-skill description-length gate skipped (${reason ?? "no diff range"})`);
   }

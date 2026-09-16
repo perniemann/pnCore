@@ -18,7 +18,8 @@ All notable changes to pnCore are documented in this file.
 - `pn-writing-skills` documents Astra WHEN tightness and treats `SKILL.md` as a router, not a full itinerary. Split skills with `reference.md` open with a one-line load-on-demand notice. `validate-skill-schema` **warns** on broad WHEN and on descriptions over 220 characters; **errors** only for newly added skills over that cap.
 - `pn-mcp-proactive` always-on map is the high-traffic subset; full table stays in `RUNBOOK.md`.
 - `prompt-provider-knobs.md` adds a GPT-6 Astra subsection. `agents-md-guide.md` adds “read what the task needs” vs read-everything-first.
-- `project_context` includes `responseAliases`. `renderTierHint` appends a router sentence on premium / premium_thinking / long_horizon.
+- `project_context` includes `responseAliases` (`ref` keeps “Preserve codes for the rest of the session”). `renderTierHint` appends a router sentence on premium / premium_thinking / long_horizon.
+- Sync MCP content CI sets `PR_BASE`/`PR_HEAD` (and `fetch-depth: 0`) so `validate-skill-schema` can error on newly added `SKILL.md` over 220 characters during `test:full`.
 
 ## [0.19.0] - 2026-09-14
 

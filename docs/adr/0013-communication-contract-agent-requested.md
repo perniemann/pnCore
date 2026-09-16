@@ -28,7 +28,6 @@ System-prompt engineering patterns (positive/negative chat patterns, reference-p
 
 ## References
 
-- Skeptic gate `83a37b73-06e0-4448-802b-c39457cee9c3` (revise → apply_revisions)
-- [ADR-0017: Astra-era skill discovery](0017-astra-era-skill-discovery.md) — `project_context.responseAliases`
+- [ADR-0017: Astra-era skill discovery](0017-astra-era-skill-discovery.md) — compact `project_context.responseAliases` is the discovery path; `alwaysApply` stays false. That packet table is the original Astra plan and supersedes skeptic S-002 (omit aliases from the packet) from gate `83a37b73-06e0-4448-802b-c39457cee9c3`.
 - IndyDevDan / disler `fixing-smartass-opus-5` system-prompt pattern (framework adapted, not vendored as always-on)
 - `pn-budget-cost-monitor`, `scripts/measure-tokens.mjs`, ADR-0002 audit cadence

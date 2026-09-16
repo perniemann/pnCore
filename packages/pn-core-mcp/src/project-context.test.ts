@@ -321,6 +321,9 @@ describe("project-context", () => {
     expect(packet.next_incomplete?.id).toBe("plan-missing");
     expect(packet.responseAliases.map((a) => a.alias)).toEqual(["scr", "eli", "foc", "ref", "scp"]);
     expect(packet.responseAliases.every((a) => a.expand.length > 0)).toBe(true);
+    expect(packet.responseAliases.find((a) => a.alias === "ref")?.expand).toMatch(
+      /Preserve codes for the rest of the session/
+    );
   });
 
   it("agent mode includes artifacts and JSONL trail including verify and acceptance", () => {
