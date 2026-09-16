@@ -114,7 +114,7 @@ export const PN_CORE_TOOLS: ToolDefinition[] = [
   def(
     "project_context",
     "Project Context",
-    "Cold-session project context packet (MCP pull). Both modes include compact responseAliases (scr/eli/foc/ref/scp). mode=operator returns counts, resume line, active run_id, and drift; mode=agent (default) also lists context-index artifacts with attested derived status and recent workflow-handoff / run-events trail. Call at session start when pn-core MCP is available.",
+    "Cold-session project context packet (MCP pull). mode=operator returns counts, resume line, active run_id, and drift; mode=agent (default) also lists context-index artifacts with attested derived status and recent workflow-handoff / run-events trail. Call at session start when pn-core MCP is available.",
     projectContextSchema,
     readOnly,
     handleProjectContext

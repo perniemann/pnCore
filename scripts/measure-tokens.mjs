@@ -151,46 +151,6 @@ console.log(
   `\n  Total skills: ${skillFiles.length}   all-loaded chars: ${skillTotalChars}  ≈ ${tokenEst(skillTotalChars)} tokens`
 );
 
-// ── (d) Skill description catalog vs Codex ~8000-char list budget (ADR-0017) ──
-
-const CODEX_CATALOG_CHAR_BUDGET = 8000;
-
-function skillDescriptionFromFrontmatter(text) {
-  const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-  if (!m) return "";
-  const dm = m[1].match(/^description:\s*(.*)$/m);
-  if (!dm) return "";
-  return dm[1].trim().replace(/^["']|["']$/g, "");
-}
-
-console.log("\n=== (d) Skill description catalog (Codex initial list) ===");
-
-let descCatalogChars = 0;
-const descEntries = [];
-for (const s of skillFiles) {
-  const text = readFileSync(join(root, s.path), "utf-8");
-  const desc = skillDescriptionFromFrontmatter(text);
-  descCatalogChars += desc.length;
-  descEntries.push({ id: s.id, chars: desc.length, estimatedTokens: tokenEst(desc.length) });
-}
-descEntries.sort((a, b) => b.chars - a.chars);
-
-console.log(`  Skills with descriptions: ${descEntries.length}`);
-console.log(
-  `  Description catalog: ${descCatalogChars} chars  ≈ ${tokenEst(descCatalogChars)} tokens`
-);
-console.log(
-  `  Codex catalog budget: ${CODEX_CATALOG_CHAR_BUDGET} chars (~2% context when window unknown)`
-);
-const overBudget = descCatalogChars > CODEX_CATALOG_CHAR_BUDGET;
-console.log(
-  `  Over budget: ${overBudget ? "yes" : "no"}  (${Math.abs(descCatalogChars - CODEX_CATALOG_CHAR_BUDGET)} chars ${overBudget ? "over" : "under"})`
-);
-console.log("  Top 10 descriptions by length:");
-for (const d of descEntries.slice(0, 10)) {
-  console.log(`    ${pad(d.chars)} chars  ≈ ${pad(d.estimatedTokens, 5)} tokens  ${d.id}`);
-}
-
 // ── Write ─────────────────────────────────────────────────────────────────────
 
 const result = {
@@ -215,14 +175,6 @@ const result = {
     totalChars: skillTotalChars,
     estimatedTokensIfAllLoaded: tokenEst(skillTotalChars),
     top10: skillFiles.slice(0, 10),
-  },
-  skillDescriptionCatalog: {
-    count: descEntries.length,
-    totalChars: descCatalogChars,
-    estimatedTokens: tokenEst(descCatalogChars),
-    codexCatalogCharBudget: CODEX_CATALOG_CHAR_BUDGET,
-    overBudget,
-    top10: descEntries.slice(0, 10),
   },
 };
 

@@ -4,23 +4,6 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
-## [0.19.1] - 2026-09-16
-
-### Added
-
-- **ADR-0017 (Astra-era skill discovery):** MCP `list_skills` / `get_skill` is the progressive-disclosure path. Cursor plugin skill-index catalog size is a known gap (emptying `skills/` deferred). Response aliases stay agent-requested (ADR-0013): compact `responseAliases` on `project_context`, plus `/pn-guide`, `docs/how-to-use-guide.md`, and one `pn-mcp-proactive` row — not `alwaysApply`. New skills error if `description` exceeds 220 characters. Premium+ `renderTierHint` appends a router/local-tests sentence.
-- **Chat shortcodes** in `/pn-guide`: whole-token `scr` / `eli` / `foc` / `ref` / `scp` expand via `get_skill("pn-response-aliases")`.
-- `scripts/measure-tokens.mjs` reports skill-description catalog size against Codex’s ~8000-character initial-list budget.
-
-### Changed
-
-- Skill descriptions for `pn-prior-art-research`, `pn-context-engineering`, `pn-documentation`, `pn-trend-research`, `pn-program-orchestration`, and the longest catalog hits (`pn-html-to-video`, `pn-diagram-design`, `pn-agent-governance`, `pn-animation`, `pn-a2a-interop`) use a narrower WHEN.
-- `pn-writing-skills` documents Astra WHEN tightness and treats `SKILL.md` as a router, not a full itinerary. Split skills with `reference.md` open with a one-line load-on-demand notice. `validate-skill-schema` **warns** on broad WHEN and on descriptions over 220 characters; **errors** only for newly added skills over that cap.
-- `pn-mcp-proactive` always-on map is the high-traffic subset; full table stays in `RUNBOOK.md`.
-- `prompt-provider-knobs.md` adds a GPT-6 Astra subsection. `agents-md-guide.md` adds “read what the task needs” vs read-everything-first.
-- `project_context` includes `responseAliases` (`ref` keeps “Preserve codes for the rest of the session”). `renderTierHint` appends a router sentence on premium / premium_thinking / long_horizon.
-- Sync MCP content CI sets `PR_BASE`/`PR_HEAD` (and `fetch-depth: 0`) so `validate-skill-schema` can error on newly added `SKILL.md` over 220 characters during `test:full`.
-
 ## [0.19.0] - 2026-09-14
 
 ### Added

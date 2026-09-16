@@ -47,12 +47,6 @@ export type TrailLine = {
     ts: string;
     summary: string;
 };
-/** Compact alias table for project_context (ADR-0013 / ADR-0017). Not the full skill. */
-export type ResponseAlias = {
-    alias: string;
-    expand: string;
-};
-export declare const RESPONSE_ALIASES: readonly ResponseAlias[];
 export type ProjectContextPacket = {
     mode: "operator" | "agent";
     version: string;
@@ -68,7 +62,6 @@ export type ProjectContextPacket = {
     resume: string | null;
     drift: ArtifactReport[];
     next_incomplete: ArtifactReport | null;
-    responseAliases: readonly ResponseAlias[];
     artifacts?: ArtifactReport[];
     trail?: TrailLine[];
     pointers?: Record<string, string | null | undefined>;
