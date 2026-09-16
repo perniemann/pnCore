@@ -1,9 +1,11 @@
 ---
 name: pn-documentation
-description: "Canonical format authority for all project documentation. Use when creating or updating discovery specs, implementation plans, workflow roadmaps, prior-art research, SVG specs, README, CHANGELOG, or API docs. Ensures consistent formatting across the project."
+description: "Apply pnCore doc templates (discovery, plan, prior-art, README, CHANGELOG). Use when writing or reformatting those artifacts — not when editing application code."
 ---
 
 # Documentation
+
+This SKILL.md is a router; load `reference.md` only when that workflow is active.
 
 ## When to use
 
