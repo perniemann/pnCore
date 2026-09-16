@@ -13,6 +13,17 @@ Model-specific prompting knobs for `pn-prompt-optimize`. Stay model-agnostic by 
 - **Prompts as code:** Reusable hosted prompt objects (`v1/prompts`) are deprecated (shutdown 2026-11-30). Keep prompts in versioned files with typed parameters; cover changes with evals (Promptfoo is the recommended successor to the OpenAI Evals platform).
 - **Pin snapshots:** Pin production prompts to a specific model snapshot and re-run evals when upgrading.
 
+## OpenAI (GPT-6 Astra)
+
+Astra-era coding agents need **less** hand-holding than Sol/Luna-era prompts. Revisit skills, `AGENTS.md`, and task prompts when the session model is this capable. Do not add a second always-on essay.
+
+- **Skill descriptions:** Short, **narrow WHEN**. Bad: “Use when working with databases, queries, models, or persistence.” Good: “Use when adding or changing a migration, or reviewing its rollout.” Front-load trigger words — Codex shortens descriptions when the catalog exceeds about 2% of context (~8000 characters for the **whole list**).
+- **Progressive disclosure:** Root `SKILL.md` is a router. Load `reference.md` / scripts only for the active workflow.
+- **Recipes:** Drop numbered itineraries that weaker models needed. Keep refuse paths, HITL for irreversible work, and `workflow_step` gates. Slim the prose, not the gate.
+- **AGENTS.md:** Point at docs when the task needs them. Do not require architecture.md + database.md + deployment.md before every edit.
+- **Persistence:** Define completion in the task (“implement, run local disposable tests, fix failures caused by this change”). A “stop after first implementation” line pulls the model to an earlier stop. Premium+ `workflow_step` hints append one router/local-tests sentence (`renderTierHint`); do not duplicate that liturgy in always-on rules.
+- **Multi-model repos:** Guidance that helps Sol or Luna can overconstrain Astra. Keep shared outcomes in skills; put model-specific procedure in this file and apply it only when the user names the target model.
+
 ## Anthropic (Claude 4.6+ / Opus 5 / Fable 5.1)
 
 - **Start on Opus:** Daily-driver work stays on Opus (`premium` / `premium_thinking`). Use **Fable 5.1** (`long_horizon`) for multi-hour loops, orchestration, or when Opus at high effort still fails your evals.

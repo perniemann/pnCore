@@ -5,6 +5,8 @@ description: "Docker best practices for production containers. Multi-stage build
 
 # Docker
 
+This SKILL.md is a router; load `reference.md` only when that workflow is active.
+
 ## When to use
 
 - Writing or reviewing a `Dockerfile` for a Node.js, Python, Go, or other service

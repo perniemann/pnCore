@@ -5,6 +5,8 @@ description: "Supabase patterns for Row Level Security, realtime subscriptions, 
 
 # Supabase
 
+This SKILL.md is a router; load `reference.md` only when that workflow is active.
+
 ## When to use
 
 - Writing or reviewing RLS (Row Level Security) policies

@@ -5,6 +5,8 @@ description: "Create investor pitch decks and persuasive presentations using 202
 
 # Pitch Deck and Presentation
 
+This SKILL.md is a router; load `reference.md` only when that workflow is active.
+
 ## When to use
 
 - Investor pitch deck or fundraising materials
