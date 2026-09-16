@@ -5,6 +5,8 @@ description: "Defines engineering discipline: test-first, root-cause before fix,
 
 # Engineering Discipline Philosophy
 
+This SKILL.md is a router; load `reference.md` only when that workflow is active.
+
 ## Purpose
 
 Use this as a discipline rulebook for:

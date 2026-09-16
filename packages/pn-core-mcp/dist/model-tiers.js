@@ -85,8 +85,18 @@ export function buildSuggestedTier(tier, rationale) {
     };
 }
 /** One-line inline hint suitable for prepending to an instruction. Kept terse. */
+export const FRONTIER_ROUTER_SENTENCE = "Load matching skills as routers; do not preload unrelated recipes; run local disposable tests without asking; stop only for irreversible or option-lock gates.";
+const FRONTIER_HINT_TIERS = new Set([
+    "premium",
+    "premium_thinking",
+    "long_horizon",
+]);
 export function renderTierHint(suggested) {
-    return `**Suggested model tier:** ${suggested.tier} (e.g. ${suggested.exemplar}) — ${suggested.rationale}`;
+    const base = `**Suggested model tier:** ${suggested.tier} (e.g. ${suggested.exemplar}) — ${suggested.rationale}`;
+    if (FRONTIER_HINT_TIERS.has(suggested.tier)) {
+        return `${base} ${FRONTIER_ROUTER_SENTENCE}`;
+    }
+    return base;
 }
 /**
  * Apply a global tier alias (e.g. downgrade `premium_thinking` -> `premium` for

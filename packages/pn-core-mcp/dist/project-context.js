@@ -18,6 +18,28 @@ export const ARTIFACT_TYPES = [
     "workflow",
     "convention",
 ];
+export const RESPONSE_ALIASES = [
+    {
+        alias: "scr",
+        expand: "Simplify, compress, and repeat your last response. Cut filler; keep facts and decisions.",
+    },
+    {
+        alias: "eli",
+        expand: "Explain like I am 18. Simplify language. Shorten the response.",
+    },
+    {
+        alias: "foc",
+        expand: "Focus on what matters most. What is the true signal and value? Boil down to the single most important point.",
+    },
+    {
+        alias: "ref",
+        expand: "Rewrite using reference points: F# findings, D# decisions, O# options, R# risks, Q# questions, A# actions. Preserve codes for the rest of the session.",
+    },
+    {
+        alias: "scp",
+        expand: "Scope lock: deliver only what was requested. Drop unsolicited cleanup, refactors, docs, or adjacent features.",
+    },
+];
 const COMPLETE_CLAIMS = new Set(["complete", "done", "completed", "shipped"]);
 const IN_PROGRESS_CLAIMS = new Set(["in_progress", "in-progress", "wip", "active", "started"]);
 function readJsonSafe(absPath) {
@@ -344,6 +366,7 @@ export function buildProjectContextPacket(opts = {}) {
         resume: readResumeLine(cwd),
         drift,
         next_incomplete: pickNextIncomplete(reports),
+        responseAliases: RESPONSE_ALIASES,
     };
     if (mode === "agent") {
         packet.artifacts = reports;
