@@ -83,6 +83,18 @@ description: Use when executing plans - dispatches subagent per task with review
 description: Creates bite-sized implementation plans with exact file paths. Use when a spec exists for a multi-step task, before touching code
 ```
 
+**WHEN tightness (Astra / Codex catalog):** Descriptions are a selection aid, not a recipe. Codex may shorten them when the installed skill list exceeds about 2% of context (~8000 characters for the **whole catalog**, not per skill). Front-load the job and a **narrow** trigger. Do not write "use when working with X" for an entire domain. Do not put numbered steps in the description.
+
+```yaml
+# Bad: over-triggers on any related work
+description: Create and validate Postgres schema migrations. Use when working with databases, queries, models, or persistence.
+
+# Good: fires only on the actual job
+description: Create and validate Postgres schema migrations. Use when adding or changing a migration, or reviewing its rollout.
+```
+
+Do **not** chase a per-skill character cap. Anthropic allows up to 1024 characters because skills under-trigger when WHEN is too thin. Tight WHEN beats short WHEN. `validate-skill-schema` warns on broad triggers; `measure-tokens.mjs` reports catalog size vs 8000 characters.
+
 **Skill names and descriptions are a public API.** Once a skill is referenced by another skill, rule, agent, or external project (`get_skill("pn-...")`), its name and description become observable behavior callers depend on (Hyrum's Law). Renames require a deprecation cycle; description rewrites that change activation behavior require an ADR. Treat skill `name` and `description` like exported function signatures, not labels.
 
 ## SKILL.md structure
@@ -141,7 +153,7 @@ Revise SKILL.md without testing? Same violation.
 ## Quality checks
 
 - Name: letters, numbers, hyphens
-- Description: "Use when..." + triggers, no workflow summary
+- Description: "Use when..." + **narrow** triggers (not "working with" a whole domain); no workflow summary; front-load keywords
 - One excellent example (not multi-language)
 - Common mistakes section
 - Reference pn-plugin-quality-gates when creating plugin skills

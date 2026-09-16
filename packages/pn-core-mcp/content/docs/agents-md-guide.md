@@ -14,7 +14,16 @@ Learned preferences and durable workspace facts live in **AGENTS.md**, updated b
 
 **Rule of thumb:** If it must never be violated, put it in User Rules or a project rule. If it improves behavior but can be overridden, AGENTS.md is fine.
 
-**Communication tone:** Soft prefs (e.g. “avoid hedging”, “prefer plans first”) belong in **AGENTS.md**. Stronger session steering for concise chat — lead with the answer, ban filler, response aliases (`scr`/`eli`/`foc`/`ref`/`scp`) — uses the **agent-requested** rule `pn-communication-contract` (`alwaysApply: false`) plus skill `pn-response-aliases`. Do not make that rule always-on; it would inflate every turn. Prefer AGENTS bullets for durable taste; load the rule/skill when verbosity bites or aliases appear. See `pn-core://reference/communication-contract.md`.
+**Communication tone:** Soft prefs (e.g. “avoid hedging”, “prefer plans first”) belong in **AGENTS.md**. Stronger session steering for concise chat — lead with the answer, ban filler, response aliases (`scr`/`eli`/`foc`/`ref`/`scp`) — uses the **agent-requested** rule `pn-communication-contract` (`alwaysApply: false`) plus skill `pn-response-aliases`. Do not make that rule always-on; it would inflate every turn. Prefer AGENTS bullets for durable taste; load the rule/skill when verbosity bites or aliases appear. See `pn-core://reference/communication-contract.md`. Discovery of the five aliases: `/pn-guide` Chat shortcodes, `docs/how-to-use-guide.md`, and one `pn-mcp-proactive` map row — not the `project_context` packet (ADR-0017).
+
+**Read what the task needs:** Point at docs by task. Do not require a stack of files before every edit.
+
+```text
+Bad: Before every edit, read architecture.md, database.md, and deployment.md.
+Good: Use architecture.md for service boundaries, database.md for schema changes, and deployment.md when preparing a deployment.
+```
+
+If AGENTS.md says local tests use disposable fixtures and have no production access, the agent may run them without asking. Irreversible work, option-lock, and phase-complete still use `pn-build-gate` / `approval_checkpoint`. Do not prepend extra “keep going / run tests” liturgy onto every `workflow_step` by model tier.
 
 ## Example: Hard Constraints Rule
 

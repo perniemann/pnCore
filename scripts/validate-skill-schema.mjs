@@ -13,13 +13,18 @@
  *   - Skills with category ci|review|orchestration|discipline missing
  *     `Rationalizations`, `Red flags — stop`, or `## Verification`
  *   - SKILL.md body exceeds progressive-disclosure size advisory (line count)
+ *   - Description uses a broad WHEN trigger (Mandatory before, use when working
+ *     with, anytime you, whenever you touch|edit|change|work)
+ *
+ * Do not fail on description length. Codex's catalog budget is ~8000 characters
+ * for the whole skill list (see measure-tokens.mjs), not a per-skill cap.
  *
  * Run from repo root: node scripts/validate-skill-schema.mjs
  */
 
 import { readdirSync, readFileSync, existsSync } from "fs";
 import { join, dirname } from "path";
-import { fileURLToPath } from "url";
+import { fileURLToPath, pathToFileURL } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, "..");
@@ -31,6 +36,22 @@ const WARN_CATEGORIES = new Set(["ci", "review", "orchestration", "discipline"])
 
 /** Progressive-disclosure size advisory (body lines after frontmatter). Warning only. */
 const SIZE_WARN_LINES = 400;
+
+/**
+ * Broad WHEN phrases that over-trigger skill load (OpenAI Astra / Codex catalog).
+ * Warning only — tightness of WHEN, not a character cap.
+ */
+export const BROAD_WHEN_PATTERNS = [
+  /mandatory before/i,
+  /use when working with\b/i,
+  /\banytime you\b/i,
+  /whenever you (touch|edit|change|work)\b/i,
+];
+
+export function descriptionHasBroadWhen(description) {
+  if (!description) return false;
+  return BROAD_WHEN_PATTERNS.some((re) => re.test(description));
+}
 
 function* walkSkillMd(dir, base = "") {
   if (!existsSync(dir)) return;
@@ -118,6 +139,12 @@ function main() {
       errors.push(`${rel}: missing '## When to use' section`);
     }
 
+    if (rel !== "README.md" && descriptionHasBroadWhen(meta.description ?? "")) {
+      warnings.push(
+        `${rel}: description uses a broad WHEN trigger (narrow the job; do not cap character count)`
+      );
+    }
+
     // Warnings
     if (!hasAnyInstructionHeader(body)) {
       warnings.push(
@@ -168,4 +195,7 @@ function main() {
   );
 }
 
-main();
+const isMain = Boolean(process.argv[1]) && import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isMain) {
+  main();
+}

@@ -1,6 +1,6 @@
 ---
 name: pn-trend-research
-description: "Market intelligence, competitive analysis, emerging trend identification. Use for market research, opportunity assessment, and prior-art validation."
+description: "Market and competitive trend scan. Use when assessing a market or opportunity — not as a substitute for pn-prior-art-research on code or libraries."
 ---
 
 # Trend research

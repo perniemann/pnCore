@@ -1,6 +1,6 @@
 ---
 name: pn-context-engineering
-description: "Curate what the agent sees and when — rules vs specs vs task files vs errors vs history. Use when starting a session, switching tasks, output quality drops, or the agent ignores project conventions."
+description: "Choose which rules, specs, and files to load this turn. Use when context is bloated, the agent ignores conventions, or you are switching tasks — not for a single-file edit with a clear path."
 ---
 
 # Context engineering

@@ -11,6 +11,18 @@ Show the user what pnCore can do and recommend the right starting point.
 
 > **Slash palette:** Open **`/pn`** in Cursor IDE for the pnCore submenu (**27** leaves in start/build/design/pm/audit/challenge/ship). Top-level **`/pn`** stub routes on CLI. **28** visible palette files total. Another **18** palette-hidden surgical commands remain canonical-only.
 
+## Chat shortcodes
+
+Whole-token aliases reshape the last assistant reply (skill `pn-response-aliases`; rule `pn-communication-contract` stays agent-requested). Type them as their own token — not inside `script` / `focus` / `refcount`. When they appear, call `get_skill("pn-response-aliases")`.
+
+| Token | Effect |
+|-------|--------|
+| `scr` | Compress last reply; keep facts and decisions |
+| `eli` | Explain simply; shorten |
+| `foc` | One most important point |
+| `ref` | Rewrite as `F#` findings, `D#` decisions, `O#` options, `R#` risks, `Q#` questions, `A#` actions |
+| `scp` | Scope lock — deliver only what was asked |
+
 ## Step 1: Identify context
 
 Ask: "What are you trying to do?"

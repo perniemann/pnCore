@@ -1,6 +1,6 @@
 ---
 title: How to use pnCore
-updated: 2026-07-03
+updated: 2026-09-16
 ---
 
 # How to use pnCore
@@ -17,7 +17,7 @@ User-facing orientation (why it exists, install, workflows, honest edges): [root
 
 Deeper orientation: [Plugin reference](plugin-reference.md).
 
-**Prompt tips:** Name the workflow when you want discovery and skeptic ("Use the design workflow", "Use the full dev workflow"). For prompt optimization, say what "good" means (e.g. reliability, production). Examples: [Example prompts by command](#example-prompts-by-command) and [Best practices](#best-practices).
+**Prompt tips:** Name the workflow when you want discovery and skeptic ("Use the design workflow", "Use the full dev workflow"). For prompt optimization, say what "good" means (e.g. reliability, production). To reshape a verbose reply, type a whole-token shortcode: `scr` (compress), `eli` (simplify), `foc` (one point), `ref` (`F#`/`D#` codes), `scp` (scope lock) — skill `pn-response-aliases`. Examples: [Example prompts by command](#example-prompts-by-command) and [Best practices](#best-practices).
 
 ---
 
@@ -41,6 +41,7 @@ Deeper orientation: [Plugin reference](plugin-reference.md).
 - **Define domain vocabulary** — "Run pn-domain-language" or "Extract our ubiquitous language." DDD-style glossary.
 - **Curate agent context** — `get_skill("pn-context-engineering")` when output drifts, you switch tasks, or you need a smaller, correct context window.
 - **Vendor-doc-backed code** — `get_skill("pn-source-driven-implementation")` when framework or library behavior must match official docs for the versions in your lockfile.
+- **Compress or scope-lock a reply** — type `scr`, `eli`, `foc`, `ref`, or `scp` as a whole token (see `/pn-guide` Chat shortcodes). Load `get_skill("pn-response-aliases")`. Do not make `pn-communication-contract` always-on.
 
 ### Design and frontend
 
