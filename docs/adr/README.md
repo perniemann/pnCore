@@ -11,4 +11,4 @@ Two files share `0001` (early collision; left as-is rather than recycling a late
 
 - [0015-consumer-project-gating.md](./0015-consumer-project-gating.md) — downstream gating is chat + opt-in git trailer defense; MCP never owns the Merge button
 - [0016-harness-adapters.md](./0016-harness-adapters.md) — one MCP engine, four harness adapters (Cursor, Claude Code, Codex, Pi); onboarding writes only the active harness's folders
-- [0017-astra-era-skill-discovery.md](./0017-astra-era-skill-discovery.md) — MCP `list_skills` is Astra-compliant discovery; Cursor plugin skill index is a catalog-size gap; aliases stay agent-requested (not `project_context`, not alwaysApply)
+- [0017-astra-era-skill-discovery.md](./0017-astra-era-skill-discovery.md) — MCP `list_skills` is Astra-compliant discovery; Cursor plugin skill index is a catalog-size gap; aliases stay agent-requested (`project_context.responseAliases`, not `alwaysApply`); premium+ `renderTierHint` appends a router sentence

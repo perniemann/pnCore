@@ -5,7 +5,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { descriptionHasBroadWhen } from "../validate-skill-schema.mjs";
+import { descriptionHasBroadWhen, descriptionOverCharCap } from "../validate-skill-schema.mjs";
 
 test("descriptionHasBroadWhen flags OpenAI-style over-trigger WHEN", () => {
   assert.equal(
@@ -32,4 +32,10 @@ test("descriptionHasBroadWhen accepts a tight WHEN", () => {
     ),
     false
   );
+});
+
+test("descriptionOverCharCap flags descriptions over 220 chars", () => {
+  assert.equal(descriptionOverCharCap("short"), false);
+  assert.equal(descriptionOverCharCap("x".repeat(220)), false);
+  assert.equal(descriptionOverCharCap("x".repeat(221)), true);
 });

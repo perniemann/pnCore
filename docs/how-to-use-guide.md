@@ -17,7 +17,7 @@ User-facing orientation (why it exists, install, workflows, honest edges): [root
 
 Deeper orientation: [Plugin reference](plugin-reference.md).
 
-**Prompt tips:** Name the workflow when you want discovery and skeptic ("Use the design workflow", "Use the full dev workflow"). For prompt optimization, say what "good" means (e.g. reliability, production). To reshape a verbose reply, type a whole-token shortcode: `scr` (compress), `eli` (simplify), `foc` (one point), `ref` (`F#`/`D#` codes), `scp` (scope lock) — skill `pn-response-aliases`. Examples: [Example prompts by command](#example-prompts-by-command) and [Best practices](#best-practices).
+**Prompt tips:** Name the workflow when you want discovery and skeptic ("Use the design workflow", "Use the full dev workflow"). For prompt optimization, say what "good" means (e.g. reliability, production). To reshape a verbose reply, type a whole-token shortcode: `scr` (compress), `eli` (simplify), `foc` (one point), `ref` (`F#`/`D#` codes), `scp` (scope lock) — skill `pn-response-aliases`; agents also see these on `project_context.responseAliases`. Examples: [Example prompts by command](#example-prompts-by-command) and [Best practices](#best-practices).
 
 ---
 

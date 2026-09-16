@@ -5,6 +5,8 @@ description: "Apply pnCore doc templates (discovery, plan, prior-art, README, CH
 
 # Documentation
 
+This SKILL.md is a router; load `reference.md` only when that workflow is active.
+
 ## When to use
 
 - Whenever creating or updating discovery specs, implementation plans, workflow roadmaps, prior-art research, SVG specs, README, CHANGELOG, or API docs

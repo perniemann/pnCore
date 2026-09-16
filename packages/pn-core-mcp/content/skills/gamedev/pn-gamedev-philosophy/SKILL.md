@@ -5,6 +5,8 @@ description: "Defines an authoritative game and real-time 3D design rulebook. Us
 
 # Game Development Philosophy
 
+This SKILL.md is a router; load `reference.md` only when that workflow is active.
+
 ## Purpose
 
 Use this as a game and real-time 3D design rulebook for:

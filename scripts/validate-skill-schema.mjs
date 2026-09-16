@@ -6,6 +6,7 @@
  *   - Missing frontmatter `name` field
  *   - Missing frontmatter `description` field
  *   - Missing `## When to use` section header (primary retrieval anchor)
+ *   - Newly added SKILL.md in the git diff range with description > 220 chars
  *
  * Warnings (exit 0, but printed):
  *   - Missing instruction-section header (any of: ## Instructions / ## Workflow /
@@ -15,9 +16,10 @@
  *   - SKILL.md body exceeds progressive-disclosure size advisory (line count)
  *   - Description uses a broad WHEN trigger (Mandatory before, use when working
  *     with, anytime you, whenever you touch|edit|change|work)
+ *   - Existing skill description exceeds 220 characters (advisory; error for new skills)
  *
- * Do not fail on description length. Codex's catalog budget is ~8000 characters
- * for the whole skill list (see measure-tokens.mjs), not a per-skill cap.
+ * Codex's catalog budget is ~8000 characters for the whole skill list
+ * (see measure-tokens.mjs). The 220-char gate applies to new skills only.
  *
  * Run from repo root: node scripts/validate-skill-schema.mjs
  */
@@ -25,6 +27,7 @@
 import { readdirSync, readFileSync, existsSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath, pathToFileURL } from "url";
+import { git, resolveDiffRange } from "./git-diff-lib.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, "..");
@@ -36,6 +39,11 @@ const WARN_CATEGORIES = new Set(["ci", "review", "orchestration", "discipline"])
 
 /** Progressive-disclosure size advisory (body lines after frontmatter). Warning only. */
 const SIZE_WARN_LINES = 400;
+
+/** Per-skill description cap for newly added skills (existing: warning). */
+export const DESC_MAX_CHARS = 220;
+
+const SKILL_MD_RE = /^packages\/pn-core-mcp\/content\/skills\/[^/]+\/([^/]+)\/SKILL\.md$/;
 
 /**
  * Broad WHEN phrases that over-trigger skill load (OpenAI Astra / Codex catalog).
@@ -51,6 +59,10 @@ export const BROAD_WHEN_PATTERNS = [
 export function descriptionHasBroadWhen(description) {
   if (!description) return false;
   return BROAD_WHEN_PATTERNS.some((re) => re.test(description));
+}
+
+export function descriptionOverCharCap(description, max = DESC_MAX_CHARS) {
+  return (description ?? "").length > max;
 }
 
 function* walkSkillMd(dir, base = "") {
@@ -141,7 +153,12 @@ function main() {
 
     if (rel !== "README.md" && descriptionHasBroadWhen(meta.description ?? "")) {
       warnings.push(
-        `${rel}: description uses a broad WHEN trigger (narrow the job; do not cap character count)`
+        `${rel}: description uses a broad WHEN trigger (narrow the job; do not dump the workflow)`
+      );
+    }
+    if (rel !== "README.md" && descriptionOverCharCap(meta.description ?? "")) {
+      warnings.push(
+        `${rel}: description is ${meta.description.length} chars (advisory cap ${DESC_MAX_CHARS}; error for newly added skills)`
       );
     }
 
@@ -177,6 +194,31 @@ function main() {
     warnings.push(
       `${oversized.length} skill(s) exceed ${SIZE_WARN_LINES}-line progressive-disclosure advisory — move detail into reference.md (e.g. ${sample}${oversized.length > 5 ? "; …" : ""})`
     );
+  }
+
+  const { range, skip, reason } = resolveDiffRange();
+  if (!skip && range) {
+    let added = [];
+    try {
+      const out = git(["diff", "--name-only", "--diff-filter=A", range]);
+      added = out ? out.split(/\r?\n/).filter(Boolean) : [];
+    } catch {
+      added = [];
+    }
+    for (const f of added) {
+      const norm = f.replace(/\\/g, "/");
+      if (!SKILL_MD_RE.test(norm)) continue;
+      const abs = join(repoRoot, ...norm.split("/"));
+      if (!existsSync(abs)) continue;
+      const { meta } = parseFrontmatter(readFileSync(abs, "utf-8"));
+      if (descriptionOverCharCap(meta.description ?? "")) {
+        errors.push(
+          `${norm}: new skill description is ${(meta.description ?? "").length} chars (max ${DESC_MAX_CHARS} for newly added skills)`
+        );
+      }
+    }
+  } else if (skip) {
+    warnings.push(`new-skill description-length gate skipped (${reason ?? "no diff range"})`);
   }
 
   if (warnings.length) {

@@ -21,7 +21,7 @@ Astra-era coding agents need **less** hand-holding than Sol/Luna-era prompts. Re
 - **Progressive disclosure:** Root `SKILL.md` is a router. Load `reference.md` / scripts only for the active workflow.
 - **Recipes:** Drop numbered itineraries that weaker models needed. Keep refuse paths, HITL for irreversible work, and `workflow_step` gates. Slim the prose, not the gate.
 - **AGENTS.md:** Point at docs when the task needs them. Do not require architecture.md + database.md + deployment.md before every edit.
-- **Persistence:** Define completion in the task (“implement, run local disposable tests, fix failures caused by this change”). A “stop after first implementation” line pulls the model to an earlier stop. Do not encode “run tests without asking” as a global `workflow_step` preamble — that collides with involved-intent HITL.
+- **Persistence:** Define completion in the task (“implement, run local disposable tests, fix failures caused by this change”). A “stop after first implementation” line pulls the model to an earlier stop. Premium+ `workflow_step` hints append one router/local-tests sentence (`renderTierHint`); do not duplicate that liturgy in always-on rules.
 - **Multi-model repos:** Guidance that helps Sol or Luna can overconstrain Astra. Keep shared outcomes in skills; put model-specific procedure in this file and apply it only when the user names the target model.
 
 ## Anthropic (Claude 4.6+ / Opus 5 / Fable 5.1)

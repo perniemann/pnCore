@@ -1544,6 +1544,7 @@ describe("workflows contract", () => {
         const r = result as WorkflowStepResult;
         expect(r.suggestedModelTier?.tier).toBe("premium");
         expect(r.instruction).toMatch(SUGGEST_HINT_RE);
+        expect(r.instruction).toContain("Load matching skills as routers");
       });
 
       it("backend_audit step 2 (security) suggests premium_thinking", () => {
@@ -1555,6 +1556,7 @@ describe("workflows contract", () => {
         const r = result as WorkflowStepResult;
         expect(r.suggestedModelTier?.tier).toBe("premium_thinking");
         expect(r.instruction).toMatch(SUGGEST_HINT_RE);
+        expect(r.instruction).toContain("Load matching skills as routers");
       });
 
       it("fsi_analyst_draft step 2 (draft) suggests premium_thinking", () => {

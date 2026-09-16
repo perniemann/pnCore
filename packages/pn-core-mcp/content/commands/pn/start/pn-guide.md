@@ -13,7 +13,7 @@ Show the user what pnCore can do and recommend the right starting point.
 
 ## Chat shortcodes
 
-Whole-token aliases reshape the last assistant reply (skill `pn-response-aliases`; rule `pn-communication-contract` stays agent-requested). Type them as their own token — not inside `script` / `focus` / `refcount`. When they appear, call `get_skill("pn-response-aliases")`.
+Whole-token aliases reshape the last assistant reply (skill `pn-response-aliases`; rule `pn-communication-contract` stays agent-requested). Type them as their own token — not inside `script` / `focus` / `refcount`. The cold-session packet lists them as `project_context.responseAliases`. When they appear, call `get_skill("pn-response-aliases")`.
 
 | Token | Effect |
 |-------|--------|

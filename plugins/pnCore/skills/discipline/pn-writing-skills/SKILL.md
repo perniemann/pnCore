@@ -93,7 +93,7 @@ description: Create and validate Postgres schema migrations. Use when working wi
 description: Create and validate Postgres schema migrations. Use when adding or changing a migration, or reviewing its rollout.
 ```
 
-Do **not** chase a per-skill character cap. Anthropic allows up to 1024 characters because skills under-trigger when WHEN is too thin. Tight WHEN beats short WHEN. `validate-skill-schema` warns on broad triggers; `measure-tokens.mjs` reports catalog size vs 8000 characters.
+Do **not** chase a per-skill character cap on existing skills. Anthropic allows up to 1024 characters because skills under-trigger when WHEN is too thin. Tight WHEN beats short WHEN. **New** skills: keep `description` at or under **220 characters** (`validate-skill-schema` errors on newly added `SKILL.md` over the cap; existing long descriptions are warnings). `measure-tokens.mjs` reports catalog size vs 8000 characters.
 
 **Skill names and descriptions are a public API.** Once a skill is referenced by another skill, rule, agent, or external project (`get_skill("pn-...")`), its name and description become observable behavior callers depend on (Hyrum's Law). Renames require a deprecation cycle; description rewrites that change activation behavior require an ADR. Treat skill `name` and `description` like exported function signatures, not labels.
 
@@ -106,7 +106,7 @@ Do **not** chase a per-skill character cap. Anthropic allows up to 1024 characte
 - **Common mistakes:** What goes wrong + fixes
 - **Output:** What to produce
 
-**Progressive disclosure:** Keep `SKILL.md` focused. If the body grows past ~400 lines, move deep reference material into `reference.md` (or `references/`) so agents load detail on demand. `validate-skill-schema` warns on oversized bodies.
+**Progressive disclosure:** `SKILL.md` is a router, not a full itinerary. Keep TDD-for-skills. If the body grows past ~400 lines, move deep reference material into `reference.md` (or `references/`) so agents load detail on demand. Load `reference.md` only when that workflow is active. `validate-skill-schema` warns on oversized bodies.
 
 ## EVAL.yaml (required for new skills)
 
@@ -153,7 +153,7 @@ Revise SKILL.md without testing? Same violation.
 ## Quality checks
 
 - Name: letters, numbers, hyphens
-- Description: "Use when..." + **narrow** triggers (not "working with" a whole domain); no workflow summary; front-load keywords
+- Description: "Use when..." + **narrow** triggers (not "working with" a whole domain); no workflow summary; front-load keywords; new skills ≤220 characters
 - One excellent example (not multi-language)
 - Common mistakes section
 - Reference pn-plugin-quality-gates when creating plugin skills

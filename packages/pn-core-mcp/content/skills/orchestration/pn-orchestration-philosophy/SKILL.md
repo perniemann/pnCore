@@ -5,6 +5,8 @@ description: "Defines orchestration rulebook: scope before build, prior art befo
 
 # Orchestration Philosophy
 
+This SKILL.md is a router; load `reference.md` only when that workflow is active.
+
 ## Purpose
 
 Use this as an orchestration rulebook for:
