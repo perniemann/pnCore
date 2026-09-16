@@ -37,11 +37,24 @@ describe("model-tiers helpers (pure)", () => {
     expect(s.rationale).toBe("custom rationale");
   });
 
-  it("renderTierHint produces a one-line markdown hint", async () => {
+  it("renderTierHint produces a one-line markdown hint for standard/fast", async () => {
     const { renderTierHint, buildSuggestedTier } = await import("./model-tiers.js");
-    const hint = renderTierHint(buildSuggestedTier("premium", "deep critique"));
-    expect(hint).toMatch(/^\*\*Suggested model tier:\*\* premium \(e\.g\. .+\) — deep critique$/);
+    const hint = renderTierHint(buildSuggestedTier("fast", "quick scan"));
+    expect(hint).toMatch(/^\*\*Suggested model tier:\*\* fast \(e\.g\. .+\) — quick scan$/);
     expect(hint.includes("\n")).toBe(false);
+    expect(hint).not.toContain("Load matching skills as routers");
+  });
+
+  it("renderTierHint appends the frontier router sentence on premium+", async () => {
+    const { renderTierHint, buildSuggestedTier, FRONTIER_ROUTER_SENTENCE } =
+      await import("./model-tiers.js");
+    for (const tier of ["premium", "premium_thinking", "long_horizon"] as const) {
+      const hint = renderTierHint(buildSuggestedTier(tier, "deep critique"));
+      expect(hint.startsWith(`**Suggested model tier:** ${tier}`)).toBe(true);
+      expect(hint).toContain("deep critique");
+      expect(hint).toContain(FRONTIER_ROUTER_SENTENCE);
+      expect(hint.includes("\n")).toBe(false);
+    }
   });
 
   it("applyTierAlias is identity when no alias matches", async () => {

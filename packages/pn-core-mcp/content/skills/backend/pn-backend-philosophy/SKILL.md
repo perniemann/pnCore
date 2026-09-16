@@ -5,6 +5,8 @@ description: "Defines an authoritative backend design rulebook. Use when designi
 
 # Backend Design Philosophy
 
+This SKILL.md is a router; load `reference.md` only when that workflow is active.
+
 **When used as a standalone skill, begin every response with** `[pn-skill] 🔺`
 
 ## Purpose

@@ -1,6 +1,6 @@
 ---
 title: "ADR-0013: Communication contract stays agent-requested"
-updated: 2026-08-20
+updated: 2026-09-16
 ---
 
 # ADR-0013: Communication contract stays agent-requested
@@ -23,11 +23,11 @@ System-prompt engineering patterns (positive/negative chat patterns, reference-p
 ## Consequences
 
 - **Positive:** Zero alwaysApply growth for this feature; aliases and reference codes remain available on demand; setup paths stay consistent with token-budget discipline (`pn-budget-cost-monitor`).
-- **Negative:** Agents may not load the rule unless the description matches or setup/bootstrap mentions it. Mitigation: strong rule `description`, MCP bootstrap lines in project-context, and skill cross-links.
-- **Follow-up:** When adding A/B benches or CL distillation, open a new ADR or amend this one with measured results before changing `alwaysApply`.
+- **Negative:** Agents may not load the rule unless the description matches or setup/bootstrap mentions it. Mitigation: compact `responseAliases` on every `project_context` packet (ADR-0017); strong rule `description`; MCP bootstrap lines; skill cross-links; `/pn-guide` Chat shortcodes.
+- **Follow-up:** When adding A/B benches or CL distillation, open a new ADR or amend this one with measured results before changing `alwaysApply`. Alias **discovery** lives on `project_context`; `alwaysApply` stays false.
 
 ## References
 
-- Skeptic gate `83a37b73-06e0-4448-802b-c39457cee9c3` (revise → apply_revisions)
+- [ADR-0017: Astra-era skill discovery](0017-astra-era-skill-discovery.md) — compact `project_context.responseAliases` is the discovery path; `alwaysApply` stays false. That packet table is the original Astra plan and supersedes skeptic S-002 (omit aliases from the packet) from gate `83a37b73-06e0-4448-802b-c39457cee9c3`.
 - IndyDevDan / disler `fixing-smartass-opus-5` system-prompt pattern (framework adapted, not vendored as always-on)
 - `pn-budget-cost-monitor`, `scripts/measure-tokens.mjs`, ADR-0002 audit cadence
