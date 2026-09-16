@@ -5,8 +5,6 @@ description: "Monorepo setup and maintenance with Turborepo, Nx, and pnpm worksp
 
 # Monorepo
 
-This SKILL.md is a router; load `reference.md` only when that workflow is active.
-
 ## When to use
 
 - Setting up a new monorepo with Turborepo, Nx, or pnpm workspaces

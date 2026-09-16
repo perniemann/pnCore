@@ -1,6 +1,6 @@
 ---
 name: pn-a2a-interop
-description: "Agent2Agent (A2A) interop with external frameworks. Use when composing agents across orgs or stacks (LangGraph, CrewAI) — not for in-process pnCore specialists."
+description: "Design and implement Agent2Agent (A2A) Protocol integrations — connecting pnCore-orchestrated agents with external agents built on other frameworks (LangGraph, ADK, CrewAI, AutoGen) or owned by other organizations. Covers A2A service cards, task routing, trust/auth, capability negotiation, and audit trail. Use when a project needs cross-framework or cross-org agent composition."
 ---
 
 # A2A Interoperability Skill

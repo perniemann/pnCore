@@ -66,36 +66,6 @@ export type TrailLine = {
   summary: string;
 };
 
-/** Compact alias table for project_context (ADR-0013 / ADR-0017). Not the full skill. */
-export type ResponseAlias = { alias: string; expand: string };
-
-export const RESPONSE_ALIASES: readonly ResponseAlias[] = [
-  {
-    alias: "scr",
-    expand:
-      "Simplify, compress, and repeat your last response. Cut filler; keep facts and decisions.",
-  },
-  {
-    alias: "eli",
-    expand: "Explain like I am 18. Simplify language. Shorten the response.",
-  },
-  {
-    alias: "foc",
-    expand:
-      "Focus on what matters most. What is the true signal and value? Boil down to the single most important point.",
-  },
-  {
-    alias: "ref",
-    expand:
-      "Rewrite using reference points: F# findings, D# decisions, O# options, R# risks, Q# questions, A# actions. Preserve codes for the rest of the session.",
-  },
-  {
-    alias: "scp",
-    expand:
-      "Scope lock: deliver only what was requested. Drop unsolicited cleanup, refactors, docs, or adjacent features.",
-  },
-];
-
 export type ProjectContextPacket = {
   mode: "operator" | "agent";
   version: string;
@@ -111,7 +81,6 @@ export type ProjectContextPacket = {
   resume: string | null;
   drift: ArtifactReport[];
   next_incomplete: ArtifactReport | null;
-  responseAliases: readonly ResponseAlias[];
   artifacts?: ArtifactReport[];
   trail?: TrailLine[];
   pointers?: Record<string, string | null | undefined>;
@@ -468,7 +437,6 @@ export function buildProjectContextPacket(
     resume: readResumeLine(cwd),
     drift,
     next_incomplete: pickNextIncomplete(reports),
-    responseAliases: RESPONSE_ALIASES,
   };
 
   if (mode === "agent") {

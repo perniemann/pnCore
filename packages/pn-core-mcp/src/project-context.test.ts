@@ -319,11 +319,6 @@ describe("project-context", () => {
     expect(packet.artifacts).toBeUndefined();
     expect(packet.trail).toBeUndefined();
     expect(packet.next_incomplete?.id).toBe("plan-missing");
-    expect(packet.responseAliases.map((a) => a.alias)).toEqual(["scr", "eli", "foc", "ref", "scp"]);
-    expect(packet.responseAliases.every((a) => a.expand.length > 0)).toBe(true);
-    expect(packet.responseAliases.find((a) => a.alias === "ref")?.expand).toMatch(
-      /Preserve codes for the rest of the session/
-    );
   });
 
   it("agent mode includes artifacts and JSONL trail including verify and acceptance", () => {
@@ -410,7 +405,6 @@ describe("project-context", () => {
     expect(packet.trail?.some((t) => t.summary.includes("built packet"))).toBe(true);
     expect(packet.trail?.some((t) => t.source === "run_events")).toBe(true);
     expect(packet.pointers?.workspace).toBe("AGENTS.md");
-    expect(packet.responseAliases).toHaveLength(5);
   });
 
   it("defaults to agent mode and empty artifacts when index absent", () => {
@@ -419,6 +413,5 @@ describe("project-context", () => {
     expect(packet.context_index.present).toBe(false);
     expect(packet.artifacts).toEqual([]);
     expect(packet.next_incomplete).toBeNull();
-    expect(packet.responseAliases).toHaveLength(5);
   });
 });

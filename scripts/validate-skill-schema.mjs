@@ -6,7 +6,6 @@
  *   - Missing frontmatter `name` field
  *   - Missing frontmatter `description` field
  *   - Missing `## When to use` section header (primary retrieval anchor)
- *   - Newly added SKILL.md in the git diff range with description > 220 chars
  *
  * Warnings (exit 0, but printed):
  *   - Missing instruction-section header (any of: ## Instructions / ## Workflow /
@@ -14,20 +13,13 @@
  *   - Skills with category ci|review|orchestration|discipline missing
  *     `Rationalizations`, `Red flags — stop`, or `## Verification`
  *   - SKILL.md body exceeds progressive-disclosure size advisory (line count)
- *   - Description uses a broad WHEN trigger (Mandatory before, use when working
- *     with, anytime you, whenever you touch|edit|change|work)
- *   - Existing skill description exceeds 220 characters (advisory; error for new skills)
- *
- * Codex's catalog budget is ~8000 characters for the whole skill list
- * (see measure-tokens.mjs). The 220-char gate applies to new skills only.
  *
  * Run from repo root: node scripts/validate-skill-schema.mjs
  */
 
 import { readdirSync, readFileSync, existsSync } from "fs";
 import { join, dirname } from "path";
-import { fileURLToPath, pathToFileURL } from "url";
-import { git, resolveDiffRange } from "./git-diff-lib.mjs";
+import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, "..");
@@ -39,54 +31,6 @@ const WARN_CATEGORIES = new Set(["ci", "review", "orchestration", "discipline"])
 
 /** Progressive-disclosure size advisory (body lines after frontmatter). Warning only. */
 const SIZE_WARN_LINES = 400;
-
-/** Per-skill description cap for newly added skills (existing: warning). */
-export const DESC_MAX_CHARS = 220;
-
-export const SKILL_MD_RE = /^packages\/pn-core-mcp\/content\/skills\/[^/]+\/([^/]+)\/SKILL\.md$/;
-
-/**
- * Broad WHEN phrases that over-trigger skill load (OpenAI Astra / Codex catalog).
- * Warning only — tightness of WHEN, not a character cap.
- */
-export const BROAD_WHEN_PATTERNS = [
-  /mandatory before/i,
-  /use when working with\b/i,
-  /\banytime you\b/i,
-  /whenever you (touch|edit|change|work)\b/i,
-];
-
-export function descriptionHasBroadWhen(description) {
-  if (!description) return false;
-  return BROAD_WHEN_PATTERNS.some((re) => re.test(description));
-}
-
-export function descriptionOverCharCap(description, max = DESC_MAX_CHARS) {
-  return (description ?? "").length > max;
-}
-
-/**
- * Error strings for newly added canonical SKILL.md files whose description exceeds DESC_MAX_CHARS.
- * @param {string[]} addedPaths git paths (diff-filter=A)
- * @param {{ root?: string }} [opts]
- * @returns {string[]}
- */
-export function newSkillOverCapErrors(addedPaths, { root = repoRoot } = {}) {
-  const errors = [];
-  for (const f of addedPaths) {
-    const norm = f.replace(/\\/g, "/");
-    if (!SKILL_MD_RE.test(norm)) continue;
-    const abs = join(root, ...norm.split("/"));
-    if (!existsSync(abs)) continue;
-    const { meta } = parseFrontmatter(readFileSync(abs, "utf-8"));
-    if (descriptionOverCharCap(meta.description ?? "")) {
-      errors.push(
-        `${norm}: new skill description is ${(meta.description ?? "").length} chars (max ${DESC_MAX_CHARS} for newly added skills)`
-      );
-    }
-  }
-  return errors;
-}
 
 function* walkSkillMd(dir, base = "") {
   if (!existsSync(dir)) return;
@@ -174,17 +118,6 @@ function main() {
       errors.push(`${rel}: missing '## When to use' section`);
     }
 
-    if (rel !== "README.md" && descriptionHasBroadWhen(meta.description ?? "")) {
-      warnings.push(
-        `${rel}: description uses a broad WHEN trigger (narrow the job; do not dump the workflow)`
-      );
-    }
-    if (rel !== "README.md" && descriptionOverCharCap(meta.description ?? "")) {
-      warnings.push(
-        `${rel}: description is ${meta.description.length} chars (advisory cap ${DESC_MAX_CHARS}; error for newly added skills)`
-      );
-    }
-
     // Warnings
     if (!hasAnyInstructionHeader(body)) {
       warnings.push(
@@ -219,20 +152,6 @@ function main() {
     );
   }
 
-  const { range, skip, reason } = resolveDiffRange();
-  if (!skip && range) {
-    let added = [];
-    try {
-      const out = git(["diff", "--name-only", "--diff-filter=A", range]);
-      added = out ? out.split(/\r?\n/).filter(Boolean) : [];
-    } catch {
-      added = [];
-    }
-    errors.push(...newSkillOverCapErrors(added));
-  } else if (skip) {
-    warnings.push(`new-skill description-length gate skipped (${reason ?? "no diff range"})`);
-  }
-
   if (warnings.length) {
     console.warn(`validate-skill-schema: ${warnings.length} warning(s):`);
     for (const w of warnings) console.warn("  WARN:", w);
@@ -249,7 +168,4 @@ function main() {
   );
 }
 
-const isMain = Boolean(process.argv[1]) && import.meta.url === pathToFileURL(process.argv[1]).href;
-if (isMain) {
-  main();
-}
+main();

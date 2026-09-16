@@ -5,8 +5,6 @@ description: "Defines an authoritative, brand-agnostic frontend design rulebook.
 
 # Frontend Design Philosophy
 
-This SKILL.md is a router; load `reference.md` only when that workflow is active.
-
 ## Purpose
 
 Use this as a frontend design rulebook for sites that mix:

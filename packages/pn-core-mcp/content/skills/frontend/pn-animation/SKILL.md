@@ -1,11 +1,9 @@
 ---
 name: pn-animation
-description: "Motion roles (Reveal/Orient/Confirm/Delight) and budgets. Use when designing or auditing a motion system — load pn-gsap for GSAP API."
+description: "Motion philosophy and governance for web interfaces. Covers the motion role taxonomy (Reveal/Orient/Confirm/Delight), library selection guide, motion budgets by page mode, prefers-reduced-motion compliance, and motion map output format. Use when designing a motion system, auditing animations, or choosing libraries. For GSAP timeline API, ScrollTrigger, and plugins, load pn-gsap alongside this skill."
 ---
 
 # Animation skill
-
-This SKILL.md is a router; load `reference.md` only when that workflow is active.
 
 ## When to use
 

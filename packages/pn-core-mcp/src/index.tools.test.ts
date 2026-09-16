@@ -82,8 +82,6 @@ describe("MCP per-tool integration", () => {
     expect(parsed.mode).toBe("operator");
     expect(typeof parsed.counts).toBe("object");
     expect(parsed.context_index).toBeDefined();
-    expect(Array.isArray(parsed.responseAliases)).toBe(true);
-    expect((parsed.responseAliases as unknown[]).length).toBe(5);
   });
 
   it("project_context: agent mode includes artifacts array when index present", async () => {
@@ -95,8 +93,6 @@ describe("MCP per-tool integration", () => {
     const parsed = parseFirst(result);
     expect(parsed.mode).toBe("agent");
     expect(Array.isArray(parsed.artifacts)).toBe(true);
-    expect(Array.isArray(parsed.responseAliases)).toBe(true);
-    expect((parsed.responseAliases as unknown[]).length).toBe(5);
   });
 
   // ── harness_detect ──────────────────────────────────────────────────────

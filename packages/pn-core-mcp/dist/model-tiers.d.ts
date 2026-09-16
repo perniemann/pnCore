@@ -38,7 +38,6 @@ export declare function resolveRoleTier(role: SubagentRole, tierAliases?: Partia
 /** Build the structured suggestedModelTier field. Falls back to TIER_META.description when no rationale given. */
 export declare function buildSuggestedTier(tier: ModelTier, rationale: string | undefined): SuggestedModelTier;
 /** One-line inline hint suitable for prepending to an instruction. Kept terse. */
-export declare const FRONTIER_ROUTER_SENTENCE = "Load matching skills as routers; do not preload unrelated recipes; run local disposable tests without asking; stop only for irreversible or option-lock gates.";
 export declare function renderTierHint(suggested: SuggestedModelTier): string;
 /**
  * Apply a global tier alias (e.g. downgrade `premium_thinking` -> `premium` for

@@ -1,6 +1,6 @@
 ---
 name: pn-diagram-design
-description: "Editorial diagrams (Mermaid or HTML/SVG). Use when a plan or doc needs architecture, flow, sequence, or state — not when a table is enough."
+description: "Editorial diagrams as Mermaid-in-docs or self-contained HTML/SVG: architecture, flowchart, sequence, state, loop, quadrant, layers, process, data-flow, org-chart. Deletion-first density, brand tokens from .pncore-design.md, accTitle/accDescr, accessible SVG, import-redraw with a fidelity ledger. Use when drawing architecture, flowcharts, sequences, state machines, flywheels, 2x2s, layer stacks, swimlanes, data pipelines, org charts, or when a plan/doc needs a diagram instead of a table."
 owner: pncore-maintainers
 ---
 

@@ -5,8 +5,6 @@ description: "Testing strategy and pyramid. Unit/integration/E2E ratio, Vitest v
 
 # Testing strategy
 
-This SKILL.md is a router; load `reference.md` only when that workflow is active.
-
 ## When to use
 
 - Deciding which types of tests to write for a new feature
