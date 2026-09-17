@@ -1,5 +1,5 @@
 /**
- * Context budget packing (ADR-0019) — narrow scope.
+ * Context budget packing (ADR-0021) — narrow scope.
  *
  * pnCore already *measures* context (`scripts/measure-tokens.mjs`, chars ÷ 4). This module
  * *packs* against a budget in the two places where a hard limit exists:

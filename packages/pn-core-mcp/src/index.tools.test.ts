@@ -97,7 +97,7 @@ describe("MCP per-tool integration", () => {
     expect(Array.isArray(parsed.artifacts)).toBe(true);
     expect(Array.isArray(parsed.responseAliases)).toBe(true);
     expect((parsed.responseAliases as unknown[]).length).toBe(5);
-    // Every packet carries its own measurement (ADR-0019).
+    // Every packet carries its own measurement (ADR-0021).
     const budget = parsed.budget as Record<string, unknown>;
     expect(budget.maxTokens).toBeNull();
     expect(budget.fits).toBe(true);
@@ -105,7 +105,7 @@ describe("MCP per-tool integration", () => {
     expect(budget.estimatedTokens).toBe(Math.ceil((budget.chars as number) / 4));
   });
 
-  it("project_context: max_tokens packs the packet and reports what was cut (ADR-0019)", async () => {
+  it("project_context: max_tokens packs the packet and reports what was cut (ADR-0021)", async () => {
     const run_id = `ctx-budget-${Date.now()}`;
     for (let i = 0; i < 12; i++) {
       await client.callTool({

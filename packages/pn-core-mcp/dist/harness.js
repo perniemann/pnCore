@@ -383,7 +383,7 @@ export function bootstrapBlock(harnesses, opts = {}) {
     }
     return out.join("\n") + "\n";
 }
-// ─── Instructions-file budget (ADR-0019) ────────────────────────────────────
+// ─── Instructions-file budget (ADR-0021) ────────────────────────────────────
 /**
  * Inline order for always-on rules when a byte cap forces a choice: the first entries are the
  * ones the engine cannot work without; the last are dropped first. Unknown ids sort after.

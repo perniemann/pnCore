@@ -41,7 +41,7 @@ The project-context body is identical on every harness: triangle tag, goal / sta
 
 | Cursor frontmatter | Claude Code `.claude/rules/*.md` | Codex / Pi |
 |--------------------|----------------------------------|------------|
-| `alwaysApply: true` | file with `description` only (always loaded) | `--inline-rules` inlines the body in the `AGENTS.md` block; default = pointer to `get_rule`. For Codex the whole `AGENTS.md` is kept under the 32 KiB chain cap: rules are inlined in priority order (`pn-mcp-proactive`, `pn-build-gate`, `pn-current-date`, `pn-agents-md`, `pn-tool-risk-policy`, `pn-orchestrator-lead`, `pn-aesthetics-baseline`, `pn-visual-indicator`, `pn-no-cursor-commit-trailers`) and the ones that do not fit are listed as `get_rule` pointers (ADR-0019) |
+| `alwaysApply: true` | file with `description` only (always loaded) | `--inline-rules` inlines the body in the `AGENTS.md` block; default = pointer to `get_rule`. For Codex the whole `AGENTS.md` is kept under the 32 KiB chain cap: rules are inlined in priority order (`pn-mcp-proactive`, `pn-build-gate`, `pn-current-date`, `pn-agents-md`, `pn-tool-risk-policy`, `pn-orchestrator-lead`, `pn-aesthetics-baseline`, `pn-visual-indicator`, `pn-no-cursor-commit-trailers`) and the ones that do not fit are listed as `get_rule` pointers (ADR-0021) |
 | `globs: [...]` | `paths:` list (loaded when matching files are touched) | not representable — MCP `get_rule` |
 | `alwaysApply: false`, no globs (agent-requested) | skipped — no Claude rule mode; reachable via `get_rule` | MCP `get_rule` |
 

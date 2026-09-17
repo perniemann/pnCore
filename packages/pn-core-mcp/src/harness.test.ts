@@ -531,7 +531,7 @@ describe("bootstrapBlock", () => {
   });
 });
 
-describe("instructions-file budget (ADR-0019)", () => {
+describe("instructions-file budget (ADR-0021)", () => {
   const rule = (id: string, bodyChars: number) => ({
     id,
     raw: `---\ndescription: ${id}\nalwaysApply: true\n---\n\n# ${id}\n\n${"r".repeat(bodyChars)}\n`,

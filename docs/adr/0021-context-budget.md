@@ -1,9 +1,9 @@
 ---
-title: "ADR-0019: Context budget packing, narrow"
+title: "ADR-0021: Context budget packing, narrow"
 updated: 2026-09-14
 ---
 
-# ADR-0019: Context budget packing, narrow
+# ADR-0021: Context budget packing, narrow
 
 ## Status
 
@@ -33,6 +33,6 @@ A general-purpose context assembler (score every skill and rule, pack per turn) 
 ## References
 
 - [ADR-0016: Harness adapters](0016-harness-adapters.md) — managed `AGENTS.md` block, `--inline-rules`
-- [ADR-0018: Step spans on the run log](0018-step-spans.md) — per-step baseline (`engineMs`, loads per step) this can be graded against
+- [ADR-0020: Step spans on the run log](0020-step-spans.md) — per-step baseline (`engineMs`, loads per step) this can be graded against
 - `pn-core://reference/harness-matrix.md` § Instructions-file budget
 - `packages/pn-core-mcp/src/context-budget.ts`, `src/context-budget.test.ts`, `src/harness.ts` (`fitInstructionsBlock`, `instructionsBudgetFor`, `ALWAYS_ON_RULE_PRIORITY`), `scripts/install-to-project.mjs` (`writeInstructionsBlock`), `scripts/measure-tokens.mjs`

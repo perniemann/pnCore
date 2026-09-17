@@ -224,7 +224,7 @@ test("--inline-rules inlines always-apply rule bodies into the AGENTS.md block",
   }
 });
 
-test("--harness codex --inline-rules keeps AGENTS.md under the 32 KiB cap by omitting low-priority rules (ADR-0019)", () => {
+test("--harness codex --inline-rules keeps AGENTS.md under the 32 KiB cap by omitting low-priority rules (ADR-0021)", () => {
   const target = mkdtempSync(join(repoRoot, "tmp-pn-install-cap-"));
   try {
     const existing =

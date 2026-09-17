@@ -258,7 +258,7 @@ export async function handleHarnessScaffold(args: ShapeArgs<typeof harnessScaffo
   const untouched = HARNESS_IDS.filter(
     (h) => !harnesses.includes(h) && !usedFolders.has(topFolder(h))
   );
-  // Instructions-file byte budget (ADR-0019): measured for harnesses that truncate the chain.
+  // Instructions-file byte budget (ADR-0021): measured for harnesses that truncate the chain.
   const instructionsBudget: InstructionsBudget[] = [];
   for (const h of harnesses) {
     const layout = HARNESS_LAYOUTS[h];

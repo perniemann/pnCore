@@ -130,7 +130,7 @@ export async function handleHarnessScaffold(args) {
     const topFolder = (h) => HARNESS_LAYOUTS[h].skillsDir.split("/")[0];
     const usedFolders = new Set(harnesses.map(topFolder));
     const untouched = HARNESS_IDS.filter((h) => !harnesses.includes(h) && !usedFolders.has(topFolder(h)));
-    // Instructions-file byte budget (ADR-0019): measured for harnesses that truncate the chain.
+    // Instructions-file byte budget (ADR-0021): measured for harnesses that truncate the chain.
     const instructionsBudget = [];
     for (const h of harnesses) {
         const layout = HARNESS_LAYOUTS[h];
