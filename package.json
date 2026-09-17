@@ -1,7 +1,7 @@
 {
   "name": "pn-core",
-    "version": "0.19.5",
-  "description": "pnCore — MCP server, skills, agents, commands, rules",
+    "version": "0.19.6",
+  "description": "MCP engine that runs software delivery as named, gated steps — skills, agents, rules, and pn-core:// resources for Cursor, Claude Code, Codex, and Pi.",
   "private": true,
   "type": "module",
   "bin": {

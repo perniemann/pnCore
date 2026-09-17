@@ -4,6 +4,12 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.19.6] - 2026-09-17
+
+### Changed
+
+- GitHub / marketplace / plugin manifest description: MCP engine for named, gated delivery steps across Cursor, Claude Code, Codex, and Pi. Replaces the old frontend/3D kit blurb.
+
 ## [0.19.5] - 2026-09-17
 
 ### Added
