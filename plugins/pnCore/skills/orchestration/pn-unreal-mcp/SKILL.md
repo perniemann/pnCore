@@ -1,6 +1,6 @@
 ---
 name: pn-unreal-mcp
-description: "Compare and select a UE 5.7-compatible MCP server for editor automation. Use at discovery time to pick the best server for your use case, then install and verify tool coverage before planning."
+description: "Compare UE 5.x MCP servers for editor automation. Use at discovery time to select a server, install it, and verify tool coverage before planning."
 ---
 
 # pn-unreal-mcp
@@ -21,7 +21,7 @@ Survey the available third-party MCP servers that drive the Unreal Engine editor
 
 | Server | Language (client + bridge) | UE version range | Stars (approx) | License |
 |--------|---------------------------|------------------|----------------|---------|
-| **ChiR24/Unreal_mcp** | TypeScript + C++ | 5.0–5.7 | ~525 | MIT |
+| **ChiR24/Unreal_mcp** | Native HTTP or TypeScript + C++ bridge | 5.0–5.8 | ~870 | MIT |
 | **remiphilippe/mcp-unreal** | Go + C++ | 5.7 | ~80 | MIT |
 | **SallahBoussettah/UnrealMCP** | Python + C++ | 5.3–5.7 | ~140 | MIT |
 | **kangnam7654/unreal-mcp** | Python + C++ | 5.4–5.7 | ~60 | MIT |
@@ -40,9 +40,9 @@ Survey the available third-party MCP servers that drive the Unreal Engine editor
 | Animation / Sequencer | ✓ | — | ✓ | — | ✓ | ✓ |
 | Widget / UMG UI | ✓ | — | ✓ | — | — | ✓ |
 | Execute console command | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Headless / CI build | — | ✓✓ | — | — | — | ✓ |
-| Python scripting bridge | — | — | ✓✓ | ✓ | — | — |
-| MetaSounds / Niagara | — | — | — | — | — | ✓ |
+| Headless / CI build | ✓ | ✓✓ | — | — | — | ✓ |
+| Python scripting bridge | ✓ | — | ✓✓ | ✓ | — | — |
+| MetaSounds / Niagara | ✓ | — | — | — | — | ✓ |
 | Commercial support | — | — | — | — | — | ✓✓ |
 
 Legend: ✓ = supported, ✓✓ = deep/first-class, — = not supported or not documented.
@@ -55,12 +55,12 @@ The same semantic action has different tool names across servers. Use this table
 
 | Intent | ChiR24 | remi | Sallah | kangnam | StraySpark |
 |--------|--------|------|--------|---------|------------|
-| Create actor | `create_actor` | `ue_create_actor` | `unreal_create_actor` | `create_actor` | `create_actor` |
-| Set property | `set_actor_property` | `ue_set_property` | `set_property` | `set_property` | `set_property` |
-| Execute console cmd | `execute_console_command` | `ue_console_command` | `run_console_command` | `execute_console` | `console_command` |
-| Compile Blueprint | `compile_blueprint` | — | `compile_blueprint` | `compile_bp` | `compile_blueprint` |
-| Get asset list | `list_assets` | `ue_list_assets` | `list_assets` | `get_assets` | `list_assets` |
-| Take screenshot | `take_screenshot` | `ue_screenshot` | `capture_viewport` | — | `screenshot` |
+| Create actor | `control_actor` action | `ue_create_actor` | `unreal_create_actor` | `create_actor` | `create_actor` |
+| Set property | `control_actor` action | `ue_set_property` | `set_property` | `set_property` | `set_property` |
+| Execute console cmd | `system_control` action | `ue_console_command` | `run_console_command` | `execute_console` | `console_command` |
+| Compile Blueprint | `manage_blueprint` action | — | `compile_blueprint` | `compile_bp` | `compile_blueprint` |
+| Get asset list | `manage_asset` action | `ue_list_assets` | `list_assets` | `get_assets` | `list_assets` |
+| Take screenshot | `control_editor` action | `ue_screenshot` | `capture_viewport` | — | `screenshot` |
 
 Confirm the exact tool names by probing the connected server's tool list before writing step instructions.
 
@@ -72,23 +72,39 @@ Confirm the exact tool names by probing the connected server's tool list before 
 
 1. Install the C++ Automation Bridge plugin into your UE project:
    - Clone or download from `https://github.com/ChiR24/Unreal_mcp`
-   - Copy the `MCPBridge` plugin folder into `<ProjectRoot>/Plugins/`
-   - Enable the plugin in the UE editor (Edit → Plugins → MCPBridge)
+   - Copy `plugins/McpAutomationBridge/` into `<ProjectRoot>/Plugins/McpAutomationBridge/`
+   - Enable **MCP Automation Bridge** plus **Editor Scripting Utilities** in the UE editor
    - Rebuild the project
 
-2. Add to `~/.cursor/mcp.json` (or project-local `.cursor/mcp.json`):
+2. Choose one transport:
+
+   **Native HTTP (recommended):** Enable **Native MCP** under Project Settings → Plugins → MCP Automation Bridge, restart the editor, and connect the client to `http://localhost:3000/mcp`.
+
    ```json
    {
      "mcpServers": {
-       "unreal-mcp": {
-         "command": "npx",
-         "args": ["-y", "github:ChiR24/Unreal_mcp"]
+       "unreal-engine": {
+         "url": "http://localhost:3000/mcp"
        }
      }
    }
    ```
 
-3. Start the MCP bridge in UE (via plugin UI or console command `MCPBridge.Start`), then connect.
+   **TypeScript stdio bridge:** Keep the automation plugin enabled and configure:
+
+   ```json
+   {
+     "mcpServers": {
+       "unreal-engine": {
+         "command": "npx",
+         "args": ["-y", "unreal-engine-mcp-server"],
+         "env": { "UE_PROJECT_PATH": "/path/to/project" }
+       }
+     }
+   }
+   ```
+
+3. Probe the connected server's live tool list. ChiR24 now groups operations under tools such as `control_actor`, `manage_blueprint`, `manage_asset`, and `system_control`; do not assume older one-tool-per-action names.
 
 ### remiphilippe/mcp-unreal (headless builds / CI)
 

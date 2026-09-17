@@ -4,6 +4,19 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.19.9] - 2026-09-17
+
+### Changed
+
+- Realigned the companion MCP catalog and root operator guides with the four-harness architecture, current workflow inventory, runtime diagnostics, hooks, and maintained install commands.
+- Updated Unreal and Godot MCP selection guidance, including current ChiR24 transports and GDAI setup.
+- Business-strategy companion detection recognizes Exa's published `*_exa` tool names.
+
+### Fixed
+
+- `workflow_step` schema guidance now reports all nine `business_strategy` steps.
+- Documentation inventory checks guard high-risk companion URLs, workflow coverage, hook descriptions, and retired command/workflow names.
+
 ## [0.19.8] - 2026-09-17
 
 ### Changed

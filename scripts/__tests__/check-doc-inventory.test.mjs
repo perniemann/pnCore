@@ -11,6 +11,7 @@ import { spawnSync } from "node:child_process";
 import {
   pnGuideLiveHeadlines,
   checkPnGuideLiveCounts,
+  checkMaintainedDocs,
   parseReadmeCatalog,
   runCheck,
 } from "../check-doc-inventory.mjs";
@@ -54,11 +55,15 @@ test("runCheck passes on this repo", () => {
   assert.equal(r.ok, true, r.message);
 });
 
+test("maintained documentation markers are current", () => {
+  assert.deepEqual(checkMaintainedDocs(repoRoot), []);
+});
+
 test("check-doc-inventory CLI exits 0", () => {
   const r = spawnSync(process.execPath, [join(repoRoot, "scripts", "check-doc-inventory.mjs")], {
     cwd: repoRoot,
     encoding: "utf8",
   });
   assert.equal(r.status, 0, r.stderr || r.stdout);
-  assert.match(r.stdout, /pn-guide live headlines match/);
+  assert.match(r.stdout, /pn-guide and maintained docs match/);
 });

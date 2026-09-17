@@ -2,6 +2,8 @@
 
 Research date: 2026-07-06. Shipped in **v0.17.1** (`6263a64`). Index parity CI in follow-up commit.
 
+> **Historical record:** The decision remains implemented, but inventory counts in this document are decision-time snapshots. Use the README **Catalog:** line and `list_commands` for current counts; use [ADR-0008](adr/0008-command-palette-pn-submenu.md) for the maintained command-surface decision.
+
 ## Problem
 
 pnCore ships 27+ slash workflows. Users wanted **one** main-menu entry — **`/pn`** — on Pi (like `/model` or `/settings`), not a flat flood of `/pn-build`, `/pn-design`, … in the slash autocomplete.

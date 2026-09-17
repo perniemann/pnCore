@@ -1,6 +1,6 @@
 {
   "name": "pn-core",
-  "version": "0.19.8",
+  "version": "0.19.9",
   "description": "MCP engine that runs software delivery as named, gated steps — skills, agents, rules, and pn-core:// resources for Cursor, Claude Code, Codex, and Pi.",
   "private": true,
   "type": "module",
@@ -20,6 +20,7 @@
     "check:ac-traceability": "node scripts/check-ac-traceability.mjs",
     "check:changelog": "node scripts/validate-changelog.mjs",
     "check:doc-structure": "node scripts/validate-doc-structure.mjs",
+    "check:doc-inventory": "node scripts/check-doc-inventory.mjs",
     "prune:actions": "node scripts/github-actions-prune-runs.mjs",
     "prune:actions:dry-run": "node scripts/github-actions-prune-runs.mjs --dry-run",
     "check:embedded-studio-urls": "node scripts/check-embedded-studio-urls.mjs",
