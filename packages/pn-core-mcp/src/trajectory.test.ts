@@ -28,7 +28,7 @@ function loadFixture(file: string): Trajectory {
   return parseTrajectory(JSON.parse(readFileSync(join(fixturesDir, file), "utf-8")), file);
 }
 
-describe("trajectory fixtures (ADR-0017)", () => {
+describe("trajectory fixtures (ADR-0019)", () => {
   it("has at least one recorded and one authored fixture", () => {
     const sources = new Set(fixtureFiles.map((f) => loadFixture(f).source));
     expect(sources.has("recorded")).toBe(true);

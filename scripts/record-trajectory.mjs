@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Turn one recorded workflow run from `.pncore/workflow-runs.jsonl` into a replay fixture
- * under packages/pn-core-mcp/src/fixtures/trajectories/ (ADR-0017).
+ * under packages/pn-core-mcp/src/fixtures/trajectories/ (ADR-0019).
  *
  *   npm run trajectory:record -- --list [--log <path>]
  *   npm run trajectory:record -- --run-id <id> --name <fixture-name> [--log <path>] [--out <file>] [--force]

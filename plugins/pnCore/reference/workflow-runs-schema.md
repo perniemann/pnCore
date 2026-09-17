@@ -38,7 +38,7 @@ Each successful `workflow_step` call appends one JSON object (one line) to `.pnc
 - Run analysis: which gates are hit, step counts per workflow
 - Gating optimization: correlate gate names with outcomes before tuning instructions
 - Debugging: trace step order and state keys through a run
-- **Trajectory replay (ADR-0017):** with `PNCORE_RUN_LOG_STATE=1`, one run's entries become a replay fixture. `npm run trajectory:record -- --run-id <id> --name <fixture-name>` writes `packages/pn-core-mcp/src/fixtures/trajectories/<fixture-name>.json`; `src/trajectory.test.ts` replays every fixture through `getWorkflowStep` in `npm run test:full` and fails on any routing drift (nextStep, gate, done, workflowPhase, parallel tasks). Use `--list` to see recorded runs.
+- **Trajectory replay (ADR-0019):** with `PNCORE_RUN_LOG_STATE=1`, one run's entries become a replay fixture. `npm run trajectory:record -- --run-id <id> --name <fixture-name>` writes `packages/pn-core-mcp/src/fixtures/trajectories/<fixture-name>.json`; `src/trajectory.test.ts` replays every fixture through `getWorkflowStep` in `npm run test:full` and fails on any routing drift (nextStep, gate, done, workflowPhase, parallel tasks). Use `--list` to see recorded runs.
 
 ## Config
 

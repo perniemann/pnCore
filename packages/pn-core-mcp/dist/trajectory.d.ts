@@ -1,5 +1,5 @@
 /**
- * Deterministic trajectory replay (ADR-0017).
+ * Deterministic trajectory replay (ADR-0019).
  *
  * A trajectory is the ordered sequence of `workflow_step` calls for one run_id together with
  * the routing the engine produced for each call (nextStep, gate, done, phase, parallel tasks).

@@ -448,7 +448,7 @@ export async function handleWorkflowStep(args: ShapeArgs<typeof workflowStepSche
             ? { taskIds: result.tasks.map((t) => t.id) }
             : {}),
           stateKeys: Object.keys(st).filter((k) => st[k] != null),
-          // Opt-in: state values make the entry replayable (ADR-0017 trajectory fixtures).
+          // Opt-in: state values make the entry replayable (ADR-0019 trajectory fixtures).
           ...(runLogStateEnabled() ? { state: snapshotStateForLog(st) } : {}),
         };
         appendFileSync(safe.resolved, JSON.stringify(entry) + "\n", "utf-8");

@@ -187,7 +187,7 @@ Use to **resume after disconnect**. After completing a workflow step, call `work
 
 Append one JSON line per call for gate audits (complements `approval_checkpoint` and run logs). Fields: ISO `timestamp`, `gate_type`, `workflowType`, `step`, `outcome`, optional `action_label`. Default file `.pncore/gate-log.jsonl`; optional `path` must stay within `process.cwd()`.
 
-### Run log and trajectory replay (ADR-0017)
+### Run log and trajectory replay (ADR-0019)
 
 Every successful `workflow_step` appends one line to `.pncore/workflow-runs.jsonl` (`PNCORE_RUN_LOG` overrides the path; empty disables): `ts`, `runId`, `workflowType`, `step`, `nextStep`, `gate`, `done`, and when present `workflowPhase`, `parallel`, `taskIds`, plus `stateKeys`. Set **`PNCORE_RUN_LOG_STATE=1`** in the server env to also record a `state` snapshot (strings capped at 240 chars, tickets redacted) — that makes a run replayable. `npm run trajectory:record -- --list` shows recorded runs; `npm run trajectory:record -- --run-id <id> --name <kebab-name>` writes `src/fixtures/trajectories/<name>.json`, which `src/trajectory.test.ts` replays through the engine in `npm run test:full` and fails on any routing drift. Schema: `pn-core://reference/workflow-runs-schema.md`.
 

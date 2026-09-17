@@ -1,5 +1,5 @@
 /**
- * Tests for scripts/record-trajectory.mjs (ADR-0017 trajectory fixtures).
+ * Tests for scripts/record-trajectory.mjs (ADR-0019 trajectory fixtures).
  * Covers: --list, export by --run-id / --latest, refusal without state snapshots,
  * missing run, exists-without-force, kebab-case name check, and replay summary.
  *

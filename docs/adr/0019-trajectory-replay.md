@@ -1,9 +1,9 @@
 ---
-title: "ADR-0017: Deterministic trajectory replay in CI"
+title: "ADR-0019: Deterministic trajectory replay in CI"
 updated: 2026-09-14
 ---
 
-# ADR-0017: Deterministic trajectory replay in CI
+# ADR-0019: Deterministic trajectory replay in CI
 
 ## Status
 
