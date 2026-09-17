@@ -126,7 +126,7 @@ The server registers an MCP **prompt** for every **agent** id and for every **co
 
 ## Deployment
 
-pn-core uses stdio transport for local, per-user use. For remote or shared deployments, see the MCP specification for transport options (e.g. Streamable HTTP).
+pn-core uses **stdio** only (local, per-user). It does not expose Streamable HTTP. Orchestration state is `run_id` plus the `state` object on each `workflow_step` call. Decision record: [ADR-0018](adr/0018-stdio-no-protocol-sessions.md).
 
 ---
 
