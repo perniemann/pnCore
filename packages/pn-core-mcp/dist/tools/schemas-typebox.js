@@ -59,6 +59,7 @@ export const typeboxSchemas = {
             Type.Literal("builder"),
             Type.Literal("judge"),
             Type.Literal("checker"),
+            Type.Literal("orchestrator"),
         ])),
     }),
     list_skills: Type.Object({
