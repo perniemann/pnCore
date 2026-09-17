@@ -207,12 +207,13 @@ test("treats an existing .githooks hooksPath as already ours", () => {
 test("repo and consumer check scripts share forbidden-line logic", () => {
   const repoSrc = readFileSync(repoCheck, "utf8");
   const tmplSrc = readFileSync(templateCheck, "utf8");
-  const extract = (src) => {
-    const m = src.match(/function forbiddenLine\([\s\S]*?\n\}/);
-    assert.ok(m, "forbiddenLine function");
+  const extract = (src, name) => {
+    const m = src.match(new RegExp(`function ${name}\\([\\s\\S]*?\\n\\}`));
+    assert.ok(m, `${name} function`);
     return m[0];
   };
-  assert.equal(extract(repoSrc), extract(tmplSrc));
+  assert.equal(extract(repoSrc, "forbiddenLine"), extract(tmplSrc, "forbiddenLine"));
+  assert.equal(extract(repoSrc, "forbiddenIdentity"), extract(tmplSrc, "forbiddenIdentity"));
 });
 
 test("installed hook strips trailers from a commit message file", () => {

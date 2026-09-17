@@ -1,4 +1,4 @@
-# Rejects commits that include Cursor-injected message trailers (Made-with / Co-authored-by).
+# Rejects commits that include Cursor-injected message trailers or Cursor Agent authorship.
 name: Commit message policy
 
 on:
@@ -16,7 +16,7 @@ jobs:
           fetch-depth: 0
 
       # Short-circuit so pull_request.* is not evaluated on push (undefined there).
-      - name: Block IDE commit trailers
+      - name: Block IDE commit trailers and authorship
         env:
           GITHUB_EVENT_NAME: ${{ github.event_name }}
           BEFORE: ${{ github.event.before }}

@@ -1,22 +1,23 @@
 ---
 title: Commit messages
-updated: 2026-09-03
+updated: 2026-09-17
 ---
 
 # Commit messages
 
 ## Do not allow IDE trailers
 
-Cursor can append lines such as `Made-with: Cursor` or `Co-authored-by: … cursoragent@cursor.com` to commits. **Do not merge or push commits that include those lines.** They add noise and misattribute authorship.
+Cursor can append lines such as `Made-with: Cursor` or `Co-authored-by: … cursoragent@cursor.com` to commits, and Cloud Agent commits as `Cursor Agent <cursoragent@cursor.com>`. **Do not merge or push commits that include those lines or that Author/Committer identity.** They add noise and put `cursoragent` on the GitHub contributors graph.
 
-### Why CI fails when you still see that line
+### Why CI fails when you still see that line or identity
 
-The check scans **every commit** in the pull request range (`base..head`) or in the pushed batch (`before..after`). Any commit whose **message body** contains a matching line fails the job. Common cases:
+The check scans **every commit** in the pull request range (`base..head`) or in the pushed batch (`before..after`). It fails if the **message body** contains a matching trailer **or** if Author or Committer is `Cursor Agent` / `cursoragent` / `cursoragent@cursor.com` / `cursor@cursor.com`. Common cases:
 
-1. **Agent-created commits** — Cursor injected the trailer after your hook ran, or `core.hooksPath` was never set in that clone.
-2. **Squash merge to `main`** — GitHub’s default squash text repeats bodies from squashed commits and appends `Co-authored-by: Cursor Agent <cursoragent@cursor.com>` when any component commit was authored by the agent. That **squash commit** then fails the push check. An empty `commit_message` on the GitHub merge API is not enough — GitHub still fills the default body. Use `gh pr merge --squash --delete-branch --subject "$title" --body ""`, or rely on [pr-automerge.yml](../.github/workflows/pr-automerge.yml) (same flags).
+1. **Agent-created commits** — Cursor injected the trailer after your hook ran, `core.hooksPath` was never set, or the process committed as `Cursor Agent <cursoragent@cursor.com>` (Cloud Agent default).
+2. **Squash merge to `main`** — GitHub’s default squash text repeats bodies from squashed commits and appends `Co-authored-by: Cursor Agent <cursoragent@cursor.com>` when any component commit was authored by the agent. That **squash commit** then fails the push check. An empty `commit_message` on the GitHub merge API is not enough — GitHub still fills the default body. Use `gh pr merge --squash --delete-branch --subject "$title" --body ""`, or rely on [pr-automerge.yml](../.github/workflows/pr-automerge.yml) (same flags). The squash commit’s Author is the merger (human); do not merge-commit agent branches — that lands the agent-authored commits on `main`.
+3. **Cloud Agent PRs** — branch commits stay authored by `cursoragent`, so `no-ide-trailers` stays red on the PR. Automerge will not land them. Squash-merge as the human with an empty body.
 
-**Defense in depth:** repo hook (strip) + **Cursor project rule** `.cursor/rules/pn-no-cursor-commit-trailers.mdc` (`alwaysApply: true`) + this CI job. The rule stops the model from proposing or keeping those lines; the hook catches the editor; CI catches whatever still lands on the branch.
+**Defense in depth:** repo hook (strip trailers) + **Cursor project rule** `.cursor/rules/pn-no-cursor-commit-trailers.mdc` (`alwaysApply: true`) + this CI job. The rule stops the model from proposing those lines or that identity; the hook catches trailer lines; CI catches whatever still lands, including Author/Committer.
 
 **Downstream projects:** this land-on-main path is not installed. Trailer hooks and the Merge-button split: `pn-core://reference/consumer-gating.md` / [ADR-0015](adr/0015-consumer-project-gating.md).
 
@@ -28,7 +29,7 @@ git config core.hooksPath .githooks
 
 The `prepare-commit-msg` hook runs `scripts/strip-commit-trailers.mjs` and removes those lines before the commit is finalized.
 
-**CI and local checks:** `npm run validate` runs Prettier **format:check** first, then `scripts/check-commit-no-ide-trailers.mjs` (compares your branch to `origin/main` or `@{upstream}`). The **Commit message policy** workflow passes `BEFORE`/`AFTER` (push) or PR SHAs (pull request) so the script can scan the right commits. Other workflows (e.g. Sync MCP content) also run `validate`; there the script **skips** the trailer scan when those variables are unset, so only the dedicated job enforces messages on GitHub.
+**CI and local checks:** `npm run validate` runs Prettier **format:check** first, then `scripts/check-commit-no-ide-trailers.mjs` (compares your branch to `origin/main` or `@{upstream}`). The **Commit message policy** workflow passes `BEFORE`/`AFTER` (push) or PR SHAs (pull request) so the script can scan the right commits for trailers **and** Author/Committer identity. Other workflows (e.g. Sync MCP content) also run `validate`; there the script **skips** that scan when those variables are unset, so only the dedicated job enforces it on GitHub.
 
 **Sync MCP content** does not run on every push: it only runs when files under [its path list](https://github.com/perniemann/pnCore/blob/main/.github/workflows/sync-mcp-content.yml) change. You can still run it anytime from **Actions → Sync MCP content → Run workflow** (`workflow_dispatch`).
 
@@ -83,4 +84,4 @@ Three workflows gate merges to `main`:
 
 When the Actions tab accumulates hundreds of runs (especially during PR/automerge churn), run **Actions → Prune Actions history → Run workflow** (or locally: `GITHUB_TOKEN=... npm run prune:actions`). The job keeps the **latest run per workflow** and deletes the rest. Use workflow input **logs only** if you want to drop log archives but keep run rows in the UI.
 
-**If a trailer already landed:** amend or rebase to drop the body line, or rewrite with `git filter-branch` / `git rebase -i` as appropriate.
+**If a trailer or Cursor Agent author already landed:** amend or rebase to drop the body line and reset Author to the repository user, or rewrite with `git filter-repo` (mailmap + message callback) as appropriate. Force-push to `main` is blocked unless the `block-force-push-main` ruleset is temporarily disabled.

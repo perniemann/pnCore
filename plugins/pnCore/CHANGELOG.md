@@ -4,6 +4,12 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.19.7] - 2026-09-17
+
+### Changed
+
+- **Commit policy** (`pn-no-cursor-commit-trailers` + `check-commit-no-ide-trailers`): CI fails when Author or Committer is Cursor Agent / `cursoragent@cursor.com` / `cursor@cursor.com`, not only when a `Made-with:` or `Co-authored-by` trailer is present. Cloud Agent PRs stay red on `no-ide-trailers`; land them with squash + empty body as the human.
+
 ## [0.19.6] - 2026-09-17
 
 ### Changed

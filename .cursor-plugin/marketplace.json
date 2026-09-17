@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "MCP engine that runs software delivery as named, gated steps — not one long chat. Skills, agents, rules, and pn-core:// resources for Cursor, Claude Code, Codex, and Pi.",
-    "version": "0.19.6",
+    "version": "0.19.7",
     "pluginRoot": "plugins"
   },
   "plugins": [

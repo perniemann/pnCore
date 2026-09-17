@@ -1,6 +1,6 @@
 # pnCore (plugin)
 
-Cursor plugin for **pnCore 0.19.6**: MCP engine and slash commands that run software delivery as named, gated steps — skills, agents, rules, and `pn-core://` resources. User-facing orientation: [why it exists](https://github.com/perniemann/pnCore#why-this-exists), [install](https://github.com/perniemann/pnCore#install), [workflows](https://github.com/perniemann/pnCore#workflows). Full catalog: [docs/plugin-reference.md](https://github.com/perniemann/pnCore/blob/main/docs/plugin-reference.md). This file is the plugin operator note.
+Cursor plugin for **pnCore 0.19.7**: MCP engine and slash commands that run software delivery as named, gated steps — skills, agents, rules, and `pn-core://` resources. User-facing orientation: [why it exists](https://github.com/perniemann/pnCore#why-this-exists), [install](https://github.com/perniemann/pnCore#install), [workflows](https://github.com/perniemann/pnCore#workflows). Full catalog: [docs/plugin-reference.md](https://github.com/perniemann/pnCore/blob/main/docs/plugin-reference.md). This file is the plugin operator note.
 
 ## Install
 

@@ -38,6 +38,7 @@ alwaysApply: true
 # Hard Constraints
 
 - Never add trailer "Co-authored-by: Cursor <cursoragent@cursor.com>"
+- Never set git Author or Committer to Cursor Agent / cursoragent@cursor.com
 - Always terminate running servers before starting a new one
 ```
 

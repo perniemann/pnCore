@@ -4,8 +4,8 @@ Persistent memory for this workspace. Updated from transcript deltas by pn-conti
 
 ## Learned User Preferences
 
-- Never add trailer "Co-authored-by: Cursor <cursoragent@cursor.com>" or any "Made-with: Cursor" (or similar IDE) line to commits
-- Contributors: run `git config core.hooksPath .githooks` so `prepare-commit-msg` strips those lines automatically (see `docs/commits.md`); workspace rule `.cursor/rules/pn-no-cursor-commit-trailers.mdc` (`alwaysApply`) reduces agent-injected trailers; canonical copy ships as MCP rule `pn-no-cursor-commit-trailers` for other projects (pn-setup / pn-new)
+- Never add trailer "Co-authored-by: Cursor <cursoragent@cursor.com>" or any "Made-with: Cursor" (or similar IDE) line to commits; never set Author or Committer to Cursor Agent / cursoragent@cursor.com
+- Contributors: run `git config core.hooksPath .githooks` so `prepare-commit-msg` strips trailer lines automatically (see `docs/commits.md`); workspace rule `.cursor/rules/pn-no-cursor-commit-trailers.mdc` (`alwaysApply`) covers trailers and authorship; canonical copy ships as MCP rule `pn-no-cursor-commit-trailers` for other projects (pn-setup / pn-new); CI `no-ide-trailers` fails on those identities too
 - Always terminate running servers before starting a new one
 - Avoid hedging: "possibly", "should", "could", "might" are not acceptable; use definitive statements
 - Prefer plans before implementation; implement plans as specified without editing the plan file

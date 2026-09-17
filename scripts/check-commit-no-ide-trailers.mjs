@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Fails if commit messages in a git range contain Cursor IDE trailers.
+ * Fails if commits in a git range use Cursor IDE trailers or Cursor Agent authorship.
  * CI: driven by GITHUB_EVENT_NAME + env. Local: origin/main..HEAD or @{upstream}..HEAD.
  */
 import { execFileSync } from "child_process";
@@ -18,6 +18,18 @@ function forbiddenLine(line) {
     return `Co-authored-by cursoragent (${line})`;
   if (/^Co-authored-by:.*Cursor\s*<cursor@cursor\.com>/i.test(line))
     return `Co-authored-by Cursor (${line})`;
+  return null;
+}
+
+function forbiddenIdentity(role, name, email) {
+  const n = String(name ?? "").trim();
+  const e = String(email ?? "").trim();
+  if (/^cursoragent@cursor\.com$/i.test(e) || /^cursor@cursor\.com$/i.test(e)) {
+    return `${role} email (${n} <${e}>)`;
+  }
+  if (/^cursor agent$/i.test(n) || /^cursoragent$/i.test(n)) {
+    return `${role} name (${n} <${e}>)`;
+  }
   return null;
 }
 
@@ -125,13 +137,22 @@ try {
 const bad = [];
 for (const sha of shas) {
   let body;
+  let ident;
   try {
     body = git(["log", "-1", "--format=%B", sha]);
+    ident = git(["log", "-1", "--format=%an%n%ae%n%cn%n%ce", sha]);
   } catch (e) {
     console.error("check-commit-no-ide-trailers: git log failed", e?.message ?? e);
     process.exit(1);
   }
   const subject = git(["log", "-1", "--format=%s", sha]);
+  const [an, ae, cn, ce] = ident.split(/\r?\n/);
+  for (const reason of [
+    forbiddenIdentity("author", an, ae),
+    forbiddenIdentity("committer", cn, ce),
+  ]) {
+    if (reason) bad.push({ sha, subject, reason });
+  }
   for (const line of body.split(/\r?\n/)) {
     const reason = forbiddenLine(line);
     if (reason) bad.push({ sha, subject, reason });
@@ -139,7 +160,7 @@ for (const sha of shas) {
 }
 
 if (bad.length) {
-  console.error("Commit messages must not include IDE-injected trailers:");
+  console.error("Commits must not use Cursor IDE authorship or trailers:");
   for (const { sha, subject, reason } of bad) {
     console.error(` - ${sha.slice(0, 7)} ${subject}`);
     console.error(`   ${reason}`);
