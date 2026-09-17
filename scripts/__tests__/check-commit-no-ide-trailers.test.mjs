@@ -101,7 +101,11 @@ test("fails when Co-authored-by cursoragent trailer is present", () => {
   try {
     writeFileSync(join(dir, "c.txt"), "c\n");
     git(dir, ["add", "c.txt"]);
-    git(dir, ["commit", "-m", "feat: squash\n\nCo-authored-by: Cursor Agent <cursoragent@cursor.com>\n"]);
+    git(dir, [
+      "commit",
+      "-m",
+      "feat: squash\n\nCo-authored-by: Cursor Agent <cursoragent@cursor.com>\n",
+    ]);
     const after = git(dir, ["rev-parse", "HEAD"]);
     const r = runChecker(dir, {
       GITHUB_EVENT_NAME: "push",
