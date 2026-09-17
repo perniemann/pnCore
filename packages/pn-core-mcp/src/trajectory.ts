@@ -25,6 +25,10 @@ export type RunLogEntry = {
   workflowPhase?: string;
   parallel?: boolean;
   taskIds?: string[];
+  /** Step-span fields (ADR-0020); absent in logs written before spans existed. */
+  stepIndex?: number;
+  sinceLastStepMs?: number | null;
+  engineMs?: number;
   stateKeys: string[];
   /** Present when the server ran with PNCORE_RUN_LOG_STATE=1. */
   state?: Record<string, unknown>;
@@ -97,6 +101,12 @@ export function parseRunLog(text: string): { entries: RunLogEntry[]; skipped: nu
             Array.isArray(o.taskIds) && o.taskIds.every((x) => typeof x === "string")
               ? (o.taskIds as string[])
               : undefined,
+          stepIndex: typeof o.stepIndex === "number" ? o.stepIndex : undefined,
+          sinceLastStepMs:
+            typeof o.sinceLastStepMs === "number" || o.sinceLastStepMs === null
+              ? o.sinceLastStepMs
+              : undefined,
+          engineMs: typeof o.engineMs === "number" ? o.engineMs : undefined,
           stateKeys: Array.isArray(o.stateKeys) ? (o.stateKeys as string[]) : [],
           state:
             o.state && typeof o.state === "object" && !Array.isArray(o.state)

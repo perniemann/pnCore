@@ -283,11 +283,11 @@ export declare const paperclipIssueCommentSchema: {
 export declare const paperclipIssueUpdateSchema: {
     readonly issueId: z.ZodOptional<z.ZodString>;
     readonly status: z.ZodEnum<{
+        done: "done";
         backlog: "backlog";
         todo: "todo";
         in_progress: "in_progress";
         in_review: "in_review";
-        done: "done";
         blocked: "blocked";
         cancelled: "cancelled";
     }>;
@@ -329,9 +329,11 @@ export declare const workflowRunQuerySchema: {
         verify: "verify";
         handoff: "handoff";
         usage: "usage";
+        load: "load";
     }>>>;
     readonly limit: z.ZodOptional<z.ZodNumber>;
     readonly path: z.ZodOptional<z.ZodString>;
+    readonly timeline: z.ZodOptional<z.ZodBoolean>;
 };
 export declare const contextArgSchema: {
     readonly context: z.ZodOptional<z.ZodString>;
