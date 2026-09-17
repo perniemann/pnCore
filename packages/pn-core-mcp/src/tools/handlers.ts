@@ -1,5 +1,5 @@
 import { appendFileSync, mkdirSync, existsSync, readFileSync, writeFileSync } from "fs";
-import { dirname } from "path";
+import { dirname, join } from "path";
 import {
   listSkills,
   getSkill,
@@ -32,6 +32,7 @@ import {
 } from "../human-gate-tickets.js";
 import { resolveWorkflowRunId } from "../run-id.js";
 import { parseRunLog, runLogStateEnabled, snapshotStateForLog } from "../trajectory.js";
+import { agentsMdCapBytes, packProjectContext } from "../context-budget.js";
 import {
   beginStepSpan,
   buildRunTimeline,
@@ -71,8 +72,11 @@ import {
   applyScaffoldPlan,
   buildScaffoldPlan,
   detectHarness,
+  instructionsBudgetFor,
   layoutTable,
+  upsertManagedBlock,
   type AppliedFile,
+  type InstructionsBudget,
   type ScaffoldInclude,
 } from "../harness.js";
 import type { ShapeArgs } from "./tool-runtime.js";
@@ -192,7 +196,7 @@ export async function handleProjectContext(args: ShapeArgs<typeof projectContext
     run_id: args.run_id,
     max_trail: args.max_trail,
   });
-  return textContent(JSON.stringify(packet));
+  return textContent(JSON.stringify(packProjectContext(packet, args.max_tokens)));
 }
 
 export async function handleHarnessDetect(args: ShapeArgs<typeof harnessDetectSchema>) {
@@ -254,6 +258,22 @@ export async function handleHarnessScaffold(args: ShapeArgs<typeof harnessScaffo
   const untouched = HARNESS_IDS.filter(
     (h) => !harnesses.includes(h) && !usedFolders.has(topFolder(h))
   );
+  // Instructions-file byte budget (ADR-0021): measured for harnesses that truncate the chain.
+  const instructionsBudget: InstructionsBudget[] = [];
+  for (const h of harnesses) {
+    const layout = HARNESS_LAYOUTS[h];
+    if (layout.instructionsCapBytes == null) continue;
+    const rel = layout.instructionsFile;
+    if (instructionsBudget.some((b) => b.path === rel)) continue;
+    const abs = join(safeBase, rel);
+    const existing = existsSync(abs) ? readFileSync(abs, "utf-8") : null;
+    const planned = plan.find((f) => f.path === rel && f.strategy === "managed_block");
+    const text =
+      args.dryRun === true && planned
+        ? upsertManagedBlock(existing, planned.content).text
+        : existing;
+    instructionsBudget.push(instructionsBudgetFor(rel, text, agentsMdCapBytes()));
+  }
   return textContent(
     JSON.stringify({
       harnesses,
@@ -263,6 +283,7 @@ export async function handleHarnessScaffold(args: ShapeArgs<typeof harnessScaffo
       ...(args.dryRun === true
         ? { contents: Object.fromEntries(plan.map((f) => [f.path, f.content])) }
         : {}),
+      ...(instructionsBudget.length > 0 ? { instructionsBudget } : {}),
       untouchedHarnessFolders: [...new Set(untouched.map(topFolder))],
       next: "Fill in any '(fill in)' placeholders from the codebase analysis. Re-run with overwrite: true to regenerate; managed AGENTS.md blocks are replaced in place.",
     })
