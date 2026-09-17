@@ -1,6 +1,6 @@
 ---
 title: Acceptance criteria IDs (AC-*)
-updated: 2026-04-22
+updated: 2026-09-17
 ---
 
 # Acceptance criteria IDs (`AC-*`)
@@ -16,6 +16,7 @@ Stable identifiers in PRDs and discovery specs so implementation, tests, and aut
 ## Format
 
 - Use **`AC-1`**, **`AC-2`**, … or **`AC-001`** consistently within a document.
+- One criterion per ID; do not reuse IDs after removal. Use a new number or document supersession in prose.
 
 ### AC-1 (this repo)
 
@@ -24,7 +25,6 @@ Stable identifiers in PRDs and discovery specs so implementation, tests, and aut
 ### AC-2 (this repo)
 
 **AC-2:** Cold-session project context is an MCP **pull** (`project_context` tool), not a `sessionStart` inject. `docs/refs/context-index.json` may list typed `artifacts`; derived completion requires attestations (`workflow_verify` / acceptance in `.pncore/run-events.jsonl`), never markdown checkboxes or authored `status: complete` alone. `npm run check:artifact-status` enforces that.
-- One criterion per ID; do not reuse IDs after removal (use a new number or document supersession in prose).
 
 ---
 
@@ -45,4 +45,4 @@ Stable identifiers in PRDs and discovery specs so implementation, tests, and aut
 
 ## PRD vs workspace context
 
-Product acceptance lives in the PRD. Workspace bootstrap (Cursor rules, MCP) lives in `project-context.mdc` / AGENTS-style files. See [agents-md-guide](agents-md-guide.md) and [context-index.json](refs/context-index.json).
+Product acceptance lives in the PRD. Workspace bootstrap lives in the active harness's native project-context rule or managed instructions block, selected by `harness_detect`. See [agents-md-guide](agents-md-guide.md) and [context-index.json](refs/context-index.json).

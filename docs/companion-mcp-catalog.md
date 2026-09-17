@@ -1,31 +1,33 @@
 ---
 title: Companion MCP catalog
-updated: 2026-04-22
+updated: 2026-09-17
 ---
 
 # Companion MCP catalog
 
-MCP servers that pair well with **pnCore**: research, UI libraries, testing, payments, and more. Add entries in Cursor **Settings → MCP** or `~/.cursor/mcp.json`.
+MCP servers that pair well with **pnCore**: research, UI libraries, testing, payments, and game-engine automation. Add them through the active harness's MCP configuration; use `harness_detect` or `pn-core://reference/harness-matrix.md` when the config path is unclear.
 
-**Proactive use:** When these MCPs are enabled, pnCore instructs agents to use them via `pn-mcp-proactive` and the relevant skills. For example: Stripe + pn-payment-integration, n8n + pn-n8n-patterns, shadcn + pn-ui-component-libraries.
+**Proactive use:** When these MCPs are enabled, pnCore instructs agents to use them via `pn-mcp-proactive` and the relevant skills.
 
 ---
 
 ## Available companions
 
-| MCP | Purpose | Install |
-|-----|---------|---------|
-| **Octocode** | Code forensics: LSP goto-def, call hierarchy, find references, prior-art search, GitHub integration | `npx -y octocode-mcp@latest` or see [Octocode](https://github.com/bgauryy/octocode-mcp) |
-| **shadcn** | shadcn/ui components, Tailwind, Radix | `npx shadcn@latest mcp init --client cursor` |
-| **Playwright** | Browser automation, E2E test generation, trace inspection | `npx -y @playwright/mcp` |
-| **Stripe** | Payments, subscriptions, invoicing | `npx -y @stripe/mcp` |
-| **Chrome DevTools** | Browser debugging, performance | See [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp) |
-| **Cloudflare** | Workers, KV, D1, R2 | See [Cloudflare MCP](https://github.com/cloudflare/mcp-server-cloudflare) |
-| **n8n** | Workflow automation, expose workflows as MCP tools for AI agents | See [MCP Server Trigger](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.mcptrigger), [MCP Client Tool](https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.toolmcp) |
-| **ChiR24/Unreal_mcp** | Unreal Engine editor automation: actors, levels, Blueprints, materials, sequences, widgets, AI, GAS, networking, audio (UE 5.0–5.7). Requires `MCPBridge` C++ plugin in your UE project. | Copy `MCPBridge` plugin into `<Project>/Plugins/`, enable in Edit → Plugins, then add `"unreal-mcp": { "type": "url", "url": "http://localhost:3000/mcp" }` to `mcp.json`. See [ChiR24/Unreal_mcp](https://github.com/ChiR24/Unreal_mcp) |
-| **Blender MCP** (official) | Live control of a Blender session via natural language: scene analysis, data-block renaming, Geometry Nodes documentation, material and mesh operations. Requires Blender 5.1+. | Install add-on: drag `.zip` into Blender from [blender.org/lab/mcp-server](https://www.blender.org/lab/mcp-server/). Install server: `pip install git+https://projects.blender.org/lab/blender_mcp.git`. Add `"blender": { "command": "blender-mcp" }` to `mcp.json`. **Run in a VM** — executes LLM-generated code without guards. |
-| **Coding-Solo/godot-mcp** | External CLI bridge for Godot 4.x: launch the editor, run projects, capture console/error output, basic scene and node management via bundled GDScript. ~3.2k stars. | `npx -y github:Coding-Solo/godot-mcp` — add `"godot": { "command": "npx", "args": ["-y", "github:Coding-Solo/godot-mcp"] }` to `mcp.json`. Set `GODOT_PATH` env to your Godot 4 binary. See [Coding-Solo/godot-mcp](https://github.com/Coding-Solo/godot-mcp). Pair with `pn-godot-dev`. |
-| **3ddelano/gdai-mcp** | Live editor-plugin bridge for Godot 4.1+: real-time scene tree manipulation, script creation/fixing, debugger/parse error reading, end-to-end test screenshots. Runs inside the editor. | Install the Godot plugin from [github.com/3ddelano/gdai-mcp-plugin-godot](https://github.com/3ddelano/gdai-mcp-plugin-godot). Enable in editor, then add `"godot": { "type": "url", "url": "http://localhost:6969/mcp" }` to `mcp.json`. Use when you need live scene-tree control or runtime debugging alongside Cursor. |
+| MCP | Purpose | Install | pnCore pairing |
+|-----|---------|---------|----------------|
+| **Octocode** | Code forensics: LSP goto-def, call hierarchy, references, prior-art search, GitHub integration | `npx -y octocode-mcp@latest` — [Octocode](https://github.com/bgauryy/octocode-mcp) | `pn-prior-art-research`, `pn-codebase-to-strategy` |
+| **shadcn** | shadcn/ui components, Tailwind, Radix | Cursor: `npx shadcn@latest mcp init --client cursor` | `pn-ui-component-libraries` |
+| **Playwright** | Browser automation, E2E generation, trace inspection | `npx -y @playwright/mcp@latest` — [Playwright MCP](https://github.com/microsoft/playwright-mcp) | `pn-smoke-tests`, `pn-browser-runtime-verify` |
+| **Stripe** | Payments, subscriptions, invoicing | Preferred remote: `https://mcp.stripe.com`; local: `npx -y @stripe/mcp@latest` with `STRIPE_SECRET_KEY` — [Stripe MCP](https://docs.stripe.com/mcp) | `pn-payment-integration` |
+| **Chrome DevTools** | Browser debugging and performance | `npx -y chrome-devtools-mcp@latest` — [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp) | `pn-browser-runtime-verify` |
+| **Cloudflare** | Workers, KV, D1, R2, and the Cloudflare API | Remote Code Mode: `https://mcp.cloudflare.com/mcp` — [Cloudflare MCP](https://github.com/cloudflare/mcp) | Cloudflare stack and CI skills |
+| **n8n** | Workflow automation; expose workflows as MCP tools | [MCP Server Trigger](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.mcptrigger), [MCP Client Tool](https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.toolmcp) | `pn-n8n-patterns` |
+| **ChiR24/Unreal_mcp** | Unreal Engine 5.0–5.8 automation via the `McpAutomationBridge` plugin | Native: enable **Native MCP** and connect to `http://localhost:3000/mcp`; bridge: `npx -y unreal-engine-mcp-server` — [ChiR24/Unreal_mcp](https://github.com/ChiR24/Unreal_mcp) | Load `pn-unreal-mcp`, then `pn-unreal-dev` |
+| **Blender MCP** (official) | Live Blender control and Python API access; requires Blender 5.1+ | Install the add-on and server from [Blender Lab](https://www.blender.org/lab/mcp-server/). **Isolate generated-code execution.** | `pn-blender-scripting` |
+| **Coding-Solo/godot-mcp** | External CLI bridge for Godot 4.x; editor launch, project runs, logs, scenes, and nodes | `npx -y github:Coding-Solo/godot-mcp`; set `GODOT_PATH` — [Coding-Solo/godot-mcp](https://github.com/Coding-Solo/godot-mcp) | Load `pn-godot-mcp`, then `pn-godot-dev` |
+| **3ddelano/gdai-mcp** | Live editor control for Godot 4.1+: scene tree, scripts, debugger, and screenshots | Follow the [GDAI installation guide](https://gdaimcp.com/docs/installation); keep the editor plugin running | Load `pn-godot-mcp`, then `pn-godot-dev` |
+
+Use one Godot MCP surface per workflow run. `pn-godot-mcp` compares five maintained/community options; `pn-unreal-mcp` compares six Unreal options and emits the install plan used by `engine_feature`.
 
 ---
 
@@ -33,21 +35,25 @@ MCP servers that pair well with **pnCore**: research, UI libraries, testing, pay
 
 For a full pnCore-oriented setup:
 
-1. **pn-core** — Rules, skills, agents, workflow (this plugin).
+1. **pn-core** — MCP workflow engine plus harness-native rules, skills, agents, and commands.
 2. **Octocode** — Code research, LSP tools, GitHub.
 3. **shadcn** — When using shadcn/ui or Tailwind components.
 4. **Playwright** — When adding E2E tests or browser automation.
 
-Run one of:
+From a target project, choose the active harness:
 
-- From a project (without cloning): `npx github:perniemann/pnCore plugin-install -- --with-shadcn`
-- From repo root (cloned): `node scripts/install-to-project.mjs --with-shadcn`
+```bash
+npx github:perniemann/pnCore plugin-install --harness auto
+npx github:perniemann/pnCore plugin-install --harness codex --with-mcp-config --inline-rules
+```
+
+Use `cursor`, `claude_code`, `codex`, `pi`, or `all` instead of `auto`. `--with-shadcn` is Cursor-only. From a cloned pnCore checkout, run `node scripts/install-to-project.mjs <target> --harness <id>`.
 
 ---
 
 ## pm-skills (Product Management)
 
-[pm-skills](https://github.com/phuryn/pm-skills) provides 65+ PM skills (discovery, strategy, PRDs, OKRs, GTM, market research) for Claude Code and Cowork. pnCore has ported 9 skills into `skills/pm/`:
+[pm-skills](https://github.com/phuryn/pm-skills) provides 65+ PM skills (discovery, strategy, PRDs, OKRs, GTM, market research) for Claude Code and Cowork. pnCore's `pm` category contains 11 skills: nine ports plus two pnCore-native workflows.
 
 | Skill | Use when |
 |-------|----------|
@@ -60,10 +66,12 @@ Run one of:
 | **pn-job-stories** | JTBD-style backlog items (When...I want...so I can) |
 | **pn-release-notes** | Converting tickets/changelogs into user-facing release notes |
 | **pn-idea-miner** | Mining transcripts or notes for feature ideas and priorities |
+| **pn-pressure-test** | Stress-testing a business thesis before implementation planning |
+| **pn-ai-adoption-playbook** | Planning role-based AI adoption, governance, and measurement |
 
 **Flow:** PRD → user/job stories → pn-writing-plans → build. For full pm-skills (strategy, market research, GTM), copy `pm-*/skills/*` to `.cursor/skills/` or use Claude for the broader PM workflow.
 
-**Slash palette:** Cursor IDE → **`/`** → **`pn`** submenu (categories: start, build, design, pm, audit, challenge, ship). [pi.dev](https://pi.dev) → install pnCore Pi package for flat `/pn-*` prompt templates (`plugins/pnCore/prompts/`). Cursor CLI → `/pn` stub only (nested submenu IDE-only). See [ADR-0008](../docs/adr/0008-command-palette-pn-submenu.md).
+**Command surfaces:** Cursor IDE uses **`/` → `pn`** categories. Pi uses one extension command after `pi install git:github.com/perniemann/pnCore@main`: `/pn`, or `/pn pn-build` directly. Files under `plugins/pnCore/prompts/` are extension storage, not flat Pi prompt registration. Cursor CLI uses the `/pn` stub or MCP `get_command`. See [ADR-0008](adr/0008-command-palette-pn-submenu.md).
 
 ---
 
@@ -74,13 +82,13 @@ Companions used by the `business_strategy` workflow (`/pn-strategy`). The orches
 | Role | MCP | Tool prefix | Use in workflow | Install |
 |------|-----|-------------|-----------------|---------|
 | `codebase_intake` | **Octocode** (primary) | `mcp_user-octocode_*` or `mcp_octocode_*` | Step 1 (codebase-to-strategy) and codebase-grounded evidence in step 2 | `npx -y octocode-mcp@latest` — see [Octocode](https://github.com/bgauryy/octocode-mcp) |
-| `web_evidence` | **Tavily MCP** | `tavily_*` | Step 2–3 evidence gathering (preferred over host WebSearch) | See [Tavily MCP](https://github.com/tavily-ai/tavily-mcp) |
-| `web_evidence` | **Brave Search MCP** | `brave_*` | Step 2–3 evidence gathering (alternative to Tavily) | See [Brave Search MCP](https://github.com/modelcontextprotocol/servers/tree/main/src/brave-search) |
-| `web_evidence` | **Exa MCP** | `exa_*` | Step 2–3 evidence gathering (semantic search alternative) | See [Exa MCP](https://github.com/exa-labs/exa-mcp-server) |
-| `market_data` | **FRED MCP** | `fred_*` | Step 3 market sizing (economic data) | See [FRED MCP](https://fred.stlouisfed.org/) — requires API key |
-| `market_data` | **Alpha Vantage MCP** | `alpha_vantage_*` | Step 3 market sizing (financial/equity data) | See [Alpha Vantage MCP](https://www.alphavantage.co/documentation/) — requires API key |
+| `web_evidence` | **Tavily MCP** | `tavily_*` | Step 2–3 evidence gathering (preferred over host WebSearch) | Remote: `https://mcp.tavily.com/mcp/?tavilyApiKey=…`; local: `npx -y tavily-mcp@latest` — [Tavily MCP](https://github.com/tavily-ai/tavily-mcp) |
+| `web_evidence` | **Brave Search MCP** | `brave_*` | Step 2–3 evidence gathering | `npx -y @brave/brave-search-mcp-server` with `BRAVE_API_KEY` — [official Brave MCP](https://github.com/brave/brave-search-mcp-server) |
+| `web_evidence` | **Exa MCP** | `exa_*` or `*_exa` | Step 2–3 semantic search | Remote: `https://mcp.exa.ai/mcp` — [Exa MCP](https://github.com/exa-labs/exa-mcp-server) |
+| `market_data` | **FRED MCP** | `fred_*` | Step 3 economic data | Community option: [fred-mcp-server](https://github.com/stefanoamorelli/fred-mcp-server), with `FRED_API_KEY` |
+| `market_data` | **Alpha Vantage MCP** | `alpha_vantage_*` | Step 3 financial/equity data | Remote: `https://mcp.alphavantage.co/mcp?apikey=…`; local: `uvx marketdata-mcp-server <key>` — [Alpha Vantage MCP](https://github.com/alphavantage/alpha_vantage_mcp) |
 
-**Fallback behavior:** When no companion is present for a role, the workflow runs end-to-end using host tools (`WebSearch`, `WebFetch`, `localSearchCode`). Evidence entries record `companion: "host_websearch"` or `"host_webfetch"` so provenance is always visible at the verdict-lock step. Market stats without a data companion are flagged `[est.]` — never fabricated.
+**Fallback and lock behavior:** When no companion is present, the workflow uses host tools (`WebSearch`, `WebFetch`, `localSearchCode`) and records `host_websearch`, `host_webfetch`, or `host_localsearch`. Market stats without a data companion are flagged `[est.]`, never fabricated. When every market entry is host-sourced, verdict-lock preselects **audit** and shows three randomly sampled citations before the user can explicitly confirm.
 
 ---
 

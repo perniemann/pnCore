@@ -1,6 +1,6 @@
 # pnCore (plugin)
 
-Cursor adapter for **pnCore 0.19.8**: slash palette, file-glob rules, agent selector, stop hook. One MCP engine, four harnesses (Cursor, Claude Code, Codex, Pi). User-facing orientation: [why it exists](https://github.com/perniemann/pnCore#why-this-exists), [install](https://github.com/perniemann/pnCore#install), [workflows](https://github.com/perniemann/pnCore#workflows). Full catalog: [docs/plugin-reference.md](https://github.com/perniemann/pnCore/blob/main/docs/plugin-reference.md).
+Cursor adapter for **pnCore 0.19.9**: slash palette, file-glob rules, agent selector, stop hook. One MCP engine, four harnesses (Cursor, Claude Code, Codex, Pi). User-facing orientation: [why it exists](https://github.com/perniemann/pnCore#why-this-exists), [install](https://github.com/perniemann/pnCore#install), [workflows](https://github.com/perniemann/pnCore#workflows). Full catalog: [docs/plugin-reference.md](https://github.com/perniemann/pnCore/blob/main/docs/plugin-reference.md).
 
 ## Install
 

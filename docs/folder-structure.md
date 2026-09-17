@@ -1,6 +1,6 @@
 ---
 title: Folder structure (verified)
-updated: 2026-04-22
+updated: 2026-09-17
 ---
 
 # Folder structure (verified)
@@ -11,7 +11,7 @@ This repo follows [add-a-plugin.md](add-a-plugin.md). Layout:
 
 ## Repo root
 
-When you open the **pnCore repo root** as the workspace, `.cursor-plugin/plugin.json` points at `plugins/pnCore/` for skills, agents, rules, commands, and hooks. Cursor loads content from the plugin folder. The **canonical source** for skills, agents, rules, config, docs, reference, and hooks is **`packages/pn-core-mcp/content/`**. After editing content there, run **`npm run sync:content`** from the repo root to copy into `plugins/pnCore/` so both stay in sync. Running `npm run install` from the repo root keeps the plugin mapping; it does not copy plugin content into root `.cursor/`.
+When you open the **pnCore repo root** as the workspace, `.cursor-plugin/plugin.json` points at `plugins/pnCore/` for skills, agents, rules, commands, and hooks. Cursor loads content from the plugin folder. The **canonical source** for skills, agents, rules, config, docs, reference, and hooks is **`packages/pn-core-mcp/content/`**. After editing content there, run **`npm run sync:content`** from the repo root to copy into `plugins/pnCore/` so both stay in sync.
 
 ```text
 .cursor/                 # Workspace MCP: committed mcp.json launches node + packages/pn-core-mcp/dist (this repo only)
@@ -25,7 +25,20 @@ plugins/pnCore/        # Plugin — synced from packages/pn-core-mcp/content/ vi
 scripts/
 ```
 
-**To use the plugin:** Run `npm run install` (or `node scripts/install-to-project.mjs`) from a project to copy the plugin there; then open that project in Cursor. Or open **`plugins/pnCore`** as the workspace to work on the plugin itself.
+**To install harness files:** From a target project, run `npx github:perniemann/pnCore plugin-install --harness <id>`. From this checkout, run `node scripts/install-to-project.mjs <target> --harness <id>`. Use `cursor`, `claude_code`, `codex`, `pi`, or `all`.
+
+## Harness-native project layout
+
+`harness_detect` identifies the active surface. `harness_scaffold` and `plugin-install --harness` write only that surface's files:
+
+| Harness | Instructions and rules | Skills | Commands/prompts | MCP config |
+|---------|------------------------|--------|------------------|------------|
+| Cursor | `AGENTS.md`, `.cursor/rules/*.mdc` | `.cursor/skills` | `.cursor/commands` | `.cursor/mcp.json` |
+| Claude Code | `CLAUDE.md`, `.claude/rules/*.md` | `.claude/skills` | `.claude/commands` | `.mcp.json` |
+| Codex | managed pnCore block in `AGENTS.md` | `.agents/skills` | MCP prompts | `.codex/config.toml` |
+| Pi | managed pnCore block in `AGENTS.md` | `.agents/skills` / `.pi/skills` | `.pi/prompts`, `/pn` extension menu | `.pi/settings.json` |
+
+The canonical matrix is `pn-core://reference/harness-matrix.md`; layout code lives in `packages/pn-core-mcp/src/harness.ts`.
 
 ---
 
@@ -35,14 +48,18 @@ Content here (skills, agents, rules, config, docs, reference, hooks) is **synced
 
 ```text
 .cursor/
-  commands/              # Slash commands (/pn-new, etc.) — single source
+  commands/pn/           # Cursor submenu categories and visible commands
 .cursor-plugin/
   plugin.json            # Manifest; commands points to .cursor/commands
 agents/
+agents-internal/
 assets/
 config/
 docs/
 hooks/
+prompts/                 # Pi extension command-body storage
+pi-command-index.json    # Generated Pi /pn menu index
+reference/
 rules/
 scripts/
 skills/

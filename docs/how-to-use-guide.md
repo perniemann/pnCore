@@ -1,6 +1,6 @@
 ---
 title: How to use pnCore
-updated: 2026-09-16
+updated: 2026-09-17
 ---
 
 # How to use pnCore
@@ -132,7 +132,7 @@ Start from a pitch idea; use every feature: discovery questionnaire (ask_questio
 When you use only the pn-core MCP server (no plugin in the project):
 
 - **Build with workflow** — "Build [X]. Use the full dev workflow." or "Build [X]. Use the design workflow."
-- **Bootstrap rules** — Copy [mcp-only-bootstrap.mdc](mcp-only-bootstrap.mdc) to `<workspace-root>/.cursor/rules/` so the AI loads pn-build-gate and pn-mcp-proactive.
+- **Bootstrap rules** — On Cursor, copy [mcp-only-bootstrap.mdc](mcp-only-bootstrap.mdc) to `<workspace-root>/.cursor/rules/`. On other harnesses, use `harness_scaffold` or `plugin-install --harness <id>` so bootstrap guidance lands in that harness's native instructions.
 - **Commands** — Ask in natural language: "run pn-new", "use the design workflow", "run pn-review".
 
 **Best prompt for full involvement:** `Run get_command("pn-new"). I want to build [project name]. Refs in .ref/. I want Involved — ask each discovery section, gate on plan, specialists, and review.` This ensures pn-new runs first, you choose Involved, and you get gates at every step. Avoid starting with only "Build [X]" for new projects; that can bypass pn-new and behave like full auto.
@@ -165,7 +165,7 @@ When a concrete product requirement appears (e.g. team queue, mandatory external
 
 ## Detailed workflows (quick reference)
 
-Indices are **inclusive** (each row matches `list_workflow_types` step counts in [`packages/pn-core-mcp/src/index.ts`](../packages/pn-core-mcp/src/index.ts)).
+Indices are **inclusive**. Call `list_workflow_types` for the live list; routing definitions live in [`packages/pn-core-mcp/src/workflows.ts`](../packages/pn-core-mcp/src/workflows.ts).
 
 | workflowType | Step indices | Purpose |
 |--------------|--------------|---------|
@@ -173,7 +173,7 @@ Indices are **inclusive** (each row matches `list_workflow_types` step counts in
 | `design` | 0–5 | Design discovery → Plan+Skeptic → Assets → Build → Skeptic on output → Summary |
 | `full_dev` | 0–6 | Discovery → Prior art → Plan+Skeptic → Route specialists → Run specialists → Review+Skeptic → Summary |
 | `prompt_optimize` | 0–2 | Questionnaire → Draft + user review → Final prompt |
-| `frontend_audit` | 0–2 | Scope → Phase 1–6 audit → scorecard + summary |
+| `frontend_audit` | 0–2 | Scope → five surgical passes plus inline philosophy checks → scorecard + summary |
 | `backend_audit` | 0–6 | Scope + stack context → five audit phases → summary |
 | `image_create` | 0–4 | Questionnaire → Spec confirmation → Generate image → Skeptic on output → Summary |
 | `visual_tweak` | 0–3 | Clarify target → Plan confirmation → Implement → Summary |
@@ -183,6 +183,8 @@ Indices are **inclusive** (each row matches `list_workflow_types` step counts in
 | `fsi_analyst_draft` | 0–5 | Scope → sources + assumptions → draft → QC + skeptic → mandatory analyst sign-off → delivery summary |
 | `business_strategy` | 0–8 | Framing → codebase intake (conditional) → evidence → strategic frame → grill → pressure-test (Strong / Weak / Pivot) → conditional skeptic → verdict lock → HTML + markdown brief |
 | `media_director` | 0–6 | Intent → adaptive grill → creative brief → plan + pipeline + skeptic → produce → human review → delivery |
+| `feature_program` | 0–5 | Program discovery → slice contracts → per-slice plans → parallel `full_dev` worktrees → verify + merge queue → program review (`featureProgram: true`) |
+| `implementation_tournament` | 0–5 | Scope + verify gates → parallel candidates → elimination → premium judge → merge winner → `full_dev` review (`bestOfN.enabled: true`) |
 
 **Usage:** Say "Build [X]. Use the design workflow." (or full dev, prompt optimize, visual tweak, game feature). Say "Audit this frontend" or "Use the frontend audit workflow." for audits. Say "Create an image or SVG" or use `/pn-assets`. Slash commands (e.g. `/pn-design`) or "run pn-[command]" load the command; the AI uses `workflow_step` when available for deterministic control flow.
 
@@ -193,6 +195,7 @@ Indices are **inclusive** (each row matches `list_workflow_types` step counts in
 - **Prompting:** Be specific; name the workflow ("Use the design workflow" or "Use the full dev workflow") when you want discovery and skeptic.
 - **Gating:** Discovery and skeptic require your confirmation; do not ask the AI to skip them unless you explicitly say so.
 - **Harness files vs MCP-only:** Slash commands / prompts for structured flows; MCP only: natural language + [mcp-only bootstrap rule](mcp-only-bootstrap.mdc).
+- **Run diagnostics:** Set `PNCORE_RUN_LOG_STATE=1` only when recording a redacted trajectory fixture. Use `workflow_run_query({ timeline: true })` to inspect step spans, loads, usage, handoffs, gates, and verification. Use `project_context({ max_tokens })` for a hard context budget.
 
 See [mcp-usage-guide](mcp-usage-guide.md) for MCP tools, resources, prompts, and workflow patterns.
 

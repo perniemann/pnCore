@@ -1,6 +1,6 @@
 ---
 title: Adopting context-index.json in your project
-updated: 2026-04-22
+updated: 2026-09-17
 ---
 
 # Adopting `context-index.json` in your project
@@ -62,6 +62,7 @@ jobs:
           node-version: "22"
       - run: npm ci
       - run: npm run check:context-index
+      - run: npm run check:artifact-status
       - run: npm run check:ac-traceability
 ```
 

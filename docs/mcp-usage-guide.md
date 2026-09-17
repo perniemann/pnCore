@@ -1,6 +1,6 @@
 ---
 title: "pn-core MCP: analysis and usage guide"
-updated: 2026-07-03
+updated: 2026-09-17
 ---
 
 # pn-core MCP: Analysis and Usage Guide
@@ -23,7 +23,7 @@ pn-core is the **MCP engine** for pnCore. It exposes skills, agents, commands, r
 | `harness_scaffold` | Write project-context, project skill, trailer rule, optional MCP config **only** into the selected harness's folders (`.cursor/`, `.claude/`, `.agents/skills` + `AGENTS.md` block, `.pi/`); `dryRun` returns the plan with contents | AI (`/pn-setup`, `/pn-new`, `project_kickoff`) |
 | `list_workflow_types` | List workflow types and step counts: `project_kickoff`, `design`, `full_dev`, `prompt_optimize`, `frontend_audit`, `backend_audit`, `image_create`, `visual_tweak`, `game_feature`, `svg_create`, `engine_feature`, `fsi_analyst_draft`, `business_strategy`, `media_director`, `feature_program`, `implementation_tournament` | AI (discoverability) |
 | `suggest_model_tier` | Suggested LLM model tier for a workflow step or subagent role (`fast` / `standard` / `premium` / `premium_thinking` / `long_horizon`); pass `role` for subagent routing (`orchestrator` → long_horizon); omit `step` for the full per-step table | AI |
-| `list_skills` | List skill ids + descriptions | AI |
+| `list_skills` | Without filters, return a category index with counts and samples; use `category`, `filter`, or `limit` to drill in (`limit=0` returns all) | AI |
 | `get_skill` | Load full markdown of a skill by id | AI |
 | `list_agents` | List agent ids + descriptions | AI |
 | `get_agent` | Load full markdown of an agent by id | AI |
@@ -67,7 +67,7 @@ When `workflow_step` is available, use it for build/design flows instead of load
 | `design` | 0–5 | Design questionnaire → Plan+Skeptic → Assets → Build → Skeptic on output → Summary |
 | `full_dev` | 0–6 | Discovery → Prior art → Plan+Skeptic → Route specialists → Run specialists → Review+Skeptic → Summary |
 | `prompt_optimize` | 0–2 | Questionnaire → Draft + review → Final prompt |
-| `frontend_audit` | 0–2 | Scope → Phase 1–6 audit → summary |
+| `frontend_audit` | 0–2 | Scope → five surgical passes plus inline philosophy checks → summary |
 | `backend_audit` | 0–6 | Scope + stack → five audit phases → summary |
 | `image_create` | 0–4 | Questionnaire → Spec confirmation → Generate → Skeptic on output → Summary |
 | `visual_tweak` | 0–3 | Target → Plan → Implement → Summary |
@@ -88,7 +88,7 @@ When `workflow_step` is available, use it for build/design flows instead of load
 
 **Usage:** Call `workflow_step(workflowType, step, state)` at start and after each step. The tool returns `instruction`, `nextStep`, `requiredInputs`, and `gate` (`human` = wait for user reply before next call). If state is missing required fields, the tool returns an error: "Complete step N first." Users say natural-language prompts like "Build X. Use the design workflow." or "Audit this frontend with the frontend audit workflow."; the model translates to tool calls.
 
-**Fallback when workflow_step is unavailable:** Use `get_command` for the matching slash command (`pn-new`, `pn-design`, `pn-build`, `pn-frontend-audit`, `pn-backend-audit`, `pn-assets`, `pn-game`, etc.); see `pn-build-gate`. Command markdown mirrors intent; control flow is model-driven without the tool.
+**Fallback when workflow_step is unavailable:** Use `get_command` for a matching command (`pn-new`, `pn-design`, `pn-build`, `pn-frontend-audit`, `pn-backend-audit`, `pn-assets`, etc.); see `pn-build-gate`. `game_feature` has no `/pn-game` command, so request that workflow in natural language. Command markdown mirrors intent; control flow is model-driven without the tool.
 
 ---
 
@@ -165,7 +165,7 @@ npx shadcn@latest mcp init --client cursor
 ```
 This creates/updates `.cursor/mcp.json`. Enable the shadcn MCP server in Cursor Settings.
 
-**When installing pnCore:** Use `npm run install -- --with-shadcn` (or `node scripts/install-to-project.mjs . --with-shadcn`) to add shadcn MCP in one step.
+**When installing pnCore for Cursor:** Use `npm run plugin-install -- --with-shadcn` from a pnCore checkout, or `node scripts/install-to-project.mjs . --harness cursor --with-shadcn`. The shadcn integration is Cursor-only.
 
 **Use pn-ui-component-libraries skill:** The AI loads `get_skill("pn-ui-component-libraries")` for UI library recommendations and uses shadcn MCP tools when available to browse, search, and install components.
 
@@ -215,7 +215,7 @@ flowchart LR
 |----------|--------|
 | Are you prompting with clear intent? | This drives when the AI fetches and applies pn content |
 | Do you use workflow_step for build/design? | When MCP is available, prefer it over get_command; control flow is deterministic |
-| Do you use Cursor commands (pn-new, pn-build)? | If the plugin is installed, these give structured flows |
+| Do you use harness commands or prompts (pn-new, pn-build)? | If harness files are installed, these give structured flows |
 | Do you have config in non-pnCore projects? | Needed for orchestrator and full dev loop |
 | Does the AI proactively use get_skill/get_agent? | It should when your task clearly matches a skill/agent |
 
@@ -254,7 +254,7 @@ When you have a **new project with no refs** (no **`docs/refs/PRD.md`**, no `.re
 **Pattern 6: Frontend audit**
 
 - **What to say:** "Audit this frontend." or "Use the frontend audit workflow." or `/pn-frontend-audit`.
-- **What happens:** The model calls `workflow_step("frontend_audit", …)` when available; you scope the audit, then Phase 1–6 (typography, layout, motion, state, performance) runs with a scorecard and fix roadmap. Otherwise the AI loads `get_command("pn-frontend-audit")`.
+- **What happens:** The model calls `workflow_step("frontend_audit", …)` when available; you scope the audit, run five surgical passes plus inline philosophy checks, then receive a scorecard and fix roadmap. Otherwise the AI loads `get_command("pn-frontend-audit")`.
 
 **Pattern 7: Documentation or prompt optimize**
 
@@ -275,7 +275,7 @@ Prefer **`workflow_step`** for build, design, audits, and kickoff when MCP is co
 
 If you use **only** the pn-core MCP server (no plugin installed in the project), you get all skills, agents, commands, workflow_step, and resources—but Cursor will not auto-apply pn rules (build gate, proactive skill use) or run hooks, because those come from the plugin's files.
 
-**Bootstrap rule (one-time setup):** Copy [mcp-only-bootstrap.mdc](mcp-only-bootstrap.mdc) into your **project’s** `.cursor/rules/` (create the folder if needed). Here “your project” means the **workspace you have open in Cursor** (the app you’re building), not the pnCore repo—the file must live at `<workspace-root>/.cursor/rules/mcp-only-bootstrap.mdc`. That rule tells the AI to load `get_rule("pn-build-gate")` and `get_rule("pn-mcp-proactive")` via MCP and follow them, so build/design flows and proactive skill use behave like the full plugin.
+**Bootstrap guidance (one-time setup):** On Cursor, copy [mcp-only-bootstrap.mdc](mcp-only-bootstrap.mdc) into your project's `.cursor/rules/`. On Claude Code, Codex, or Pi, run `harness_scaffold` or `plugin-install --harness <id>` to write the equivalent native rule or managed instructions block. The guidance loads `pn-build-gate` and `pn-mcp-proactive` through MCP so build/design flows and proactive skill use behave like the full harness install.
 
 **Slash commands:** You won't have `/pn-new`, `/pn-setup`, `/pn-design`, etc. Ask in natural language instead: "run pn-new", "run pn-setup", "use the design workflow", "run pn-review".
 

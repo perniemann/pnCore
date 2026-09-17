@@ -53,7 +53,7 @@ Enumerate available tools in the current session and match by prefix:
 | Role | Prefix / tool pattern | Fallback |
 |------|-----------------------|----------|
 | `codebase_intake` | `mcp_user-octocode_*` or `mcp_octocode_*` | host `localSearchCode` / `SemanticSearch` |
-| `web_evidence` | Tavily (`tavily_*`), Brave (`brave_*`), Exa (`exa_*`) | host `WebSearch` / `WebFetch` |
+| `web_evidence` | Tavily (`tavily_*`), Brave (`brave_*`), Exa (`exa_*` or published `*_exa` tools such as `web_search_exa`) | host `WebSearch` / `WebFetch` |
 | `market_data` | FRED (`fred_*`), Alpha Vantage (`alpha_vantage_*`) | host `WebFetch` + discipline flag |
 
 Rules:

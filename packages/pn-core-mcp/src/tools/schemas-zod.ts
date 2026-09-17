@@ -130,7 +130,7 @@ export const listSkillsSchema = {
     .string()
     .optional()
     .describe(
-      "Filter by category folder (e.g. frontend, backend, gamedev, media, orchestration, ci, discipline, integrations, learning, marketing, pm, review, support, plugin)"
+      "Filter by category folder (e.g. frontend, backend, gamedev, media, orchestration, ci, discipline, integrations, learning, marketing, pm, review, support, plugin, fsi)"
     ),
   filter: z
     .string()
@@ -191,7 +191,7 @@ export const getRuleSchema = {
 
 export const workflowStepSchema = {
   workflowType: workflowTypeEnum.describe(
-    "Workflow type: design (6), full_dev (7), project_kickoff (8), prompt_optimize (3), frontend_audit (3), backend_audit (7), image_create (5), visual_tweak (4), game_feature (5), svg_create (5), engine_feature (5; requires state.engine: 'unreal'|'godot'), fsi_analyst_draft (6), business_strategy (7), media_director (7), feature_program (6; requires featureProgram: true), implementation_tournament (6; requires bestOfN.enabled: true)"
+    "Workflow type: design (6), full_dev (7), project_kickoff (8), prompt_optimize (3), frontend_audit (3), backend_audit (7), image_create (5), visual_tweak (4), game_feature (5), svg_create (5), engine_feature (5; requires state.engine: 'unreal'|'godot'), fsi_analyst_draft (6), business_strategy (9), media_director (7), feature_program (6; requires featureProgram: true), implementation_tournament (6; requires bestOfN.enabled: true)"
   ),
   step: z.number().int().min(0).describe("Current step number (0 = start)"),
   state: z

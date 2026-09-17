@@ -1,6 +1,6 @@
 ---
 title: pnCore plugin reference
-updated: 2026-07-03
+updated: 2026-09-17
 ---
 
 # pnCore plugin reference
@@ -39,7 +39,7 @@ Rules live as `.mdc` files under `content/rules/` (always-apply or glob-scoped f
 
 Use **`list_rules`** / **`get_rule`** and **`list_skills`** / **`get_skill`** for exact ids and full text. **Note:** **`pn-design-system`** exists as both a rule (CSS/SCSS token enforcement) and a skill (establish or audit design systems). See [agents-md-guide](agents-md-guide.md) for hard constraints vs learned preferences.
 
-Orchestration includes **pn-cultural-heritage-research** for tiered museum and art-history source discipline before period-specific UI, games, or copy. **pn-render-verify** and **pn-api-probe** support design and build flows (visual artifact verification and live API/version probes). **pn-context-engineering** curates what agents load (rules → spec → task files → errors); **pn-deprecation-and-removal** covers API/feature sunsets and zombie code (distinct from **pn-migration-planning** for framework version jumps). **Discipline** adds **pn-source-driven-implementation** (vendor docs for locked versions). **Review** adds **pn-browser-runtime-verify** (runtime DOM/console/network/perf vs screenshot **pn-evidence-qa**). **CI** adds **pn-ship-checklist** (composable pre-ship gate). **Integrations** adds **pn-rag-evaluation** (golden sets, automated RAG metrics, human rubrics, CI regression gates). **Support** expands **pn-budget-cost-monitor** (hidden token drivers: tools, RAG k, duplicated context, multimodal). **pn-unreal-mcp** (orchestration skill) compares and recommends UE 5.7-compatible MCP servers (ChiR24, remi, Sallah, kangnam, jim, StraySpark) at discovery time; used by the `unreal_feature` workflow step 0.
+Orchestration includes **pn-cultural-heritage-research** for tiered museum and art-history source discipline before period-specific UI, games, or copy. **pn-render-verify** and **pn-api-probe** support design and build flows (visual artifact verification and live API/version probes). **pn-context-engineering** curates what agents load (rules → spec → task files → errors); **pn-deprecation-and-removal** covers API/feature sunsets and zombie code (distinct from **pn-migration-planning** for framework version jumps). **Discipline** adds **pn-source-driven-implementation** (vendor docs for locked versions). **Review** adds **pn-browser-runtime-verify** (runtime DOM/console/network/perf vs screenshot **pn-evidence-qa**). **CI** adds **pn-ship-checklist** (composable pre-ship gate). **Integrations** adds **pn-rag-evaluation** (golden sets, automated RAG metrics, human rubrics, CI regression gates). **Support** expands **pn-budget-cost-monitor** (hidden token drivers: tools, RAG k, duplicated context, multimodal). **pn-unreal-mcp** and **pn-godot-mcp** compare engine MCP servers at `engine_feature` step 0 before `pn-api-probe` verifies the chosen tool surface.
 
 **Embedded studio DNA:** MCP resource **`pn-core://reference/embedded-studio-dna.md`**; skill **pn-embedded-studio-dna**; command **pn-design-dna** (DNA preamble then **`pn-design`** / `workflow_step("design")`). For cinematic portfolio, reel, studio, and lab surfaces.
 
@@ -162,7 +162,7 @@ User-entry commands ship under **`plugins/pnCore/.cursor/commands/`** (the Curso
 
 ## Hooks
 
-The only Cursor hook used by pnCore is **stop**: it runs `scripts/pn-continual-learning-stop.mjs` for continual learning and may refresh AGENTS.md. Requires Node.js. Cursor runs the hook with the plugin root as cwd. If AGENTS.md does not auto-update, run the pn-continual-learning skill manually. See [agents-md-guide](agents-md-guide.md) for hard constraints vs learned preferences and retrieval policy.
+pnCore registers two Cursor-only hooks. **`sessionStart`** runs a fail-open environment canary; the authoritative cold-session packet remains the MCP `project_context` pull. **`stop`** runs `scripts/pn-continual-learning-stop.mjs` and may refresh AGENTS.md. Both require Node.js, and Cursor runs them with the plugin root as cwd. Claude Code, Codex, and Pi do not receive these Cursor hooks. If AGENTS.md does not update, run the pn-continual-learning skill manually. See [agents-md-guide](agents-md-guide.md) for hard constraints vs learned preferences and retrieval policy.
 
 **Strict-mode flow** is implemented as an optional step inside the full dev loop and orchestrator: after the review+optimize loop, run **pn-deliver** when you need contract-grade validation and packaging. Phase 1 verifies; Phase 2 packages (only if Phase 1 passes). See reference/FLOW.md.
 
@@ -172,9 +172,9 @@ The only Cursor hook used by pnCore is **stop**: it runs `scripts/pn-continual-l
 
 Edit in `packages/pn-core-mcp/content/` then run `npm run sync:content`.
 
-- **Commands:** Add `pn-name.md` in `content/commands/` with frontmatter (`name`, `description`).
+- **Commands:** Add user-visible commands under `content/commands/pn/<category>/`; add palette-hidden surgical commands under `content/commands/` with `slash: false`. Include frontmatter (`name`, `description`).
 - **Rules:** Add a `.mdc` file in `content/rules/` with YAML frontmatter (`description`, `alwaysApply` or `globs`).
-- **Skills:** Add `skills/<category>/<skill-name>/SKILL.md` in `content/skills/` with frontmatter (`name`, `description`) and "When to use" + "Instructions". Categories: frontend, backend, ci, review, gamedev, orchestration, pm, plugin, discipline, integrations, learning, marketing, support. Skills that assert "best practice" must cite Tier 1 sources per [source-tiers.md](source-tiers.md).
+- **Skills:** Add `skills/<category>/<skill-name>/SKILL.md` in `content/skills/` with frontmatter (`name`, `description`) and "When to use" + "Instructions". Categories: frontend, media, backend, ci, review, gamedev, orchestration, pm, plugin, discipline, integrations, learning, marketing, support, fsi. Skills that assert "best practice" must cite Tier 1 sources per [source-tiers.md](source-tiers.md).
 - **Specialists:** Edit `config/specialists.json` only; agents and commands use it as source of truth.
 - **Stacks:** Add entry to `config/stacks.json`, create rule and scaffold skill, update discovery questionnaire.
 

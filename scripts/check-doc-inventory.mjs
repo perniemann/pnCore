@@ -69,6 +69,53 @@ export function checkPnGuideLiveCounts(pnGuideText, actual) {
   return pnGuideLiveHeadlines(actual).filter((h) => !pnGuideText.includes(h));
 }
 
+const MAINTAINED_DOC_ASSERTIONS = {
+  "docs/companion-mcp-catalog.md": {
+    required: [
+      "https://github.com/brave/brave-search-mcp-server",
+      "https://mcp.cloudflare.com/mcp",
+      "McpAutomationBridge",
+      "plugin-install --harness",
+      "host_localsearch",
+    ],
+    forbidden: ["modelcontextprotocol/servers/tree/main/src/brave-search", "`MCPBridge` plugin"],
+  },
+  "docs/mcp-usage-guide.md": {
+    required: ["category index with counts", "has no `/pn-game` command"],
+    forbidden: ["npm run install -- --with-shadcn", "`pn-game`, etc."],
+  },
+  "docs/plugin-reference.md": {
+    required: ["`sessionStart`", "`engine_feature` step 0"],
+    forbidden: ["`unreal_feature` workflow step 0"],
+  },
+  "docs/how-to-use-guide.md": {
+    required: [
+      "| `feature_program` | 0–5 |",
+      "| `implementation_tournament` | 0–5 |",
+      "packages/pn-core-mcp/src/workflows.ts",
+    ],
+    forbidden: ["packages/pn-core-mcp/src/index.ts`](../packages/pn-core-mcp/src/index.ts)"],
+  },
+};
+
+export function checkMaintainedDocs(repoRoot) {
+  const mismatches = [];
+  for (const [relPath, assertions] of Object.entries(MAINTAINED_DOC_ASSERTIONS)) {
+    const text = readFileSync(join(repoRoot, relPath), "utf8");
+    for (const required of assertions.required) {
+      if (!text.includes(required)) {
+        mismatches.push(`${relPath} missing maintained-doc marker ${JSON.stringify(required)}`);
+      }
+    }
+    for (const forbidden of assertions.forbidden) {
+      if (text.includes(forbidden)) {
+        mismatches.push(`${relPath} contains stale marker ${JSON.stringify(forbidden)}`);
+      }
+    }
+  }
+  return mismatches;
+}
+
 export function runCheck(repoRoot = defaultRepoRoot) {
   const actual = collectInventory(repoRoot);
   const mismatches = [];
@@ -100,6 +147,7 @@ export function runCheck(repoRoot = defaultRepoRoot) {
   for (const missing of checkPnGuideLiveCounts(pnGuide, actual)) {
     mismatches.push(`pn-guide.md missing live headline ${JSON.stringify(missing)}`);
   }
+  mismatches.push(...checkMaintainedDocs(repoRoot));
 
   if (mismatches.length) {
     return {
@@ -114,7 +162,7 @@ export function runCheck(repoRoot = defaultRepoRoot) {
     ok: true,
     actual,
     mismatches: [],
-    message: `check-doc-inventory: OK — ${actual.skills} skills, ${actual.commands} commands (${actual.visible}+${actual.hidden}), ${actual.workflows} workflows; pn-guide live headlines match`,
+    message: `check-doc-inventory: OK — ${actual.skills} skills, ${actual.commands} commands (${actual.visible}+${actual.hidden}), ${actual.workflows} workflows; pn-guide and maintained docs match`,
   };
 }
 

@@ -21,8 +21,8 @@ Survey the available third-party MCP servers that drive the Godot Engine editor 
 
 | Server | Architecture | Godot version | Stars (approx) | License |
 |--------|-------------|--------------|----------------|---------|
-| **Coding-Solo/godot-mcp** | External CLI (Node.js spawns Godot process) | 4.x | ~3.2k | MIT |
-| **3ddelano/gdai-mcp-plugin-godot** | Internal editor plugin (WebSocket, runs inside editor) | 4.1+ | ~72 | MIT |
+| **Coding-Solo/godot-mcp** | External CLI (Node.js spawns Godot process) | 4.x | Check live | MIT |
+| **3ddelano/gdai-mcp-plugin-godot** | Editor plugin plus Python MCP bridge | 4.1+ | Check live | Custom; verify current terms |
 | **ee0pdt/Godot-MCP** | External CLI (Node.js) | 4.x | ~500 | MIT |
 | **tugcantopaloglu/godot-mcp** | External CLI (fork of Coding-Solo, expanded) | 4.x | ~60 | MIT |
 | **bradypp/godot-mcp** | External CLI (Node.js) | 4.x | ~40 | MIT |
@@ -79,9 +79,9 @@ Confirm exact tool names by probing the connected server's tool list before writ
    ```json
    {
      "mcpServers": {
-       "godot": {
+       "godot-cli": {
          "command": "npx",
-         "args": ["-y", "github:Coding-Solo/godot-mcp"],
+         "args": ["-y", "@coding-solo/godot-mcp"],
          "env": {
            "GODOT_PATH": "/path/to/godot4"
          }
@@ -93,21 +93,21 @@ Confirm exact tool names by probing the connected server's tool list before writ
 
 ### 3ddelano/gdai-mcp-plugin-godot (recommended: live editor control, debugging, screenshots)
 
-1. Download the plugin from [github.com/3ddelano/gdai-mcp-plugin-godot/releases](https://github.com/3ddelano/gdai-mcp-plugin-godot/releases).
-2. Extract into `<ProjectRoot>/addons/gdai_mcp/`. Enable in Editor → Project → Project Settings → Plugins → GDAI MCP.
-3. The plugin starts a WebSocket MCP server on `localhost:6969` when the editor is open.
-4. Add to `mcp.json`:
+1. Follow the current [GDAI installation guide](https://gdaimcp.com/docs/installation).
+2. Copy `addons/gdai-mcp-plugin-godot/` into the project, then enable **GDAI MCP** under Project Settings → Plugins.
+3. Install `uv`, open the GDAI MCP panel, and copy the generated path to `gdai_mcp_server.py`.
+4. Add the stdio bridge to the active harness's MCP configuration:
    ```json
    {
      "mcpServers": {
-       "godot": {
-         "type": "url",
-         "url": "http://localhost:6969/mcp"
+       "godot-gdai": {
+         "command": "uv",
+         "args": ["run", "/absolute/path/to/addons/gdai-mcp-plugin-godot/gdai_mcp_server.py"]
        }
      }
    }
    ```
-5. Keep the Godot editor open while using Cursor — the plugin must be running.
+5. Keep Godot and the plugin server running. URL-only clients can start the bridge with `--transport http --port 9090` and connect to `http://127.0.0.1:9090/mcp`.
 
 ### ee0pdt/Godot-MCP
 

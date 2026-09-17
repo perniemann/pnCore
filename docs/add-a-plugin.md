@@ -1,11 +1,13 @@
 ---
 title: Add a plugin
-updated: 2026-04-22
+updated: 2026-09-17
 ---
 
 # Add a plugin
 
 Add a new plugin under `plugins/` and register it in `.cursor-plugin/marketplace.json`. See [folder-structure.md](folder-structure.md) for repo layout.
+
+This is the generic Cursor marketplace-plugin layout. pnCore itself additionally maintains canonical content under `packages/pn-core-mcp/content/` and generates harness-native Cursor, Claude Code, Codex, and Pi surfaces with `npm run sync:content`; do not copy pnCore's generated layout into an unrelated plugin.
 
 ---
 
@@ -77,6 +79,8 @@ npm run validate
 ```
 
 Fix all reported errors before committing.
+
+For pnCore canonical-content changes, run `npm run sync:content` first and use `npm run test:full` before release.
 
 ---
 
