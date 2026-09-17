@@ -39,7 +39,7 @@ Product stance: we borrow **lifecycle and governance discipline** from agent-pro
 - **Skill security (SkillSpector):** After editing skills, run `npm run validate:skill-security` (requires `pip install skillspector`). CI enforces `block_dni` (no DO_NOT_INSTALL). See `pn-writing-skills` § SkillSpector hygiene and the CAUTION output from `validate-skill-security.mjs`.
 - **RAG quality and token economics:** `packages/pn-core-mcp/content/skills/integrations/pn-rag-evaluation/SKILL.md`; `packages/pn-core-mcp/content/skills/support/pn-budget-cost-monitor/SKILL.md` (with `pn-context-engineering` for context cost).
 - **Cross-cutting checklist:** `packages/pn-core-mcp/content/reference/best-practices.md` (resource `pn-core://reference/best-practices.md`).
-- **Non-obvious product/architecture decisions:** `docs/adr/NNNN-*.md` (see the seed ADR `docs/adr/0001-record-architecture-decisions.md`). Consumer vs this-repo git/PR gating: [ADR-0015](docs/adr/0015-consumer-project-gating.md) and `pn-core://reference/consumer-gating.md`.
+- **Non-obvious product/architecture decisions:** `docs/adr/NNNN-*.md` (see the seed ADR `docs/adr/0001-record-architecture-decisions.md`). Consumer vs this-repo git/PR gating: [ADR-0015](docs/adr/0015-consumer-project-gating.md) and `pn-core://reference/consumer-gating.md`. MCP transport stays stdio (no protocol sessions; SDK v2 waits on hosts): [ADR-0018](docs/adr/0018-stdio-no-protocol-sessions.md).
 
 ## Session retros
 
@@ -81,7 +81,7 @@ npm run mcp-config:dev     # DEV ONLY: local absolute node path (this machine)
 
 For portable install on any machine, use the **one-click deeplink** or MCP JSON in the [root README](README.md#install) — not `mcp-config:dev`.
 
-Reload Cursor after changing MCP config. After upgrades on a dev checkout, re-run `npm run build:mcp` and reload. The server uses stdio transport only.
+Reload Cursor after changing MCP config. After upgrades on a dev checkout, re-run `npm run build:mcp` and reload. The server uses stdio only (no protocol sessions; [ADR-0018](docs/adr/0018-stdio-no-protocol-sessions.md)).
 
 Skill authoring: [packages/pn-core-mcp/content/skills/README.md](packages/pn-core-mcp/content/skills/README.md). Commits: [docs/commits.md](docs/commits.md). ADRs: [docs/adr/](docs/adr/). Session retros: `/pn-retro` → `docs/refs/retros/`.
 

@@ -245,7 +245,7 @@ Use `resources/list` to discover, then `resources/read` with a URI to fetch cont
 
 **Prompts and resources list refresh:** Content is loaded at startup; the server does not watch the filesystem and never pushes list updates. After you run `npm run sync:content` in development, **reconnect the MCP server** (or reload the Cursor window) so the client re-fetches the lists.
 
-**Transport:** This server uses **stdio** only. For enterprise gateway deployments, MCP best practice 2025-2026 recommends Streamable HTTP for remote, shared services. stdio remains the default for local, per-user integrations.
+**Transport:** This server uses **stdio** only (local, per-user). It does not speak Streamable HTTP and does not keep an MCP protocol session. Application state is the `run_id` plus the `state` object on each `workflow_step` call. Stance and the 2026-07-28 remote path: [ADR-0018](../../docs/adr/0018-stdio-no-protocol-sessions.md).
 
 **Versioning and deprecation:** Tool schemas and responses evolve additively. Breaking changes to tool args or response shapes are avoided; new optional fields may be added. If a tool is deprecated, a deprecation notice and migration timeline will be documented in the changelog before removal. Clients should use the `code` field in error responses for handling; string content may change.
 
