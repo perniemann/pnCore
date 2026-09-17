@@ -81,7 +81,7 @@ npm run mcp-config:dev     # DEV ONLY: local absolute node path (this machine)
 
 For portable install on any machine, use the **one-click deeplink** or MCP JSON in the [root README](README.md#install) — not `mcp-config:dev`.
 
-Reload Cursor after changing MCP config. After upgrades on a dev checkout, re-run `npm run build:mcp` and reload. The server uses stdio transport only.
+Reload Cursor after changing MCP config. After upgrades on a dev checkout, re-run `npm run build:mcp` and reload. The server uses stdio only (no protocol sessions; [ADR-0018](docs/adr/0018-stdio-no-protocol-sessions.md)).
 
 Skill authoring: [packages/pn-core-mcp/content/skills/README.md](packages/pn-core-mcp/content/skills/README.md). Commits: [docs/commits.md](docs/commits.md). ADRs: [docs/adr/](docs/adr/). Session retros: `/pn-retro` → `docs/refs/retros/`.
 
