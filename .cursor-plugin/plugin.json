@@ -1,8 +1,8 @@
 {
   "name": "pn-core",
   "displayName": "pnCore",
-  "version": "0.19.4",
-  "description": "Rules, skills, and agents for frontend (React, Astro, Next, vanilla) and 3D (Three.js, shaders, R3F). Includes CI, n8n, web3, Blender, Unreal. Built for team workflows with a minimal, consistent structure.",
+  "version": "0.19.6",
+  "description": "MCP engine that runs software delivery as named, gated steps — not one long chat. Skills, agents, rules, and pn-core:// resources for Cursor, Claude Code, Codex, and Pi.",
   "author": {
     "name": "perniemann",
     "email": "io@perniemann.com"

@@ -4,6 +4,25 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.19.6] - 2026-09-17
+
+### Changed
+
+- GitHub / marketplace / plugin manifest description: MCP engine for named, gated delivery steps across Cursor, Claude Code, Codex, and Pi. Replaces the old frontend/3D kit blurb.
+
+## [0.19.5] - 2026-09-17
+
+### Added
+
+- **Q3 closeout audit** (ADR-0002): `docs/refs/audit-2026-Q3.md` dated section (2026-09-17) with current inventory, high-leverage body pass, and follow-ups (EVAL backfill, unused `/pn-retro`).
+- `check-doc-inventory` asserts **live** `pn-guide.md` slash-palette headlines against disk (submenu = visible minus `/pn` stub), not a denylist of last quarter's counts.
+
+### Fixed
+
+- Pi TypeBox `suggest_model_tier.role` includes `orchestrator` (parity with Zod); registry test checks nested literals.
+- `pn-orchestration-philosophy` no longer tells agents to close gates with free-text "Reply yes"; it points at `ask_question` / `workflow_confirm`.
+- Stale catalog copy in `pn-guide`, `plugin-reference`, and `how-to-use-guide`; ADR-0006 Consequences still said "P2 next"; CONTRIBUTING `prepare` description; README surfaces SVG tool count.
+
 ## [0.19.4] - 2026-09-17
 
 ### Added

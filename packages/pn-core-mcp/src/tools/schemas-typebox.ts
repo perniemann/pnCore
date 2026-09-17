@@ -71,6 +71,7 @@ export const typeboxSchemas: Record<string, TSchema> = {
         Type.Literal("builder"),
         Type.Literal("judge"),
         Type.Literal("checker"),
+        Type.Literal("orchestrator"),
       ])
     ),
   }),

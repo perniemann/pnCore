@@ -69,9 +69,9 @@ Orchestration includes **pn-cultural-heritage-research** for tiered museum and a
 
 ## Commands
 
-Roughly **25** user-entry commands ship under **`plugins/pnCore/.cursor/commands/`** (the Cursor slash palette). Another **18** surgical commands live canonical-only under **`packages/pn-core-mcp/content/commands/`** with frontmatter `slash: false` — reachable via **`get_command("<id>")`** but not shown in the `/` palette. Static counts drift; use **`list_commands`** for the canonical inventory (returns all 43) and `Get-ChildItem plugins/pnCore/.cursor/commands/*.md | Measure-Object` for the live palette count. The split is enforced by [`scripts/command-slash-filter.mjs`](../scripts/command-slash-filter.mjs) and capped by the soft limit in [`scripts/validate-plugin-lib.mjs`](../scripts/validate-plugin-lib.mjs).
+User-entry commands ship under **`plugins/pnCore/.cursor/commands/`** (the Cursor `/pn` slash palette). Surgical commands live canonical-only under **`packages/pn-core-mcp/content/commands/`** with frontmatter `slash: false` — reachable via **`get_command("<id>")`** but not shown in the `/` palette. Do not copy catalog numbers here; the README **Catalog:** line and **`list_commands`** are the live inventory (`npm run validate` / `check-doc-inventory`). Palette files: `Get-ChildItem plugins/pnCore/.cursor/commands -Recurse -Filter *.md`. The split is enforced by [`scripts/command-slash-filter.mjs`](../scripts/command-slash-filter.mjs) and capped by the soft limit in [`scripts/validate-plugin-lib.mjs`](../scripts/validate-plugin-lib.mjs).
 
-### Core workflow (12)
+### Core workflow
 
 - **pn-new** — Start a new project. Refs (yes/no), intent (full auto | design focused | involved). Involved mode optionally runs full doc set (PRD, DESIGN, prior art, workflow roadmap, refs index) then builds.
 - **pn-setup** — Configure pnCore for an existing project. Choose: (1) Everything, (2) Project integration only (codebase analysis, project-context.mdc, project skill, file-glob rules), (3) Design context only (`.pncore-design.md`; optional house philosophy, primary reference URL, diagram tokens, CLAUDE.md aesthetics block), (4) Stack context only (.pncore-stack.md). Git trailer hooks: `pn-core://reference/consumer-gating.md`. Template: `.cursor/docs/templates/pncore-design.example.md` after install.
@@ -87,8 +87,9 @@ Roughly **25** user-entry commands ship under **`plugins/pnCore/.cursor/commands
 - **pn-guide** — Routing reference for the command and skill catalog (clusters, when-to-use guidance, surgical-audit map).
 - **pn-video-lint** — Lint and review generated video / motion deliverables for spec, pacing, and pipeline drift.
 
-### New capabilities (6)
+### Challenge, program, and session
 
+- **pn-skeptic** — Fast automated plan challenge (`/pn-skeptic`); structured `AskQuestion` / `workflow_confirm` gate. For interactive Socratic dialogue, use **pn-grill**.
 - **pn-grill** — Socratic plan stress-test: one question at a time, recommended answer per question, walks every branch of the decision tree until resolved. Use before building when you want dialogue, not a single-pass report.
 - **pn-design-variants** — Parallel sub-agents each constrained to a radically different design approach, then compare. Based on "Design It Twice." Use before committing to a UI layout, component API, module interface, or architecture choice.
 - **pn-pressure-test** — Startup idea pressure-test (verdict, scorecard, fatal flaws, competition-as-behavior, first-customer moves, ~2-week MVP test). Not for implementation plans; use pn-skeptic / pn-grill for those.
@@ -97,8 +98,14 @@ Roughly **25** user-entry commands ship under **`plugins/pnCore/.cursor/commands
 - **pn-handoff** — Session handoff at `.pncore/handoff.md` plus two reflection questions before close.
 - **pn-retro** — Manual session retrospective; blameless reports under `docs/refs/retros/`.
 - **pn-prompt-optimize** — Refine and stress-test a prompt or instruction. Prefer `workflow_step("prompt_optimize", …)` when MCP available.
+- **pn-backfill-evals** — Rank skills missing `EVAL.yaml` and emit paste-ready local-agent batch prompts. Does not auto-write suites.
 
-### Full audits (2)
+### Product management
+
+- **pn-create-prd** — Product requirements document (8-section template or feature-matrix). Use before plans when stakeholders need a spec.
+- **pn-user-stories** — Backlog items (3 C's, INVEST) from a feature or PRD.
+
+### Full audits
 
 - **pn-frontend-audit** — Scope → 5 surgical passes (typography → layout → design-tokens → a11y → performance-fe) → scorecard + fix roadmap. Prefer `workflow_step("frontend_audit", …)` when MCP available.
 - **pn-backend-audit** — Stack context, then five passes: `pn-audit-api` → `pn-audit-security` → `pn-audit-data` → `pn-audit-errors` → `pn-audit-performance`. Uses `.pncore-stack.md` when present (create via **`pn-setup`** option 4). Prefer `workflow_step("backend_audit", …)` when MCP available.
@@ -119,12 +126,13 @@ Roughly **25** user-entry commands ship under **`plugins/pnCore/.cursor/commands
 - **pn-audit-a11y** — Accessibility review: WCAG AA, keyboard navigation, focus management, ARIA usage, prefers-reduced-motion.
 - **pn-audit-performance-fe** — Frontend performance review: hydration cost, image optimization, bundle splitting, render-blocking assets, LCP/CLS/INP.
 
-### Design surgical (9) — palette-hidden except the two routers
+### Design surgical — palette-hidden except the routers
 
 **Visible (slash palette):**
 
 - **pn-visual-tweak** — Targeted visual change via `workflow_step("visual_tweak", …)`; bounded layout/color/type/motion pass. Routes to the surgical commands below.
 - **pn-polish** — Pre-ship quality pass across typography, color, spacing, copy, a11y, and interaction states.
+- **pn-preflight** — Marketing UI pre-ship gate (Design Read, tuning dials, AI Slop Test). Landing/portfolio/editorial; dashboards use standard tier unless the user requests strict.
 
 **Palette-hidden (`slash: false`); reach via `get_command("<id>")` or as substeps of `pn-visual-tweak` / `pn-polish` / `pn-design`:**
 

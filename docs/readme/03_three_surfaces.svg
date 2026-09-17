@@ -97,7 +97,7 @@
     <rect x="576" y="108" width="488" height="128" rx="4" fill="#0e0e0e" stroke="#e8e8e8" stroke-width="1.6"/>
     <text class="pix" x="596" y="144" font-size="10" fill="#e8e8e8">MCP</text>
     <text class="mono" x="596" y="172" font-size="13" fill="#e8e8e8">the engine</text>
-    <text class="mono" x="596" y="196" font-size="13" fill="#7a7672">26 tools · workflow_step · any client</text>
+    <text class="mono" x="596" y="196" font-size="13" fill="#7a7672">29 tools · workflow_step · any client</text>
   </g>
   <g class="tgt t2">
     <rect x="608" y="252" width="456" height="80" rx="4" fill="#0e0e0e" stroke="#686868" stroke-width="1.2"/>

@@ -10,7 +10,7 @@
 
 - **Node:** `engines.node >= 22` (see `.nvmrc`). Use `nvm use` or align your toolchain.
 - **First-time setup:** run `npm run setup` once after clone — installs deps, builds the MCP package, and configures git hooks (strips IDE co-author trailers on commit, see `docs/commits.md`).
-- **`prepare` lifecycle note:** `package.json` has a `prepare` script (`node scripts/sync-version.mjs && npm run build:mcp`). This runs automatically on `npm install` — it syncs the version and rebuilds the MCP package. This means a bare `npm install` takes ~10–15 s on first run. Run `npm install --ignore-scripts` if you only want to install packages without a full build.
+- **`prepare` lifecycle note:** `package.json` runs `node scripts/prepare-root.mjs` on `npm install`. That script always syncs the version (`scripts/sync-version.mjs`) and runs `npm run build:mcp` **only when** `packages/pn-core-mcp/dist/index.js` is missing (source checkout without a shipped dist). Git/npx consumers that already have `dist/` skip the build. Run `npm install --ignore-scripts` to skip both.
 
 ## Before you PR
 

@@ -1,6 +1,6 @@
 ---
 title: "ADR-0006: Best-of-N implementation tournament (P1 skill-only pilot)"
-updated: 2026-06-30
+updated: 2026-09-17
 ---
 
 # ADR-0006: Best-of-N implementation tournament (P1 skill-only pilot)
@@ -54,13 +54,13 @@ P1 shipped `pn-best-of-n` skill, `best-of-n.contract.json`, and parallel review 
 | Objective gate failures | 0 among merged winners |
 | Worktree stale-schema lesson | Task 1: commit canonical schema before fan-out |
 
-Usage lines logged to `.pncore/usage.jsonl` and `.pncore/gate-log.jsonl` at repo root (MCP `report_usage` path must stay within MCP server cwd — use repo-relative logging in pilot scripts until P2).
+Usage lines logged to `.pncore/usage.jsonl` and `.pncore/gate-log.jsonl` at repo root (MCP `report_usage` path must stay within MCP server cwd).
 
 ## Consequences
 
 - **Positive:** Objective gates + coherence validator reduce judge hallucination on `auto_selected`; three tasks prove N=2 tournaments are viable for script/refactor slices with strong tests.
 - **Negative:** Tournament cost is ~2–3× builder tokens plus judge pass; not justified for single-file or security paths.
-- **P2 next:** `workflows.ts` step mode, `candidates[]` state, `suggest_model_tier` role param, `PNCORE_FEATURES.bestOfN.autoSelectMinDelta`.
+- **P2 shipped (2026-06):** `implementation_tournament` in `workflows.ts`, `candidates[]` state, `suggest_model_tier` role param, `PNCORE_FEATURES.bestOfN.autoSelectMinDelta`. Flag `bestOfN.enabled` still defaults off; skill-only path remains valid when the flag is off.
 
 ## References
 

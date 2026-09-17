@@ -46,7 +46,7 @@ For complex work: write a plan with exact file paths, complete code, and verific
 
 ### Confirm before proceed
 
-Gate: do not proceed to implementation until user confirms the discovery spec or plan. Output "Proceed? Reply yes or add/correct." Never infer critical items (security, auth, data sensitivity)—ask or state assumption explicitly.
+Gate: do not proceed to implementation until user confirms the discovery spec or plan. Use `ask_question` when available; otherwise `workflow_confirm` — never a free-text-only "Reply yes" closer (`pn-core://reference/conventions.md`). Never infer critical items (security, auth, data sensitivity)—ask or state assumption explicitly.
 
 ### Zero-context handoff
 

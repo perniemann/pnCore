@@ -338,7 +338,7 @@ function installCursor() {
     displayName: "pnCore",
     version,
     description:
-      "Rules, skills, and agents for frontend (React, Astro, Next, vanilla) and 3D (Three.js, shaders, R3F). Includes CI, n8n, web3, Blender, Unreal.",
+      "MCP engine that runs software delivery as named, gated steps — not one long chat. Skills, agents, rules, and pn-core:// resources for Cursor, Claude Code, Codex, and Pi.",
     author: { name: "perniemann", email: "io@perniemann.com" },
     license: "MIT",
     repository: "https://github.com/perniemann/pnCore.git",
