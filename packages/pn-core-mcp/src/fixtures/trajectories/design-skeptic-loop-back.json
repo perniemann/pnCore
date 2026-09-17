@@ -1,0 +1,158 @@
+{
+  "name": "design-skeptic-loop-back",
+  "workflowType": "design",
+  "source": "recorded",
+  "runId": "traj-design-skeptic-loop",
+  "recordedAt": "2026-09-14T13:20:48.004Z",
+  "steps": [
+    {
+      "step": 0,
+      "state": {
+        "run_id": "traj-design-skeptic-loop"
+      },
+      "expect": {
+        "nextStep": 1,
+        "gate": "human",
+        "done": false
+      }
+    },
+    {
+      "step": 1,
+      "state": {
+        "run_id": "traj-design-skeptic-loop",
+        "discoverySpec": "Landing page redesign"
+      },
+      "expect": {
+        "nextStep": 2,
+        "gate": "human",
+        "done": false
+      }
+    },
+    {
+      "step": 2,
+      "state": {
+        "run_id": "traj-design-skeptic-loop",
+        "discoverySpec": "Landing page redesign",
+        "plan": "plan",
+        "skepticPassed": true,
+        "skepticVerdict": "go"
+      },
+      "expect": {
+        "nextStep": 3,
+        "gate": "model",
+        "done": false
+      }
+    },
+    {
+      "step": 3,
+      "state": {
+        "run_id": "traj-design-skeptic-loop",
+        "discoverySpec": "Landing page redesign",
+        "plan": "plan",
+        "skepticPassed": true,
+        "skepticVerdict": "go",
+        "assetsComplete": true
+      },
+      "expect": {
+        "nextStep": 4,
+        "gate": "model",
+        "done": false
+      }
+    },
+    {
+      "step": 4,
+      "state": {
+        "run_id": "traj-design-skeptic-loop",
+        "discoverySpec": "Landing page redesign",
+        "plan": "plan",
+        "skepticPassed": true,
+        "skepticVerdict": "go",
+        "assetsComplete": true,
+        "buildComplete": true
+      },
+      "expect": {
+        "nextStep": 5,
+        "gate": "human",
+        "done": false
+      }
+    },
+    {
+      "step": 4,
+      "state": {
+        "run_id": "traj-design-skeptic-loop",
+        "discoverySpec": "Landing page redesign",
+        "plan": "plan",
+        "skepticPassed": true,
+        "skepticVerdict": "go",
+        "assetsComplete": true,
+        "buildComplete": true,
+        "skepticOutputPassed": false,
+        "skepticOutputVerdict": "contrast fails"
+      },
+      "expect": {
+        "nextStep": 3,
+        "gate": "human",
+        "done": false
+      }
+    },
+    {
+      "step": 3,
+      "state": {
+        "run_id": "traj-design-skeptic-loop",
+        "discoverySpec": "Landing page redesign",
+        "plan": "plan",
+        "skepticPassed": true,
+        "skepticVerdict": "go",
+        "assetsComplete": true,
+        "skepticOutputPassed": false,
+        "skepticOutputVerdict": "contrast fails",
+        "iterationCount": 1
+      },
+      "expect": {
+        "nextStep": 4,
+        "gate": "model",
+        "done": false
+      }
+    },
+    {
+      "step": 4,
+      "state": {
+        "run_id": "traj-design-skeptic-loop",
+        "discoverySpec": "Landing page redesign",
+        "plan": "plan",
+        "skepticPassed": true,
+        "skepticVerdict": "go",
+        "assetsComplete": true,
+        "buildComplete": true,
+        "skepticOutputPassed": true,
+        "skepticOutputVerdict": "pass",
+        "iterationCount": 1
+      },
+      "expect": {
+        "nextStep": 5,
+        "gate": "human",
+        "done": false
+      }
+    },
+    {
+      "step": 5,
+      "state": {
+        "run_id": "traj-design-skeptic-loop",
+        "discoverySpec": "Landing page redesign",
+        "plan": "plan",
+        "skepticPassed": true,
+        "skepticVerdict": "go",
+        "assetsComplete": true,
+        "buildComplete": true,
+        "skepticOutputPassed": true,
+        "skepticOutputVerdict": "pass",
+        "iterationCount": 1
+      },
+      "expect": {
+        "nextStep": 5,
+        "gate": "model",
+        "done": true
+      }
+    }
+  ]
+}

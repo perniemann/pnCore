@@ -1,0 +1,180 @@
+{
+  "name": "full-dev-parallel-merge",
+  "workflowType": "full_dev",
+  "source": "recorded",
+  "runId": "traj-full-dev-parallel-merge",
+  "recordedAt": "2026-09-14T13:20:48.001Z",
+  "steps": [
+    {
+      "step": 0,
+      "state": {
+        "run_id": "traj-full-dev-parallel-merge",
+        "intent": "full_auto"
+      },
+      "expect": {
+        "nextStep": 1,
+        "gate": "human",
+        "done": false
+      }
+    },
+    {
+      "step": 1,
+      "state": {
+        "run_id": "traj-full-dev-parallel-merge",
+        "intent": "full_auto",
+        "discoverySpec": "Storefront with checkout. lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lore…[+85 chars]"
+      },
+      "expect": {
+        "nextStep": 2,
+        "gate": "human",
+        "done": false
+      }
+    },
+    {
+      "step": 2,
+      "state": {
+        "run_id": "traj-full-dev-parallel-merge",
+        "intent": "full_auto",
+        "discoverySpec": "Storefront with checkout. lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lore…[+85 chars]",
+        "priorArt": "Adapt: medusa + next-commerce"
+      },
+      "expect": {
+        "nextStep": 3,
+        "gate": "human",
+        "done": false
+      }
+    },
+    {
+      "step": 3,
+      "state": {
+        "run_id": "traj-full-dev-parallel-merge",
+        "intent": "full_auto",
+        "discoverySpec": "Storefront with checkout. lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lore…[+85 chars]",
+        "priorArt": "Adapt: medusa + next-commerce",
+        "plan": "docs/plans/storefront.md lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem…[+84 chars]",
+        "skepticPassed": true,
+        "planArtifactPath": "docs/plans/storefront.md",
+        "planSummary": "3 phases"
+      },
+      "expect": {
+        "nextStep": 4,
+        "gate": "human",
+        "done": false
+      }
+    },
+    {
+      "step": 4,
+      "state": {
+        "run_id": "traj-full-dev-parallel-merge",
+        "intent": "full_auto",
+        "discoverySpec": "Storefront with checkout. lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lore…[+85 chars]",
+        "priorArt": "Adapt: medusa + next-commerce",
+        "plan": "docs/plans/storefront.md lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem…[+84 chars]",
+        "skepticPassed": true,
+        "planArtifactPath": "docs/plans/storefront.md",
+        "planSummary": "3 phases",
+        "specialistList": [
+          "pn-frontend-developer",
+          "pn-backend-developer"
+        ],
+        "routeConfirmed": true
+      },
+      "expect": {
+        "nextStep": 5,
+        "gate": "model",
+        "done": false,
+        "parallel": true,
+        "taskIds": [
+          "pn-frontend-developer",
+          "pn-backend-developer"
+        ]
+      }
+    },
+    {
+      "step": 5,
+      "state": {
+        "run_id": "traj-full-dev-parallel-merge",
+        "intent": "full_auto",
+        "discoverySpec": "Storefront with checkout. lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lore…[+85 chars]",
+        "priorArt": "Adapt: medusa + next-commerce",
+        "plan": "docs/plans/storefront.md lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem…[+84 chars]",
+        "skepticPassed": true,
+        "planArtifactPath": "docs/plans/storefront.md",
+        "planSummary": "3 phases",
+        "specialistList": [
+          "pn-frontend-developer",
+          "pn-backend-developer"
+        ],
+        "routeConfirmed": true,
+        "taskResults": {
+          "pn-frontend-developer": "UI done",
+          "pn-backend-developer": "API done"
+        }
+      },
+      "expect": {
+        "nextStep": 5,
+        "gate": "model",
+        "done": false,
+        "workflowPhase": "merge"
+      }
+    },
+    {
+      "step": 5,
+      "state": {
+        "run_id": "traj-full-dev-parallel-merge",
+        "intent": "full_auto",
+        "discoverySpec": "Storefront with checkout. lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lore…[+85 chars]",
+        "priorArt": "Adapt: medusa + next-commerce",
+        "plan": "docs/plans/storefront.md lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem…[+84 chars]",
+        "skepticPassed": true,
+        "planArtifactPath": "docs/plans/storefront.md",
+        "planSummary": "3 phases",
+        "specialistList": [
+          "pn-frontend-developer",
+          "pn-backend-developer"
+        ],
+        "routeConfirmed": true,
+        "taskResults": {
+          "pn-frontend-developer": "UI done",
+          "pn-backend-developer": "API done"
+        },
+        "mergeComplete": true
+      },
+      "expect": {
+        "nextStep": 6,
+        "gate": "human",
+        "done": false
+      }
+    },
+    {
+      "step": 6,
+      "state": {
+        "run_id": "traj-full-dev-parallel-merge",
+        "intent": "full_auto",
+        "discoverySpec": "Storefront with checkout. lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lore…[+85 chars]",
+        "priorArt": "Adapt: medusa + next-commerce",
+        "plan": "docs/plans/storefront.md lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem lorem…[+84 chars]",
+        "skepticPassed": true,
+        "planArtifactPath": "docs/plans/storefront.md",
+        "planSummary": "3 phases",
+        "specialistList": [
+          "pn-frontend-developer",
+          "pn-backend-developer"
+        ],
+        "routeConfirmed": true,
+        "taskResults": {
+          "pn-frontend-developer": "UI done",
+          "pn-backend-developer": "API done"
+        },
+        "mergeComplete": true,
+        "reviewComplete": true,
+        "skepticOutputPassed": true
+      },
+      "expect": {
+        "nextStep": 6,
+        "gate": "model",
+        "done": true
+      }
+    }
+  ]
+}

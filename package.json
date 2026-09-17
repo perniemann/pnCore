@@ -1,6 +1,6 @@
 {
   "name": "pn-core",
-  "version": "0.19.1",
+  "version": "0.19.2",
   "description": "pnCore — MCP server, skills, agents, commands, rules",
   "private": true,
   "type": "module",
@@ -37,6 +37,7 @@
     "postversion": "npm run sync:version",
     "setup": "npm install && npm run build:mcp && node scripts/setup-hooks.mjs",
     "plugin-install": "node scripts/install-to-project.mjs",
+    "trajectory:record": "node scripts/record-trajectory.mjs",
     "prepare": "node scripts/prepare-root.mjs",
     "mcp-config": "node scripts/mcp-config-write.mjs",
     "mcp-config:dev": "node scripts/mcp-config-write.mjs",

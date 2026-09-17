@@ -1,0 +1,137 @@
+{
+  "name": "full-dev-phased-specialists",
+  "workflowType": "full_dev",
+  "source": "recorded",
+  "runId": "traj-full-dev-phased",
+  "recordedAt": "2026-09-14T13:20:48.003Z",
+  "steps": [
+    {
+      "step": 3,
+      "state": {
+        "run_id": "traj-full-dev-phased",
+        "discoverySpec": "spec",
+        "priorArt": "none",
+        "plan": "plan",
+        "skepticPassed": true,
+        "specialistList": [
+          "pn-scaffolder",
+          "pn-frontend-developer",
+          "pn-backend-developer"
+        ],
+        "routeConfirmed": true
+      },
+      "expect": {
+        "nextStep": 4,
+        "gate": "human",
+        "done": false
+      }
+    },
+    {
+      "step": 4,
+      "state": {
+        "run_id": "traj-full-dev-phased",
+        "discoverySpec": "spec",
+        "priorArt": "none",
+        "plan": "plan",
+        "skepticPassed": true,
+        "specialistList": [
+          "pn-scaffolder",
+          "pn-frontend-developer",
+          "pn-backend-developer"
+        ],
+        "routeConfirmed": true
+      },
+      "expect": {
+        "nextStep": 5,
+        "gate": "model",
+        "done": false
+      }
+    },
+    {
+      "step": 4,
+      "state": {
+        "run_id": "traj-full-dev-phased",
+        "discoverySpec": "spec",
+        "priorArt": "none",
+        "plan": "plan",
+        "skepticPassed": true,
+        "specialistList": [
+          "pn-scaffolder",
+          "pn-frontend-developer",
+          "pn-backend-developer"
+        ],
+        "routeConfirmed": true,
+        "specialistSequentialComplete": true,
+        "taskResults": {
+          "pn-scaffolder": "scaffold done"
+        }
+      },
+      "expect": {
+        "nextStep": 5,
+        "gate": "model",
+        "done": false,
+        "parallel": true,
+        "taskIds": [
+          "pn-frontend-developer",
+          "pn-backend-developer"
+        ]
+      }
+    },
+    {
+      "step": 5,
+      "state": {
+        "run_id": "traj-full-dev-phased",
+        "discoverySpec": "spec",
+        "priorArt": "none",
+        "plan": "plan",
+        "skepticPassed": true,
+        "specialistList": [
+          "pn-scaffolder",
+          "pn-frontend-developer",
+          "pn-backend-developer"
+        ],
+        "routeConfirmed": true,
+        "specialistSequentialComplete": true,
+        "taskResults": {
+          "pn-scaffolder": "scaffold done",
+          "pn-frontend-developer": "ui",
+          "pn-backend-developer": "api"
+        }
+      },
+      "expect": {
+        "nextStep": 5,
+        "gate": "model",
+        "done": false,
+        "workflowPhase": "merge"
+      }
+    },
+    {
+      "step": 5,
+      "state": {
+        "run_id": "traj-full-dev-phased",
+        "discoverySpec": "spec",
+        "priorArt": "none",
+        "plan": "plan",
+        "skepticPassed": true,
+        "specialistList": [
+          "pn-scaffolder",
+          "pn-frontend-developer",
+          "pn-backend-developer"
+        ],
+        "routeConfirmed": true,
+        "specialistSequentialComplete": true,
+        "taskResults": {
+          "pn-scaffolder": "scaffold done",
+          "pn-frontend-developer": "ui",
+          "pn-backend-developer": "api"
+        },
+        "mergeComplete": true
+      },
+      "expect": {
+        "nextStep": 6,
+        "gate": "human",
+        "done": false
+      }
+    }
+  ]
+}
