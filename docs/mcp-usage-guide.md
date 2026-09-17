@@ -126,7 +126,7 @@ The server registers an MCP **prompt** for every **agent** id and for every **co
 
 ## Deployment
 
-pn-core uses stdio transport for local, per-user use. For remote or shared deployments, see the MCP specification for transport options (e.g. Streamable HTTP).
+pn-core uses **stdio** only (local, per-user). It does not expose Streamable HTTP and does not keep an MCP protocol session. Orchestration state is `run_id` plus the `state` object on each `workflow_step` call. MCP spec **2026-07-28** dropped handshakes/`Mcp-Session-Id` and replaced held-open HTTP reverse channels with Multi-Round-Trip Requests; a remote HTTP pn-core, if it ever exists, must use that revision — not sessionful Streamable HTTP. Decision record: [ADR-0018](adr/0018-stdio-no-protocol-sessions.md).
 
 ---
 
