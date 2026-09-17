@@ -1,6 +1,6 @@
 {
   "name": "pn-core-plugin",
-  "version": "0.19.2",
+  "version": "0.19.3",
   "private": true,
   "keywords": [
     "pi-package"

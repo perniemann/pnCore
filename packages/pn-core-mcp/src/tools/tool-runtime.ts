@@ -9,6 +9,7 @@ import { debug } from "../debug.js";
 import { parseRequiredApprovalWorkflows } from "../human-gate-tickets.js";
 import { tailScanBytesFromEnv } from "../file-tail.js";
 import { defaultGateLogPath } from "../workflow-gate-log.js";
+import { currentStepIndex } from "../run-spans.js";
 
 export type RawShape = Record<string, z.ZodTypeAny>;
 export type ShapeArgs<S extends RawShape> = { [K in keyof S]: z.infer<S[K]> };
@@ -112,6 +113,7 @@ export function appendSkillLoadLog(tool: string, id: string, run_id?: string): v
     !Number.isFinite(sampleRate) || sampleRate <= 1 || Math.random() < 1 / sampleRate;
   if (!shouldLog) return;
   try {
+    const stepIndex = currentStepIndex(run_id);
     const logPath = resolve(safeBase, ".pncore", "skill-load-log.jsonl");
     const logDir = dirname(logPath);
     if (!existsSync(logDir)) mkdirSync(logDir, { recursive: true });
@@ -122,6 +124,8 @@ export function appendSkillLoadLog(tool: string, id: string, run_id?: string): v
         tool,
         id,
         ...(run_id ? { run_id } : {}),
+        // Which workflow_step span this load happened under (ADR-0020).
+        ...(stepIndex !== undefined ? { stepIndex } : {}),
       }) + "\n",
       "utf-8"
     );

@@ -39,7 +39,7 @@ pn-core is the **MCP server** for the pnCore plugin pack. It exposes skills, age
 | `workflow_state_save` | Persist workflow state to file for resume after disconnect | AI / Client |
 | `workflow_state_load` | Load workflow state from file | AI / Client |
 | `workflow_verify` | Run a catalog verify command with no shell; returns a GateReport (`exitCode !== 0` is a completed verify). Requires `disposeVerify`. Fail-closed without a jail unless `PNCORE_VERIFY_SANDBOX=restricted` or Vitest | AI |
-| `workflow_run_query` | Query server-written verify/acceptance events for a `run_id` | AI / Client |
+| `workflow_run_query` | Query one `run_id` across the `.pncore` trails: verify/acceptance, `step` spans, `load`, `usage`, `handoff`, `gate`; `timeline: true` for a per-step view of where the run spent its time | AI / Client |
 | `workflow_confirm` | Structured confirmation gate (MCP-only `ask_question` approximation). Returns prompt + options; model outputs them and stops until user replies | AI (gates when ask_question unavailable) |
 | `approval_checkpoint` | Hard gate: succeeds only if `approval_token` matches `PNCORE_APPROVAL_TOKEN` on the MCP server (`env` in MCP config). Optional `workflow_type` + `workflow_step` issue `pncoreHumanGateTicket` for opt-in mandatory human gates | AI + user (high-risk steps) |
 | `gate_log_append` | Append-only gate audit line (JSONL), default `.pncore/gate-log.jsonl` | AI / ops audit |
