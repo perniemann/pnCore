@@ -1,6 +1,6 @@
 # pn-core-mcp
 
-MCP server for [pnCore](https://github.com/perniemann/pnCore) **0.19.7**: same skills, agents, commands, and rules as the Cursor plugin, plus **`workflow_step`** and related tools. Use from any MCP client to run orchestration, discovery, skeptic, audits, assets, and other pnCore workflows without installing the plugin.
+MCP engine for [pnCore](https://github.com/perniemann/pnCore) **0.19.8**: `workflow_step` plus the other tools, `pn-core://` resources, and canonical content under `content/`. Four harness adapters (Cursor, Claude Code, Codex, Pi) consume that same engine. Use from any MCP client without installing a harness plugin.
 
 ## Installation
 
@@ -208,14 +208,13 @@ MCP prompts expose agents and commands as reusable prompt templates. Clients (e.
 
 | Prompt | Type | Description |
 |--------|------|-------------|
-| **pn-project-builder** | Agent | Routes work to specialist agents, then pn-reviewer. |
 | **pn-skeptic** | Agent / command | Challenges plans; must end with `AskQuestion` or `workflow_confirm` (`gate_type: "skeptic"`). |
-| **pn-build** | Command | Discovery → research → plan → skeptic → specialists → review. |
+| **pn-build** | Command | Discovery → research → plan → skeptic → specialists → review. Prefer `workflow_step("full_dev")`. |
 | **pn-design** | Command | Discovery → skeptic-on-plan → build → skeptic-on-output. Fallback when workflow_step unavailable. |
 | **pn-frontend-audit** | Command | Scope → 5-phase surgical audit (typography, layout, design-tokens, a11y, performance-fe) → scorecard + fix roadmap → summary. Use workflow_step("frontend_audit", …) when available. |
-| **pn-setup** | Command | Configure existing project: analyze codebase, create project-context.mdc, project skill, optionally file-glob rules, design context, or stack context. |
+| **pn-setup** | Command | Configure existing project: `harness_detect` → `harness_scaffold` (project-context + project skill in the active harness), optionally file-glob rules, design context, or stack context. |
 | **pn-new** | Command | Easiest entry: (1) references yes/no; (2) intent (full auto | design focused | involved). Context-dependent flow. |
-| *...and others* | | One prompt per agent and command. |
+| *...and others* | | One prompt per public agent and command. Internal orchestrators (`pn-project-builder` and the other `agents-internal` ids) are loaded by `pn-build` / `full_dev`, not as a user-picked slash entry. |
 
 **pn-assets:** Single entry for image or SVG. Use `get_command("pn-assets")` to run it; it asks type (SVG/image/placeholder) then routes to workflow_step("svg_create") or workflow_step("image_create") or placeholder URLs. When the build has UI (landing page, frontend, product page, components), full_dev and orchestrator flows **automatically include** pn-assets-manager—logos, icons, hero images, or placeholders without explicit request.
 
@@ -264,7 +263,7 @@ Use `resources/list` to discover, then `resources/read` with a URI to fetch cont
 
 ## Config (orchestrator and commands)
 
-Agents and commands that route work (e.g. **pn-project-builder**, **pn-build**, **pn-new**, **pn-scaffolder**) expect **`config/specialists.json`** and **`config/stacks.json`** in the **workspace** (your project root). When your workspace is not the pnCore repo, either:
+Agents and commands that route work (e.g. **pn-build**, **pn-new**, **pn-scaffolder**) expect **`config/specialists.json`** and **`config/stacks.json`** in the **workspace** (your project root). When your workspace is not the pnCore repo, either:
 
 - Copy the default config into your project (see below), or
 - Rely on MCP resources: the AI can fetch `pn-core://config/specialists.json` and `pn-core://config/stacks.json` when those paths are missing.
@@ -281,11 +280,11 @@ Then `config/specialists.json` and `config/stacks.json` will be available when t
 
 For maximum user involvement (questionnaire at every step, confirmation before plan/specialists/review):
 
-1. **New project:** Run `get_command("pn-new")` first. pn-new asks about references and intent (full auto, design focused, **involved**). Choose **involved** for gates at discovery, prior art, plan, specialist list, and review.
+1. **New project:** Run `get_command("pn-new")` first. pn-new asks about references and intent (full auto, design focused, **involved**). Choose **involved** for gates at discovery, prior-art, plan, specialist list, and review.
 2. **Do not bypass pn-new** for new projects—do not call `workflow_step("full_dev", ...)` directly until pn-new has run and intent is known.
 3. **When using workflow_step for full_dev** and the user wants full involvement, pass `intent: "involved"` in state: `workflow_step("full_dev", 0, { intent: "involved" })`. The workflow enforces strict human gates when intent is involved.
 
-**Example first message (copy-paste):** `Run get_command("pn-new"). I want to build [project name]. Refs in .ref/. I want Involved — ask each discovery section, gate on plan, specialists, and review.` Replace `[project name]` with your app name. If no refs, omit "Refs in .ref/".
+**Example first message (copy-paste):** `Run get_command("pn-new"). I want to build [project name]. Refs in .ref/. I want Involved — ask each discovery section, gate on prior-art, plan, specialist list, and review.` Replace `[project name]` with your app name. If no refs, omit "Refs in .ref/".
 
 **Example: market-ready from blank project:**
 
@@ -295,7 +294,7 @@ pn-new ▲
 Build [your-project-name] — [one-line description: e.g. landing page, auth, core features].
 References: [path or "in .ref/"] (pitch, requirements, design assets).
 Analyze both: prior art and design.
-Intent: Involved — full gates at discovery, plan, specialists, and review.
+Intent: Involved — full gates at discovery, prior-art, plan, specialist list, and review.
 Delivery tier: full. Design ambition: distinctive.
 ```
 
@@ -305,7 +304,7 @@ Answer Step 0: Yes, Both. Step 1: (3) Involved. Use pn-document (or `get_command
 
 **"pn-new" only:** If you say only `run pn-new` or `/pn-new` with nothing else, it works. The agent will ask (1) references yes/no, (2) intent (full auto / design focused / involved). Answer both, then the flow runs. You get the same gates; you just provide project context in reply to the agent's questions rather than upfront.
 
-**Project rules:** pn-new and pn-setup create `.cursor/rules/project-context.mdc` if missing (triangle, project context, MCP bootstrap). When this file is absent, pn-build-gate routes to pn-new first.
+**Project rules:** pn-new and pn-setup call `harness_detect` → `harness_scaffold` so project-context (triangle, project context, MCP bootstrap) lands in the **active harness** only — `.cursor/rules/*.mdc`, `.claude/rules/*.md`, or the managed `AGENTS.md` block. When that file is absent, pn-build-gate routes to pn-new first.
 
 See `pn-core://reference/RUNBOOK.md` for the full reference.
 
@@ -313,15 +312,16 @@ See `pn-core://reference/RUNBOOK.md` for the full reference.
 
 Use `workflow_step("engine_feature", 0, { engine: "unreal" })` or `{ engine: "godot" }` as the entry point for game-engine feature workflows. Direct `unreal_feature` and `godot_feature` workflow types are not supported.
 
-## Plugin vs MCP vs Pi native tools
+<a id="plugin-vs-mcp"></a>
+## Plugin vs MCP
 
-pnCore is a **multi-surface product** built on one canonical content body (skills, agents, commands, rules under `content/`):
+One engine, four harness adapters. Canonical content (skills, agents, commands, rules) lives in `content/`. Tool inventory: [Tools](#tools). Counts: root README **Catalog:** line.
 
-- **MCP (stdio)** — All executable logic lives in this server: the deterministic `workflow_step` engine plus the other tools, resources, and prompts. Works in any MCP client (Cursor, Claude Code, …).
-- **Cursor plugin** — Slash palette, file-glob rules, stop hook, agent selector. Same commands via `get_command`; rules via `get_rule`.
-- **Pi native extension** — `pi install git:…/pnCore` loads `packages/pn-core-mcp/extensions/pn-core.ts`, which registers the same 29 tools via `pi.registerTool()` (no subprocess MCP on Pi). See [ADR-0009](../../docs/adr/0009-pi-native-tools.md).
+- **MCP (stdio)** — The engine: deterministic `workflow_step` plus the other tools, resources, and prompts. Any MCP client (Cursor, Claude Code, Codex, …).
+- **Harness files** — Slash palette / prompts, file-glob rules, agents, stop hook on Cursor. `plugin-install --harness cursor|claude_code|codex|pi` writes **only** that harness's folders. Same commands via `get_command`; rules via `get_rule`.
+- **Pi native extension** — `pi install git:…/pnCore` loads `packages/pn-core-mcp/extensions/pn-core.ts` and registers the **same tools** via `pi.registerTool()` (no subprocess MCP on Pi). See [ADR-0009](../../docs/adr/0009-pi-native-tools.md).
 
-Choose MCP for cross-client orchestration; add the Cursor plugin for native IDE UX; use `pi install` from repo root on [pi.dev](https://pi.dev) for prompts, skills, and native tools together.
+The intended setup is engine plus the active harness's files. On [pi.dev](https://pi.dev), `pi install` from repo root gives prompts, skills, and native tools together.
 
 ## Build from source (monorepo)
 

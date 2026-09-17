@@ -1,10 +1,10 @@
 # pnCore (plugin)
 
-Cursor plugin for **pnCore 0.19.7**: MCP engine and slash commands that run software delivery as named, gated steps — skills, agents, rules, and `pn-core://` resources. User-facing orientation: [why it exists](https://github.com/perniemann/pnCore#why-this-exists), [install](https://github.com/perniemann/pnCore#install), [workflows](https://github.com/perniemann/pnCore#workflows). Full catalog: [docs/plugin-reference.md](https://github.com/perniemann/pnCore/blob/main/docs/plugin-reference.md). This file is the plugin operator note.
+Cursor adapter for **pnCore 0.19.8**: slash palette, file-glob rules, agent selector, stop hook. One MCP engine, four harnesses (Cursor, Claude Code, Codex, Pi). User-facing orientation: [why it exists](https://github.com/perniemann/pnCore#why-this-exists), [install](https://github.com/perniemann/pnCore#install), [workflows](https://github.com/perniemann/pnCore#workflows). Full catalog: [docs/plugin-reference.md](https://github.com/perniemann/pnCore/blob/main/docs/plugin-reference.md).
 
 ## Install
 
-**Add pnCore to any project (full plugin):** From that project's directory, run:
+**Add the Cursor plugin to a project:** From that project's directory, run:
 ```bash
 npx github:perniemann/pnCore plugin-install
 ```
@@ -20,11 +20,11 @@ This copies commands, rules, skills, agents, config, and hooks into `.cursor/` a
 
 **Slash commands not showing?** Project needs `.cursor-plugin/plugin.json`. **Developer: Reload Window**, then type `/` in chat.
 
-After install: rules apply by file glob; use `/pn-command-name` in chat. **New project?** Run `/pn-new` — strict first questionnaire: (1) references yes/no (analyze prior-art, design, or both), (2) intent (full auto | design focused | involved in every step). Then context-dependent flow. Use the **pn-project-builder agent** for discovery-driven builds; `/pn-design` for design flows. Say "Build X. Use the design workflow." for design flows. When MCP is available, pn-build-gate prefers the workflow; otherwise it loads pn-design or pn-build.
+After install: rules apply by file glob; use `/pn-command-name` in chat. **New project?** `/pn-new` — questionnaire Step 0 of 2 (references) then Step 1 of 2 (intent: full auto | design focused | involved). **Build or extend:** `/pn-build` or `workflow_step("full_dev", 0, {})`. **Design-first:** `/pn-design` (`workflow_step("design")`). When MCP is available, pn-build-gate prefers the workflow; otherwise it loads pn-design or pn-build.
 
 ## Example prompts
 
-**Quick start:** With the **pn-project-builder agent** try: *Build a mobile-first fitness tracking app. Minimal modern design, gamification. Log workouts, compound score, level up/down by threshold and time.*
+**Quick start:** `/pn-build` — *Build a mobile-first fitness tracking app. Minimal modern design, gamification. Log workouts, compound score, level up/down by threshold and time.*
 
 **Market-ready (blank to full product):** Blank project to full product with Involved gates. Use `/pn-document` to format docs.
 
@@ -34,19 +34,19 @@ pn-new ▲
 Build [your-project-name] — [one-line description: e.g. landing page, auth, core features].
 References: [path or "in .ref/"] (pitch, requirements, design assets).
 Analyze both: prior art and design.
-Intent: Involved — full gates at discovery, plan, specialists, and review.
+Intent: Involved — full gates at discovery, prior-art, plan, specialist list, and review.
 Delivery tier: full. Design ambition: distinctive.
 ```
 
-Answer Step 0: Yes, Both. Step 1: (3) Involved.
+pn-new questionnaire: Step 0 of 2 — Yes, Both. Step 1 of 2 — (3) Involved.
 
 **Pitch-to-app (full pnCore flow):** Start from a pitch idea and use every feature—discovery questionnaire (ask_question at each section), prior art, roadmap with dev phases, design fully aligned with me (ask for purpose, tone, a11y, components; gate on approval after wireframes, user flows, design system), pn-assets-manager (SVGs + placeholders), Supabase and Stripe. User is gated at each step. Stack chosen via questionnaire, not assumed. See [pitch-to-app full prompt](../../docs/pitch-to-app-example.md).
 
 ## MCP server
 
-pnCore is one product on two surfaces sharing the same content. The **MCP server** holds all executable logic (the `workflow_step` engine plus the other tools) and runs in any MCP client; this **plugin** adds Cursor-only UX the MCP cannot provide — the `/` command palette, file-glob rules, the agent selector, and the continual-learning stop hook. Use them together. Full breakdown: [Plugin vs MCP](https://github.com/perniemann/pnCore/blob/main/packages/pn-core-mcp/README.md#plugin-vs-mcp).
+The **MCP server** is the engine (`workflow_step` plus the other tools) and runs in any MCP client. This plugin is the **Cursor** adapter — slash palette, file-glob rules, agent selector, stop hook. Claude Code, Codex, and Pi get their own folders via `plugin-install --harness`. Use MCP plus this plugin together on Cursor. Full breakdown: [Plugin vs MCP](https://github.com/perniemann/pnCore/blob/main/packages/pn-core-mcp/README.md#plugin-vs-mcp).
 
-The same workflows are available as an MCP server for any client: **29 tools** (including `harness_detect`, `harness_scaffold`, `workflow_step`, `workflow_verify`, `workflow_run_query`, `suggest_model_tier`, usage and handoff helpers, optional Paperclip), **`pn-core://` resources**, and MCP **prompts** aligned with agents/commands. Concise map: [MCP usage guide](https://github.com/perniemann/pnCore/blob/main/docs/mcp-usage-guide.md). Install, env vars, and error codes: [packages/pn-core-mcp README — Installation](https://github.com/perniemann/pnCore/blob/main/packages/pn-core-mcp/README.md#installation). Repo entry: [README — MCP](https://github.com/perniemann/pnCore#mcp-any-mcp-client). Pairing **pn-core** with **Octocode**: [companion MCP catalog](https://github.com/perniemann/pnCore/blob/main/docs/companion-mcp-catalog.md).
+Same workflows on any client: `workflow_step`, `harness_detect` / `harness_scaffold`, `workflow_verify`, resources, and prompts. Tool list: [MCP README](https://github.com/perniemann/pnCore/blob/main/packages/pn-core-mcp/README.md#tools). Concise map: [MCP usage guide](https://github.com/perniemann/pnCore/blob/main/docs/mcp-usage-guide.md). Install, env vars, and error codes: [packages/pn-core-mcp README — Installation](https://github.com/perniemann/pnCore/blob/main/packages/pn-core-mcp/README.md#installation). Repo entry: [README — MCP](https://github.com/perniemann/pnCore#mcp-any-mcp-client). Pairing **pn-core** with **Octocode**: [companion MCP catalog](https://github.com/perniemann/pnCore/blob/main/docs/companion-mcp-catalog.md).
 
 ## Scripts
 

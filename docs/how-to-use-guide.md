@@ -12,7 +12,7 @@ User-facing orientation (why it exists, install, workflows, honest edges): [root
 | Mode | What you get |
 |------|----------------|
 | **Harness files** | Per-harness slash commands / prompts, rules, skills, agents (`plugin-install --harness cursor|claude_code|codex|pi`) — only that harness's folders are created |
-| **MCP** | 29 tools, `pn-core://` resources, prompts (agent/command templates); control flow via **`workflow_step`** — see [MCP usage guide](mcp-usage-guide.md) |
+| **MCP** | `workflow_step` engine plus the other tools, `pn-core://` resources, prompts (agent/command templates) — see [MCP usage guide](mcp-usage-guide.md) |
 | **Together** | Run both when you want rules plus deterministic workflow tools — same engine on Cursor, Claude Code, Codex, Pi (`pn-core://reference/harness-matrix.md`) |
 
 Deeper orientation: [Plugin reference](plugin-reference.md).
@@ -29,7 +29,7 @@ Deeper orientation: [Plugin reference](plugin-reference.md).
 - **New project or feature kickoff** — `/pn-new` or "Start a new project" or "Run pn-new". Strict first questionnaire: (1) references yes/no — if yes, choose prior-art / design / both analysis; (2) intent — full auto (short confirm then autonomous), design focused (workflow_step design), or involved in every step (with optional full doc set: PRD, DESIGN, prior art, workflow roadmap, refs index). Plugin: slash command. MCP only: "Start a new project."
 - **Full dev flow with discovery and skeptic** — "Build [X]. Use the full dev workflow." MCP: `workflow_step` enforces discovery → prior art → plan → skeptic → specialists → review. Fallback: `/pn-build`.
 - **Design-only UI build** — "Build [X]. Use the design workflow." Design discovery → skeptic-on-plan → build → skeptic-on-output. Fallback: `/pn-design`.
-- **Orchestrator flow** — "Add this feature following the orchestrator flow"; "Run pn-project-builder for a full dev loop." Routes to specialists from `config/specialists.json`.
+- **Orchestrator flow** — "Add this feature following the orchestrator flow"; "Build [X]. Use the full dev workflow." Routes via `workflow_step("full_dev")` or `/pn-build` to specialists from `config/specialists.json`.
 - **Discovery before planning** — "Use pn-discovery-questionnaire before we build." Gate on user answers before plan or scaffold.
 - **Prior art before implement** — "Use pn-prior-art-research before implementing." Adapt vs build recommendation with comparison table.
 - **Stress-test a plan** — `/pn-grill` or "Grill me on this plan before we build." One question at a time, recommended answer per question.
@@ -192,7 +192,7 @@ Indices are **inclusive** (each row matches `list_workflow_types` step counts in
 
 - **Prompting:** Be specific; name the workflow ("Use the design workflow" or "Use the full dev workflow") when you want discovery and skeptic.
 - **Gating:** Discovery and skeptic require your confirmation; do not ask the AI to skip them unless you explicitly say so.
-- **Plugin vs MCP-only:** Slash commands for structured flows; MCP only: natural language + [mcp-only bootstrap rule](mcp-only-bootstrap.mdc).
+- **Harness files vs MCP-only:** Slash commands / prompts for structured flows; MCP only: natural language + [mcp-only bootstrap rule](mcp-only-bootstrap.mdc).
 
 See [mcp-usage-guide](mcp-usage-guide.md) for MCP tools, resources, prompts, and workflow patterns.
 

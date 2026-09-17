@@ -7,13 +7,13 @@ updated: 2026-07-03
 
 ## What pn-core MCP is
 
-pn-core is the **MCP server** for the pnCore plugin pack. It exposes skills, agents, commands, rules, and a deterministic **`workflow_step`** engine as **29 tools**, plus **`pn-core://` resources** and **MCP prompts** (see below). Stacks and scope limits: [plugin reference](plugin-reference.md). **Orientation** (plugin vs MCP, slash commands, when to use which workflow): [How to use pnCore](how-to-use-guide.md).
+pn-core is the **MCP engine** for pnCore. It exposes skills, agents, commands, rules, and a deterministic **`workflow_step`** engine as tools, plus **`pn-core://` resources** and **MCP prompts** (see below). Four harness adapters (Cursor, Claude Code, Codex, Pi) consume the same engine. Stacks and scope limits: [plugin reference](plugin-reference.md). **Orientation** (engine vs harness files, slash commands, when to use which workflow): [How to use pnCore](how-to-use-guide.md). Tool inventory: [MCP README — Tools](../packages/pn-core-mcp/README.md#tools). Counts: root README **Catalog:** line.
 
 **Reference:** Env vars, tool risk labels, and structured error codes are documented in [packages/pn-core-mcp/README.md](../packages/pn-core-mcp/README.md). This guide focuses on usage patterns.
 
 ---
 
-## The 29 tools: who uses them and how
+## Tools: who uses them and how
 
 | Tool | Purpose | Who uses it |
 |------|---------|-------------|
@@ -132,7 +132,7 @@ pn-core uses **stdio** only (local, per-user). It does not expose Streamable HTT
 
 ## What's inside the content
 
-Skills, agents, commands, and rules ship as markdown under `packages/pn-core-mcp/content/`. **Counts change every release**—use **`list_skills`**, **`list_agents`**, **`list_commands`**, and **`list_rules`** for the live inventory, then **`get_*`** to load by id. Examples: `pn-discovery-questionnaire`, `pn-project-builder`, `pn-new`, `pn-build-gate`, `pn-pressure-test` (startup idea critique—distinct from plan-oriented `pn-grill` / `pn-skeptic`).
+Skills, agents, commands, and rules ship as markdown under `packages/pn-core-mcp/content/`. **Counts change every release**—use **`list_skills`**, **`list_agents`**, **`list_commands`**, and **`list_rules`** for the live inventory, then **`get_*`** to load by id. Examples: `pn-discovery-questionnaire`, `pn-new`, `pn-build-gate`, `pn-pressure-test` (startup idea critique—distinct from plan-oriented `pn-grill` / `pn-skeptic`).
 
 ---
 
@@ -146,14 +146,14 @@ Tell the AI what you want. It will then decide when to use pn-core content:
 - "Fix my failing CI"
 - "Review this Cursor plugin for submission"
 - "Create an SVG logo for my brand"
-- "Follow pn-project-builder for a full dev loop"
+- "Build [X]. Use the full dev workflow."
 - "Pressure-test this startup idea" / `get_command("pn-pressure-test")`
 
 The AI will call `get_skill`, `get_agent`, or `get_command` and follow that guidance.
 
-### 2. Use Cursor commands (plugin)
+### 2. Use harness commands
 
-If the **pnCore plugin** is installed, slash commands (`/pn-new`, `/pn-build`, `/pn-design`, etc.) load structured flows; the AI uses `workflow_step` when MCP is connected for deterministic control flow and state persistence. Full command → workflow mapping: [How to use pnCore — Example prompts by command](how-to-use-guide.md#example-prompts-by-command).
+If harness files are installed (`plugin-install --harness`), slash commands / prompts (`/pn-new`, `/pn-build`, `/pn-design`, etc.) load structured flows; the AI uses `workflow_step` when the engine is connected for deterministic control flow and state persistence. Full command → workflow mapping: [How to use pnCore — Example prompts by command](how-to-use-guide.md#example-prompts-by-command).
 
 ### 3. Component libraries (shadcn MCP)
 
@@ -171,7 +171,7 @@ This creates/updates `.cursor/mcp.json`. Enable the shadcn MCP server in Cursor 
 
 ### 4. Config for orchestration
 
-Commands like `pn-build` and the `pn-project-builder` agent expect:
+Commands like `pn-build` expect:
 
 - `config/specialists.json`
 - `config/stacks.json`
@@ -188,7 +188,7 @@ Commands like `pn-build` and the `pn-project-builder` agent expect:
 flowchart LR
     subgraph You [Your Actions]
         A[Ask for help]
-        B[Use Cursor commands]
+        B[Use harness commands]
     end
     subgraph AI [AI Behavior]
         C[list_* to discover]
@@ -238,8 +238,8 @@ When you have a **new project with no refs** (no **`docs/refs/PRD.md`**, no `.re
 
 **Pattern 3: Multi-step feature**
 
-- Ask "add this feature following the orchestrator flow".
-- AI loads `pn-project-builder` via `get_agent`, runs discovery → prior art → plan → skeptic → specialists → review.
+- Ask "add this feature following the orchestrator flow" or "Build [X]. Use the full dev workflow."
+- AI calls `workflow_step("full_dev", …)` when available (or `/pn-build` / `get_command("pn-build")`), runs discovery → prior art → plan → skeptic → specialists → review.
 
 **Pattern 4: SVG and assets**
 

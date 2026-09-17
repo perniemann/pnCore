@@ -13,10 +13,10 @@ Orientation for **pnCore**: stacks, agents, commands, hooks, and contribution pa
 
 | Term | Meaning |
 |------|---------|
-| **pnCore agents** | Specialist prompts (markdown in `content/agents/`). Used as reusable prompts in workflows; invoked when the orchestrator routes work. Examples: pn-project-builder, pn-skeptic, pn-reviewer. |
+| **pnCore agents** | Specialist prompts (markdown in `content/agents/`). Used as reusable prompts in workflows; invoked when `full_dev` / `pn-build` routes work. Examples: pn-skeptic, pn-frontend-developer. |
 | **Paperclip agents** | DB entities in [Paperclip](https://github.com/paperclipai/paperclip) with adapter config, org chart, budgets. External runtimes (OpenClaw, Cursor, Codex) that Paperclip invokes via heartbeats. |
 
-When integrating with Paperclip, pnCore workflows run inside Cursor; use `paperclip_issue_checkout` before work when governance requires it, `paperclip_issue_comment` for updates, and `paperclip_issue_update` (e.g. `status: done`) when a workflow completes. Set `PAPERCLIP_ISSUE_ID` when the issue id is not in chat. See skill `pn-paperclip`.
+When integrating with Paperclip, pnCore workflows run in the **active harness**; use `paperclip_issue_checkout` before work when governance requires it, `paperclip_issue_comment` for updates, and `paperclip_issue_update` (e.g. `status: done`) when a workflow completes. Set `PAPERCLIP_ISSUE_ID` when the issue id is not in chat. See skill `pn-paperclip`.
 
 ---
 
@@ -47,23 +47,32 @@ Orchestration includes **pn-cultural-heritage-research** for tiered museum and a
 
 ---
 
-## Agents (15)
+## Agents
 
-- **pn-scaffolder** — Discovery-driven plugin, web (React, Astro, Next, vanilla), backend (Node, Python, Go, Rust, Ruby, PHP), or 3D (Babylon.js) scaffold; pn-discovery-questionnaire; pn-writing-skills when creating skills; post-scaffold review.
-- **pn-assets-manager** — SVG, raster images, logos, diagrams, placeholders; routes to workflow_step("svg_create")/inline SVG, workflow_step("image_create")/inline image, `pn-diagram` for architecture/flow visuals, or placeholder URLs.
+Authoritative ids: **`list_agents`** / **`get_agent`**. Public agents live in `content/agents/`; internal orchestration agents live in `content/agents-internal/` and are loaded by `pn-build` / `full_dev`, not as a user-picked slash entry. Counts: root README **Catalog:** line.
+
+### Public
+
 - **pn-generative-media-director** — Text-to-image and text-to-video pipelines, ComfyUI workflow design and debugging, checkpoint and conditioning choices, cinematic shot design, lighting and camera grammar, delivery specs. In `config/specialists.json` (parallelGroup 1); `full_dev` requires this agent when discovery or plan treats generative media as first-class; omit for UI-only placeholder assets.
 - **pn-frontend-developer** — UI components, layout, a11y, user flows, visual design (React, Astro, Next, vanilla web); post-change review.
-- **pn-game-developer** — Three.js, Babylon.js, Godot, Unity scenes; shaders; game logic; post-change review.
 - **pn-backend-developer** — Event handlers, API, state, backend (Node, Python, Go, Rust, Ruby, PHP); API/state/error review after changes.
 - **pn-testing-specialist** — TDD, smoke tests, CI, pn-verification-before-completion; run smoke/CI after tests and loop back if fail.
-- **pn-reviewer** — Quality review loop with deslop, pn-verification-before-completion, and performance optimization; repeat until pass.
 - **pn-skeptic** — Questions the proposed approach; used after planning, before specialists run (orchestrator and full dev loop).
-- **pn-security-auditor** — Security-focused review; OWASP, auth, dependencies, secrets, input validation.
-- **pn-project-builder** — Discovery → user confirms → prior art → pn-writing-plans → **pn-skeptic-challenge** on plan → routes to specialists → pn-reviewer for final review+optimize loop.
 - **pn-mobile-builder** — Native iOS/Android and cross-platform (React Native, Flutter); mobile-specific features. Manual routing only; not in config/specialists.json.
 - **pn-visionos-engineer** — visionOS spatial computing, SwiftUI volumetric interfaces, Liquid Glass. Manual routing only; not in config/specialists.json.
 - **pn-webxr-developer** — WebXR, browser AR/VR, Three.js/A-Frame. Manual routing only; not in config/specialists.json.
 - **pn-cultural-researcher** — Art history, movements, museum citations, period-accurate visual or copy grounding via **pn-cultural-heritage-research**. Manual routing only; listed in `onDemandAgents` in `config/specialists.json`.
+
+### Internal orchestration
+
+Invoked by `/pn-build` and `workflow_step("full_dev")`. Do not present these as public slash/agent-selector entries.
+
+- **pn-project-builder** — Discovery → user confirms → prior art → pn-writing-plans → **pn-skeptic-challenge** on plan → routes to specialists → pn-reviewer for final review+optimize loop.
+- **pn-scaffolder** — Discovery-driven plugin, web (React, Astro, Next, vanilla), backend (Node, Python, Go, Rust, Ruby, PHP), or 3D (Babylon.js) scaffold; pn-discovery-questionnaire; pn-writing-skills when creating skills; post-scaffold review.
+- **pn-assets-manager** — SVG, raster images, logos, diagrams, placeholders; routes to workflow_step("svg_create")/inline SVG, workflow_step("image_create")/inline image, `pn-diagram` for architecture/flow visuals, or placeholder URLs.
+- **pn-game-developer** — Three.js, Babylon.js, Godot, Unity scenes; shaders; game logic; post-change review.
+- **pn-reviewer** — Quality review loop with deslop, pn-verification-before-completion, and performance optimization; repeat until pass.
+- **pn-security-auditor** — Security-focused review; OWASP, auth, dependencies, secrets, input validation.
 
 ---
 
@@ -74,7 +83,7 @@ User-entry commands ship under **`plugins/pnCore/.cursor/commands/`** (the Curso
 ### Core workflow
 
 - **pn-new** — Start a new project. Refs (yes/no), intent (full auto | design focused | involved). Involved mode optionally runs full doc set (PRD, DESIGN, prior art, workflow roadmap, refs index) then builds.
-- **pn-setup** — Configure pnCore for an existing project. Choose: (1) Everything, (2) Project integration only (codebase analysis, project-context.mdc, project skill, file-glob rules), (3) Design context only (`.pncore-design.md`; optional house philosophy, primary reference URL, diagram tokens, CLAUDE.md aesthetics block), (4) Stack context only (.pncore-stack.md). Git trailer hooks: `pn-core://reference/consumer-gating.md`. Template: `.cursor/docs/templates/pncore-design.example.md` after install.
+- **pn-setup** — Configure pnCore for an existing project. Choose: (1) Everything, (2) Project integration only (codebase analysis, `harness_detect` → `harness_scaffold` project-context + project skill in the active harness's folders, file-glob rules), (3) Design context only (`.pncore-design.md`; optional house philosophy, primary reference URL, diagram tokens, CLAUDE.md aesthetics block), (4) Stack context only (.pncore-stack.md). Git trailer hooks: `pn-core://reference/consumer-gating.md`. Template: `.cursor/docs/templates/pncore-design.example.md` after Cursor install.
 - **pn-build** — Full dev cycle: discovery → prior art → plan → skeptic-on-plan → specialists → review+optimize → skeptic-on-output. For new features or large changes. Prefer `workflow_step("full_dev", …)` when MCP available.
 - **pn-design** — Design-first build: checks `.pncore-design.md` → discovery → optional **`pn-api-probe`** before plan when the runtime may have moved → plan → skeptic → assets → build (pn-typeset → pn-colorize → pn-arrange substeps) → **`pn-render-verify`** then skeptic-on-output for visual deliverables. Failed skeptic-on-output can loop to build with **`iterationCount`** / **`approval_checkpoint`** when using `workflow_step("design", …)`. Prefer `workflow_step("design", …)` when MCP available.
 - **pn-design-dna** — Same as design flow after loading **embedded studio DNA** (`pn-core://reference/embedded-studio-dna.md`) and **pn-embedded-studio-dna**; for portfolio / reel / lab editorial structure. Prefer chaining `workflow_step("design", …)` with DNA summary in context when MCP available.

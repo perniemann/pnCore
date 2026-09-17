@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 560" width="1120" height="560"
      role="img" aria-labelledby="lanes-title lanes-desc">
-  <title id="lanes-title">A named full_dev run</title>
-  <desc id="lanes-desc">You start /pn-build. The MCP runs discovery and plan. You pass the skeptic gate. Specialists build. The MCP reviews. /pn-deliver waits as the next named step.</desc>
+  <title id="lanes-title">A full_dev run</title>
+  <desc id="lanes-desc">You start /pn-build. The MCP runs discovery and plan. On involved intent you pass the skeptic gate. Specialists build. The MCP reviews. A step only counts once its gate passes; /pn-deliver waits as the next named step.</desc>
   <defs>
     <style><![CDATA[
 
@@ -38,10 +38,10 @@
       .x4{animation-delay:1.65s} .x5{animation-delay:1.85s} .x6{animation-delay:2.05s}
       .qd { opacity: 0; animation: f .4s ease 2.15s forwards; }
       .ft { opacity: 0; animation: f .4s ease 2.3s forwards; }
-      .run { animation: pulse 1.8s ease-in-out 2s infinite; }
+      .run { animation: pulse 3.2s ease-in-out 2s infinite; }
       @keyframes f { to { opacity: 1 } }
       @keyframes grow { to { transform: scaleX(1) } }
-      @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: .55 } }
+      @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: .75 } }
 
 
       }
@@ -70,28 +70,29 @@
     <rect width="1120" height="560" rx="14" fill="url(#lanes-vignette)"/>
   </g>
 
-  <text class="pix ttl" x="56" y="64" font-size="14" fill="#e8e8e8">A NAMED RUN</text>
-  <text class="mono axis" x="56" y="88" font-size="13" fill="#7a7672">full_dev · time reads left to right</text>
+  <text class="pix ttl" x="56" y="64" font-size="14" fill="#e8e8e8">A FULL_DEV RUN</text>
+  <text class="mono axis" x="56" y="88" font-size="13" fill="#8c8884">full_dev · time reads left to right</text>
 
-  <g class="axis" fill="#686868" font-size="12" text-anchor="middle">
-    <text class="mono" x="280" y="120">start</text>
-    <text class="mono" x="520" y="120">plan</text>
-    <text class="mono" x="760" y="120">build</text>
-    <text class="mono" x="1000" y="120">ship</text>
+  <g class="axis" fill="#8c8884" font-size="12" text-anchor="middle">
+    <text class="mono" x="330" y="120">start</text>
+    <text class="mono" x="418" y="120">discover</text>
+    <text class="mono" x="496" y="120">plan</text>
+    <text class="mono" x="800" y="120">build</text>
+    <text class="mono" x="956" y="120">review</text>
     <line x1="280" y1="132" x2="1040" y2="132" stroke="#2a2a2a" stroke-width="1"/>
   </g>
 
   <g class="ln l1">
-    <text class="pix" x="56" y="188" font-size="10" fill="#e8e8e8">YOU</text>
-    <text class="mono" x="56" y="208" font-size="12" fill="#7a7672">intent</text>
+    <text class="pix" x="56" y="188" font-size="12" fill="#e8e8e8">YOU</text>
+    <text class="mono" x="56" y="208" font-size="12" fill="#8c8884">intent</text>
   </g>
   <g class="ln l2">
-    <text class="pix" x="56" y="300" font-size="10" fill="#e8e8e8">MCP</text>
-    <text class="mono" x="56" y="320" font-size="12" fill="#7a7672">engine</text>
+    <text class="pix" x="56" y="300" font-size="12" fill="#e8e8e8">MCP</text>
+    <text class="mono" x="56" y="320" font-size="12" fill="#8c8884">engine</text>
   </g>
   <g class="ln l3">
-    <text class="pix" x="56" y="412" font-size="10" fill="#e8e8e8">SPEC</text>
-    <text class="mono" x="56" y="432" font-size="12" fill="#7a7672">agents</text>
+    <text class="pix" x="56" y="412" font-size="12" fill="#e8e8e8">SPEC</text>
+    <text class="mono" x="56" y="432" font-size="12" fill="#8c8884">specialists</text>
   </g>
 
   <g aria-hidden="true" stroke="#1a1a1a" stroke-width="1">
@@ -112,7 +113,7 @@
   <g class="run">
     <rect class="bar b4" x="572" y="168" width="132" height="44" rx="2" fill="#0e0e0e" stroke="#dc2626" stroke-width="2"/>
   </g>
-  <text class="mono lab x4" x="638" y="196" text-anchor="middle" font-size="12" fill="#e8e8e8">skeptic</text>
+  <text class="mono lab x4" x="638" y="196" text-anchor="middle" font-size="11" fill="#e8e8e8">involved gate</text>
 
   <rect class="bar b5" x="720" y="392" width="160" height="44" rx="2" fill="#3a3a3a"/>
   <text class="mono lab x5" x="800" y="420" text-anchor="middle" font-size="12" fill="#e8e8e8">specialists</text>
@@ -122,8 +123,9 @@
 
   <g class="qd">
     <rect x="896" y="168" width="132" height="44" rx="2" fill="none" stroke="#686868" stroke-width="1.2" stroke-dasharray="4 3"/>
-    <text class="mono" x="962" y="196" text-anchor="middle" font-size="12" fill="#7a7672">/pn-deliver</text>
+    <text class="mono" x="962" y="196" text-anchor="middle" font-size="12" fill="#8c8884">/pn-deliver</text>
   </g>
 
-  <text class="mono ft" x="56" y="512" font-size="14" fill="#7a7672">A step only counts once its gate passes. Resume with workflow_state_load.</text>
+  <text class="mono ft" x="56" y="508" font-size="14" fill="#8c8884">A step only counts once its gate passes.</text>
+  <text class="mono ft" x="56" y="532" font-size="13" fill="#8c8884">Full auto skips the human latch.</text>
 </svg>
