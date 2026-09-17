@@ -1,5 +1,5 @@
 import { appendFileSync, mkdirSync, existsSync, readFileSync, writeFileSync } from "fs";
-import { dirname } from "path";
+import { dirname, join } from "path";
 import { listSkills, getSkill, listAgents, listInternalAgents, getAgent, listCommands, getCommand, listRules, getRule, } from "../content.js";
 import { getWorkflowStep, PUBLIC_WORKFLOW_TYPES, resolveStepTier, workflowSteps, } from "../workflows.js";
 import { resolveRoleTier } from "../model-tiers.js";
@@ -8,6 +8,7 @@ import { evaluateApprovalCheckpoint } from "../approval-checkpoint.js";
 import { issueHumanGateTicket, validateAndConsumeHumanGateTicket, workflowRequiresHumanGateApproval, } from "../human-gate-tickets.js";
 import { resolveWorkflowRunId } from "../run-id.js";
 import { parseRunLog, runLogStateEnabled, snapshotStateForLog } from "../trajectory.js";
+import { agentsMdCapBytes, packProjectContext } from "../context-budget.js";
 import { beginStepSpan, buildRunTimeline, readTrail, roundMs, trailPaths, } from "../run-spans.js";
 import { truncateResourceBody } from "../resource-truncate.js";
 import { disposeVerifyAllowArgvEnabled, disposeVerifyEnabled, loadFeatures } from "../features.js";
@@ -17,7 +18,7 @@ import { appendRunEvent, newAttestationId, readRunEvents, } from "../verify-atte
 import { readFileTail } from "../file-tail.js";
 import { appendWorkflowGateLog, createWorkflowGateLogEntry, validateWorkflowConfirmGate, } from "../workflow-gate-log.js";
 import { buildProjectContextPacket } from "../project-context.js";
-import { HARNESS_IDS, HARNESS_LAYOUTS, applyScaffoldPlan, buildScaffoldPlan, detectHarness, layoutTable, } from "../harness.js";
+import { HARNESS_IDS, HARNESS_LAYOUTS, applyScaffoldPlan, buildScaffoldPlan, detectHarness, instructionsBudgetFor, layoutTable, upsertManagedBlock, } from "../harness.js";
 import { MCP_VERSION, appendSkillLoadLog, defaultGateLogPath, defaultHandoffPath, defaultHumanGateTicketsPath, defaultStatePath, defaultUsagePath, getContentMaxChars, handoffScanMaxBytes, HANDOFF_READ_MAX_LINES, HANDOFF_SUMMARY_MAX, mcpError, requiredHumanGateWorkflows, resolveSafePath, safeBase, textContent, usageScanMaxBytes, debug, } from "./tool-runtime.js";
 function paperclipNotConfigured() {
     return mcpError("INVALID_STATE", "Paperclip not configured. Set PAPERCLIP_API_URL and PAPERCLIP_API_KEY.", { hint: "Get API key from Paperclip agent settings" });
@@ -79,7 +80,7 @@ export async function handleProjectContext(args) {
         run_id: args.run_id,
         max_trail: args.max_trail,
     });
-    return textContent(JSON.stringify(packet));
+    return textContent(JSON.stringify(packProjectContext(packet, args.max_tokens)));
 }
 export async function handleHarnessDetect(args) {
     const detection = detectHarness({ cwd: safeBase });
@@ -129,6 +130,23 @@ export async function handleHarnessScaffold(args) {
     const topFolder = (h) => HARNESS_LAYOUTS[h].skillsDir.split("/")[0];
     const usedFolders = new Set(harnesses.map(topFolder));
     const untouched = HARNESS_IDS.filter((h) => !harnesses.includes(h) && !usedFolders.has(topFolder(h)));
+    // Instructions-file byte budget (ADR-0021): measured for harnesses that truncate the chain.
+    const instructionsBudget = [];
+    for (const h of harnesses) {
+        const layout = HARNESS_LAYOUTS[h];
+        if (layout.instructionsCapBytes == null)
+            continue;
+        const rel = layout.instructionsFile;
+        if (instructionsBudget.some((b) => b.path === rel))
+            continue;
+        const abs = join(safeBase, rel);
+        const existing = existsSync(abs) ? readFileSync(abs, "utf-8") : null;
+        const planned = plan.find((f) => f.path === rel && f.strategy === "managed_block");
+        const text = args.dryRun === true && planned
+            ? upsertManagedBlock(existing, planned.content).text
+            : existing;
+        instructionsBudget.push(instructionsBudgetFor(rel, text, agentsMdCapBytes()));
+    }
     return textContent(JSON.stringify({
         harnesses,
         detection: { detected: detection.detected, explicit: detection.explicit },
@@ -137,6 +155,7 @@ export async function handleHarnessScaffold(args) {
         ...(args.dryRun === true
             ? { contents: Object.fromEntries(plan.map((f) => [f.path, f.content])) }
             : {}),
+        ...(instructionsBudget.length > 0 ? { instructionsBudget } : {}),
         untouchedHarnessFolders: [...new Set(untouched.map(topFolder))],
         next: "Fill in any '(fill in)' placeholders from the codebase analysis. Re-run with overwrite: true to regenerate; managed AGENTS.md blocks are replaced in place.",
     }));

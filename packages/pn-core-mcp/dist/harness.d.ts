@@ -30,6 +30,8 @@ export type HarnessLayout = {
     label: string;
     /** Always-loaded project instructions file at the repository root. */
     instructionsFile: "AGENTS.md" | "CLAUDE.md";
+    /** Byte cap the harness enforces on the instructions chain, when it has one (Codex: 32 KiB). */
+    instructionsCapBytes: number | null;
     rules: {
         mode: RuleMode;
         dir: string | null;
@@ -149,7 +151,52 @@ export declare function bootstrapBlock(harnesses: HarnessId[], opts?: {
         id: string;
         raw: string;
     }>;
+    omittedRules?: string[];
 }): string;
+/**
+ * Inline order for always-on rules when a byte cap forces a choice: the first entries are the
+ * ones the engine cannot work without; the last are dropped first. Unknown ids sort after.
+ */
+export declare const ALWAYS_ON_RULE_PRIORITY: readonly string[];
+export declare function sortRulesByPriority<T extends {
+    id: string;
+}>(rules: T[]): T[];
+export type InstructionsBudget = {
+    path: string;
+    /** Size of the whole instructions file after the block is applied. */
+    bytes: number;
+    capBytes: number;
+    estimatedTokens: number;
+    fits: boolean;
+    /** Bytes the file was over the cap before packing, when packing happened. */
+    warning?: string;
+};
+export type FittedInstructionsBlock = {
+    block: string;
+    /** Full file text after upserting the block into `existing`. */
+    text: string;
+    inlined: string[];
+    omitted: string[];
+    budget: InstructionsBudget;
+};
+/**
+ * Build the pnCore bootstrap block for an instructions file so that the *whole file* stays under
+ * `capBytes`: inlined rules are removed one at a time, lowest priority first, and listed as
+ * `get_rule` pointers instead. Content outside the managed block is never touched, so when the
+ * file is over the cap with nothing inlined the result reports `fits: false` with a warning.
+ */
+export declare function fitInstructionsBlock(opts: {
+    harnesses: HarnessId[];
+    existing: string | null;
+    path: string;
+    inlineRules?: Array<{
+        id: string;
+        raw: string;
+    }>;
+    capBytes: number;
+}): FittedInstructionsBlock;
+/** Measure an existing instructions file against the harness cap (read-only). */
+export declare function instructionsBudgetFor(path: string, text: string | null, capBytes: number): InstructionsBudget;
 export type ScaffoldPlanOpts = {
     harnesses: HarnessId[];
     project: ScaffoldProject;

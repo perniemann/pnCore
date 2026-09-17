@@ -37,6 +37,7 @@ export declare const projectContextSchema: {
     }>>;
     readonly run_id: z.ZodOptional<z.ZodString>;
     readonly max_trail: z.ZodOptional<z.ZodNumber>;
+    readonly max_tokens: z.ZodOptional<z.ZodNumber>;
 };
 export declare const listWorkflowTypesSchema: {};
 export declare const harnessIdEnum: z.ZodEnum<{
@@ -283,11 +284,11 @@ export declare const paperclipIssueCommentSchema: {
 export declare const paperclipIssueUpdateSchema: {
     readonly issueId: z.ZodOptional<z.ZodString>;
     readonly status: z.ZodEnum<{
-        done: "done";
+        in_progress: "in_progress";
         backlog: "backlog";
         todo: "todo";
-        in_progress: "in_progress";
         in_review: "in_review";
+        done: "done";
         blocked: "blocked";
         cancelled: "cancelled";
     }>;

@@ -9,6 +9,7 @@
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { dirname, join, resolve, sep } from "path";
+import { CODEX_AGENTS_MD_CAP_BYTES, estimateTokens, utf8Bytes } from "./context-budget.js";
 
 export const HARNESS_IDS = ["cursor", "claude_code", "codex", "pi"] as const;
 export type HarnessId = (typeof HARNESS_IDS)[number];
@@ -52,6 +53,8 @@ export type HarnessLayout = {
   label: string;
   /** Always-loaded project instructions file at the repository root. */
   instructionsFile: "AGENTS.md" | "CLAUDE.md";
+  /** Byte cap the harness enforces on the instructions chain, when it has one (Codex: 32 KiB). */
+  instructionsCapBytes: number | null;
   rules: { mode: RuleMode; dir: string | null; ext: ".mdc" | ".md" | null };
   /** Directory holding `<id>/SKILL.md` folders. */
   skillsDir: string;
@@ -70,6 +73,7 @@ export const HARNESS_LAYOUTS: Record<HarnessId, HarnessLayout> = {
     id: "cursor",
     label: "Cursor",
     instructionsFile: "AGENTS.md",
+    instructionsCapBytes: null,
     rules: { mode: "cursor_mdc", dir: ".cursor/rules", ext: ".mdc" },
     skillsDir: ".cursor/skills",
     commandsDir: ".cursor/commands",
@@ -85,6 +89,7 @@ export const HARNESS_LAYOUTS: Record<HarnessId, HarnessLayout> = {
     id: "claude_code",
     label: "Claude Code",
     instructionsFile: "CLAUDE.md",
+    instructionsCapBytes: null,
     rules: { mode: "claude_rules", dir: ".claude/rules", ext: ".md" },
     skillsDir: ".claude/skills",
     commandsDir: ".claude/commands",
@@ -101,6 +106,7 @@ export const HARNESS_LAYOUTS: Record<HarnessId, HarnessLayout> = {
     id: "codex",
     label: "Codex",
     instructionsFile: "AGENTS.md",
+    instructionsCapBytes: CODEX_AGENTS_MD_CAP_BYTES,
     rules: { mode: "instructions_section", dir: null, ext: null },
     skillsDir: ".agents/skills",
     commandsDir: null,
@@ -108,7 +114,7 @@ export const HARNESS_LAYOUTS: Record<HarnessId, HarnessLayout> = {
     mcpConfig: { path: ".codex/config.toml", format: "toml_mcp_servers" },
     hooks: null,
     notes: [
-      "AGENTS.md is the only always-on instructions slot (32 KiB default cap across the chain); keep the pnCore block short and pull rules via MCP get_rule.",
+      "AGENTS.md is the only always-on instructions slot; Codex truncates the chain at project_doc_max_bytes (32 KiB default; override the pnCore check with PNCORE_AGENTS_MD_CAP_BYTES). harness_scaffold and the installer report the file's bytes against the cap and drop inlined rules lowest-priority first to fit.",
       "Skills are discovered from .agents/skills (cwd up to repo root) and invoked as $skill-name; no project-level commands or agents directory.",
       "MCP servers: [mcp_servers.pn-core] in .codex/config.toml or ~/.codex/config.toml.",
     ],
@@ -117,6 +123,7 @@ export const HARNESS_LAYOUTS: Record<HarnessId, HarnessLayout> = {
     id: "pi",
     label: "Pi",
     instructionsFile: "AGENTS.md",
+    instructionsCapBytes: null,
     rules: { mode: "instructions_section", dir: null, ext: null },
     skillsDir: ".agents/skills",
     commandsDir: ".pi/prompts",
@@ -472,7 +479,7 @@ export function instructionsBlock(p: ScaffoldProject, harnesses: HarnessId[]): s
  */
 export function bootstrapBlock(
   harnesses: HarnessId[],
-  opts: { inlineRules?: Array<{ id: string; raw: string }> } = {}
+  opts: { inlineRules?: Array<{ id: string; raw: string }>; omittedRules?: string[] } = {}
 ): string {
   const surfaces = harnesses.map((h) => HARNESS_LAYOUTS[h].label).join(" + ");
   const out: string[] = [
@@ -497,6 +504,12 @@ export function bootstrapBlock(
       "- Pi: `/pn` opens the pnCore command menu when the package is installed; prompt templates in `.pi/prompts/` expand as `/pn-<name>`."
     );
   }
+  const omitted = opts.omittedRules ?? [];
+  if (omitted.length > 0) {
+    out.push(
+      `- Not inlined (instructions-file byte cap): ${omitted.map((id) => `\`${id}\``).join(", ")} — load with \`get_rule\` at session start.`
+    );
+  }
   const inline = opts.inlineRules ?? [];
   if (inline.length > 0) {
     out.push("", "### Always-on pnCore rules (inlined)", "");
@@ -506,6 +519,118 @@ export function bootstrapBlock(
     }
   }
   return out.join("\n") + "\n";
+}
+
+// ─── Instructions-file budget (ADR-0021) ────────────────────────────────────
+
+/**
+ * Inline order for always-on rules when a byte cap forces a choice: the first entries are the
+ * ones the engine cannot work without; the last are dropped first. Unknown ids sort after.
+ */
+export const ALWAYS_ON_RULE_PRIORITY: readonly string[] = [
+  "pn-mcp-proactive",
+  "pn-build-gate",
+  "pn-current-date",
+  "pn-agents-md",
+  "pn-tool-risk-policy",
+  "pn-orchestrator-lead",
+  "pn-aesthetics-baseline",
+  "pn-visual-indicator",
+  "pn-no-cursor-commit-trailers",
+];
+
+export function sortRulesByPriority<T extends { id: string }>(rules: T[]): T[] {
+  const rank = (id: string) => {
+    const i = ALWAYS_ON_RULE_PRIORITY.indexOf(id);
+    return i === -1 ? ALWAYS_ON_RULE_PRIORITY.length : i;
+  };
+  return [...rules].sort((a, b) => rank(a.id) - rank(b.id) || a.id.localeCompare(b.id));
+}
+
+export type InstructionsBudget = {
+  path: string;
+  /** Size of the whole instructions file after the block is applied. */
+  bytes: number;
+  capBytes: number;
+  estimatedTokens: number;
+  fits: boolean;
+  /** Bytes the file was over the cap before packing, when packing happened. */
+  warning?: string;
+};
+
+export type FittedInstructionsBlock = {
+  block: string;
+  /** Full file text after upserting the block into `existing`. */
+  text: string;
+  inlined: string[];
+  omitted: string[];
+  budget: InstructionsBudget;
+};
+
+/**
+ * Build the pnCore bootstrap block for an instructions file so that the *whole file* stays under
+ * `capBytes`: inlined rules are removed one at a time, lowest priority first, and listed as
+ * `get_rule` pointers instead. Content outside the managed block is never touched, so when the
+ * file is over the cap with nothing inlined the result reports `fits: false` with a warning.
+ */
+export function fitInstructionsBlock(opts: {
+  harnesses: HarnessId[];
+  existing: string | null;
+  path: string;
+  inlineRules?: Array<{ id: string; raw: string }>;
+  capBytes: number;
+}): FittedInstructionsBlock {
+  const ordered = sortRulesByPriority(opts.inlineRules ?? []);
+  const build = (inline: typeof ordered, omitted: string[]) => {
+    const block = bootstrapBlock(opts.harnesses, { inlineRules: inline, omittedRules: omitted });
+    const text = upsertManagedBlock(opts.existing, block).text;
+    return { block, text, bytes: utf8Bytes(text) };
+  };
+  let inline = ordered;
+  const omitted: string[] = [];
+  let cur = build(inline, omitted);
+  const initialBytes = cur.bytes;
+  while (cur.bytes > opts.capBytes && inline.length > 0) {
+    omitted.unshift(inline[inline.length - 1].id);
+    inline = inline.slice(0, -1);
+    cur = build(inline, omitted);
+  }
+  const fits = cur.bytes <= opts.capBytes;
+  const budget: InstructionsBudget = {
+    path: opts.path,
+    bytes: cur.bytes,
+    capBytes: opts.capBytes,
+    estimatedTokens: estimateTokens(cur.text),
+    fits,
+  };
+  if (!fits) {
+    budget.warning = `${opts.path} is ${cur.bytes} bytes, over the ${opts.capBytes}-byte cap by ${cur.bytes - opts.capBytes} with no pnCore rules inlined; the harness truncates the file. Shorten content outside the pnCore block.`;
+  } else if (omitted.length > 0) {
+    budget.warning = `${omitted.length} rule(s) not inlined to keep ${opts.path} under ${opts.capBytes} bytes (was ${initialBytes}): ${omitted.join(", ")}.`;
+  }
+  return { block: cur.block, text: cur.text, inlined: inline.map((r) => r.id), omitted, budget };
+}
+
+/** Measure an existing instructions file against the harness cap (read-only). */
+export function instructionsBudgetFor(
+  path: string,
+  text: string | null,
+  capBytes: number
+): InstructionsBudget {
+  const bytes = text ? utf8Bytes(text) : 0;
+  const fits = bytes <= capBytes;
+  return {
+    path,
+    bytes,
+    capBytes,
+    estimatedTokens: text ? estimateTokens(text) : 0,
+    fits,
+    ...(fits
+      ? {}
+      : {
+          warning: `${path} is ${bytes} bytes, over the ${capBytes}-byte cap by ${bytes - capBytes}; the harness truncates the file.`,
+        }),
+  };
 }
 
 function ruleFileContent(rawRule: string, layout: HarnessLayout): string | null {
