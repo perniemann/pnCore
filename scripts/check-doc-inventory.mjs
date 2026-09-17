@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 /**
- * Assert README catalog counts match on-disk inventory.
- * Prevents static prose drift for skills, commands, and workflow types.
+ * Assert README catalog counts match on-disk inventory, and that pn-guide.md
+ * states the live visible/hidden command headlines (not last quarter's numbers).
  */
 import { readFileSync, readdirSync } from "fs";
 import { join, dirname } from "path";
-import { fileURLToPath } from "url";
+import { fileURLToPath, pathToFileURL } from "url";
 import { partitionCommands } from "./command-slash-filter.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const repoRoot = join(__dirname, "..");
+const defaultRepoRoot = join(__dirname, "..");
 
-function walkSkills(dir) {
+export function walkSkills(dir) {
   let out = [];
   for (const ent of readdirSync(dir, { withFileTypes: true })) {
     const p = join(dir, ent.name);
@@ -21,61 +21,112 @@ function walkSkills(dir) {
   return out;
 }
 
-function countWorkflowTypes() {
+export function countWorkflowTypes(repoRoot) {
   const src = readFileSync(join(repoRoot, "packages/pn-core-mcp/src/tools/schemas-zod.ts"), "utf8");
   const block = src.match(/workflowTypeEnum\s*=\s*z\.enum\(\[([\s\S]*?)\]\)/);
   if (!block) throw new Error("workflowTypeEnum not found in schemas-zod.ts");
   return (block[1].match(/"[^"]+"/g) ?? []).length;
 }
 
-const skillsDir = join(repoRoot, "packages/pn-core-mcp/content/skills");
-const commandsDir = join(repoRoot, "packages/pn-core-mcp/content/commands");
-const readmePath = join(repoRoot, "README.md");
-
-const partition = partitionCommands(commandsDir);
-const actual = {
-  skills: walkSkills(skillsDir).length,
-  visible: partition.visible.length,
-  hidden: partition.hidden.length,
-  commands: partition.visible.length + partition.hidden.length,
-  workflows: countWorkflowTypes(),
-};
-
-const readme = readFileSync(readmePath, "utf8");
-const catalogLine = readme.match(
-  /\*\*Catalog:\*\* (\d+) skills.*?(\d+) visible slash palette files.*?(\d+) palette-hidden.*?(\d+) command files total\).*?(\d+) workflow types/
-);
-
-if (!catalogLine) {
-  console.error("check-doc-inventory: README catalog line not found or format changed");
-  process.exit(1);
+export function collectInventory(repoRoot) {
+  const skillsDir = join(repoRoot, "packages/pn-core-mcp/content/skills");
+  const commandsDir = join(repoRoot, "packages/pn-core-mcp/content/commands");
+  const partition = partitionCommands(commandsDir);
+  return {
+    skills: walkSkills(skillsDir).length,
+    visible: partition.visible.length,
+    hidden: partition.hidden.length,
+    commands: partition.visible.length + partition.hidden.length,
+    workflows: countWorkflowTypes(repoRoot),
+  };
 }
 
-const expected = {
-  skills: Number(catalogLine[1]),
-  visible: Number(catalogLine[2]),
-  hidden: Number(catalogLine[3]),
-  commands: Number(catalogLine[4]),
-  workflows: Number(catalogLine[5]),
-};
-
-const mismatches = [];
-if (expected.skills !== actual.skills)
-  mismatches.push(`skills README=${expected.skills} disk=${actual.skills}`);
-if (expected.visible !== actual.visible)
-  mismatches.push(`visible commands README=${expected.visible} disk=${actual.visible}`);
-if (expected.hidden !== actual.hidden)
-  mismatches.push(`hidden commands README=${expected.hidden} disk=${actual.hidden}`);
-if (expected.commands !== actual.commands)
-  mismatches.push(`commands README=${expected.commands} disk=${actual.commands}`);
-if (expected.workflows !== actual.workflows)
-  mismatches.push(`workflows README=${expected.workflows} disk=${actual.workflows}`);
-
-if (mismatches.length) {
-  console.error("check-doc-inventory: README catalog drift:\n  " + mismatches.join("\n  "));
-  process.exit(1);
+export function parseReadmeCatalog(readme) {
+  const catalogLine = readme.match(
+    /\*\*Catalog:\*\* (\d+) skills.*?(\d+) visible slash palette files.*?(\d+) palette-hidden.*?(\d+) command files total\).*?(\d+) workflow types/
+  );
+  if (!catalogLine) return null;
+  return {
+    skills: Number(catalogLine[1]),
+    visible: Number(catalogLine[2]),
+    hidden: Number(catalogLine[3]),
+    commands: Number(catalogLine[4]),
+    workflows: Number(catalogLine[5]),
+  };
 }
 
-console.log(
-  `check-doc-inventory: OK — ${actual.skills} skills, ${actual.commands} commands (${actual.visible}+${actual.hidden}), ${actual.workflows} workflows`
-);
+/** Live headlines that pn-guide.md must contain. submenu = visible minus `/pn` stub. */
+export function pnGuideLiveHeadlines(actual) {
+  const submenuLeaves = actual.visible - 1;
+  return [
+    `**${submenuLeaves}** leaves`,
+    `**${actual.visible}** visible palette files total`,
+    `**${actual.hidden}** palette-hidden`,
+  ];
+}
+
+export function checkPnGuideLiveCounts(pnGuideText, actual) {
+  return pnGuideLiveHeadlines(actual).filter((h) => !pnGuideText.includes(h));
+}
+
+export function runCheck(repoRoot = defaultRepoRoot) {
+  const actual = collectInventory(repoRoot);
+  const mismatches = [];
+
+  const readme = readFileSync(join(repoRoot, "README.md"), "utf8");
+  const expected = parseReadmeCatalog(readme);
+  if (!expected) {
+    return {
+      ok: false,
+      actual,
+      mismatches: ["README catalog line not found or format changed"],
+      message: "check-doc-inventory: README catalog line not found or format changed",
+    };
+  }
+
+  if (expected.skills !== actual.skills)
+    mismatches.push(`skills README=${expected.skills} disk=${actual.skills}`);
+  if (expected.visible !== actual.visible)
+    mismatches.push(`visible commands README=${expected.visible} disk=${actual.visible}`);
+  if (expected.hidden !== actual.hidden)
+    mismatches.push(`hidden commands README=${expected.hidden} disk=${actual.hidden}`);
+  if (expected.commands !== actual.commands)
+    mismatches.push(`commands README=${expected.commands} disk=${actual.commands}`);
+  if (expected.workflows !== actual.workflows)
+    mismatches.push(`workflows README=${expected.workflows} disk=${actual.workflows}`);
+
+  const pnGuidePath = join(repoRoot, "packages/pn-core-mcp/content/commands/pn/start/pn-guide.md");
+  const pnGuide = readFileSync(pnGuidePath, "utf8");
+  for (const missing of checkPnGuideLiveCounts(pnGuide, actual)) {
+    mismatches.push(`pn-guide.md missing live headline ${JSON.stringify(missing)}`);
+  }
+
+  if (mismatches.length) {
+    return {
+      ok: false,
+      actual,
+      mismatches,
+      message: "check-doc-inventory: catalog drift:\n  " + mismatches.join("\n  "),
+    };
+  }
+
+  return {
+    ok: true,
+    actual,
+    mismatches: [],
+    message: `check-doc-inventory: OK — ${actual.skills} skills, ${actual.commands} commands (${actual.visible}+${actual.hidden}), ${actual.workflows} workflows; pn-guide live headlines match`,
+  };
+}
+
+function isExecutedDirectly() {
+  return Boolean(process.argv[1]) && pathToFileURL(process.argv[1]).href === import.meta.url;
+}
+
+if (isExecutedDirectly()) {
+  const result = runCheck(defaultRepoRoot);
+  if (!result.ok) {
+    console.error(result.message);
+    process.exit(1);
+  }
+  console.log(result.message);
+}

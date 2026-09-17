@@ -9,7 +9,7 @@ description: Show all pnCore capabilities — commands, agents, and recommended 
 
 Show the user what pnCore can do and recommend the right starting point.
 
-> **Slash palette:** Open **`/pn`** in Cursor IDE for the pnCore submenu (**27** leaves in start/build/design/pm/audit/challenge/ship). Top-level **`/pn`** stub routes on CLI. **28** visible palette files total. Another **18** palette-hidden surgical commands remain canonical-only.
+> **Slash palette:** Open **`/pn`** in Cursor IDE for the pnCore submenu (**30** leaves in start/build/design/pm/audit/challenge/ship). Top-level **`/pn`** stub routes on CLI. **31** visible palette files total. Another **18** palette-hidden surgical commands remain canonical-only. Live counts are asserted by `scripts/check-doc-inventory.mjs` against disk; `list_commands` is the runtime inventory.
 
 ## Chat shortcodes
 
@@ -91,6 +91,7 @@ Use `ask_question` when available:
 - **pn-grill** — Interactive Socratic plan stress-test
 - **pn-skeptic** — Fast automated plan challenge
 - **pn-prompt-optimize** — Refine a prompt or instruction
+- **pn-backfill-evals** — Rank missing EVAL.yaml suites; paste-ready local-agent batches
 
 **Ship (`pn/ship/`):**
 - **pn-review** — Code quality + performance review
