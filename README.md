@@ -2,15 +2,15 @@
   <img src="plugins/pnCore/assets/pn-logo.svg" width="176" alt="pnCore" />
 </p>
 
-# pnCore — v0.19.7
+# pnCore — v0.19.8
 
 pnCore is an MCP engine with harness adapters for Cursor, Claude Code, Codex, and Pi. It runs software delivery as a sequence of named, gated steps instead of one long chat.
 
 <p align="center">
-  <img src="docs/readme/01_control_rail.svg" width="850" alt="workflow_step is a deterministic rail. Discovery, plan, skeptic, specialists, and review sit as bounded nodes. The plugin slash palette and Pi are side surfaces, not a second product. The skeptic gate is the live step.">
+  <img src="docs/readme/01_control_rail.svg" width="850" alt="workflow_step is a named rail: discovery, plan, build, review. A skeptic gate latches plan to build. Same engine on Cursor, Claude Code, Codex, and Pi.">
 </p>
 
-It ships discovery, planning, skeptic challenge, design, audits, assets, and delivery through a deterministic `workflow_step` engine — backed by skills, agents, rules, and `pn-core://` resources, not a folder of prompts.
+It runs named workflows through a deterministic `workflow_step` engine — discovery, plan, build, review on `full_dev`; design, audits, assets, and deliver as other types — backed by skills, agents, rules, and `pn-core://` resources, not a folder of prompts.
 
 **Catalog:** 171 skills, 9 public agents + 6 internal orchestration agents, 31 visible slash palette files (30 under **`pn`** submenu + **`/pn`** stub) + 18 palette-hidden surgical commands (49 command files total), 29 MCP tools, 16 workflow types, plus `pn-core://` resources and prompts.
 
@@ -19,7 +19,7 @@ It ships discovery, planning, skeptic challenge, design, audits, assets, and del
 ## Why this exists
 
 <p align="center">
-  <img src="docs/readme/02_who_owns_the_loop.svg" width="850" alt="Left: a single chat plans, codes, and checks its own work with no checkpoint in between. Right: workflow_step runs one gated step at a time, with skeptic, human, or workflow_verify deciding pass or fail. Same models either way — the MCP keeps the state between calls.">
+  <img src="docs/readme/02_who_owns_the_loop.svg" width="850" alt="Left: a single chat plans, codes, and checks its own work with no checkpoint in between. Right: the engine runs one gated step at a time, with skeptic, human, or workflow_verify deciding pass or fail. Same models either way — the MCP keeps the state between calls.">
 </p>
 
 A single chat can plan a feature, write the code, and tell you it's done — but there's no checkpoint in between. If it goes sideways on step three, you're rereading the whole transcript to find out where. Asking it to redo one part usually means starting the conversation over, and whatever context got it that far is gone.
@@ -32,14 +32,14 @@ pnCore moves that step list out of the chat. `workflow_step(type, index, state)`
 
 **Deterministic.** `workflow_step(type, index, state)` decides the next instruction. Steps aren't skipped by assumption — skipping one is a gate decision, logged in state.
 
-**Gated.** Skeptic, human, and `workflow_verify` gates are built into the engine. Intent is `full auto`, `design focused`, or `involved` — involved means you approve discovery, plan, specialists, and review before they run.
+**Gated.** Skeptic, human, and `workflow_verify` gates are built into the engine. Intent is `full auto`, `design focused`, or `involved`. Involved gates discovery, prior-art, plan, specialist list, and review — you confirm to advance. Design focused is the `design` workflow, not a third gate flavor of `full_dev`.
 
-**Multi-harness.** One canonical tree in `packages/pn-core-mcp/content/`; one engine; four adapters. `harness_detect` finds the active surface and `harness_scaffold` / `plugin-install --harness` write only the folders that surface reads — `.cursor/` (Cursor), `.claude/` + `.mcp.json` (Claude Code), `.agents/skills` + `AGENTS.md` block (Codex), `.agents/skills` + `.pi/prompts` (Pi). Pi registers the same 29 tools natively. Matrix: `pn-core://reference/harness-matrix.md`, [ADR-0016](docs/adr/0016-harness-adapters.md).
+**Multi-harness.** One canonical tree in `packages/pn-core-mcp/content/`; one engine; four adapters. `harness_detect` finds the active surface and `harness_scaffold` / `plugin-install --harness` write only the folders that surface reads — `.cursor/` (Cursor), `.claude/` + `.mcp.json` (Claude Code), `.agents/skills` + `AGENTS.md` block (Codex), `.agents/skills` + `.pi/prompts` (Pi). Pi registers the same tools natively. Matrix: `pn-core://reference/harness-matrix.md`, [ADR-0016](docs/adr/0016-harness-adapters.md).
 
 **Resumable.** Every run has a `run_id`. Handoff lines and usage land in JSONL. After a disconnect, load state and continue the same step list.
 
 <p align="center">
-  <img src="docs/readme/03_three_surfaces.svg" width="850" alt="Canonical content under packages/pn-core-mcp/content/ installs into the MCP server, the Cursor plugin, and Pi native tools. Edit the source once; all three stay in sync.">
+  <img src="docs/readme/03_four_harnesses.svg" width="850" alt="Canonical content under packages/pn-core-mcp/content/ feeds one engine. harness_scaffold writes only the folders for Cursor, Claude Code, Codex, or Pi. Pi can run the same tools natively.">
 </p>
 
 ---
@@ -121,7 +121,7 @@ Windows, Cloud Agents, this-checkout `node` paths, and first-npx timeouts: [pack
 2. Call `health` — version, UTC date, capabilities.
 3. **New repo or greenfield:** `/pn-new` or `workflow_step("project_kickoff", 0, {})` — discovery, refs, PRD, and design docs under `docs/refs/`.
 4. **Build or extend:** `/pn-build` or `workflow_step("full_dev", 0, {})` — skips kickoff when the project already has context.
-5. Before ship: `/pn-deliver` or `/pn-frontend-audit`.
+5. Optional after the run: `/pn-deliver` for a handoff pack, or `/pn-frontend-audit`.
 
 Copy-paste first message:
 
@@ -131,11 +131,11 @@ pn-new ▲
 Build [your-project-name] — [one-line description].
 References: [path or "in .ref/"] (pitch, requirements, design assets).
 Analyze both: prior art and design.
-Intent: Involved — full gates at discovery, plan, specialists, and review.
+Intent: Involved — full gates at discovery, prior-art, plan, specialist list, and review.
 Delivery tier: full. Design ambition: distinctive.
 ```
 
-Answer Step 0: Yes, Both. Step 1: (3) Involved.
+pn-new questionnaire: Step 0 of 2 — Yes, Both. Step 1 of 2 — (3) Involved.
 
 More prompts: [docs/how-to-use-guide.md](docs/how-to-use-guide.md).
 
@@ -144,7 +144,7 @@ More prompts: [docs/how-to-use-guide.md](docs/how-to-use-guide.md).
 ## Workflows
 
 <p align="center">
-  <img src="docs/readme/04_full_dev_lanes.svg" width="850" alt="You start /pn-build. The MCP runs discovery and plan. You pass the skeptic gate. Specialists build. The MCP reviews. A step only counts once its gate passes; /pn-deliver waits as the next named step.">
+  <img src="docs/readme/04_full_dev_lanes.svg" width="850" alt="You start /pn-build. The MCP runs discovery and plan. On involved intent you pass the skeptic gate. Specialists build. The MCP reviews. A step only counts once its gate passes; /pn-deliver waits as the next named step.">
 </p>
 
 Call `list_workflow_types` for live step counts.
@@ -167,20 +167,18 @@ Also on the engine: `visual_tweak`, `prompt_optimize`, `game_feature`, `engine_f
 
 | # | Who | Action |
 |---|-----|--------|
-| 1 | You | `/pn-new` or "Start a new project with full dev workflow." Choose **full auto**, **design focused**, or **involved**. |
-| 2 | Agent | `workflow_step("full_dev", 0)` — discovery: purpose, users, stack, references, existing code. |
-| 3 | Agent | Prior-art and research pass for your stack. |
-| 4 | Agent | `workflow_step("full_dev", 2)` — roadmap, phases, architecture, plan under `docs/plans/`. |
-| 5 | You | Review plan. **Involved** intent runs skeptic challenge; approve before build. |
-| 6 | Agent | `workflow_step("full_dev", 3)` — specialist routing (frontend, backend, testing, …). |
-| 7 | Agent | `workflow_step("full_dev", 4)` — specialists build; UI assets created when in scope. |
-| 8 | Agent | Optional merge phase (`mergePhaseFullDev`): reconcile parallel work, verify build. |
-| 9 | Agent | `workflow_step("full_dev", 5)` — review + optimize against the plan. |
-| 10 | You | `/pn-deliver` for handoff pack, or `/pn-frontend-audit` for a scored quality gate. |
+| 1 | You | `/pn-build` or `workflow_step("full_dev", 0, {})`. Pass `intent: "involved"` when you want full gates. |
+| 2 | MCP | Discovery, then prior-art for your stack. |
+| 3 | MCP | Plan under `docs/plans/`. |
+| 4 | You | **Involved:** skeptic latches plan to build (`workflow_confirm`); not a peer step. |
+| 5 | MCP | Specialists build; UI assets when in scope. |
+| 6 | MCP | Review + optimize against the plan. |
 
 Tool steps are 0-based. Resume after disconnect: `workflow_state_save` then `workflow_state_load`. Schema: `pn-core://reference/workflow-state-schema.md`.
 
-**Design-first:** `workflow_step("design", 0)` instead of `full_dev`. Load `.pncore-design.md` via `/pn-setup`.
+After the run, `/pn-deliver` is the next named workflow if you need a handoff pack (or `/pn-frontend-audit` for a scored quality gate).
+
+**Design-first:** `design focused` intent (or `/pn-design`) runs `workflow_step("design", 0)` — not `full_dev`. Load `.pncore-design.md` via `/pn-setup`.
 
 **Game / 3D:** `workflow_step("game_feature", 0)` for feature loops. For full builds, use `full_dev` and name the stack in discovery.
 
@@ -223,7 +221,7 @@ Load before a build session: `pn-core://reference/best-practices.md`, `pn-core:/
 | [docs/how-to-use-guide.md](docs/how-to-use-guide.md) | Copy-paste prompts, example flows, MCP-only bootstrap |
 | [docs/mcp-usage-guide.md](docs/mcp-usage-guide.md) | MCP tools, resources, workflow patterns, state/handoff |
 | [docs/plugin-reference.md](docs/plugin-reference.md) | Rules, skills, agents, commands, hooks |
-| [packages/pn-core-mcp/README.md](packages/pn-core-mcp/README.md) | MCP config, 29 tools, env vars, error codes, resources |
+| [packages/pn-core-mcp/README.md](packages/pn-core-mcp/README.md) | MCP config, tools, env vars, error codes, resources |
 | [docs/companion-mcp-catalog.md](docs/companion-mcp-catalog.md) | Companion MCPs (Octocode, Stripe, n8n, …) |
 | [docs/pitch-to-app-example.md](docs/pitch-to-app-example.md) | End-to-end pitch-to-app walkthrough |
 | [packages/pn-core-mcp/content/docs/starting-new-project.md](packages/pn-core-mcp/content/docs/starting-new-project.md) | Kickoff and `docs/refs/` setup |

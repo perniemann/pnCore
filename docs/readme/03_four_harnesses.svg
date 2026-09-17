@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 560" width="1120" height="560"
      role="img" aria-labelledby="surf-title surf-desc">
-  <title id="surf-title">One content body, three surfaces</title>
-  <desc id="surf-desc">Canonical content under packages/pn-core-mcp/content/ installs into the MCP server, the Cursor plugin, and Pi native tools. Edit the source once; all three stay in sync.</desc>
+  <title id="surf-title">One tree, four harnesses</title>
+  <desc id="surf-desc">Canonical content under packages/pn-core-mcp/content/ feeds one engine. harness_scaffold writes only the folders for Cursor, Claude Code, Codex, or Pi. Pi can run the same tools natively, with no MCP subprocess.</desc>
   <defs>
     <style><![CDATA[
 
@@ -30,7 +30,7 @@
       .arr { opacity: 0; stroke-dasharray: 160; stroke-dashoffset: 160; animation: draw .5s ease .7s forwards; }
       .mark { opacity: 0; transform: scale(.9); transform-box: fill-box; transform-origin: center; animation: pop .4s cubic-bezier(.2,.9,.3,1.2) .85s forwards; }
       .tgt { opacity: 0; transform: translateX(10px); animation: sl2 .45s cubic-bezier(.2,.8,.3,1) forwards; }
-      .t1{animation-delay:1.15s} .t2{animation-delay:1.3s} .t3{animation-delay:1.45s}
+      .t1{animation-delay:1.15s} .t2{animation-delay:1.35s}
       .ft { opacity: 0; animation: f .45s ease 1.7s forwards; }
       @keyframes f { to { opacity: 1 } }
       @keyframes sl { to { opacity: 1; transform: translateX(0) } }
@@ -65,50 +65,47 @@
     <rect width="1120" height="560" rx="14" fill="url(#surf-vignette)"/>
   </g>
 
-  <text class="pix ttl" x="56" y="68" font-size="14" fill="#e8e8e8">ONE CONTENT BODY</text>
+  <text class="pix ttl" x="56" y="68" font-size="14" fill="#e8e8e8">ONE TREE, FOUR HARNESSES</text>
 
   <g class="src">
     <rect x="56" y="108" width="360" height="352" rx="4" fill="#0e0e0e" stroke="#dc2626" stroke-width="2"/>
-    <text class="pix" x="76" y="144" font-size="10" fill="#e8e8e8">content/</text>
-    <text class="mono" x="76" y="172" font-size="12" fill="#dc2626">CANONICAL</text>
-    <line x1="76" y1="188" x2="388" y2="188" stroke="#2a2a2a" stroke-width="1"/>
-    <text class="mono" x="76" y="220" font-size="14" fill="#e8e8e8">skills/</text>
-    <text class="mono" x="220" y="220" font-size="13" fill="#7a7672">170</text>
-    <text class="mono" x="76" y="248" font-size="14" fill="#e8e8e8">commands/</text>
-    <text class="mono" x="220" y="248" font-size="13" fill="#7a7672">slash + hidden</text>
-    <text class="mono" x="76" y="276" font-size="14" fill="#e8e8e8">agents/</text>
-    <text class="mono" x="220" y="276" font-size="13" fill="#7a7672">public + internal</text>
-    <text class="mono" x="76" y="304" font-size="14" fill="#e8e8e8">rules/</text>
-    <text class="mono" x="220" y="304" font-size="13" fill="#7a7672">file-glob</text>
-    <text class="mono" x="76" y="332" font-size="14" fill="#e8e8e8">reference/</text>
-    <text class="mono" x="220" y="332" font-size="13" fill="#7a7672">pn-core://</text>
-    <line x1="76" y1="352" x2="388" y2="352" stroke="#2a2a2a" stroke-width="1"/>
-    <text class="mono" x="76" y="384" font-size="13" fill="#7a7672">same skills, agents, rules</text>
-    <text class="mono" x="76" y="412" font-size="13" fill="#7a7672">one source, kept in sync</text>
+    <text class="pix" x="76" y="148" font-size="12" fill="#e8e8e8">content/</text>
+    <text class="mono" x="76" y="176" font-size="13" fill="#dc2626">source</text>
+    <line x1="76" y1="192" x2="388" y2="192" stroke="#2a2a2a" stroke-width="1"/>
+    <text class="mono" x="76" y="224" font-size="14" fill="#e8e8e8">skills/</text>
+    <text class="mono" x="76" y="252" font-size="14" fill="#e8e8e8">commands/</text>
+    <text class="mono" x="76" y="280" font-size="14" fill="#e8e8e8">agents/</text>
+    <text class="mono" x="76" y="308" font-size="14" fill="#e8e8e8">rules/</text>
+    <text class="mono" x="76" y="336" font-size="14" fill="#e8e8e8">reference/</text>
+    <line x1="76" y1="356" x2="388" y2="356" stroke="#2a2a2a" stroke-width="1"/>
+    <text class="mono" x="76" y="388" font-size="13" fill="#8c8884">same skills, agents, rules</text>
+    <text class="mono" x="76" y="416" font-size="13" fill="#8c8884">one source, kept in sync</text>
   </g>
 
-  <line class="arr" x1="432" y1="284" x2="560" y2="284" stroke="#e8e8e8" stroke-width="2"/>
+  <line class="arr" x1="432" y1="248" x2="560" y2="248" stroke="#e8e8e8" stroke-width="2"/>
   <g class="mark">
-    <polygon points="496,236 520,276 472,276" fill="none" stroke="#dc2626" stroke-width="1.4"/>
-    <text class="mono" x="496" y="312" text-anchor="middle" font-size="12" fill="#7a7672">install</text>
+    <polygon points="496,200 520,240 472,240" fill="none" stroke="#dc2626" stroke-width="1.4"/>
+    <text class="mono" x="496" y="276" text-anchor="middle" font-size="12" fill="#8c8884">install</text>
   </g>
 
   <g class="tgt t1">
-    <rect x="576" y="108" width="488" height="128" rx="4" fill="#0e0e0e" stroke="#e8e8e8" stroke-width="1.6"/>
-    <text class="pix" x="596" y="144" font-size="10" fill="#e8e8e8">MCP</text>
-    <text class="mono" x="596" y="172" font-size="13" fill="#e8e8e8">the engine</text>
-    <text class="mono" x="596" y="196" font-size="13" fill="#7a7672">29 tools · workflow_step · any client</text>
+    <rect x="576" y="160" width="488" height="176" rx="4" fill="#0e0e0e" stroke="#e8e8e8" stroke-width="1.6"/>
+    <text class="pix" x="596" y="200" font-size="12" fill="#e8e8e8">ENGINE</text>
+    <text class="mono" x="596" y="232" font-size="14" fill="#e8e8e8">workflow_step · any client</text>
+    <text class="mono" x="596" y="260" font-size="13" fill="#8c8884">MCP server, or Pi native tools</text>
+    <text class="mono" x="596" y="308" font-size="13" fill="#8c8884">one engine. four adapters.</text>
   </g>
   <g class="tgt t2">
-    <rect x="608" y="252" width="456" height="80" rx="4" fill="#0e0e0e" stroke="#686868" stroke-width="1.2"/>
-    <text class="pix" x="628" y="284" font-size="10" fill="#e8e8e8">PLUGIN</text>
-    <text class="mono" x="628" y="308" font-size="13" fill="#7a7672">/ palette · rules · agents · hooks</text>
-  </g>
-  <g class="tgt t3">
-    <rect x="640" y="348" width="424" height="80" rx="4" fill="#0e0e0e" stroke="#686868" stroke-width="1.2"/>
-    <text class="pix" x="660" y="380" font-size="10" fill="#e8e8e8">PI</text>
-    <text class="mono" x="660" y="404" font-size="13" fill="#7a7672">native tools · no MCP subprocess</text>
+    <rect x="576" y="356" width="110" height="40" rx="2" fill="#0e0e0e" stroke="#686868" stroke-width="1"/>
+    <text class="mono" x="631" y="381" text-anchor="middle" font-size="12" fill="#8c8884">cursor</text>
+    <rect x="702" y="356" width="110" height="40" rx="2" fill="#0e0e0e" stroke="#686868" stroke-width="1"/>
+    <text class="mono" x="757" y="381" text-anchor="middle" font-size="12" fill="#8c8884">claude</text>
+    <rect x="828" y="356" width="110" height="40" rx="2" fill="#0e0e0e" stroke="#686868" stroke-width="1"/>
+    <text class="mono" x="883" y="381" text-anchor="middle" font-size="12" fill="#8c8884">codex</text>
+    <rect x="954" y="356" width="110" height="40" rx="2" fill="#0e0e0e" stroke="#686868" stroke-width="1"/>
+    <text class="mono" x="1009" y="381" text-anchor="middle" font-size="12" fill="#8c8884">pi</text>
+    <text class="mono" x="1064" y="424" text-anchor="end" font-size="12" fill="#8c8884">pi · native tools, no MCP subprocess</text>
   </g>
 
-  <text class="mono ft" x="56" y="508" font-size="14" fill="#7a7672">One source. Three surfaces. The engine lives in the MCP.</text>
+  <text class="mono ft" x="56" y="508" font-size="14" fill="#8c8884">Edit the source once. harness_scaffold writes only the folders that surface reads.</text>
 </svg>

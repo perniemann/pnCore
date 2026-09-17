@@ -2,7 +2,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 600" width="1120" height="600"
      role="img" aria-labelledby="loop-title loop-desc">
   <title id="loop-title">Who owns the loop</title>
-  <desc id="loop-desc">Left: a single chat plans, codes, and checks its own work with no checkpoint in between. Right: workflow_step runs one gated step at a time, with skeptic, human, or workflow_verify deciding pass or fail. Same models either way — the MCP keeps the state between calls.</desc>
+  <desc id="loop-desc">Left: a single chat plans, codes, and checks its own work with no checkpoint in between. Right: the engine runs one gated step at a time, with skeptic, human, or workflow_verify deciding pass or fail. Same models either way — the MCP keeps the state between calls.</desc>
   <defs>
     <style><![CDATA[
 
@@ -27,12 +27,13 @@
 
       .ttl { opacity: 0; animation: f .5s ease .08s forwards; }
       .left { opacity: 0; animation: f .5s ease .2s forwards; }
-      .loop { opacity: 0; stroke-dasharray: 420; stroke-dashoffset: 420; animation: draw .8s ease .45s forwards; }
       .right { opacity: 0; animation: f .5s ease .75s forwards; }
       .rr { opacity: 0; stroke-dasharray: 400; stroke-dashoffset: 400; animation: draw .8s ease .95s forwards; }
       .rn { opacity: 0; transform: translateY(8px); animation: rise .35s ease forwards; }
       .r1{animation-delay:1.15s} .r2{animation-delay:1.3s} .r3{animation-delay:1.45s} .r4{animation-delay:1.6s}
       .vd { opacity: 0; animation: f .5s ease 1.9s forwards; }
+      .run { animation: pulse 3.2s ease-in-out 2s infinite; }
+      @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: .75 } }
       @keyframes f { to { opacity: 1 } }
       @keyframes rise { to { opacity: 1; transform: translateY(0) } }
       @keyframes draw { 0%{opacity:0} 100% { opacity: .9; stroke-dashoffset: 0 } }
@@ -68,44 +69,44 @@
 
   <g class="left">
     <rect x="48" y="100" width="496" height="400" rx="4" fill="none" stroke="#2a2a2a" stroke-width="1" stroke-dasharray="6 5"/>
-    <text class="pix" x="296" y="140" text-anchor="middle" font-size="11" fill="#7a7672">THE CHAT</text>
-    <text class="mono" x="296" y="164" text-anchor="middle" font-size="13" fill="#686868">no checkpoints in between</text>
-    <rect x="176" y="200" width="240" height="88" rx="4" fill="#0e0e0e" stroke="#7a7672" stroke-width="1.2"/>
+    <text class="pix" x="296" y="140" text-anchor="middle" font-size="12" fill="#8c8884">THE CHAT</text>
+    <text class="mono" x="296" y="164" text-anchor="middle" font-size="13" fill="#8c8884">no checkpoints in between</text>
+    <rect x="176" y="200" width="240" height="88" rx="4" fill="#0e0e0e" stroke="#8c8884" stroke-width="1.2"/>
     <text class="mono" x="296" y="240" text-anchor="middle" font-size="14" fill="#e8e8e8">single session</text>
-    <text class="mono" x="296" y="264" text-anchor="middle" font-size="12" fill="#7a7672">plans, codes, checks its own work</text>
-    <text class="mono" x="80" y="340" font-size="13" fill="#7a7672">x  no named steps</text>
-    <text class="mono" x="80" y="368" font-size="13" fill="#7a7672">x  nothing marks it done</text>
-    <text class="mono" x="80" y="396" font-size="13" fill="#7a7672">x  retry means a new chat</text>
-    <text class="mono" x="80" y="424" font-size="13" fill="#7a7672">x  two runs, two different results</text>
+    <text class="mono" x="296" y="264" text-anchor="middle" font-size="12" fill="#8c8884">plans, codes, checks its own work</text>
+    <text class="mono" x="80" y="340" font-size="13" fill="#8c8884">x  no named steps</text>
+    <text class="mono" x="80" y="368" font-size="13" fill="#8c8884">x  nothing marks it done</text>
+    <text class="mono" x="80" y="396" font-size="13" fill="#8c8884">x  retry means a new chat</text>
+    <text class="mono" x="80" y="424" font-size="13" fill="#8c8884">x  two runs, two different results</text>
   </g>
-  <path class="loop" d="M176,244 C120,244 120,184 296,184 C472,184 472,244 416,244"
-        fill="none" stroke="#686868" stroke-width="1.6"/>
 
   <g class="right">
     <rect x="576" y="100" width="496" height="400" rx="4" fill="none" stroke="#2a2a2a" stroke-width="1"/>
-    <text class="pix" x="824" y="140" text-anchor="middle" font-size="11" fill="#e8e8e8">THE MCP</text>
-    <text class="mono" x="824" y="164" text-anchor="middle" font-size="13" fill="#7a7672">each agent runs one gated step</text>
+    <text class="pix" x="824" y="140" text-anchor="middle" font-size="12" fill="#e8e8e8">THE MCP</text>
+    <text class="mono" x="824" y="164" text-anchor="middle" font-size="13" fill="#8c8884">one gated step at a time</text>
   </g>
   <line class="rr" x1="608" y1="244" x2="1040" y2="244" stroke="#686868" stroke-width="6" stroke-linecap="square"/>
   <g class="rn r1">
     <rect x="608" y="208" width="88" height="72" rx="4" fill="#0e0e0e" stroke="#e8e8e8" stroke-width="1.2"/>
     <text class="mono" x="652" y="240" text-anchor="middle" font-size="12" fill="#e8e8e8">plan</text>
-    <text class="mono" x="652" y="260" text-anchor="middle" font-size="11" fill="#7a7672">node</text>
+    <text class="mono" x="652" y="260" text-anchor="middle" font-size="11" fill="#8c8884">node</text>
   </g>
   <g class="rn r2">
-    <rect x="712" y="208" width="88" height="72" rx="4" fill="#0e0e0e" stroke="#dc2626" stroke-width="2"/>
-    <text class="mono" x="756" y="240" text-anchor="middle" font-size="12" fill="#e8e8e8">gate</text>
-    <text class="mono" x="756" y="260" text-anchor="middle" font-size="11" fill="#dc2626">skeptic</text>
+    <g class="run">
+      <rect x="712" y="208" width="88" height="72" rx="4" fill="#0e0e0e" stroke="#dc2626" stroke-width="2"/>
+      <text class="mono" x="756" y="240" text-anchor="middle" font-size="12" fill="#e8e8e8">gate</text>
+      <text class="mono" x="756" y="260" text-anchor="middle" font-size="11" fill="#dc2626">skeptic</text>
+    </g>
   </g>
   <g class="rn r3">
     <rect x="816" y="208" width="88" height="72" rx="4" fill="#0e0e0e" stroke="#e8e8e8" stroke-width="1.2"/>
     <text class="mono" x="860" y="240" text-anchor="middle" font-size="12" fill="#e8e8e8">build</text>
-    <text class="mono" x="860" y="260" text-anchor="middle" font-size="11" fill="#7a7672">node</text>
+    <text class="mono" x="860" y="260" text-anchor="middle" font-size="11" fill="#8c8884">node</text>
   </g>
   <g class="rn r4">
     <rect x="920" y="208" width="88" height="72" rx="4" fill="#0e0e0e" stroke="#e8e8e8" stroke-width="1.2"/>
-    <text class="mono" x="964" y="240" text-anchor="middle" font-size="12" fill="#e8e8e8">verify</text>
-    <text class="mono" x="964" y="260" text-anchor="middle" font-size="11" fill="#7a7672">code</text>
+    <text class="mono" x="964" y="240" text-anchor="middle" font-size="12" fill="#e8e8e8">review</text>
+    <text class="mono" x="964" y="260" text-anchor="middle" font-size="11" fill="#8c8884">verify</text>
   </g>
   <g class="right">
     <text class="mono" x="608" y="340" font-size="13" fill="#e8e8e8">+  every step named</text>

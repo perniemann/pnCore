@@ -130,7 +130,7 @@ Second pass in the same quarter, after catalog growth through **v0.19.4**. Scope
 | ADR-0006 | Status said P2 delivered; Consequences still said "P2 next" | Consequences amended; 0009/0012 counts left as decision-time snapshots |
 | `pn-orchestration-philosophy` | Free-text "Reply yes" gate | Structured `ask_question` / `workflow_confirm` |
 | `CONTRIBUTING.md` | Claimed `prepare` always runs `build:mcp` | Matches `prepare-root.mjs` (build only when dist missing) |
-| `docs/readme/03_three_surfaces.svg` | "26 tools" | "29 tools" |
+| `docs/readme/03_three_surfaces.svg` (now `03_four_harnesses.svg`) | "26 tools" | "29 tools" |
 | `context-index.json` | `last_reviewed` 2026-09-02 | 2026-09-17 |
 | EVAL.yaml | 159/171 skills missing (ADR-0010 advisory) | Recorded; next action `npm run list:eval-backfill` (5-skill local batches) |
 | Session retros | Only template + README under `docs/refs/retros/` | Recorded; `/pn-retro` v1 unused, v2 rollup still blocked |

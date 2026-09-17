@@ -4,6 +4,12 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.19.8] - 2026-09-17
+
+### Changed
+
+- User-facing docs and house diagrams: one MCP engine, four harness adapters. Live "29 tools" counts stay on the Catalog line only; `pn-project-builder` is internal orchestration. Diagram file `03_three_surfaces.svg` renamed to `03_four_harnesses.svg`.
+
 ## [0.19.7] - 2026-09-17
 
 ### Changed
