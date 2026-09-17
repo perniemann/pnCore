@@ -1,5 +1,5 @@
 /**
- * Step spans (ADR-0018): answer *where* a workflow run spent its time.
+ * Step spans (ADR-0020): answer *where* a workflow run spent its time.
  *
  * Every `workflow_step` call is one span in a run. The span carries a monotonic `stepIndex`
  * per run_id, `sinceLastStepMs` (agent wall time since the previous step of the same run —

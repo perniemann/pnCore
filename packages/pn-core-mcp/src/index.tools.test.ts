@@ -755,7 +755,7 @@ describe("MCP per-tool integration", () => {
     expect(err.code).toBe("PATH_TRAVERSAL");
   });
 
-  it("workflow_run_query: step spans + tagged loads + timeline for a run (ADR-0018)", async () => {
+  it("workflow_run_query: step spans + tagged loads + timeline for a run (ADR-0020)", async () => {
     const run_id = `spans-test-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const s0 = await client.callTool({
       name: "workflow_step",

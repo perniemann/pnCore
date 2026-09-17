@@ -1,9 +1,9 @@
 ---
-title: "ADR-0018: Step spans on the run log"
+title: "ADR-0020: Step spans on the run log"
 updated: 2026-09-14
 ---
 
-# ADR-0018: Step spans on the run log
+# ADR-0020: Step spans on the run log
 
 ## Status
 

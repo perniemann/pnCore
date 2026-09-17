@@ -8,7 +8,7 @@ All notable changes to pnCore are documented in this file.
 
 ### Added
 
-- **Step spans on the run log** (ADR-0018): every `workflow-runs.jsonl` entry now carries `stepIndex` (0-based, monotonic per `runId`, recovered from the log tail after a server restart), `sinceLastStepMs` (agent wall time since the previous step of the run; `null` on the first), and `engineMs` (time inside the engine). `get_skill` / `get_agent` / `get_command` / `get_rule` calls with `run_id` are tagged with the current `stepIndex` in `skill-load-log.jsonl`. No new files, no change to the `workflow_step` response.
+- **Step spans on the run log** (ADR-0020): every `workflow-runs.jsonl` entry now carries `stepIndex` (0-based, monotonic per `runId`, recovered from the log tail after a server restart), `sinceLastStepMs` (agent wall time since the previous step of the run; `null` on the first), and `engineMs` (time inside the engine). `get_skill` / `get_agent` / `get_command` / `get_rule` calls with `run_id` are tagged with the current `stepIndex` in `skill-load-log.jsonl`. No new files, no change to the `workflow_step` response.
 - **`workflow_run_query` reads every trail**: `kinds` `step`, `usage`, `handoff`, `gate` (accepted before, never served) now return their `.pncore` records merged with verify/acceptance in time order; new kind `load` returns `get_*` loads. New `timeline: true` joins them per step — loads, tokens, handoff, gates, verify — with `totals`, `wallMs`, `slowest` step, `done`, `accepted`. Default `kinds` (verify + acceptance) are unchanged. Response gains `paths` (one per trail).
 
 ## [0.19.2] - 2026-09-17

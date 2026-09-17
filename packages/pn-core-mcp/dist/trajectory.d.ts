@@ -21,7 +21,7 @@ export type RunLogEntry = {
     workflowPhase?: string;
     parallel?: boolean;
     taskIds?: string[];
-    /** Step-span fields (ADR-0018); absent in logs written before spans existed. */
+    /** Step-span fields (ADR-0020); absent in logs written before spans existed. */
     stepIndex?: number;
     sinceLastStepMs?: number | null;
     engineMs?: number;

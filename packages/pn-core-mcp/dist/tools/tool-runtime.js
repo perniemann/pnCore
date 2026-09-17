@@ -87,7 +87,7 @@ export function appendSkillLoadLog(tool, id, run_id) {
             tool,
             id,
             ...(run_id ? { run_id } : {}),
-            // Which workflow_step span this load happened under (ADR-0018).
+            // Which workflow_step span this load happened under (ADR-0020).
             ...(stepIndex !== undefined ? { stepIndex } : {}),
         }) + "\n", "utf-8");
     }

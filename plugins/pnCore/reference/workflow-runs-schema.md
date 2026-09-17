@@ -33,7 +33,7 @@ Each successful `workflow_step` call appends one JSON object (one line) to `.pnc
 | `workflowPhase` | string (optional) | Same-step phase the engine entered (`merge`, `github_issues`, `tournament_*`); absent otherwise |
 | `parallel` | boolean (optional) | `true` when the step fanned out parallel specialist tasks |
 | `taskIds` | string[] (optional) | `tasks[].id` of the fan-out, when present |
-| `stepIndex` | number | Step span (ADR-0018): 0-based position of this call within the run (`runId`), monotonic per run. Recovered from the log tail after a server restart |
+| `stepIndex` | number | Step span (ADR-0020): 0-based position of this call within the run (`runId`), monotonic per run. Recovered from the log tail after a server restart |
 | `sinceLastStepMs` | number \| null | Wall time since the previous `workflow_step` of the same run — the agent's working time for the previous step. `null` on the first call of a run |
 | `engineMs` | number | Time inside `getWorkflowStep` plus gate checks (two decimals). Tells engine cost apart from agent time |
 | `stateKeys` | string[] | Keys present in state with non-null values |
@@ -44,7 +44,7 @@ Each successful `workflow_step` call appends one JSON object (one line) to `.pnc
 - Run analysis: which gates are hit, step counts per workflow
 - Gating optimization: correlate gate names with outcomes before tuning instructions
 - Debugging: trace step order and state keys through a run
-- **Step spans (ADR-0018):** `workflow_run_query` with `kinds: ["step"]` returns these entries (without `state`) as events; `timeline: true` joins them with `skill-load-log.jsonl` (loads carry the `stepIndex` they happened under), `usage.jsonl`, `workflow-handoff.jsonl`, `gate-log.jsonl`, and `run-events.jsonl` into one per-step view with totals, `wallMs`, and the slowest step by `sinceLastStepMs` — the answer to *where* a run spent its time
+- **Step spans (ADR-0020):** `workflow_run_query` with `kinds: ["step"]` returns these entries (without `state`) as events; `timeline: true` joins them with `skill-load-log.jsonl` (loads carry the `stepIndex` they happened under), `usage.jsonl`, `workflow-handoff.jsonl`, `gate-log.jsonl`, and `run-events.jsonl` into one per-step view with totals, `wallMs`, and the slowest step by `sinceLastStepMs` — the answer to *where* a run spent its time
 - **Trajectory replay (ADR-0019):** with `PNCORE_RUN_LOG_STATE=1`, one run's entries become a replay fixture. `npm run trajectory:record -- --run-id <id> --name <fixture-name>` writes `packages/pn-core-mcp/src/fixtures/trajectories/<fixture-name>.json`; `src/trajectory.test.ts` replays every fixture through `getWorkflowStep` in `npm run test:full` and fails on any routing drift (nextStep, gate, done, workflowPhase, parallel tasks). Use `--list` to see recorded runs.
 
 ## Config
