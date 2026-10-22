@@ -1672,3 +1672,17 @@ describe("workflows contract", () => {
     });
   });
 });
+
+describe("handoff instruction (ADR-0022)", () => {
+  it("multi-phase steps point at workflow_state_save commit mode with handoff_append as fallback", () => {
+    const result = getWorkflowStep("design", 0, {});
+    if ("error" in result) throw new Error(result.error);
+    expect(result.instruction).toMatch(
+      /workflow_state_save\(\{ state, run_id: .*step: .*summary: .*expected_revision:/
+    );
+    expect(result.instruction).toContain("REVISION_CONFLICT");
+    expect(result.instruction.indexOf("workflow_state_save")).toBeLessThan(
+      result.instruction.indexOf("workflow_handoff_append")
+    );
+  });
+});

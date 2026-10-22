@@ -111,7 +111,7 @@ function paperclipWorkflowHint(): string {
 }
 
 const HANDOFF_AFTER_STEP =
-  " After completing this step, call workflow_handoff_append with run_id from the latest workflow_step response, this step index, and a short bullet summary (bounded). Echo run_id on every workflow_step call.";
+  " After completing this step, checkpoint it in one call: workflow_state_save({ state, run_id: <run_id from the latest workflow_step response>, step: <this step index>, summary: <short bullet summary>, expected_revision: <meta.revision from your last workflow_state_load or the revision your last save returned; 0 for a new file> }) — it appends the handoff line and commits the state under one revision; on REVISION_CONFLICT reload and retry. Only if commit mode is unavailable, call workflow_handoff_append with run_id, this step index, and the summary. Echo run_id on every workflow_step call.";
 
 const GATE_STATE_FROM_CONFIRM =
   " Pass gate keys as structured records from workflow_confirm: { verdict, go_no_go, gate_id, confirmed_at } — not bare true (required when intent is involved or strictSkepticGates is enabled).";
