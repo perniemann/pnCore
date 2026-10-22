@@ -58,6 +58,30 @@ function bigPacket(): ProjectContextPacket {
     counts: { plan: artifacts.length },
     active_run_id: "r1",
     resume: "Resume: finish step 4",
+    active_run: {
+      workspace_root: "/ws",
+      state_path: ".pncore/workflow-state.json",
+      state_path_source: "default",
+      state_present: true,
+      state_run_id: "r1",
+      run_id: "r1",
+      run_id_source: "state",
+      candidates: [{ run_id: "r1", source: "state" }],
+      workflowType: "full_dev",
+      last_served_step: 4,
+      last_served_ts: "2026-09-14T10:19:00.000Z",
+      last_completed_step: 3,
+      last_completed_ts: "2026-09-14T10:18:00.000Z",
+      step_status: "in_progress",
+      handoff_run_id: "r1",
+      resume: "Resume: finish step 4",
+      resume_run_bound: false,
+    },
+    consistency: {
+      ok: true,
+      mismatches: [{ code: "default_state_shadowed", severity: "warn", detail: "stale default" }],
+    },
+    drift_scope: "indexed_files",
     drift: artifacts.filter((a) => a.derived_status === "drift" || a.derived_status === "missing"),
     next_incomplete: artifacts[2],
     artifacts,
@@ -70,6 +94,14 @@ function bigPacket(): ProjectContextPacket {
       Array.from({ length: 10 }, (_, i) => [`pointer_${i}`, `docs/refs/section-${i}/README.md`])
     ),
   };
+}
+
+/** Tokens of the never-dropped run-binding sections, so budgets below stay about the droppable parts. */
+function runBindingTokens(p: ProjectContextPacket): number {
+  const { active_run, consistency, drift_scope } = p;
+  return Math.ceil(
+    JSON.stringify({ active_run, consistency, drift_scope }).length / CHARS_PER_TOKEN
+  );
 }
 
 describe("measurement helpers", () => {
@@ -133,7 +165,8 @@ describe("packProjectContext", () => {
   });
 
   it("applies the drop order and keeps drift / missing / in_progress / unattested artifacts", () => {
-    const out = packProjectContext(bigPacket(), 900);
+    const extra = runBindingTokens(bigPacket());
+    const out = packProjectContext(bigPacket(), 900 + extra);
     expect(out.budget.steps.map((s) => s.action).slice(0, 3)).toEqual([
       "trail.trim",
       "artifacts.clear_settled_notes",
@@ -144,7 +177,7 @@ describe("packProjectContext", () => {
     expect(out.trail).toHaveLength(3);
     // Every step saved something; the reported saving matches the size delta.
     for (const s of out.budget.steps) expect(s.savedChars).toBeGreaterThan(0);
-    const tight = packProjectContext(bigPacket(), 700);
+    const tight = packProjectContext(bigPacket(), 700 + extra);
     expect(tight.budget.steps.map((s) => s.action)).toContain("pointers.drop");
     expect(tight.pointers).toBeUndefined();
     // Whatever remains of artifacts is only the unsettled ones.
@@ -156,6 +189,9 @@ describe("packProjectContext", () => {
     expect(out.counts).toEqual({ plan: 22 });
     expect(out.drift.map((a) => a.id)).toEqual(["drift-1", "missing-1"]);
     expect(out.next_incomplete?.id).toBe("wip-1");
+    expect(tight.active_run.run_id).toBe("r1");
+    expect(tight.consistency.mismatches.map((m) => m.code)).toEqual(["default_state_shadowed"]);
+    expect(tight.drift_scope).toBe("indexed_files");
   });
 
   it("goes all the way to dropping artifacts and drift notes, then reports fits:false when core alone is too big", () => {
@@ -251,7 +287,7 @@ describe("packProjectContext", () => {
     expect(out.drift).toEqual([]);
 
     const noNext: ProjectContextPacket = { ...unsettledOnly, next_incomplete: null, artifacts: [] };
-    const out2 = packProjectContext(noNext, 200);
+    const out2 = packProjectContext(noNext, 200 + runBindingTokens(noNext));
     expect(out2.budget.steps.map((s) => s.action)).toEqual(["pointers.drop"]);
     expect(out2.budget.fits).toBe(true);
   });

@@ -27,10 +27,10 @@ export default defineConfig({
       // mutated mid-run on the build server.
       thresholds: {
         autoUpdate: !process.env.CI,
-        statements: 97.46,
-        branches: 93.85,
+        statements: 97.53,
+        branches: 93.91,
         functions: 100,
-        lines: 98.49,
+        lines: 98.51,
       },
     },
   },

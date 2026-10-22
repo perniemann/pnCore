@@ -114,7 +114,7 @@ export const PN_CORE_TOOLS: ToolDefinition[] = [
   def(
     "project_context",
     "Project Context",
-    "Cold-session project context packet (MCP pull). Both modes include compact responseAliases (scr/eli/foc/ref/scp). mode=operator returns counts, resume line, active run_id, and drift; mode=agent (default) also lists context-index artifacts with attested derived status and recent workflow-handoff / run-events trail. Call at session start when pn-core MCP is available.",
+    "Cold-session project context packet (MCP pull). Both modes include compact responseAliases (scr/eli/foc/ref/scp), active_run (state path + source, selected run_id, last served vs completed step, step_status, resume) and consistency (mismatches between state file, run log, handoff log, and last save; ok=false means no run is silently selected — pass run_id or state_path). drift covers context-index files only (drift_scope). mode=operator returns counts and drift; mode=agent (default) also lists context-index artifacts with attested derived status and recent workflow-handoff / run-events trail. Call at session start when pn-core MCP is available.",
     projectContextSchema,
     readOnly,
     handleProjectContext

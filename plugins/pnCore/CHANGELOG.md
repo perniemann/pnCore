@@ -4,6 +4,20 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.19.10] - 2026-10-22
+
+### Added
+
+- `project_context` returns **`active_run`** and **`consistency`** in both modes. `active_run` reports the workspace root, the resolved state path and its source (`state_path` argument > `PNCORE_STATE_PATH` > default), the selected `run_id`, last served step (run log) vs last completed step (handoff log), `step_status`, the newest handoff run, and whether `.pncore/handoff.md` names the run. `consistency` lists `state_path_rejected`, `state_path_diverged`, `newer_run_in_log`, `handoff_run_mismatch` (errors), and `workspace_root_suspect`, `default_state_shadowed`, `state_run_differs`, `handoff_skipped`, `handoff_foreign` (warnings). With an error, no run is selected silently: `run_id` is `null` until the caller passes one.
+- `drift_scope: "indexed_files"` on the packet: drift covers context-index artifacts only and is not a run-freshness signal.
+- `workflow_state_save` records each target in `.pncore/state-saves.jsonl`, so a save to a custom path is visible to readers of the default.
+
+### Fixed
+
+- `project_context` ignored `PNCORE_STATE_PATH` and custom save paths and read the hardcoded `.pncore/workflow-state.json`, so a stale default state surfaced as the active run. Save, load, and `project_context` now share one resolver, and `project_context` also honours `PNCORE_RUN_LOG` and `PNCORE_HANDOFF_LOG`.
+- `workflow_state_save` writes atomically (unique temp file, fsync, rename; transient Windows `EPERM` / `EBUSY` / `EACCES` on rename are retried with bounded backoff), so an interrupted save leaves the previous state intact.
+- `workflow-state-schema.md` no longer recommends an absolute `PNCORE_STATE_PATH` outside the workspace; such paths are rejected and now reported instead of silently falling back.
+
 ## [0.19.9] - 2026-09-17
 
 ### Changed

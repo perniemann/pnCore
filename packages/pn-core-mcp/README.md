@@ -1,6 +1,6 @@
 # pn-core-mcp
 
-MCP engine for [pnCore](https://github.com/perniemann/pnCore) **0.19.9**: `workflow_step` plus the other tools, `pn-core://` resources, and canonical content under `content/`. Four harness adapters (Cursor, Claude Code, Codex, Pi) consume that same engine. Use from any MCP client without installing a harness plugin.
+MCP engine for [pnCore](https://github.com/perniemann/pnCore) **0.19.10**: `workflow_step` plus the other tools, `pn-core://` resources, and canonical content under `content/`. Four harness adapters (Cursor, Claude Code, Codex, Pi) consume that same engine. Use from any MCP client without installing a harness plugin.
 
 ## Installation
 
@@ -112,7 +112,7 @@ Skills, agents, rules, config, docs, reference, and hooks in this package live i
 |------|------|-------------|
 | **health** | read | Health check: status, version, **`calendarDateUtc`** / **`timestampUtc`** (UTC), capabilities. |
 | **list_workflow_types** | read | Workflow types and step counts. |
-| **project_context** | read | Cold-session packet from `docs/refs/context-index.json` + `.pncore` trails (`mode` operator / agent). Every packet carries `budget` (chars, tokens ≈ chars ÷ 4). **`max_tokens`** packs it deterministically — trail oldest-first, settled artifacts' notes, settled artifacts, pointers, trail, artifacts, drift notes — and lists the cuts in `budget.steps` (ADR-0021). Drift, `next_incomplete`, `resume`, `counts` are never dropped. |
+| **project_context** | read | Cold-session packet from `docs/refs/context-index.json` + `.pncore` trails (`mode` operator / agent). Every packet carries `budget` (chars, tokens ≈ chars ÷ 4). **`max_tokens`** packs it deterministically — trail oldest-first, settled artifacts' notes, settled artifacts, pointers, trail, artifacts, drift notes — and lists the cuts in `budget.steps` (ADR-0021). Drift, `next_incomplete`, `resume`, `counts`, `active_run`, `consistency` are never dropped. **`active_run`** reports the resolved state path and its source (`state_path` arg > `PNCORE_STATE_PATH` > default), the selected `run_id`, last served vs completed step, and `step_status`; **`consistency`** lists mismatches between state file, run log, handoff log, and last save. With an error-severity mismatch no run is selected silently (`run_id: null`). `drift_scope: "indexed_files"` marks that drift covers context-index files only. |
 | **harness_detect** | read | Active harness (`cursor` / `claude_code` / `codex` / `pi`) with evidence, plus the per-harness layout table (instructions file, rules dir + format, skills dir, commands dir, agents dir, MCP config, hooks). Precedence: **`PNCORE_HARNESS`** > process env signals > workspace folders. |
 | **harness_scaffold** | write | Onboarding files for the selected harnesses only: project context (`.cursor/rules/*.mdc`, `.claude/rules/*.md`, or managed `AGENTS.md` block), project skill in the harness skills dir, trailer rule, opt-in `mcp_config`. `dryRun` returns the plan with contents; existing files skipped unless `overwrite`; workspace-contained. For Codex the response adds `instructionsBudget` — `AGENTS.md` bytes against the 32 KiB chain cap (`PNCORE_AGENTS_MD_CAP_BYTES` overrides). Reference: `pn-core://reference/harness-matrix.md`. |
 | **suggest_model_tier** | read | Suggested LLM model tier for a workflow step or subagent role (`fast` / `standard` / `premium` / `premium_thinking` / `long_horizon`). Pass `role` (`explorer` | `builder` | `judge` | `checker` | `orchestrator`) for subagent routing; omit `step` for the full per-step table. Resolves `PNCORE_FEATURES.modelTierOverrides` and `tierAliases`. |
@@ -131,8 +131,8 @@ Skills, agents, rules, config, docs, reference, and hooks in this package live i
 | **workflow_verify** | write | No-shell catalog verify; returns a GateReport. Requires **`disposeVerify`**. Fail-closed without a jail unless **`PNCORE_VERIFY_SANDBOX=restricted`** or the Vitest test backend. |
 | **workflow_run_query** | read | Query one **`run_id`** across the `.pncore` trails: verify/acceptance (default), `kinds` `step` (spans: `stepIndex`, `sinceLastStepMs`, `engineMs`, routing), `load`, `usage`, `handoff`, `gate`; `timeline: true` joins them per step with totals and the slowest step (ADR-0020). |
 | **report_usage** | append | Append usage line; include optional **`run_id`**. |
-| **workflow_state_save** | append | Persist workflow state JSON. |
-| **workflow_state_load** | read | Load workflow state JSON. |
+| **workflow_state_save** | append | Persist workflow state JSON atomically (temp + fsync + rename); records the target in `.pncore/state-saves.jsonl`. Path: `path` > `PNCORE_STATE_PATH` > default. |
+| **workflow_state_load** | read | Load workflow state JSON (same path resolution as save). |
 | **workflow_confirm** | read | Structured confirmation gate (MCP-only). |
 | **approval_checkpoint** | gate | Token must match **`PNCORE_APPROVAL_TOKEN`**; optional **`workflow_type`** + **`workflow_step`** + **`run_id`** for human-gate tickets. |
 | **gate_log_append** | append | JSONL gate audit; optional **`run_id`**. |

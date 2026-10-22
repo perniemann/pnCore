@@ -43,7 +43,15 @@ export const projectContextSchema = {
   run_id: z
     .string()
     .optional()
-    .describe("Optional run_id; defaults to .pncore/workflow-state.json when present"),
+    .describe(
+      "Optional run_id; explicit selection. Without it the state file's run_id is selected only when no other source (run log, handoff log, last save) disagrees; see consistency.mismatches"
+    ),
+  state_path: z
+    .string()
+    .optional()
+    .describe(
+      "Optional workflow state path (same as workflow_state_save path); default PNCORE_STATE_PATH, then .pncore/workflow-state.json; must be within the workspace"
+    ),
   max_trail: z
     .number()
     .int()
