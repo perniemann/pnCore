@@ -356,7 +356,7 @@ export async function handleWorkflowStep(args) {
             });
         }
     }
-    if (result.acceptance) {
+    if (result.acceptance && result.acceptance !== "unearned") {
         appendRunEvent({
             kind: "acceptance",
             run_id: runId,
@@ -369,7 +369,11 @@ export async function handleWorkflowStep(args) {
     return textContent(JSON.stringify({ ...result, run_id: runId }));
 }
 export async function handleReportUsage(args) {
-    const { workflowType, step, inputTokens, outputTokens, costUsd, latencyMs, run_id, path: filePath, } = args;
+    const { workflowType, step, inputTokens, outputTokens, costUsd, latencyMs, run_id, path: filePath, requestModel, responseModel, reasoningEffort, workerId, observedBy, } = args;
+    if (observedBy === "unavailable" && responseModel) {
+        return mcpError("INVALID_STATE", "observedBy 'unavailable' means the harness exposes no model; omit responseModel or use agent_claim.", {});
+    }
+    const hasModelFields = [requestModel, responseModel, reasoningEffort, workerId].some((v) => v !== undefined);
     const entry = {
         ts: new Date().toISOString(),
         workflowType,
@@ -379,6 +383,11 @@ export async function handleReportUsage(args) {
         ...(costUsd != null && { costUsd }),
         ...(latencyMs != null && { latencyMs }),
         ...(run_id != null && run_id !== "" ? { run_id } : {}),
+        ...(requestModel ? { requestModel } : {}),
+        ...(responseModel ? { responseModel } : {}),
+        ...(reasoningEffort ? { reasoningEffort } : {}),
+        ...(workerId ? { workerId } : {}),
+        ...(observedBy || hasModelFields ? { observedBy: observedBy ?? "agent_claim" } : {}),
     };
     if (filePath) {
         const safe = resolveSafePath(filePath);

@@ -268,6 +268,9 @@ export function deriveArtifactStatus(artifact, cwd = process.cwd(), eventsByRunI
         notes,
     };
 }
+function isEvidenceOnly(r) {
+    return r.lifecycle === "historical" || r.lifecycle === "superseded";
+}
 function countByType(reports) {
     const counts = {
         total: reports.length,
@@ -278,6 +281,10 @@ function countByType(reports) {
         counts[t] = 0;
     for (const r of reports) {
         counts[r.type] = (counts[r.type] ?? 0) + 1;
+        if (isEvidenceOnly(r)) {
+            counts.historical = (counts.historical ?? 0) + 1;
+            continue;
+        }
         if (r.derived_status === "drift")
             counts.drift += 1;
         if (r.derived_status === "missing")
@@ -285,12 +292,15 @@ function countByType(reports) {
     }
     return counts;
 }
-function pickNextIncomplete(reports) {
-    const order = ["drift", "missing", "in_progress", "unattested", "ok"];
-    for (const status of order) {
-        if (status === "ok")
-            continue;
-        const hit = reports.find((r) => r.derived_status === status);
+const INCOMPLETE_ORDER = ["drift", "missing", "in_progress", "unattested"];
+/** The declared current checkpoint first; historical / superseded entries never become blockers. */
+function pickNextIncomplete(reports, currentId) {
+    const current = currentId ? reports.find((r) => r.id === currentId) : undefined;
+    if (current && INCOMPLETE_ORDER.includes(current.derived_status))
+        return current;
+    const live = reports.filter((r) => !isEvidenceOnly(r));
+    for (const status of INCOMPLETE_ORDER) {
+        const hit = live.find((r) => r.derived_status === status);
         if (hit)
             return hit;
     }
@@ -523,6 +533,39 @@ export function computeActiveRun(opts) {
             detail: `Last handoff is for step ${lastCompleted?.step} but the last served step is ${lastServed?.step}.`,
         });
     }
+    const indexArtifacts = Array.isArray(opts.index?.artifacts) ? opts.index.artifacts : [];
+    const currentId = opts.index?.pointers?.current_checkpoint;
+    const currentArtifact = typeof currentId === "string" && currentId !== ""
+        ? indexArtifacts.find((a) => a && typeof a === "object" && a.id === currentId)
+        : undefined;
+    const declaredCurrent = typeof currentId === "string" && currentId !== ""
+        ? {
+            artifact_id: currentId,
+            run_id: typeof currentArtifact?.run_id === "string" && currentArtifact.run_id !== ""
+                ? currentArtifact.run_id
+                : null,
+        }
+        : null;
+    if (declaredCurrent?.run_id && stateRunId && declaredCurrent.run_id !== stateRunId) {
+        mismatches.push({
+            code: "state_vs_declared_current",
+            severity: "warn",
+            detail: `context-index current_checkpoint ${declaredCurrent.artifact_id} is run ${declaredCurrent.run_id}; ${statePath.requested} holds run ${stateRunId}. Update the index or select the run explicitly.`,
+        });
+    }
+    const historical = target
+        ? indexArtifacts.find((a) => a &&
+            typeof a === "object" &&
+            a.run_id === target &&
+            (a.lifecycle === "historical" || a.lifecycle === "superseded"))
+        : undefined;
+    if (historical) {
+        mismatches.push({
+            code: "historical_entry_selected",
+            severity: "warn",
+            detail: `Run ${target} belongs to context-index artifact ${historical.id} (lifecycle ${historical.lifecycle}${historical.superseded_by ? `, superseded by ${historical.superseded_by}` : ""}); treat its findings as evidence, not current blockers.`,
+        });
+    }
     const hasError = mismatches.some((m) => m.severity === "error");
     let runId = null;
     let runIdSource = "none";
@@ -566,6 +609,7 @@ export function computeActiveRun(opts) {
             handoff_run_id: handoffLog.newest?.run_id ?? null,
             resume,
             resume_run_bound: resume && runId && handoffText ? handoffText.includes(runId) : null,
+            declared_current: declaredCurrent,
         },
         consistency: { ok: !hasError, mismatches },
     };
@@ -580,6 +624,7 @@ export function buildProjectContextPacket(opts = {}) {
         run_id: opts.run_id,
         state_path: opts.state_path,
         indexPresent: present,
+        index,
     });
     const activeRunId = active_run.run_id;
     const artifactsRaw = Array.isArray(index?.artifacts) ? index.artifacts : [];
@@ -600,8 +645,21 @@ export function buildProjectContextPacket(opts = {}) {
     for (const id of runIds) {
         eventsByRunId.set(id, loadRunEventsForCwd(id, cwd, 80));
     }
-    const reports = artifacts.map((a) => deriveArtifactStatus(a, cwd, eventsByRunId));
-    const drift = reports.filter((r) => r.derived_status === "drift" || r.derived_status === "missing");
+    const reports = artifacts.map((a) => {
+        const report = deriveArtifactStatus(a, cwd, eventsByRunId);
+        if (a.lifecycle)
+            report.lifecycle = a.lifecycle;
+        if (typeof a.superseded_by === "string" && a.superseded_by !== "") {
+            report.superseded_by = a.superseded_by;
+        }
+        if (isEvidenceOnly(report))
+            report.notes.push(`${a.lifecycle}: evidence only, not a current blocker`);
+        return report;
+    });
+    const drift = reports.filter((r) => !isEvidenceOnly(r) && (r.derived_status === "drift" || r.derived_status === "missing"));
+    const currentId = typeof index?.pointers?.current_checkpoint === "string"
+        ? index.pointers.current_checkpoint
+        : null;
     const packet = {
         mode,
         version: "1",
@@ -619,7 +677,7 @@ export function buildProjectContextPacket(opts = {}) {
         consistency,
         drift_scope: "indexed_files",
         drift,
-        next_incomplete: pickNextIncomplete(reports),
+        next_incomplete: pickNextIncomplete(reports, currentId),
         responseAliases: RESPONSE_ALIASES,
     };
     if (mode === "agent") {

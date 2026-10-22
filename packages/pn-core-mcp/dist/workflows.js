@@ -7,6 +7,7 @@ import { getResource } from "./content.js";
 import { disposeVerifyEnabled, loadBestOfNFeatures, loadFeatures, typedEnvelopesEnabled, } from "./features.js";
 import { applyTournamentDisposeVerify } from "./dispose-verify-bind.js";
 import { validateTaskResults } from "./specialist-envelopes.js";
+import { fullDevAcceptance } from "./delivery-acceptance.js";
 import { applySkepticGateStateChecks } from "./skeptic-gate-state.js";
 import { debug } from "./debug.js";
 import { applyOrchestrationLead } from "./orchestration-lead.js";
@@ -74,8 +75,13 @@ const designSteps = [
         tierRationale: "Mechanical docs-sync and brief terminal summary.",
     },
 ];
-const fullDevStep0Base = "Load get_skill('pn-discovery-questionnaire'). Present all sections (Technical, Backend tech if applicable, Security, Design, Requirements, Scope). Use ask_question when available. Do not infer for security or backend tech. ALSO ask this exact question and capture the answer into state.includeGenerativeMedia (boolean): \"Does this run involve generative media beyond standard UI placeholders — campaigns, film, ComfyUI/T2V pipelines? (yes/no). If yes, set includeGenerativeMedia: true.\" After user confirms, call workflow_step(step=1) with state: { discoverySpec, includeGenerativeMedia }.";
-const fullDevStep0Involved = "REQUIRED (intent=involved): Load get_skill('pn-discovery-questionnaire'). Present each section ONE BY ONE — wait for user answers before proceeding. Do not infer. Use ask_question per section when available. ALSO ask this exact question and capture the answer into state.includeGenerativeMedia (boolean): \"Does this run involve generative media beyond standard UI placeholders — campaigns, film, ComfyUI/T2V pipelines? (yes/no). If yes, set includeGenerativeMedia: true.\" After all sections answered and confirmed, call workflow_step(step=1) with state: { discoverySpec, intent: 'involved', includeGenerativeMedia }.";
+const ANSWERED_FIRST = " Before asking, check state and docs/refs/context-index.json pointers: do not re-ask a decision already recorded there; cite where it was answered and ask only what remains.";
+const RELEVANT_GUIDANCE_ONLY = " Surface only guidance that applies to the files and decisions this run changed; skip checklist items that do not apply and do not re-litigate decisions already recorded in state or context-index pointers. Independent review and integration remain hard gates — relevance filtering never skips them.";
+const DELIVERY_LEDGER_STEP = "Full-dev workflow complete. Output the final summary as a delivery ledger: { accepted[], implementedUnaccepted[], open[], remainingGates[], evidenceReuse[], nextAction }. Every item is { item, scope, evidence } with scope 'source' (code exists and was reviewed), 'static' (attested verify or tests passed), 'runtime' (exercised in a running environment), or 'product' (a human accepted it against the goal) — the strongest evidence actually observed, never wider. evidenceReuse lists earlier receipts (attestationId, gate_id) you relied on instead of re-running. If this response carries acceptance: 'unearned', the server attested nothing (disposeVerify and strictSkepticGates are off): do not present anything as server-accepted; put the unearned gates under remainingGates. If it carries an acceptance object, no accepted item may claim a scope above acceptance.scope, and acceptance.reasons go under remainingGates.";
+const fullDevStep0Base = "Load get_skill('pn-discovery-questionnaire'). Present all sections (Technical, Backend tech if applicable, Security, Design, Requirements, Scope). Use ask_question when available. Do not infer for security or backend tech. ALSO ask this exact question and capture the answer into state.includeGenerativeMedia (boolean): \"Does this run involve generative media beyond standard UI placeholders — campaigns, film, ComfyUI/T2V pipelines? (yes/no). If yes, set includeGenerativeMedia: true.\" After user confirms, call workflow_step(step=1) with state: { discoverySpec, includeGenerativeMedia }." +
+    ANSWERED_FIRST;
+const fullDevStep0Involved = "REQUIRED (intent=involved): Load get_skill('pn-discovery-questionnaire'). Present each section ONE BY ONE — wait for user answers before proceeding. Do not infer. Use ask_question per section when available. ALSO ask this exact question and capture the answer into state.includeGenerativeMedia (boolean): \"Does this run involve generative media beyond standard UI placeholders — campaigns, film, ComfyUI/T2V pipelines? (yes/no). If yes, set includeGenerativeMedia: true.\" After all sections answered and confirmed, call workflow_step(step=1) with state: { discoverySpec, intent: 'involved', includeGenerativeMedia }." +
+    ANSWERED_FIRST;
 const fullDevSteps = [
     {
         instruction: fullDevStep0Base,
@@ -114,7 +120,8 @@ const fullDevSteps = [
         requiredFromState: ["specialistList", "routeConfirmed"],
     },
     {
-        instruction: "Load get_command('pn-review'). Run review+optimize pass (quality gates, deslop, pn-reality-check). Apply best practices (pn-core://reference/best-practices.md). Fix and re-run once if issues found. Run get_skill('pn-skeptic-challenge') post-build. Run get_skill('pn-docs-sync'). Update the project-context file (or AGENTS.md pncore block) if scope changed. Output summary. After user confirms, call workflow_step(step=6) with state: { reviewComplete: <gate record>, skepticOutputPassed: <gate record> }." +
+        instruction: "Load get_command('pn-review'). Run review+optimize pass (quality gates, deslop, pn-reality-check). Apply best practices (pn-core://reference/best-practices.md). Fix and re-run once if issues found. Run get_skill('pn-skeptic-challenge') post-build. Run get_skill('pn-docs-sync'). Update the project-context file (or AGENTS.md pncore block) if scope changed. Output summary. After user confirms, call workflow_step(step=6) with state: { reviewComplete: <gate record>, skepticOutputPassed: <gate record>, verifyAttestationIds } (verifyAttestationIds from workflow_verify when disposeVerify is on)." +
+            RELEVANT_GUIDANCE_ONLY +
             GATE_STATE_FROM_CONFIRM,
         gate: "human",
         nextStep: 6,
@@ -123,14 +130,12 @@ const fullDevSteps = [
         tierRationale: "Quality gates, deslop, post-build skeptic across all specialist outputs.",
     },
     {
-        instruction: "Full-dev workflow complete. Output brief final summary." +
-            paperclipWorkflowHint() +
-            " Do not call workflow_step again.",
+        instruction: DELIVERY_LEDGER_STEP + paperclipWorkflowHint() + " Do not call workflow_step again.",
         gate: "model",
         nextStep: 6,
         requiredFromState: ["reviewComplete", "skepticOutputPassed"],
         modelTier: "fast",
-        tierRationale: "Brief terminal summary.",
+        tierRationale: "Terminal delivery ledger assembled from recorded evidence.",
     },
 ];
 const projectKickoffSteps = [
@@ -1139,7 +1144,8 @@ export function getWorkflowStep(workflowType, step, state) {
         }
         else if (step === 5) {
             instruction =
-                "Load get_command('pn-review'). Run review+optimize pass. Apply best practices (pn-core://reference/best-practices.md). Fix once if issues. Run get_skill('pn-skeptic-challenge') post-build. Run get_skill('pn-docs-sync'). Output summary. REQUIRED: wait for user confirmation. After confirmed, call workflow_step(step=6) with state: { reviewComplete: <gate record>, skepticOutputPassed: <gate record>, intent: 'involved' }." +
+                "Load get_command('pn-review'). Run review+optimize pass. Apply best practices (pn-core://reference/best-practices.md). Fix once if issues. Run get_skill('pn-skeptic-challenge') post-build. Run get_skill('pn-docs-sync'). Output summary. REQUIRED: wait for user confirmation. After confirmed, call workflow_step(step=6) with state: { reviewComplete: <gate record>, skepticOutputPassed: <gate record>, verifyAttestationIds, intent: 'involved' }." +
+                    RELEVANT_GUIDANCE_ONLY +
                     GATE_STATE_FROM_CONFIRM;
         }
     }
@@ -1561,6 +1567,9 @@ export function getWorkflowStep(workflowType, step, state) {
             instruction: "[tournamentStandalone] No parent skepticPassed — treat specSummary and auditPath as the review baseline; run get_skill('pn-skeptic-challenge') post-build before sign-off.\n\n" +
                 result.instruction,
         };
+    }
+    if (workflowType === "full_dev" && step === 6) {
+        result = { ...result, acceptance: fullDevAcceptance(state) };
     }
     return withTierHint(result, workflowType, step, state);
 }

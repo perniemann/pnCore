@@ -50,8 +50,12 @@ export interface WorkflowStepResult {
     orchestrationMode?: OrchestrationMode;
     /** Subagent tier hints when orchestrationMode is lead or light_delegate. */
     subagentTierHints?: Partial<Record<SubagentRole, SuggestedModelTier>>;
-    /** Server-computed earned acceptance (disposeVerify / typed gates). */
-    acceptance?: Acceptance;
+    /**
+     * Server-computed earned acceptance (disposeVerify / typed gates). full_dev step 6 returns
+     * "unearned" when neither disposeVerify nor strictSkepticGates is on: nothing was attested,
+     * so nothing is accepted or rejected on the server's behalf and no acceptance event is written.
+     */
+    acceptance?: Acceptance | "unearned";
 }
 /** Internal engine step keys — not exposed on workflowTypeEnum. */
 export declare const INTERNAL_ENGINE_WORKFLOW_TYPES: readonly ["unreal_feature", "godot_feature"];

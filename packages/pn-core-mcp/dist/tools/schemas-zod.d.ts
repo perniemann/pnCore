@@ -184,6 +184,14 @@ export declare const reportUsageSchema: {
     readonly latencyMs: z.ZodOptional<z.ZodNumber>;
     readonly run_id: z.ZodOptional<z.ZodString>;
     readonly path: z.ZodOptional<z.ZodString>;
+    readonly requestModel: z.ZodOptional<z.ZodString>;
+    readonly responseModel: z.ZodOptional<z.ZodString>;
+    readonly reasoningEffort: z.ZodOptional<z.ZodString>;
+    readonly workerId: z.ZodOptional<z.ZodString>;
+    readonly observedBy: z.ZodOptional<z.ZodEnum<{
+        agent_claim: "agent_claim";
+        unavailable: "unavailable";
+    }>>;
 };
 export declare const workflowUsageTotalsSchema: {
     readonly run_id: z.ZodString;
@@ -343,13 +351,13 @@ export declare const workflowVerifySchema: {
 export declare const workflowRunQuerySchema: {
     readonly run_id: z.ZodString;
     readonly kinds: z.ZodOptional<z.ZodArray<z.ZodEnum<{
+        step: "step";
         verify: "verify";
         acceptance: "acceptance";
         preflight: "preflight";
         handoff: "handoff";
         gate: "gate";
         usage: "usage";
-        step: "step";
         load: "load";
     }>>>;
     readonly limit: z.ZodOptional<z.ZodNumber>;
