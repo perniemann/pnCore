@@ -1,6 +1,42 @@
 /**
  * Server-written verify attestations. Agents cannot invent kind=verify rows.
  */
+/**
+ * Why a verify did not pass. Diagnostic only: gates still pass on exit 0 alone, and no class
+ * refunds an attempt or relaxes a gate.
+ * - missing_input: the command or a declared input/env was absent (exit 126/127, ENOENT, preflight)
+ * - infrastructure: timeout, signal, or spawn failure other than a missing command
+ * - behavioral: the command ran and exited non-zero
+ */
+export type FailureClass = "none" | "missing_input" | "infrastructure" | "behavioral";
+export declare function classifyVerify(r: {
+    exitCode: number;
+    timedOut: boolean;
+    signal?: string | null;
+    spawnErrorCode?: string | null;
+}): FailureClass;
+export type PreflightCheck = {
+    kind: "command" | "input" | "env";
+    target: string;
+    ok: boolean;
+    reason?: string;
+};
+export type PreflightEvent = {
+    kind: "preflight";
+    run_id: string;
+    ts: string;
+    preflightId: string;
+    ok: boolean;
+    failureClass: "none" | "missing_input";
+    checks: PreflightCheck[];
+    argv: string[];
+    cwd: string;
+    commandId?: string;
+    candidate_id?: string;
+    owner?: string;
+    workflowType?: string;
+    step?: number;
+};
 export type GateReport = {
     kind: "verify";
     run_id: string;
@@ -21,8 +57,13 @@ export type GateReport = {
         backend: "bubblewrap" | "docker" | "seatbelt" | "unavailable";
         jailed: boolean;
     };
+    failureClass?: FailureClass;
+    signal?: string | null;
+    spawnError?: string;
+    preflightId?: string;
+    owner?: string;
 };
-export type RunEvent = GateReport | {
+export type RunEvent = GateReport | PreflightEvent | {
     kind: "acceptance";
     run_id: string;
     ts: string;

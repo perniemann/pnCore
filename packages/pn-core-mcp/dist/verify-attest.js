@@ -6,6 +6,17 @@ import { appendFileSync, existsSync, mkdirSync } from "fs";
 import { dirname } from "path";
 import { readFileTail } from "./file-tail.js";
 import { resolveSafePath } from "./safe-path.js";
+export function classifyVerify(r) {
+    if (r.spawnErrorCode)
+        return r.spawnErrorCode === "ENOENT" ? "missing_input" : "infrastructure";
+    if (r.timedOut || r.signal)
+        return "infrastructure";
+    if (r.exitCode === 0)
+        return "none";
+    if (r.exitCode === 126 || r.exitCode === 127)
+        return "missing_input";
+    return "behavioral";
+}
 export function defaultRunEventsPath() {
     return process.env.PNCORE_RUN_EVENTS_PATH ?? ".pncore/run-events.jsonl";
 }
@@ -29,6 +40,11 @@ function parseEvent(line) {
         const o = JSON.parse(line);
         if (o.kind === "verify" &&
             typeof o.attestationId === "string" &&
+            typeof o.run_id === "string") {
+            return o;
+        }
+        if (o.kind === "preflight" &&
+            typeof o.preflightId === "string" &&
             typeof o.run_id === "string") {
             return o;
         }

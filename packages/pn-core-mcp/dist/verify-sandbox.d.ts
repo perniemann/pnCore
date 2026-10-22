@@ -8,6 +8,7 @@ export type SpawnVerifyResult = {
     timedOut: boolean;
     stdoutTail: string;
     stderrTail: string;
+    signal: string | null;
 };
 export declare class VerifyPolicyError extends Error {
     readonly code: "INVALID_ARGV" | "DISPOSE_UNAVAILABLE";

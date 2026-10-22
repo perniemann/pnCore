@@ -152,6 +152,12 @@ export const typeboxSchemas = {
     workflow_state_save: Type.Object({
         state: Type.Record(Type.String(), Type.Unknown()),
         path: Type.Optional(Type.String()),
+        run_id: Type.Optional(Type.String({ minLength: 1 })),
+        step: Type.Optional(Type.Integer({ minimum: 0 })),
+        summary: Type.Optional(Type.String({ minLength: 1, maxLength: 4000 })),
+        expected_revision: Type.Optional(Type.Integer({ minimum: 0 })),
+        handoff_path: Type.Optional(Type.String()),
+        history: Type.Optional(Type.Boolean()),
     }),
     workflow_state_load: Type.Object({
         path: Type.Optional(Type.String()),
@@ -172,12 +178,21 @@ export const typeboxSchemas = {
         candidate_id: Type.Optional(Type.String()),
         workflowType: Type.Optional(workflowTypeSchema),
         step: Type.Optional(Type.Integer({ minimum: 0 })),
+        inputs: Type.Optional(Type.Array(Type.Object({
+            path: Type.String({ minLength: 1 }),
+            sha256: Type.Optional(Type.String({ pattern: "^[a-fA-F0-9]{64}$" })),
+            access: Type.Optional(Type.Union([Type.Literal("read"), Type.Literal("write"), Type.Literal("execute")])),
+        }), { maxItems: 50 })),
+        env_required: Type.Optional(Type.Array(Type.String({ pattern: "^[A-Za-z_][A-Za-z0-9_]*$" }), { maxItems: 50 })),
+        preflight_only: Type.Optional(Type.Boolean()),
+        owner: Type.Optional(Type.String({ maxLength: 200 })),
     }),
     workflow_run_query: Type.Object({
         run_id: Type.String({ minLength: 1 }),
         kinds: Type.Optional(Type.Array(Type.Union([
             Type.Literal("verify"),
             Type.Literal("acceptance"),
+            Type.Literal("preflight"),
             Type.Literal("handoff"),
             Type.Literal("gate"),
             Type.Literal("usage"),

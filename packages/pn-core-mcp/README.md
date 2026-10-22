@@ -1,6 +1,6 @@
 # pn-core-mcp
 
-MCP engine for [pnCore](https://github.com/perniemann/pnCore) **0.19.10**: `workflow_step` plus the other tools, `pn-core://` resources, and canonical content under `content/`. Four harness adapters (Cursor, Claude Code, Codex, Pi) consume that same engine. Use from any MCP client without installing a harness plugin.
+MCP engine for [pnCore](https://github.com/perniemann/pnCore) **0.19.11**: `workflow_step` plus the other tools, `pn-core://` resources, and canonical content under `content/`. Four harness adapters (Cursor, Claude Code, Codex, Pi) consume that same engine. Use from any MCP client without installing a harness plugin.
 
 ## Installation
 
@@ -128,11 +128,11 @@ Skills, agents, rules, config, docs, reference, and hooks in this package live i
 | **workflow_usage_totals** | read | Sum tokens/cost for a **`run_id`** over usage JSONL (tail scan). |
 | **workflow_handoff_append** | append | Append bounded step summary line for a **`run_id`**. |
 | **workflow_handoff_read** | read | Read recent handoff lines for a **`run_id`**. |
-| **workflow_verify** | write | No-shell catalog verify; returns a GateReport. Requires **`disposeVerify`**. Fail-closed without a jail unless **`PNCORE_VERIFY_SANDBOX=restricted`** or the Vitest test backend. |
-| **workflow_run_query** | read | Query one **`run_id`** across the `.pncore` trails: verify/acceptance (default), `kinds` `step` (spans: `stepIndex`, `sinceLastStepMs`, `engineMs`, routing), `load`, `usage`, `handoff`, `gate`; `timeline: true` joins them per step with totals and the slowest step (ADR-0020). |
+| **workflow_verify** | write | No-shell catalog verify; returns a GateReport with **`failureClass`** (`none` / `missing_input` / `infrastructure` / `behavioral`; diagnostic only, never changes a gate). **`inputs`** (`path`, `sha256`, `access`) and **`env_required`** are checked in the same call right before spawn; a failed check records a `preflight` run event and launches nothing. **`preflight_only`** runs just the checks and works without `disposeVerify`. Spawning requires **`disposeVerify`**; fail-closed without a jail unless **`PNCORE_VERIFY_SANDBOX=restricted`** or the Vitest test backend (ADR-0022). |
+| **workflow_run_query** | read | Query one **`run_id`** across the `.pncore` trails: verify/acceptance (default), `kinds` `preflight`, `step` (spans: `stepIndex`, `sinceLastStepMs`, `engineMs`, routing), `load`, `usage`, `handoff`, `gate`; `timeline: true` joins them per step with totals and the slowest step (ADR-0020). |
 | **report_usage** | append | Append usage line; include optional **`run_id`**. |
-| **workflow_state_save** | append | Persist workflow state JSON atomically (temp + fsync + rename); records the target in `.pncore/state-saves.jsonl`. Path: `path` > `PNCORE_STATE_PATH` > default. |
-| **workflow_state_load** | read | Load workflow state JSON (same path resolution as save). |
+| **workflow_state_save** | append | Persist workflow state JSON atomically (temp + fsync + rename); records the target in `.pncore/state-saves.jsonl`. Path: `path` > `PNCORE_STATE_PATH` > default. **Commit mode** (`run_id` + `step` + `summary`, optional `expected_revision`, `history`): appends the handoff line and commits the state under revision N+1 in one call (ADR-0022). |
+| **workflow_state_load** | read | Load workflow state JSON (same path resolution as save). Returns `{ state, meta, path }`; `meta` is the commit-mode revision envelope or `null`. |
 | **workflow_confirm** | read | Structured confirmation gate (MCP-only). |
 | **approval_checkpoint** | gate | Token must match **`PNCORE_APPROVAL_TOKEN`**; optional **`workflow_type`** + **`workflow_step`** + **`run_id`** for human-gate tickets. |
 | **gate_log_append** | append | JSONL gate audit; optional **`run_id`**. |
@@ -171,6 +171,9 @@ When a tool returns an error, the response includes `{ error: string, code: stri
 | `PATH_TRAVERSAL` | Path parameter escapes workspace (e.g. `../` outside cwd); rejected for report_usage, gate_log_append, workflow_state_save, workflow_state_load |
 | `DISPOSE_UNAVAILABLE` | `workflow_verify` is off or no jail/test/restricted backend is available |
 | `INVALID_ARGV` | `workflow_verify` argv failed no-shell / allowlist policy |
+| `REVISION_CONFLICT` | `workflow_state_save` commit mode: `expected_revision` is not the file's current revision; nothing written (reload and retry) |
+| `RUN_MISMATCH` | `workflow_state_save` commit mode: the file holds another run (pass `expected_revision` to overwrite deliberately) or `state.run_id` disagrees with `run_id` |
+| `LOCKED` | `workflow_state_save` commit mode: another save holds `<state>.lock` (stale after 30 s) |
 
 ### report_usage
 
@@ -182,7 +185,7 @@ Call after each `workflow_step` when the client has usage data. Pass **`run_id`*
 
 ### workflow_state_save / workflow_state_load
 
-Use to **resume after disconnect**. After completing a workflow step, call `workflow_state_save` with the current state object and optional path. After reconnecting, call `workflow_state_load` with the same path, then pass the restored state to `workflow_step(workflowType, step, state)`. The server validates state and returns the next instruction. See `pn-core://reference/workflow-state-schema.md` for required/optional keys per step.
+Use to **resume after disconnect**. After completing a workflow step, call `workflow_state_save` in commit mode: `{ state, run_id, step, summary, expected_revision }`. One call appends the handoff line and commits the state under a new revision; the lock, revision check, and read-back make concurrent or interrupted saves visible instead of lossy (ADR-0022). After reconnecting, call `workflow_state_load` with the same path, then pass the returned `state` to `workflow_step(workflowType, step, state)` and keep `meta.revision` for the next save's `expected_revision`. The server validates state and returns the next instruction. See `pn-core://reference/workflow-state-schema.md` for required/optional keys per step.
 
 ### gate_log_append
 

@@ -8,6 +8,7 @@ import { readFileTail } from "./file-tail.js";
 import { trailPaths } from "./run-spans.js";
 import { resolveInside } from "./safe-path.js";
 import { DEFAULT_STATE_REL, readLastStateSave, resolveStatePath, } from "./state-path.js";
+import { readCheckpointMeta } from "./checkpoint.js";
 import { defaultRunEventsPath } from "./verify-attest.js";
 export const CONTEXT_INDEX_REL = "docs/refs/context-index.json";
 export const HUMAN_HANDOFF_REL = ".pncore/handoff.md";
@@ -106,6 +107,11 @@ function parseRunEventLine(line) {
         const o = JSON.parse(line);
         if (o.kind === "verify" &&
             typeof o.attestationId === "string" &&
+            typeof o.run_id === "string") {
+            return o;
+        }
+        if (o.kind === "preflight" &&
+            typeof o.preflightId === "string" &&
             typeof o.run_id === "string") {
             return o;
         }
@@ -324,7 +330,15 @@ function readRunEventTrail(runId, maxLines, cwd) {
             return {
                 source: "run_events",
                 ts: ev.finishedAt,
-                summary: `verify exit=${ev.exitCode} ${ev.commandId ?? ev.argv.join(" ").slice(0, 80)}`,
+                summary: `verify exit=${ev.exitCode}${ev.failureClass && ev.failureClass !== "none" ? ` class=${ev.failureClass}` : ""} ${ev.commandId ?? ev.argv.join(" ").slice(0, 80)}`,
+            };
+        }
+        if (ev.kind === "preflight") {
+            const failed = ev.checks.filter((c) => !c.ok).map((c) => `${c.kind}:${c.target}`);
+            return {
+                source: "run_events",
+                ts: ev.ts,
+                summary: `preflight ok=${ev.ok}${failed.length ? ` missing=${failed.join(",").slice(0, 120)}` : ""}`,
             };
         }
         return {
@@ -334,13 +348,15 @@ function readRunEventTrail(runId, maxLines, cwd) {
         };
     });
 }
-/** Newest point overall plus every point for `runId`, from a run-log or handoff JSONL file. */
-function scanRunLog(rel, cwd, runKey, runId) {
+function newestPoint(points) {
+    return points.reduce((acc, p) => (!acc || p.ts >= acc.ts ? p : acc), null);
+}
+/** Every point in a run-log or handoff JSONL file, in file order. */
+function scanRunLog(rel, cwd, runKey) {
     const safe = resolveInside(cwd, rel);
     if ("error" in safe || !existsSync(safe.resolved))
-        return { newest: null, forRun: [] };
-    let newest = null;
-    const forRun = [];
+        return [];
+    const points = [];
     for (const line of readFileTail(safe.resolved, 786_432).split("\n")) {
         const t = line.trim();
         if (!t)
@@ -360,13 +376,11 @@ function scanRunLog(rel, cwd, runKey, runId) {
             step: typeof o.step === "number" ? o.step : null,
             ts: typeof o.ts === "string" ? o.ts : "",
             workflowType: typeof o.workflowType === "string" ? o.workflowType : null,
+            revision: typeof o.revision === "number" ? o.revision : null,
         };
-        if (!newest || point.ts >= newest.ts)
-            newest = point;
-        if (runId && id === runId)
-            forRun.push(point);
+        points.push(point);
     }
-    return { newest, forRun };
+    return points;
 }
 function deriveStepStatus(served, completed) {
     const lastServed = served[served.length - 1];
@@ -406,6 +420,14 @@ export function computeActiveRun(opts) {
     }
     const statePresent = statePath.resolved != null && existsSync(statePath.resolved);
     const stateRunId = statePresent ? readStateRunId(statePath.resolved) : null;
+    const stateMeta = statePresent ? readCheckpointMeta(statePath.resolved) : null;
+    if (statePresent && !stateMeta) {
+        mismatches.push({
+            code: "state_unversioned",
+            severity: "info",
+            detail: `${statePath.requested} has no checkpoint revision (plain save); use workflow_state_save with run_id, step, and summary for revision-checked saves.`,
+        });
+    }
     if (!existsSync(join(cwd, ".pncore")) && !indexPresent) {
         mismatches.push({
             code: "workspace_root_suspect",
@@ -439,9 +461,29 @@ export function computeActiveRun(opts) {
     }
     const target = argRun ?? stateRunId;
     const paths = trailPaths(env);
-    const runLog = scanRunLog(paths.steps, cwd, "runId", target);
-    const handoffLog = scanRunLog(paths.handoff, cwd, "run_id", target);
-    const lastCompleted = handoffLog.forRun.reduce((acc, p) => (!acc || p.ts >= acc.ts ? p : acc), null);
+    const servePoints = scanRunLog(paths.steps, cwd, "runId");
+    let handoffPoints = scanRunLog(paths.handoff, cwd, "run_id");
+    const committedRevision = stateMeta && stateMeta.run_id === target ? stateMeta.revision : null;
+    if (committedRevision != null) {
+        const uncommitted = handoffPoints.filter((p) => p.run_id === target && p.revision != null && p.revision > committedRevision);
+        if (uncommitted.length > 0) {
+            mismatches.push({
+                code: "handoff_revision_ahead",
+                severity: "warn",
+                detail: `${uncommitted.length} handoff line(s) for run ${target} carry a revision above the state file's revision ${committedRevision} (interrupted save); they are ignored as uncommitted.`,
+            });
+            handoffPoints = handoffPoints.filter((p) => !uncommitted.includes(p));
+        }
+    }
+    const runLog = {
+        newest: newestPoint(servePoints),
+        forRun: target ? servePoints.filter((p) => p.run_id === target) : [],
+    };
+    const handoffLog = {
+        newest: newestPoint(handoffPoints),
+        forRun: target ? handoffPoints.filter((p) => p.run_id === target) : [],
+    };
+    const lastCompleted = newestPoint(handoffLog.forRun);
     const lastServed = runLog.forRun[runLog.forRun.length - 1] ?? null;
     const fromArg = argRun != null;
     const sourceSeverity = fromArg ? "warn" : "error";
@@ -511,6 +553,7 @@ export function computeActiveRun(opts) {
             state_path_source: statePath.source,
             state_present: statePresent,
             state_run_id: stateRunId,
+            state_revision: stateMeta?.revision ?? null,
             run_id: runId,
             run_id_source: runIdSource,
             candidates,

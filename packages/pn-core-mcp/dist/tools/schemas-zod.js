@@ -263,7 +263,38 @@ export const workflowStateSaveSchema = {
     path: z
         .string()
         .optional()
-        .describe("Optional file path; default .pncore/workflow-state.json; must be within process cwd"),
+        .describe("Optional file path; default PNCORE_STATE_PATH, then .pncore/workflow-state.json; must be within process cwd"),
+    run_id: z
+        .string()
+        .min(1)
+        .optional()
+        .describe("Commit mode (with step + summary): binds the save to this run; the state file must hold the same run unless expected_revision acknowledges the overwrite"),
+    step: z
+        .number()
+        .int()
+        .min(0)
+        .optional()
+        .describe("Commit mode: workflow step index just completed"),
+    summary: z
+        .string()
+        .min(1)
+        .max(4000)
+        .optional()
+        .describe("Commit mode: handoff summary appended to the handoff log with the new revision (replaces a separate workflow_handoff_append)"),
+    expected_revision: z
+        .number()
+        .int()
+        .min(0)
+        .optional()
+        .describe("Commit mode: revision you loaded (meta.revision from workflow_state_load; 0 for a new file). A mismatch returns REVISION_CONFLICT and writes nothing"),
+    handoff_path: z
+        .string()
+        .optional()
+        .describe("Commit mode: handoff JSONL path (default PNCORE_HANDOFF_LOG or .pncore/workflow-handoff.jsonl)"),
+    history: z
+        .boolean()
+        .optional()
+        .describe("Commit mode: append the prior state to <path>.history.jsonl before replacing it"),
 };
 export const workflowStateLoadSchema = {
     path: z
@@ -305,13 +336,40 @@ export const workflowVerifySchema = {
     candidate_id: z.string().optional().describe("Tournament path id (path-a, path-b, path-c)"),
     workflowType: workflowTypeEnum.optional().describe("Optional workflow type for attestation bind"),
     step: z.number().int().min(0).optional().describe("Optional workflow step for attestation bind"),
+    inputs: z
+        .array(z.object({
+        path: z.string().min(1).describe("File or directory relative to cwd; inside the workspace"),
+        sha256: z
+            .string()
+            .regex(/^[a-fA-F0-9]{64}$/)
+            .optional()
+            .describe("Expected content hash (files only)"),
+        access: z.enum(["read", "write", "execute"]).optional(),
+    }))
+        .max(50)
+        .optional()
+        .describe("Preflight: inputs the command needs, checked immediately before spawn; a failed check returns failureClass missing_input and launches nothing"),
+    env_required: z
+        .array(z.string().regex(/^[A-Za-z_][A-Za-z0-9_]*$/))
+        .max(50)
+        .optional()
+        .describe("Preflight: environment variable names that must be set in the MCP server env"),
+    preflight_only: z
+        .boolean()
+        .optional()
+        .describe("Run only the preflight (command on PATH, inputs, env) and record it; never spawns, so it works without disposeVerify"),
+    owner: z
+        .string()
+        .max(200)
+        .optional()
+        .describe("Who owns fixing a missing input (recorded on the receipt)"),
 };
 export const workflowRunQuerySchema = {
     run_id: z.string().min(1).describe("run_id from workflow_step / workflow_verify"),
     kinds: z
-        .array(z.enum(["verify", "acceptance", "handoff", "gate", "usage", "step", "load"]))
+        .array(z.enum(["verify", "acceptance", "preflight", "handoff", "gate", "usage", "step", "load"]))
         .optional()
-        .describe("Event kinds to include (default: verify + acceptance). step = workflow_step spans from workflow-runs.jsonl (stepIndex, sinceLastStepMs, engineMs, routing); load = get_* loads from skill-load-log.jsonl; usage / handoff / gate = the matching .pncore trails."),
+        .describe("Event kinds to include (default: verify + acceptance). preflight = workflow_verify input/env/command checks. step = workflow_step spans from workflow-runs.jsonl (stepIndex, sinceLastStepMs, engineMs, routing); load = get_* loads from skill-load-log.jsonl; usage / handoff / gate = the matching .pncore trails."),
     limit: z.number().int().min(1).max(200).optional().describe("Max events (default 80)"),
     path: z
         .string()
