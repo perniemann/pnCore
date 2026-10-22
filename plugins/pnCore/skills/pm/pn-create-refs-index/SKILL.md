@@ -54,7 +54,7 @@ Create **`docs/refs/README.md`**—a human-readable index of project documents. 
 
 4. **Save to:** **`docs/refs/README.md`**. Create **`docs/refs/`** if missing.
 
-5. **Update `docs/refs/context-index.json` (one catalog):** If the file exists (or create a minimal 1.3.0 index), refresh the `artifacts` array for files you just indexed:
+5. **Update `docs/refs/context-index.json` (one catalog):** If the file exists (or create a minimal 1.4.0 index), refresh the `artifacts` array for files you just indexed:
 
    - Types: `discovery` | `plan` | `prd` | `design` | `workflow` | `convention`
    - Fields: `id`, `type`, `path`; optional `tracker`, `authored_status` (claim only), `run_id` (for attested completion)

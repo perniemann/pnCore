@@ -76,6 +76,7 @@ function bigPacket(): ProjectContextPacket {
       handoff_run_id: "r1",
       resume: "Resume: finish step 4",
       resume_run_bound: false,
+      declared_current: null,
     },
     consistency: {
       ok: true,

@@ -53,6 +53,10 @@
         "quarterly_audit": {
           "type": ["string", "null"],
           "description": "Latest quarterly skill/rule audit note (ADR-0002)"
+        },
+        "current_checkpoint": {
+          "type": ["string", "null"],
+          "description": "Artifact id (not a path) of the current checkpoint; that artifact must have lifecycle \"current\". project_context compares its run_id to the workflow state run_id"
         }
       }
     },
@@ -112,6 +116,16 @@
           "run_id": {
             "type": ["string", "null"],
             "description": "Optional workflow run_id for attested completion via run-events"
+          },
+          "lifecycle": {
+            "type": "string",
+            "enum": ["current", "historical", "superseded"],
+            "description": "current: the live entry (at most one per type). historical / superseded: kept as evidence; their findings and failure caps are never treated as current blockers"
+          },
+          "superseded_by": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Artifact id that replaces this one; required when lifecycle is superseded"
           }
         }
       }
