@@ -14,6 +14,7 @@ import {
   resolveStatePath,
   type StatePathSource,
 } from "./state-path.js";
+import { readCheckpointMeta } from "./checkpoint.js";
 import { defaultRunEventsPath, type RunEvent } from "./verify-attest.js";
 
 export const CONTEXT_INDEX_REL = "docs/refs/context-index.json";
@@ -113,11 +114,13 @@ export type MismatchCode =
   | "handoff_run_mismatch"
   | "state_run_differs"
   | "handoff_skipped"
-  | "handoff_foreign";
+  | "handoff_foreign"
+  | "handoff_revision_ahead"
+  | "state_unversioned";
 
 export type ConsistencyMismatch = {
   code: MismatchCode;
-  severity: "error" | "warn";
+  severity: "error" | "warn" | "info";
   detail: string;
 };
 
@@ -139,6 +142,8 @@ export type ActiveRun = {
   state_path_source: StatePathSource;
   state_present: boolean;
   state_run_id: string | null;
+  /** Checkpoint revision of the state file (workflow_state_save commit mode); null when unversioned. */
+  state_revision: number | null;
   /** Selected run: explicit argument, or the state run when no source disagrees; else null. */
   run_id: string | null;
   run_id_source: "argument" | "state" | "none";
@@ -251,6 +256,13 @@ function parseRunEventLine(line: string): RunEvent | null {
       typeof o.run_id === "string"
     ) {
       return o as Extract<RunEvent, { kind: "verify" }>;
+    }
+    if (
+      o.kind === "preflight" &&
+      typeof o.preflightId === "string" &&
+      typeof o.run_id === "string"
+    ) {
+      return o as Extract<RunEvent, { kind: "preflight" }>;
     }
     if (o.kind === "acceptance" && typeof o.run_id === "string") {
       return o as Extract<RunEvent, { kind: "acceptance" }>;
@@ -473,7 +485,15 @@ function readRunEventTrail(runId: string | null, maxLines: number, cwd: string):
       return {
         source: "run_events" as const,
         ts: ev.finishedAt,
-        summary: `verify exit=${ev.exitCode} ${ev.commandId ?? ev.argv.join(" ").slice(0, 80)}`,
+        summary: `verify exit=${ev.exitCode}${ev.failureClass && ev.failureClass !== "none" ? ` class=${ev.failureClass}` : ""} ${ev.commandId ?? ev.argv.join(" ").slice(0, 80)}`,
+      };
+    }
+    if (ev.kind === "preflight") {
+      const failed = ev.checks.filter((c) => !c.ok).map((c) => `${c.kind}:${c.target}`);
+      return {
+        source: "run_events" as const,
+        ts: ev.ts,
+        summary: `preflight ok=${ev.ok}${failed.length ? ` missing=${failed.join(",").slice(0, 120)}` : ""}`,
       };
     }
     return {
@@ -484,19 +504,23 @@ function readRunEventTrail(runId: string | null, maxLines: number, cwd: string):
   });
 }
 
-type LogPoint = { run_id: string; step: number | null; ts: string; workflowType: string | null };
+type LogPoint = {
+  run_id: string;
+  step: number | null;
+  ts: string;
+  workflowType: string | null;
+  revision: number | null;
+};
 
-/** Newest point overall plus every point for `runId`, from a run-log or handoff JSONL file. */
-function scanRunLog(
-  rel: string,
-  cwd: string,
-  runKey: "runId" | "run_id",
-  runId: string | null
-): { newest: LogPoint | null; forRun: LogPoint[] } {
+function newestPoint(points: LogPoint[]): LogPoint | null {
+  return points.reduce<LogPoint | null>((acc, p) => (!acc || p.ts >= acc.ts ? p : acc), null);
+}
+
+/** Every point in a run-log or handoff JSONL file, in file order. */
+function scanRunLog(rel: string, cwd: string, runKey: "runId" | "run_id"): LogPoint[] {
   const safe = resolveInside(cwd, rel);
-  if ("error" in safe || !existsSync(safe.resolved)) return { newest: null, forRun: [] };
-  let newest: LogPoint | null = null;
-  const forRun: LogPoint[] = [];
+  if ("error" in safe || !existsSync(safe.resolved)) return [];
+  const points: LogPoint[] = [];
   for (const line of readFileTail(safe.resolved, 786_432).split("\n")) {
     const t = line.trim();
     if (!t) continue;
@@ -513,11 +537,11 @@ function scanRunLog(
       step: typeof o.step === "number" ? o.step : null,
       ts: typeof o.ts === "string" ? o.ts : "",
       workflowType: typeof o.workflowType === "string" ? o.workflowType : null,
+      revision: typeof o.revision === "number" ? o.revision : null,
     };
-    if (!newest || point.ts >= newest.ts) newest = point;
-    if (runId && id === runId) forRun.push(point);
+    points.push(point);
   }
-  return { newest, forRun };
+  return points;
 }
 
 function deriveStepStatus(served: LogPoint[], completed: LogPoint | null): StepStatus {
@@ -562,6 +586,14 @@ export function computeActiveRun(opts: {
   }
   const statePresent = statePath.resolved != null && existsSync(statePath.resolved);
   const stateRunId = statePresent ? readStateRunId(statePath.resolved!) : null;
+  const stateMeta = statePresent ? readCheckpointMeta(statePath.resolved!) : null;
+  if (statePresent && !stateMeta) {
+    mismatches.push({
+      code: "state_unversioned",
+      severity: "info",
+      detail: `${statePath.requested} has no checkpoint revision (plain save); use workflow_state_save with run_id, step, and summary for revision-checked saves.`,
+    });
+  }
 
   if (!existsSync(join(cwd, ".pncore")) && !indexPresent) {
     mismatches.push({
@@ -599,12 +631,31 @@ export function computeActiveRun(opts: {
 
   const target = argRun ?? stateRunId;
   const paths = trailPaths(env);
-  const runLog = scanRunLog(paths.steps, cwd, "runId", target);
-  const handoffLog = scanRunLog(paths.handoff, cwd, "run_id", target);
-  const lastCompleted = handoffLog.forRun.reduce<LogPoint | null>(
-    (acc, p) => (!acc || p.ts >= acc.ts ? p : acc),
-    null
-  );
+  const servePoints = scanRunLog(paths.steps, cwd, "runId");
+  let handoffPoints = scanRunLog(paths.handoff, cwd, "run_id");
+  const committedRevision = stateMeta && stateMeta.run_id === target ? stateMeta.revision : null;
+  if (committedRevision != null) {
+    const uncommitted = handoffPoints.filter(
+      (p) => p.run_id === target && p.revision != null && p.revision > committedRevision
+    );
+    if (uncommitted.length > 0) {
+      mismatches.push({
+        code: "handoff_revision_ahead",
+        severity: "warn",
+        detail: `${uncommitted.length} handoff line(s) for run ${target} carry a revision above the state file's revision ${committedRevision} (interrupted save); they are ignored as uncommitted.`,
+      });
+      handoffPoints = handoffPoints.filter((p) => !uncommitted.includes(p));
+    }
+  }
+  const runLog = {
+    newest: newestPoint(servePoints),
+    forRun: target ? servePoints.filter((p) => p.run_id === target) : [],
+  };
+  const handoffLog = {
+    newest: newestPoint(handoffPoints),
+    forRun: target ? handoffPoints.filter((p) => p.run_id === target) : [],
+  };
+  const lastCompleted = newestPoint(handoffLog.forRun);
   const lastServed = runLog.forRun[runLog.forRun.length - 1] ?? null;
   const fromArg = argRun != null;
   const sourceSeverity = fromArg ? "warn" : "error";
@@ -677,6 +728,7 @@ export function computeActiveRun(opts: {
       state_path_source: statePath.source,
       state_present: statePresent,
       state_run_id: stateRunId,
+      state_revision: stateMeta?.revision ?? null,
       run_id: runId,
       run_id_source: runIdSource,
       candidates,

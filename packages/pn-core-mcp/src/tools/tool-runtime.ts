@@ -36,6 +36,9 @@ export const ErrorCode = {
   INVALID_GATE: "INVALID_GATE",
   DISPOSE_UNAVAILABLE: "DISPOSE_UNAVAILABLE",
   INVALID_ARGV: "INVALID_ARGV",
+  REVISION_CONFLICT: "REVISION_CONFLICT",
+  RUN_MISMATCH: "RUN_MISMATCH",
+  LOCKED: "LOCKED",
 } as const;
 
 export type ErrorCodeKey = keyof typeof ErrorCode;

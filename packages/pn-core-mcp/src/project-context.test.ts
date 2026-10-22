@@ -450,8 +450,9 @@ describe("project-context active run and consistency", () => {
     step,
     summary: `step ${step} done`,
   });
-  const codes = (p: ReturnType<typeof buildProjectContextPacket>) =>
-    p.consistency.mismatches.map((m) => m.code);
+  const notable = (p: ReturnType<typeof buildProjectContextPacket>) =>
+    p.consistency.mismatches.filter((m) => m.severity !== "info");
+  const codes = (p: ReturnType<typeof buildProjectContextPacket>) => notable(p).map((m) => m.code);
 
   beforeEach(() => {
     cwd = join(tmpdir(), `pncore-ar-${Date.now()}-${Math.random().toString(36).slice(2)}`);
@@ -485,7 +486,8 @@ describe("project-context active run and consistency", () => {
     expect(p.active_run.last_served_step).toBe(2);
     expect(p.active_run.last_completed_step).toBe(1);
     expect(p.active_run.step_status).toBe("in_progress");
-    expect(p.consistency).toEqual({ ok: true, mismatches: [] });
+    expect(p.consistency.ok).toBe(true);
+    expect(notable(p)).toEqual([]);
     expect(p.drift_scope).toBe("indexed_files");
     expect(p.active_run_id).toBe("run-a");
   });
@@ -581,7 +583,7 @@ describe("project-context active run and consistency", () => {
     ]);
     const p = buildProjectContextPacket({ cwd });
     expect(p.active_run.step_status).toBe("in_progress");
-    expect(p.consistency.mismatches).toEqual([]);
+    expect(notable(p)).toEqual([]);
   });
 
   it("a late handoff for an earlier step is handoff_foreign", () => {
@@ -615,7 +617,7 @@ describe("project-context active run and consistency", () => {
     expect(p.active_run.run_id).toBe("run-chosen");
     expect(p.active_run.run_id_source).toBe("argument");
     expect(codes(p)).toEqual(expect.arrayContaining(["newer_run_in_log", "state_run_differs"]));
-    expect(p.consistency.mismatches.every((m) => m.severity === "warn")).toBe(true);
+    expect(notable(p).every((m) => m.severity === "warn")).toBe(true);
     expect(p.consistency.ok).toBe(true);
   });
 
@@ -641,6 +643,93 @@ describe("project-context active run and consistency", () => {
     expect(p.active_run.last_served_step).toBe(1);
     expect(p.active_run.last_completed_step).toBe(1);
     expect(p.active_run.step_status).toBe("idle");
+  });
+
+  it("plain-saved state is flagged state_unversioned as info only", () => {
+    writeJson(".pncore/workflow-state.json", { run_id: "run-a" });
+    const p = buildProjectContextPacket({ cwd });
+    expect(p.consistency.mismatches).toEqual([
+      expect.objectContaining({ code: "state_unversioned", severity: "info" }),
+    ]);
+    expect(p.consistency.ok).toBe(true);
+    expect(p.active_run.state_revision).toBeNull();
+  });
+
+  it("ignores uncommitted handoff lines above the state revision (interrupted commit)", () => {
+    writeJson(".pncore/workflow-state.json", {
+      run_id: "run-a",
+      _pncore: { revision: 2, run_id: "run-a", step: 2, savedAt: "t", stateHash: "h" },
+    });
+    writeJsonl(".pncore/workflow-runs.jsonl", [
+      serve("run-a", 2, "2026-10-01T10:00:00.000Z"),
+      serve("run-a", 3, "2026-10-01T10:10:00.000Z"),
+    ]);
+    writeJsonl(".pncore/workflow-handoff.jsonl", [
+      { ...handoff("run-a", 2, "2026-10-01T10:05:00.000Z"), revision: 2 },
+      { ...handoff("run-a", 3, "2026-10-01T10:20:00.000Z"), revision: 3 },
+    ]);
+    const p = buildProjectContextPacket({ cwd });
+    expect(p.active_run.state_revision).toBe(2);
+    expect(p.active_run.last_completed_step).toBe(2);
+    expect(p.active_run.step_status).toBe("in_progress");
+    expect(codes(p)).toEqual(["handoff_revision_ahead"]);
+    expect(p.active_run.run_id).toBe("run-a");
+  });
+
+  it("trail summarizes preflight events and verify failure classes", () => {
+    writeJson(".pncore/workflow-state.json", { run_id: "run-a" });
+    writeJsonl(".pncore/run-events.jsonl", [
+      {
+        kind: "preflight",
+        run_id: "run-a",
+        ts: "2026-10-01T10:00:00.000Z",
+        preflightId: "p1",
+        ok: false,
+        failureClass: "missing_input",
+        checks: [
+          { kind: "command", target: "npm", ok: true },
+          { kind: "env", target: "API_KEY", ok: false, reason: "unset or empty" },
+        ],
+        argv: ["npm", "test"],
+        cwd: ".",
+      },
+      {
+        kind: "preflight",
+        run_id: "run-a",
+        ts: "2026-10-01T10:01:00.000Z",
+        preflightId: "p2",
+        ok: true,
+        failureClass: "none",
+        checks: [],
+        argv: ["npm", "test"],
+        cwd: ".",
+      },
+      {
+        kind: "verify",
+        run_id: "run-a",
+        attestationId: "v1",
+        argv: ["npm", "test"],
+        cwd: ".",
+        exitCode: 1,
+        timedOut: false,
+        stdoutTail: "",
+        stderrTail: "",
+        startedAt: "2026-10-01T10:02:00.000Z",
+        finishedAt: "2026-10-01T10:02:01.000Z",
+        sandbox: { backend: "unavailable", jailed: false },
+        failureClass: "behavioral",
+      },
+    ]);
+    const summaries = (buildProjectContextPacket({ cwd, max_trail: 10 }).trail ?? []).map(
+      (t) => t.summary
+    );
+    expect(summaries).toEqual(
+      expect.arrayContaining([
+        "preflight ok=false missing=env:API_KEY",
+        "preflight ok=true",
+        "verify exit=1 class=behavioral npm test",
+      ])
+    );
   });
 
   it("readActiveRunId uses the same resolver as the packet", () => {

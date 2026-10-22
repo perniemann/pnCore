@@ -14,6 +14,7 @@ export type SpawnVerifyResult = {
   timedOut: boolean;
   stdoutTail: string;
   stderrTail: string;
+  signal: string | null;
 };
 
 const OUTPUT_CAP = 8192;
@@ -224,7 +225,7 @@ export function spawnVerify(opts: {
       clearTimeout(timer);
       reject(err);
     });
-    child.on("close", (code) => {
+    child.on("close", (code, signal) => {
       if (settled) return;
       settled = true;
       clearTimeout(timer);
@@ -233,6 +234,7 @@ export function spawnVerify(opts: {
         timedOut,
         stdoutTail: tailOutput(stdout),
         stderrTail: tailOutput(stderr),
+        signal: timedOut ? null : (signal ?? null),
       });
     });
   });

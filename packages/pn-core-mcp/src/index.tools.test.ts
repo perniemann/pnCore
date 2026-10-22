@@ -713,6 +713,54 @@ describe("MCP per-tool integration", () => {
     expect(unbound.consistency.ok).toBe(false);
   });
 
+  it("workflow_state_save commit mode: revision CAS, read-back, and load meta (ADR-0022)", async () => {
+    const path = `.pncore/state-commit-${Date.now()}.json`;
+    const handoff_path = `.pncore/handoff-commit-${Date.now()}.jsonl`;
+    const first = parseFirst(
+      await client.callTool({
+        name: "workflow_state_save",
+        arguments: {
+          state: { plan: "p" },
+          path,
+          handoff_path,
+          run_id: "test-commit-001",
+          step: 1,
+          summary: "step 1 done",
+          expected_revision: 0,
+        },
+      })
+    );
+    expect(first).toMatchObject({ ok: true, mode: "commit", revision: 1, previous_revision: 0 });
+    expect((first.readBack as { revision: number }).revision).toBe(1);
+
+    const loaded = parseFirst(
+      await client.callTool({ name: "workflow_state_load", arguments: { path } })
+    );
+    expect(loaded.state).toEqual({ plan: "p", run_id: "test-commit-001" });
+    expect((loaded.meta as { revision: number }).revision).toBe(1);
+
+    const stale = await client.callTool({
+      name: "workflow_state_save",
+      arguments: {
+        state: loaded.state as Record<string, unknown>,
+        path,
+        handoff_path,
+        run_id: "test-commit-001",
+        step: 2,
+        summary: "step 2",
+        expected_revision: 0,
+      },
+    });
+    const err = assertErrorEnvelope(stale);
+    expect(err.code).toBe("REVISION_CONFLICT");
+
+    const partial = await client.callTool({
+      name: "workflow_state_save",
+      arguments: { state: {}, path, run_id: "test-commit-001" },
+    });
+    expect(assertErrorEnvelope(partial).code).toBe("INVALID_STATE");
+  });
+
   it("workflow_state_save: path traversal returns PATH_TRAVERSAL error", async () => {
     const result = await client.callTool({
       name: "workflow_state_save",

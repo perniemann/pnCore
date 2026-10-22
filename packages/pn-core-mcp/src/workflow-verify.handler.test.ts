@@ -1,4 +1,5 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { rmSync } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import { handleWorkflowRunQuery, handleWorkflowVerify } from "./tools/handlers.js";
@@ -72,5 +73,88 @@ describe("handleWorkflowVerify", () => {
       cwd: passCwd,
     });
     expect(parse(ok).ok).toBe(true);
+  });
+});
+
+describe("handleWorkflowVerify preflight and failure classes", () => {
+  const failCwd = join(__dirname, "fixtures", "verify-fail");
+  const events = ".pncore/test-preflight-events.jsonl";
+
+  beforeEach(() => {
+    rmSync(events, { force: true });
+  });
+
+  it("preflight_only records checks without spawning and works with disposeVerify off", async () => {
+    vi.stubEnv("PNCORE_DISPOSE_VERIFY", "0");
+    vi.stubEnv("PNCORE_RUN_EVENTS_PATH", events);
+    vi.stubEnv("PNCORE_PREFLIGHT_PRESENT", "1");
+    const r = await handleWorkflowVerify({
+      run_id: "run-pre-only",
+      commandId: "npm_test",
+      cwd: passCwd,
+      preflight_only: true,
+      inputs: [{ path: "package.json", access: "read" }, { path: "missing.txt" }],
+      env_required: ["PNCORE_PREFLIGHT_PRESENT", "PNCORE_PREFLIGHT_ABSENT_XYZ"],
+      owner: "platform",
+    });
+    expect(r.isError).toBeFalsy();
+    const body = parse(r);
+    expect(body).toMatchObject({
+      launched: false,
+      kind: "preflight",
+      ok: false,
+      failureClass: "missing_input",
+      owner: "platform",
+    });
+    const failed = (body.checks as Array<{ target: string; ok: boolean }>)
+      .filter((c) => !c.ok)
+      .map((c) => c.target);
+    expect(failed).toEqual(["missing.txt", "PNCORE_PREFLIGHT_ABSENT_XYZ"]);
+
+    const q = parse(
+      await handleWorkflowRunQuery({ run_id: "run-pre-only", kinds: ["preflight"], path: events })
+    );
+    expect((q.events as unknown[]).length).toBe(1);
+    expect(q.verify).toEqual([]);
+  });
+
+  it("a failed preflight launches nothing and writes no verify receipt", async () => {
+    vi.stubEnv("PNCORE_DISPOSE_VERIFY", "1");
+    vi.stubEnv("PNCORE_RUN_EVENTS_PATH", events);
+    const r = parse(
+      await handleWorkflowVerify({
+        run_id: "run-pre-fail",
+        commandId: "npm_test",
+        cwd: passCwd,
+        env_required: ["PNCORE_PREFLIGHT_ABSENT_XYZ"],
+      })
+    );
+    expect(r).toMatchObject({ launched: false, failureClass: "missing_input" });
+    const q = parse(
+      await handleWorkflowRunQuery({ run_id: "run-pre-fail", kinds: ["verify"], path: events })
+    );
+    expect(q.events).toEqual([]);
+  });
+
+  it("a passing preflight links to the verify receipt; exit codes are classified", async () => {
+    vi.stubEnv("PNCORE_DISPOSE_VERIFY", "1");
+    vi.stubEnv("PNCORE_RUN_EVENTS_PATH", events);
+    const pass = parse(
+      await handleWorkflowVerify({
+        run_id: "run-pre-pass",
+        commandId: "npm_test",
+        cwd: passCwd,
+        inputs: [{ path: "package.json" }],
+      })
+    );
+    expect(pass).toMatchObject({ ok: true, exitCode: 0, failureClass: "none" });
+    expect(typeof pass.preflightId).toBe("string");
+
+    const fail = parse(
+      await handleWorkflowVerify({ run_id: "run-behavioral", commandId: "npm_test", cwd: failCwd })
+    );
+    expect(fail.exitCode).not.toBe(0);
+    expect(fail.failureClass).toBe("behavioral");
+    expect(fail.preflightId).toBeUndefined();
   });
 });
