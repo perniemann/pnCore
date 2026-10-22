@@ -66,8 +66,8 @@
   },
   "overrides": {
     "zod": "4.6.5",
-    "ip-address": "10.4.0",
-    "fast-uri": "3.1.7"
+    "ip-address": "10.7.4",
+    "fast-uri": "3.1.9"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
