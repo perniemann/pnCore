@@ -336,5 +336,69 @@ describe("buildRunTimeline", () => {
     const t = buildRunTimeline("r1", { steps: entries });
     expect(t.totals.engineMs).toBe(2.25);
     expect(t.slowest?.stepIndex).toBe(3);
+    expect(t.modelMismatches).toEqual([]);
+    expect(t.steps.every((s) => s.models === undefined)).toBe(true);
+  });
+
+  it("records requested vs observed model per step and flags mismatches", () => {
+    const t = buildRunTimeline("r1", {
+      steps,
+      usage: [
+        rec({
+          ts: iso(61_000),
+          run_id: "r1",
+          inputTokens: 10,
+          outputTokens: 1,
+          requestModel: "claude-opus-5-5",
+          responseModel: "claude-opus-5-5",
+          reasoningEffort: "high",
+          observedBy: "agent_claim",
+        }),
+        rec({
+          ts: iso(100_000),
+          run_id: "r1",
+          inputTokens: 10,
+          outputTokens: 1,
+          requestModel: "claude-opus-5-5",
+          responseModel: "composer-2.5",
+          workerId: "pn-frontend-developer",
+          observedBy: "hook",
+        }),
+        rec({
+          ts: iso(110_000),
+          run_id: "r1",
+          inputTokens: 10,
+          outputTokens: 1,
+          requestModel: "claude-sonnet-5-5",
+          observedBy: "unavailable",
+        }),
+        rec({ ts: iso(120_000), run_id: "r1", inputTokens: 1, outputTokens: 1, workerId: "w2" }),
+        rec({ ts: iso(130_000), run_id: "r1", inputTokens: 1, outputTokens: 1, observedBy: "x" }),
+      ],
+    });
+    expect(t.steps[0].models).toBeUndefined();
+    expect(t.steps[1].models).toEqual([
+      {
+        requestModel: "claude-opus-5-5",
+        responseModel: "claude-opus-5-5",
+        reasoningEffort: "high",
+        workerId: null,
+        observedBy: "agent_claim",
+      },
+    ]);
+    expect(t.steps[2].models?.map((m) => [m.responseModel, m.workerId, m.observedBy])).toEqual([
+      ["composer-2.5", "pn-frontend-developer", "hook"],
+      [null, null, "unavailable"],
+      [null, "w2", "agent_claim"],
+    ]);
+    expect(t.modelMismatches).toEqual([
+      {
+        stepIndex: 2,
+        step: 4,
+        requestModel: "claude-opus-5-5",
+        responseModel: "composer-2.5",
+        observedBy: "hook",
+      },
+    ]);
   });
 });

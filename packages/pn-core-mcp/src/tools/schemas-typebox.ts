@@ -118,6 +118,13 @@ export const typeboxSchemas: Record<string, TSchema> = {
     latencyMs: Type.Optional(Type.Number({ minimum: 0 })),
     run_id: Type.Optional(Type.String()),
     path: Type.Optional(Type.String()),
+    requestModel: Type.Optional(Type.String({ minLength: 1, maxLength: 200 })),
+    responseModel: Type.Optional(Type.String({ minLength: 1, maxLength: 200 })),
+    reasoningEffort: Type.Optional(Type.String({ minLength: 1, maxLength: 40 })),
+    workerId: Type.Optional(Type.String({ minLength: 1, maxLength: 200 })),
+    observedBy: Type.Optional(
+      Type.Union([Type.Literal("agent_claim"), Type.Literal("unavailable")])
+    ),
   }),
   workflow_usage_totals: Type.Object({
     run_id: Type.String({ minLength: 1 }),

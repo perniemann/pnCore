@@ -528,7 +528,22 @@ export async function handleReportUsage(args: ShapeArgs<typeof reportUsageSchema
     latencyMs,
     run_id,
     path: filePath,
+    requestModel,
+    responseModel,
+    reasoningEffort,
+    workerId,
+    observedBy,
   } = args;
+  if (observedBy === "unavailable" && responseModel) {
+    return mcpError(
+      "INVALID_STATE",
+      "observedBy 'unavailable' means the harness exposes no model; omit responseModel or use agent_claim.",
+      {}
+    );
+  }
+  const hasModelFields = [requestModel, responseModel, reasoningEffort, workerId].some(
+    (v) => v !== undefined
+  );
   const entry = {
     ts: new Date().toISOString(),
     workflowType,
@@ -538,6 +553,11 @@ export async function handleReportUsage(args: ShapeArgs<typeof reportUsageSchema
     ...(costUsd != null && { costUsd }),
     ...(latencyMs != null && { latencyMs }),
     ...(run_id != null && run_id !== "" ? { run_id } : {}),
+    ...(requestModel ? { requestModel } : {}),
+    ...(responseModel ? { responseModel } : {}),
+    ...(reasoningEffort ? { reasoningEffort } : {}),
+    ...(workerId ? { workerId } : {}),
+    ...(observedBy || hasModelFields ? { observedBy: observedBy ?? "agent_claim" } : {}),
   };
   if (filePath) {
     const safe = resolveSafePath(filePath);

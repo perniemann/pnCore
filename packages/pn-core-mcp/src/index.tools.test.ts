@@ -483,6 +483,69 @@ describe("MCP per-tool integration", () => {
     expect(err.code).toBe("PATH_TRAVERSAL");
   });
 
+  it("report_usage: model fields default observedBy to agent_claim", async () => {
+    const base = { workflowType: "full_dev", step: 4, inputTokens: 5, outputTokens: 2 };
+    const withModel = parseFirst(
+      await client.callTool({
+        name: "report_usage",
+        arguments: {
+          ...base,
+          requestModel: "claude-opus-5-5",
+          responseModel: "claude-opus-5-5",
+          reasoningEffort: "high",
+          workerId: "pn-backend-developer",
+        },
+      })
+    );
+    expect(withModel.summary).toMatchObject({
+      requestModel: "claude-opus-5-5",
+      responseModel: "claude-opus-5-5",
+      reasoningEffort: "high",
+      workerId: "pn-backend-developer",
+      observedBy: "agent_claim",
+    });
+
+    const unavailable = parseFirst(
+      await client.callTool({
+        name: "report_usage",
+        arguments: { ...base, requestModel: "claude-opus-5-5", observedBy: "unavailable" },
+      })
+    );
+    expect(unavailable.summary).toMatchObject({ observedBy: "unavailable" });
+
+    const plain = parseFirst(await client.callTool({ name: "report_usage", arguments: base }));
+    expect(plain.summary).not.toHaveProperty("observedBy");
+  });
+
+  it("report_usage: observedBy unavailable with responseModel is INVALID_STATE", async () => {
+    const result = await client.callTool({
+      name: "report_usage",
+      arguments: {
+        workflowType: "full_dev",
+        step: 4,
+        inputTokens: 1,
+        outputTokens: 1,
+        responseModel: "composer-2.5",
+        observedBy: "unavailable",
+      },
+    });
+    expect(assertErrorEnvelope(result).code).toBe("INVALID_STATE");
+  });
+
+  it("report_usage: observedBy hook is reserved for harness hooks", async () => {
+    const result = await client.callTool({
+      name: "report_usage",
+      arguments: {
+        workflowType: "full_dev",
+        step: 4,
+        inputTokens: 1,
+        outputTokens: 1,
+        observedBy: "hook",
+      },
+    });
+    expect(result.isError).toBe(true);
+  });
+
   // ── workflow_usage_totals ────────────────────────────────────────────────
   it("workflow_usage_totals: nonexistent file returns zero totals", async () => {
     const result = await client.callTool({
