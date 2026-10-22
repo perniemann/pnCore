@@ -504,7 +504,7 @@ export async function handleWorkflowStep(args: ShapeArgs<typeof workflowStepSche
     }
   }
 
-  if (result.acceptance) {
+  if (result.acceptance && result.acceptance !== "unearned") {
     appendRunEvent({
       kind: "acceptance",
       run_id: runId,
