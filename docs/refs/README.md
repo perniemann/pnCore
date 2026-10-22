@@ -13,7 +13,7 @@ Machine-oriented and canonical pointers for this repo live alongside human-facin
 
 | File | Purpose |
 |------|---------|
-| [context-index.json](context-index.json) | Layered handoff manifest: semver, `last_reviewed`, pointers, optional typed `artifacts` (1.3.0+), optional `AC-*` ids, suggested verify commands. Validated via `npm run check:context-index` and `npm run check:artifact-status`. |
+| [context-index.json](context-index.json) | Layered handoff manifest: semver, `last_reviewed`, pointers, optional typed `artifacts` (1.3.0+), artifact `lifecycle` / `superseded_by` and `pointers.current_checkpoint` (1.4.0+), optional `AC-*` ids, suggested verify commands. Validated via `npm run check:context-index` and `npm run check:artifact-status`. |
 | [context-index.schema.json](context-index.schema.json) | JSON Schema for `context-index.json`. |
 
 Schema upgrades: run `node scripts/migrate-context-index.mjs [--dry-run]` from the repo root when the JSON Schema contract bumps.

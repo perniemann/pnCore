@@ -4,6 +4,21 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.19.12] - 2026-10-22
+
+### Added
+
+- **full_dev step 6 delivery ledger.** The terminal step asks for `{ accepted[], implementedUnaccepted[], open[], remainingGates[], evidenceReuse[], nextAction }`. Every item is `{ item, scope, evidence }` with scope `source`, `static`, `runtime`, or `product`, never wider than the evidence observed. `Acceptance.scope` reports the strongest scope the server earned; it earns at most `static`.
+- **Context-index schema 1.4.0.** `pointers.current_checkpoint` names the artifact id of the current checkpoint. `artifacts[].lifecycle` is `current`, `historical`, or `superseded` (with `superseded_by`). `npm run check:context-index` validates both, and `npm run migrate:context-index` upgrades a 1.3.0 index.
+- `project_context` treats `historical` / `superseded` artifacts as evidence only: they are excluded from drift and `next_incomplete` and counted under `counts.historical`. `active_run.declared_current` reports the run of the declared checkpoint. `consistency` gains `state_vs_declared_current` (the state file holds a different run than the declared checkpoint) and `historical_entry_selected` (the selected run belongs to a historical or superseded artifact), both warnings.
+- **`report_usage` requested vs observed model.** New optional fields `requestModel`, `responseModel`, `reasoningEffort`, `workerId`, and `observedBy` (`agent_claim` / `unavailable`; `hook` is reserved for lines a harness hook writes). `observedBy: "unavailable"` with `responseModel` is `INVALID_STATE`.
+- The `workflow_run_query` timeline carries per-step `models` and `modelMismatches` (usage lines whose `responseModel` differs from `requestModel`).
+
+### Changed
+
+- full_dev step 6 computes server acceptance only when `disposeVerify` or `strictSkepticGates` is on. Otherwise `acceptance` is `"unearned"` and no acceptance event is written, so default runs are no longer reported as not accepted.
+- full_dev steps 0 and 5 surface only guidance that applies to this run and do not re-ask decisions already recorded in state or context-index pointers. Review and integration remain hard gates.
+
 ## [0.19.11] - 2026-10-22
 
 ### Added

@@ -125,6 +125,25 @@ function stepIndexForTs(stepTsMs, ts) {
     }
     return idx < 0 ? 0 : idx;
 }
+const str = (v) => (typeof v === "string" && v !== "" ? v : null);
+function usageModel(u) {
+    const requestModel = str(u.requestModel);
+    const responseModel = str(u.responseModel);
+    const reasoningEffort = str(u.reasoningEffort);
+    const workerId = str(u.workerId);
+    const observedBy = u.observedBy === "hook" || u.observedBy === "unavailable" || u.observedBy === "agent_claim"
+        ? u.observedBy
+        : null;
+    if (!requestModel && !responseModel && !reasoningEffort && !workerId && !observedBy)
+        return null;
+    return {
+        requestModel,
+        responseModel,
+        reasoningEffort,
+        workerId,
+        observedBy: observedBy ?? "agent_claim",
+    };
+}
 /** Join the trails for one run into a per-step timeline. Pure. */
 export function buildRunTimeline(runId, trails) {
     const stepsSorted = [...trails.steps].sort((a, b) => a.ts.localeCompare(b.ts));
@@ -172,6 +191,9 @@ export function buildRunTimeline(runId, trails) {
             inputTokens: (s.usage?.inputTokens ?? 0) + it,
             outputTokens: (s.usage?.outputTokens ?? 0) + ot,
         };
+        const model = usageModel(u);
+        if (model)
+            (s.models ??= []).push(model);
     }
     for (const h of trails.handoff ?? []) {
         const s = slot(h);
@@ -212,6 +234,20 @@ export function buildRunTimeline(runId, trails) {
         outputTokens: 0,
     });
     totals.engineMs = roundMs(totals.engineMs);
+    const modelMismatches = [];
+    for (const s of steps) {
+        for (const m of s.models ?? []) {
+            if (m.requestModel && m.responseModel && m.requestModel !== m.responseModel) {
+                modelMismatches.push({
+                    stepIndex: s.stepIndex,
+                    step: s.step,
+                    requestModel: m.requestModel,
+                    responseModel: m.responseModel,
+                    observedBy: m.observedBy,
+                });
+            }
+        }
+    }
     let slowest = null;
     for (const s of steps) {
         if (s.sinceLastStepMs != null && (!slowest || s.sinceLastStepMs > slowest.sinceLastStepMs)) {
@@ -234,5 +270,6 @@ export function buildRunTimeline(runId, trails) {
         totals,
         slowest,
         accepted,
+        modelMismatches,
     };
 }

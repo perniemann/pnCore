@@ -11,6 +11,7 @@ export declare const WORKFLOW_HANDOFF_REL = ".pncore/workflow-handoff.jsonl";
 export declare const ARTIFACT_TYPES: readonly ["discovery", "plan", "prd", "design", "workflow", "convention"];
 export type ArtifactType = (typeof ARTIFACT_TYPES)[number];
 export type AuthoredStatus = string | null | undefined;
+export type ArtifactLifecycle = "current" | "historical" | "superseded";
 export type ContextArtifact = {
     id: string;
     type: ArtifactType;
@@ -18,6 +19,8 @@ export type ContextArtifact = {
     tracker?: string | null;
     authored_status?: AuthoredStatus;
     run_id?: string | null;
+    lifecycle?: ArtifactLifecycle;
+    superseded_by?: string;
 };
 export type ContextIndex = {
     version: string;
@@ -42,6 +45,9 @@ export type ArtifactReport = {
     tracker: string | null;
     tracker_checked: false;
     notes: string[];
+    /** Present when the index declares one; historical / superseded entries are evidence only. */
+    lifecycle?: ArtifactLifecycle;
+    superseded_by?: string;
 };
 export type TrailLine = {
     source: "workflow_handoff" | "run_events";
@@ -54,7 +60,7 @@ export type ResponseAlias = {
     expand: string;
 };
 export declare const RESPONSE_ALIASES: readonly ResponseAlias[];
-export type MismatchCode = "state_path_rejected" | "workspace_root_suspect" | "state_path_diverged" | "default_state_shadowed" | "newer_run_in_log" | "handoff_run_mismatch" | "state_run_differs" | "handoff_skipped" | "handoff_foreign" | "handoff_revision_ahead" | "state_unversioned";
+export type MismatchCode = "state_path_rejected" | "workspace_root_suspect" | "state_path_diverged" | "default_state_shadowed" | "newer_run_in_log" | "handoff_run_mismatch" | "state_run_differs" | "handoff_skipped" | "handoff_foreign" | "handoff_revision_ahead" | "state_unversioned" | "state_vs_declared_current" | "historical_entry_selected";
 export type ConsistencyMismatch = {
     code: MismatchCode;
     severity: "error" | "warn" | "info";
@@ -93,6 +99,11 @@ export type ActiveRun = {
     resume: string | null;
     /** Whether .pncore/handoff.md names the selected run; null when either is absent. */
     resume_run_bound: boolean | null;
+    /** context-index pointers.current_checkpoint artifact and its run_id; null when undeclared. */
+    declared_current: {
+        artifact_id: string;
+        run_id: string | null;
+    } | null;
 };
 export type Consistency = {
     ok: boolean;
@@ -143,6 +154,7 @@ export declare function computeActiveRun(opts: {
     run_id?: string;
     state_path?: string;
     indexPresent: boolean;
+    index?: ContextIndex | null;
     env?: NodeJS.ProcessEnv;
 }): {
     active_run: ActiveRun;

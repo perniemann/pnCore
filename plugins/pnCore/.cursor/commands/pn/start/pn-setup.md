@@ -240,7 +240,7 @@ Scaffold the **one** project catalog agents pull via MCP `project_context`. Do n
 
 ### E1. Create or refresh `docs/refs/context-index.json`
 
-If missing, create `docs/refs/` and write a 1.3.0 index with `version`, `last_reviewed` (today from MCP `health` → `calendarDateUtc` when available), `pointers.workspace` pointing at the project-context location from A2 (`AGENTS.md`, `.cursor/rules/project-context.mdc`, or `.claude/rules/project-context.md`), empty `artifacts`, and empty `verify`. Copy `docs/refs/context-index.schema.json` from pnCore when the adopter does not have it (see `docs/context-index-adopters.md`).
+If missing, create `docs/refs/` and write a 1.4.0 index with `version`, `last_reviewed` (today from MCP `health` → `calendarDateUtc` when available), `pointers.workspace` pointing at the project-context location from A2 (`AGENTS.md`, `.cursor/rules/project-context.mdc`, or `.claude/rules/project-context.md`), empty `artifacts`, and empty `verify`. Copy `docs/refs/context-index.schema.json` from pnCore when the adopter does not have it (see `docs/context-index-adopters.md`).
 
 ### E2. Populate `artifacts` from existing docs
 

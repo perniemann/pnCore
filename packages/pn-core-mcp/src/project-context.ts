@@ -35,6 +35,8 @@ export type ArtifactType = (typeof ARTIFACT_TYPES)[number];
 
 export type AuthoredStatus = string | null | undefined;
 
+export type ArtifactLifecycle = "current" | "historical" | "superseded";
+
 export type ContextArtifact = {
   id: string;
   type: ArtifactType;
@@ -42,6 +44,8 @@ export type ContextArtifact = {
   tracker?: string | null;
   authored_status?: AuthoredStatus;
   run_id?: string | null;
+  lifecycle?: ArtifactLifecycle;
+  superseded_by?: string;
 };
 
 export type ContextIndex = {
@@ -67,6 +71,9 @@ export type ArtifactReport = {
   tracker: string | null;
   tracker_checked: false;
   notes: string[];
+  /** Present when the index declares one; historical / superseded entries are evidence only. */
+  lifecycle?: ArtifactLifecycle;
+  superseded_by?: string;
 };
 
 export type TrailLine = {
@@ -116,7 +123,9 @@ export type MismatchCode =
   | "handoff_skipped"
   | "handoff_foreign"
   | "handoff_revision_ahead"
-  | "state_unversioned";
+  | "state_unversioned"
+  | "state_vs_declared_current"
+  | "historical_entry_selected";
 
 export type ConsistencyMismatch = {
   code: MismatchCode;
@@ -159,6 +168,8 @@ export type ActiveRun = {
   resume: string | null;
   /** Whether .pncore/handoff.md names the selected run; null when either is absent. */
   resume_run_bound: boolean | null;
+  /** context-index pointers.current_checkpoint artifact and its run_id; null when undeclared. */
+  declared_current: { artifact_id: string; run_id: string | null } | null;
 };
 
 export type Consistency = { ok: boolean; mismatches: ConsistencyMismatch[] };
@@ -431,6 +442,10 @@ export function deriveArtifactStatus(
   };
 }
 
+function isEvidenceOnly(r: ArtifactReport): boolean {
+  return r.lifecycle === "historical" || r.lifecycle === "superseded";
+}
+
 function countByType(reports: ArtifactReport[]): Record<string, number> {
   const counts: Record<string, number> = {
     total: reports.length,
@@ -440,17 +455,28 @@ function countByType(reports: ArtifactReport[]): Record<string, number> {
   for (const t of ARTIFACT_TYPES) counts[t] = 0;
   for (const r of reports) {
     counts[r.type] = (counts[r.type] ?? 0) + 1;
+    if (isEvidenceOnly(r)) {
+      counts.historical = (counts.historical ?? 0) + 1;
+      continue;
+    }
     if (r.derived_status === "drift") counts.drift += 1;
     if (r.derived_status === "missing") counts.missing += 1;
   }
   return counts;
 }
 
-function pickNextIncomplete(reports: ArtifactReport[]): ArtifactReport | null {
-  const order: DerivedStatus[] = ["drift", "missing", "in_progress", "unattested", "ok"];
-  for (const status of order) {
-    if (status === "ok") continue;
-    const hit = reports.find((r) => r.derived_status === status);
+const INCOMPLETE_ORDER: DerivedStatus[] = ["drift", "missing", "in_progress", "unattested"];
+
+/** The declared current checkpoint first; historical / superseded entries never become blockers. */
+function pickNextIncomplete(
+  reports: ArtifactReport[],
+  currentId: string | null
+): ArtifactReport | null {
+  const current = currentId ? reports.find((r) => r.id === currentId) : undefined;
+  if (current && INCOMPLETE_ORDER.includes(current.derived_status)) return current;
+  const live = reports.filter((r) => !isEvidenceOnly(r));
+  for (const status of INCOMPLETE_ORDER) {
+    const hit = live.find((r) => r.derived_status === status);
     if (hit) return hit;
   }
   return null;
@@ -573,6 +599,7 @@ export function computeActiveRun(opts: {
   run_id?: string;
   state_path?: string;
   indexPresent: boolean;
+  index?: ContextIndex | null;
   env?: NodeJS.ProcessEnv;
 }): { active_run: ActiveRun; consistency: Consistency } {
   const { cwd, indexPresent } = opts;
@@ -697,6 +724,46 @@ export function computeActiveRun(opts: {
     });
   }
 
+  const indexArtifacts = Array.isArray(opts.index?.artifacts) ? opts.index!.artifacts! : [];
+  const currentId = opts.index?.pointers?.current_checkpoint;
+  const currentArtifact =
+    typeof currentId === "string" && currentId !== ""
+      ? indexArtifacts.find((a) => a && typeof a === "object" && a.id === currentId)
+      : undefined;
+  const declaredCurrent =
+    typeof currentId === "string" && currentId !== ""
+      ? {
+          artifact_id: currentId,
+          run_id:
+            typeof currentArtifact?.run_id === "string" && currentArtifact.run_id !== ""
+              ? currentArtifact.run_id
+              : null,
+        }
+      : null;
+  if (declaredCurrent?.run_id && stateRunId && declaredCurrent.run_id !== stateRunId) {
+    mismatches.push({
+      code: "state_vs_declared_current",
+      severity: "warn",
+      detail: `context-index current_checkpoint ${declaredCurrent.artifact_id} is run ${declaredCurrent.run_id}; ${statePath.requested} holds run ${stateRunId}. Update the index or select the run explicitly.`,
+    });
+  }
+  const historical = target
+    ? indexArtifacts.find(
+        (a) =>
+          a &&
+          typeof a === "object" &&
+          a.run_id === target &&
+          (a.lifecycle === "historical" || a.lifecycle === "superseded")
+      )
+    : undefined;
+  if (historical) {
+    mismatches.push({
+      code: "historical_entry_selected",
+      severity: "warn",
+      detail: `Run ${target} belongs to context-index artifact ${historical.id} (lifecycle ${historical.lifecycle}${historical.superseded_by ? `, superseded by ${historical.superseded_by}` : ""}); treat its findings as evidence, not current blockers.`,
+    });
+  }
+
   const hasError = mismatches.some((m) => m.severity === "error");
   let runId: string | null = null;
   let runIdSource: ActiveRun["run_id_source"] = "none";
@@ -741,6 +808,7 @@ export function computeActiveRun(opts: {
       handoff_run_id: handoffLog.newest?.run_id ?? null,
       resume,
       resume_run_bound: resume && runId && handoffText ? handoffText.includes(runId) : null,
+      declared_current: declaredCurrent,
     },
     consistency: { ok: !hasError, mismatches },
   };
@@ -766,6 +834,7 @@ export function buildProjectContextPacket(
     run_id: opts.run_id,
     state_path: opts.state_path,
     indexPresent: present,
+    index,
   });
   const activeRunId = active_run.run_id;
   const artifactsRaw = Array.isArray(index?.artifacts) ? index!.artifacts! : [];
@@ -789,11 +858,24 @@ export function buildProjectContextPacket(
     eventsByRunId.set(id, loadRunEventsForCwd(id, cwd, 80));
   }
 
-  const reports = artifacts.map((a) => deriveArtifactStatus(a, cwd, eventsByRunId));
+  const reports = artifacts.map((a) => {
+    const report = deriveArtifactStatus(a, cwd, eventsByRunId);
+    if (a.lifecycle) report.lifecycle = a.lifecycle;
+    if (typeof a.superseded_by === "string" && a.superseded_by !== "") {
+      report.superseded_by = a.superseded_by;
+    }
+    if (isEvidenceOnly(report))
+      report.notes.push(`${a.lifecycle}: evidence only, not a current blocker`);
+    return report;
+  });
 
   const drift = reports.filter(
-    (r) => r.derived_status === "drift" || r.derived_status === "missing"
+    (r) => !isEvidenceOnly(r) && (r.derived_status === "drift" || r.derived_status === "missing")
   );
+  const currentId =
+    typeof index?.pointers?.current_checkpoint === "string"
+      ? index.pointers.current_checkpoint
+      : null;
   const packet: ProjectContextPacket = {
     mode,
     version: "1",
@@ -811,7 +893,7 @@ export function buildProjectContextPacket(
     consistency,
     drift_scope: "indexed_files",
     drift,
-    next_incomplete: pickNextIncomplete(reports),
+    next_incomplete: pickNextIncomplete(reports, currentId),
     responseAliases: RESPONSE_ALIASES,
   };
 

@@ -732,6 +732,94 @@ describe("project-context active run and consistency", () => {
     );
   });
 
+  it("a superseded artifact keeps its failure cap as evidence while current_checkpoint drives next_incomplete", () => {
+    mkdirSync(join(cwd, "docs", "plans"), { recursive: true });
+    writeFileSync(join(cwd, "docs", "plans", "v1.md"), "# v1\n", "utf-8");
+    writeFileSync(join(cwd, "docs", "plans", "v2.md"), "# v2\n", "utf-8");
+    writeJson("docs/refs/context-index.json", {
+      version: "1.4.0",
+      last_reviewed: "2026-10-22",
+      pointers: { workspace: "AGENTS.md", current_checkpoint: "plan-v2" },
+      artifacts: [
+        {
+          id: "plan-v1",
+          type: "plan",
+          path: "docs/plans/v1.md",
+          authored_status: "complete",
+          run_id: "run-old",
+          lifecycle: "superseded",
+          superseded_by: "plan-v2",
+        },
+        {
+          id: "plan-v2",
+          type: "plan",
+          path: "docs/plans/v2.md",
+          authored_status: "in_progress",
+          run_id: "run-new",
+          lifecycle: "current",
+        },
+      ],
+    });
+    writeJson(".pncore/workflow-state.json", { run_id: "run-new" });
+    const p = buildProjectContextPacket({ cwd });
+    const v1 = p.artifacts?.find((a) => a.id === "plan-v1");
+    expect(v1?.derived_status).toBe("drift");
+    expect(v1?.lifecycle).toBe("superseded");
+    expect(v1?.superseded_by).toBe("plan-v2");
+    expect(v1?.notes).toContain("superseded: evidence only, not a current blocker");
+    expect(p.drift).toEqual([]);
+    expect(p.counts.drift).toBe(0);
+    expect(p.counts.historical).toBe(1);
+    expect(p.next_incomplete?.id).toBe("plan-v2");
+    expect(p.active_run.declared_current).toEqual({ artifact_id: "plan-v2", run_id: "run-new" });
+    expect(codes(p)).toEqual([]);
+  });
+
+  it("flags state_vs_declared_current and historical_entry_selected", () => {
+    writeJson("docs/refs/context-index.json", {
+      version: "1.4.0",
+      last_reviewed: "2026-10-22",
+      pointers: { workspace: "AGENTS.md", current_checkpoint: "c" },
+      artifacts: [
+        {
+          id: "c",
+          type: "convention",
+          path: "docs/convention.md",
+          lifecycle: "current",
+          run_id: "run-new",
+        },
+        {
+          id: "h",
+          type: "plan",
+          path: "docs/convention.md",
+          lifecycle: "historical",
+          run_id: "run-old",
+        },
+      ],
+    });
+    writeJson(".pncore/workflow-state.json", { run_id: "run-old" });
+    const p = buildProjectContextPacket({ cwd });
+    expect(codes(p)).toEqual(["state_vs_declared_current", "historical_entry_selected"]);
+    expect(p.consistency.ok).toBe(true);
+    expect(p.active_run.run_id).toBe("run-old");
+  });
+
+  it("declared_current is null without a current_checkpoint pointer and carries a null run_id when the artifact has none", () => {
+    expect(buildProjectContextPacket({ cwd }).active_run.declared_current).toBeNull();
+    writeJson("docs/refs/context-index.json", {
+      version: "1.4.0",
+      last_reviewed: "2026-10-22",
+      pointers: { workspace: "AGENTS.md", current_checkpoint: "c" },
+      artifacts: [
+        { id: "c", type: "convention", path: "docs/convention.md", lifecycle: "current" },
+      ],
+    });
+    expect(buildProjectContextPacket({ cwd }).active_run.declared_current).toEqual({
+      artifact_id: "c",
+      run_id: null,
+    });
+  });
+
   it("readActiveRunId uses the same resolver as the packet", () => {
     writeJson(".pncore/custom.json", { run_id: "run-custom" });
     expect(readActiveRunId(cwd, ".pncore/custom.json")).toBe("run-custom");

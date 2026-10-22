@@ -224,6 +224,38 @@ export const reportUsageSchema = {
     .describe(
       "Optional file path to append to (e.g. .pncore/usage.jsonl); must be within process cwd"
     ),
+  requestModel: z
+    .string()
+    .min(1)
+    .max(200)
+    .optional()
+    .describe("Model the agent asked for (OTel gen_ai.request.model)"),
+  responseModel: z
+    .string()
+    .min(1)
+    .max(200)
+    .optional()
+    .describe(
+      "Model that answered, as the harness reported it (OTel gen_ai.response.model); omit when the harness does not expose it"
+    ),
+  reasoningEffort: z
+    .string()
+    .min(1)
+    .max(40)
+    .optional()
+    .describe("Reasoning effort / thinking level requested (e.g. low, medium, high)"),
+  workerId: z
+    .string()
+    .min(1)
+    .max(200)
+    .optional()
+    .describe("Subagent / worker id that produced the usage"),
+  observedBy: z
+    .enum(["agent_claim", "unavailable"])
+    .optional()
+    .describe(
+      "Provenance of the model fields: agent_claim (default when any is set) or unavailable (the harness exposes no model). 'hook' is reserved for lines written by a harness hook and cannot be set here"
+    ),
 } as const;
 
 export const workflowUsageTotalsSchema = {

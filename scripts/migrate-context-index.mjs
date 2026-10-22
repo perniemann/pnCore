@@ -61,9 +61,16 @@ function migrate_1_2_0_to_1_3_0(d) {
   d.version = "1.3.0";
 }
 
+/** @param {Record<string, unknown>} d */
+function migrate_1_3_0_to_1_4_0(d) {
+  // 1.4.0 adds optional pointers.current_checkpoint and artifacts[].lifecycle / superseded_by.
+  d.version = "1.4.0";
+}
+
 const chain = {
   "1.0.0": migrate_1_0_0_to_1_1_0,
   "1.2.0": migrate_1_2_0_to_1_3_0,
+  "1.3.0": migrate_1_3_0_to_1_4_0,
 };
 
 let v = fromVersion;

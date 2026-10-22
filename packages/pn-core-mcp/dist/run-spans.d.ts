@@ -63,6 +63,15 @@ export type TimelineLoad = {
     tool: string;
     id: string;
 };
+/** Requested vs observed model for one usage line (OTel gen_ai.request.model / response.model). */
+export type TimelineModel = {
+    requestModel: string | null;
+    responseModel: string | null;
+    reasoningEffort: string | null;
+    workerId: string | null;
+    /** agent_claim / unavailable from report_usage; hook only for lines a harness hook wrote. */
+    observedBy: "agent_claim" | "hook" | "unavailable";
+};
 export type TimelineStep = {
     stepIndex: number;
     ts: string;
@@ -84,6 +93,7 @@ export type TimelineStep = {
         outputTokens: number;
     } | null;
     gates: number;
+    models?: TimelineModel[];
 };
 export type RunTimeline = {
     run_id: string;
@@ -110,6 +120,14 @@ export type RunTimeline = {
         sinceLastStepMs: number;
     } | null;
     accepted: boolean | null;
+    /** Usage lines whose observed responseModel differs from the requested model. */
+    modelMismatches: Array<{
+        stepIndex: number;
+        step: number;
+        requestModel: string;
+        responseModel: string;
+        observedBy: TimelineModel["observedBy"];
+    }>;
 };
 export type TimelineTrails = {
     steps: RunLogEntry[];

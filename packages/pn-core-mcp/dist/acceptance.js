@@ -18,5 +18,6 @@ export function computeAcceptance(input) {
         humanEarned: input.humanEarned,
         accepted,
         reasons,
+        ...(input.scope ? { scope: input.scope } : {}),
     };
 }
