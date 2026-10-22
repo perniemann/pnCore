@@ -19,10 +19,10 @@ export declare const workflowTypeEnum: z.ZodEnum<{
     implementation_tournament: "implementation_tournament";
 }>;
 export declare const workflowGateTypeEnum: z.ZodOptional<z.ZodEnum<{
-    discovery: "discovery";
-    plan: "plan";
     design: "design";
     skeptic: "skeptic";
+    plan: "plan";
+    discovery: "discovery";
 }>>;
 export declare const workflowGateVerdictEnum: z.ZodOptional<z.ZodEnum<{
     proceed: "proceed";
@@ -205,10 +205,10 @@ export declare const workflowConfirmSchema: {
     readonly options: z.ZodArray<z.ZodString>;
     readonly context: z.ZodOptional<z.ZodString>;
     readonly gate_type: z.ZodOptional<z.ZodEnum<{
-        discovery: "discovery";
-        plan: "plan";
         design: "design";
         skeptic: "skeptic";
+        plan: "plan";
+        discovery: "discovery";
     }>>;
     readonly verdict: z.ZodOptional<z.ZodEnum<{
         proceed: "proceed";
@@ -271,6 +271,12 @@ export declare const gateLogAppendSchema: {
 export declare const workflowStateSaveSchema: {
     readonly state: z.ZodRecord<z.ZodString, z.ZodUnknown>;
     readonly path: z.ZodOptional<z.ZodString>;
+    readonly run_id: z.ZodOptional<z.ZodString>;
+    readonly step: z.ZodOptional<z.ZodNumber>;
+    readonly summary: z.ZodOptional<z.ZodString>;
+    readonly expected_revision: z.ZodOptional<z.ZodNumber>;
+    readonly handoff_path: z.ZodOptional<z.ZodString>;
+    readonly history: z.ZodOptional<z.ZodBoolean>;
 };
 export declare const workflowStateLoadSchema: {
     readonly path: z.ZodOptional<z.ZodString>;
@@ -285,11 +291,11 @@ export declare const paperclipIssueCommentSchema: {
 export declare const paperclipIssueUpdateSchema: {
     readonly issueId: z.ZodOptional<z.ZodString>;
     readonly status: z.ZodEnum<{
-        in_progress: "in_progress";
-        done: "done";
         backlog: "backlog";
         todo: "todo";
+        in_progress: "in_progress";
         in_review: "in_review";
+        done: "done";
         blocked: "blocked";
         cancelled: "cancelled";
     }>;
@@ -321,16 +327,29 @@ export declare const workflowVerifySchema: {
         implementation_tournament: "implementation_tournament";
     }>>;
     readonly step: z.ZodOptional<z.ZodNumber>;
+    readonly inputs: z.ZodOptional<z.ZodArray<z.ZodObject<{
+        path: z.ZodString;
+        sha256: z.ZodOptional<z.ZodString>;
+        access: z.ZodOptional<z.ZodEnum<{
+            read: "read";
+            write: "write";
+            execute: "execute";
+        }>>;
+    }, z.core.$strip>>>;
+    readonly env_required: z.ZodOptional<z.ZodArray<z.ZodString>>;
+    readonly preflight_only: z.ZodOptional<z.ZodBoolean>;
+    readonly owner: z.ZodOptional<z.ZodString>;
 };
 export declare const workflowRunQuerySchema: {
     readonly run_id: z.ZodString;
     readonly kinds: z.ZodOptional<z.ZodArray<z.ZodEnum<{
-        acceptance: "acceptance";
-        step: "step";
         verify: "verify";
-        usage: "usage";
+        acceptance: "acceptance";
+        preflight: "preflight";
         handoff: "handoff";
         gate: "gate";
+        usage: "usage";
+        step: "step";
         load: "load";
     }>>>;
     readonly limit: z.ZodOptional<z.ZodNumber>;

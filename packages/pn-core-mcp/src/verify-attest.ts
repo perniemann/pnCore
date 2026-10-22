@@ -8,6 +8,52 @@ import { dirname } from "path";
 import { readFileTail } from "./file-tail.js";
 import { resolveSafePath } from "./safe-path.js";
 
+/**
+ * Why a verify did not pass. Diagnostic only: gates still pass on exit 0 alone, and no class
+ * refunds an attempt or relaxes a gate.
+ * - missing_input: the command or a declared input/env was absent (exit 126/127, ENOENT, preflight)
+ * - infrastructure: timeout, signal, or spawn failure other than a missing command
+ * - behavioral: the command ran and exited non-zero
+ */
+export type FailureClass = "none" | "missing_input" | "infrastructure" | "behavioral";
+
+export function classifyVerify(r: {
+  exitCode: number;
+  timedOut: boolean;
+  signal?: string | null;
+  spawnErrorCode?: string | null;
+}): FailureClass {
+  if (r.spawnErrorCode) return r.spawnErrorCode === "ENOENT" ? "missing_input" : "infrastructure";
+  if (r.timedOut || r.signal) return "infrastructure";
+  if (r.exitCode === 0) return "none";
+  if (r.exitCode === 126 || r.exitCode === 127) return "missing_input";
+  return "behavioral";
+}
+
+export type PreflightCheck = {
+  kind: "command" | "input" | "env";
+  target: string;
+  ok: boolean;
+  reason?: string;
+};
+
+export type PreflightEvent = {
+  kind: "preflight";
+  run_id: string;
+  ts: string;
+  preflightId: string;
+  ok: boolean;
+  failureClass: "none" | "missing_input";
+  checks: PreflightCheck[];
+  argv: string[];
+  cwd: string;
+  commandId?: string;
+  candidate_id?: string;
+  owner?: string;
+  workflowType?: string;
+  step?: number;
+};
+
 export type GateReport = {
   kind: "verify";
   run_id: string;
@@ -28,10 +74,16 @@ export type GateReport = {
     backend: "bubblewrap" | "docker" | "seatbelt" | "unavailable";
     jailed: boolean;
   };
+  failureClass?: FailureClass;
+  signal?: string | null;
+  spawnError?: string;
+  preflightId?: string;
+  owner?: string;
 };
 
 export type RunEvent =
   | GateReport
+  | PreflightEvent
   | {
       kind: "acceptance";
       run_id: string;
@@ -77,6 +129,13 @@ function parseEvent(line: string): RunEvent | null {
       typeof o.run_id === "string"
     ) {
       return o as GateReport;
+    }
+    if (
+      o.kind === "preflight" &&
+      typeof o.preflightId === "string" &&
+      typeof o.run_id === "string"
+    ) {
+      return o as PreflightEvent;
     }
     if (o.kind === "acceptance" && typeof o.run_id === "string") {
       return o as Extract<RunEvent, { kind: "acceptance" }>;

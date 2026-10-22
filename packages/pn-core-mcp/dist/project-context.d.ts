@@ -54,10 +54,10 @@ export type ResponseAlias = {
     expand: string;
 };
 export declare const RESPONSE_ALIASES: readonly ResponseAlias[];
-export type MismatchCode = "state_path_rejected" | "workspace_root_suspect" | "state_path_diverged" | "default_state_shadowed" | "newer_run_in_log" | "handoff_run_mismatch" | "state_run_differs" | "handoff_skipped" | "handoff_foreign";
+export type MismatchCode = "state_path_rejected" | "workspace_root_suspect" | "state_path_diverged" | "default_state_shadowed" | "newer_run_in_log" | "handoff_run_mismatch" | "state_run_differs" | "handoff_skipped" | "handoff_foreign" | "handoff_revision_ahead" | "state_unversioned";
 export type ConsistencyMismatch = {
     code: MismatchCode;
-    severity: "error" | "warn";
+    severity: "error" | "warn" | "info";
     detail: string;
 };
 /**
@@ -76,6 +76,8 @@ export type ActiveRun = {
     state_path_source: StatePathSource;
     state_present: boolean;
     state_run_id: string | null;
+    /** Checkpoint revision of the state file (workflow_state_save commit mode); null when unversioned. */
+    state_revision: number | null;
     /** Selected run: explicit argument, or the state run when no source disagrees; else null. */
     run_id: string | null;
     run_id_source: "argument" | "state" | "none";

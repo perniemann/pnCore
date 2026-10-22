@@ -4,6 +4,24 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.19.11] - 2026-10-22
+
+### Added
+
+- **`workflow_state_save` commit mode** (ADR-0022). Pass `run_id` + `step` + `summary` (optional `expected_revision`, `handoff_path`, `history`) and one call takes `<state>.lock`, checks the revision and bound run, appends the handoff line with revision N+1 and `stateHash`, writes the state atomically, and reads it back. The response carries `revision`, `previous_revision`, `stateHash`, `handoffHash`, and `readBack`. New error codes: `REVISION_CONFLICT`, `RUN_MISMATCH`, `LOCKED`.
+- `workflow_state_load` returns `{ state, meta, path }`: `state` without the `_pncore` envelope, `meta` = `{ revision, run_id, step, savedAt, stateHash }` or `null`. `workflow_step` strips the envelope too.
+- `project_context.consistency` gains `handoff_revision_ahead` (an interrupted commit's handoff line is ignored for `last_completed_step`) and `state_unversioned` (info). `active_run.state_revision` reports the committed revision.
+- **`workflow_verify` failure classes and in-call preflight.**
+  - `GateReport.failureClass` is `none`, `missing_input`, `infrastructure`, or `behavioral`. It is diagnostic only; gates still pass on exit 0 alone.
+  - `inputs` (`path`, `sha256`, `access`), `env_required`, and `owner` are checked in the same call right before spawn, together with the command itself. A failed check records a `preflight` run event and launches nothing; `preflight_only` runs just the checks without `disposeVerify`.
+  - Spawn errors produce a receipt instead of `IO_ERROR`.
+  - `workflow_run_query` accepts `kinds: ["preflight"]`.
+
+### Changed
+
+- The engine's after-step instruction (`HANDOFF_AFTER_STEP`) asks for one `workflow_state_save` commit-mode call with `expected_revision`; `workflow_handoff_append` is the fallback.
+- `workflow_state_save` is annotated `idempotentHint: false`, since commit mode advances the revision.
+
 ## [0.19.10] - 2026-10-22
 
 ### Added

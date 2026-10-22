@@ -178,7 +178,7 @@ export function spawnVerify(opts) {
             clearTimeout(timer);
             reject(err);
         });
-        child.on("close", (code) => {
+        child.on("close", (code, signal) => {
             if (settled)
                 return;
             settled = true;
@@ -188,6 +188,7 @@ export function spawnVerify(opts) {
                 timedOut,
                 stdoutTail: tailOutput(stdout),
                 stderrTail: tailOutput(stderr),
+                signal: timedOut ? null : (signal ?? null),
             });
         });
     });

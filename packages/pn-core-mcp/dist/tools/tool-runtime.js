@@ -21,6 +21,9 @@ export const ErrorCode = {
     INVALID_GATE: "INVALID_GATE",
     DISPOSE_UNAVAILABLE: "DISPOSE_UNAVAILABLE",
     INVALID_ARGV: "INVALID_ARGV",
+    REVISION_CONFLICT: "REVISION_CONFLICT",
+    RUN_MISMATCH: "RUN_MISMATCH",
+    LOCKED: "LOCKED",
 };
 export function getMcpVersion() {
     const pkgPath = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "package.json");

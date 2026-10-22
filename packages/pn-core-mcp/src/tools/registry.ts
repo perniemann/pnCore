@@ -282,15 +282,15 @@ export const PN_CORE_TOOLS: ToolDefinition[] = [
   def(
     "workflow_state_save",
     "Workflow State Save",
-    "Save workflow state to a file so it can be restored later (resume after disconnect). Path defaults to .pncore/workflow-state.json relative to process cwd.",
+    "Save workflow state atomically (resume after disconnect). Path: path > PNCORE_STATE_PATH > .pncore/workflow-state.json, inside the workspace. Commit mode (run_id + step + summary, optional expected_revision): one call appends the handoff line and commits the state under revision N+1, refuses stale revisions (REVISION_CONFLICT), another run's file (RUN_MISMATCH), or a concurrent save (LOCKED), and returns revision + hashes read back from disk. Plain mode (state only) writes the file without a revision.",
     workflowStateSaveSchema,
-    { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
+    { readOnlyHint: false, destructiveHint: false, idempotentHint: false },
     handleWorkflowStateSave
   ),
   def(
     "workflow_state_load",
     "Workflow State Load",
-    "Load workflow state from a file (e.g. after reconnect). Path defaults to .pncore/workflow-state.json relative to process cwd.",
+    "Load workflow state from a file (e.g. after reconnect). Same path resolution as workflow_state_save. Returns { state, meta, path }: state without the persistence envelope (pass it to workflow_step), meta = { revision, run_id, step, savedAt, stateHash } from commit mode or null.",
     workflowStateLoadSchema,
     readOnly,
     handleWorkflowStateLoad
@@ -298,7 +298,7 @@ export const PN_CORE_TOOLS: ToolDefinition[] = [
   def(
     "workflow_verify",
     "Workflow Verify",
-    "Run a catalog (or policy-checked) verify command with no shell. Returns a GateReport; exitCode !== 0 is a completed verify, not a tool error. Requires disposeVerify. Fail-closed without a jail unless PNCORE_VERIFY_SANDBOX=restricted or Vitest test backend.",
+    "Run a catalog (or policy-checked) verify command with no shell. Returns a GateReport with failureClass (none | missing_input | infrastructure | behavioral); exitCode !== 0 is a completed verify, not a tool error, and failureClass never changes a gate. inputs / env_required are checked immediately before spawn; a failed check records a preflight event and launches nothing. preflight_only runs just the checks (no disposeVerify needed). Spawning requires disposeVerify; fail-closed without a jail unless PNCORE_VERIFY_SANDBOX=restricted or Vitest test backend.",
     workflowVerifySchema,
     write,
     handleWorkflowVerify
@@ -306,7 +306,7 @@ export const PN_CORE_TOOLS: ToolDefinition[] = [
   def(
     "workflow_run_query",
     "Workflow Run Query",
-    "Query one run_id across the .pncore trails: verify attestations and acceptance (run-events.jsonl, default), plus kinds step (workflow_step spans: stepIndex, sinceLastStepMs, engineMs, routing), load (get_* loads), usage, handoff, gate. timeline: true joins them into a per-step view with totals and the slowest step — answers where a run spent its time.",
+    "Query one run_id across the .pncore trails: verify attestations and acceptance (run-events.jsonl, default), plus kinds preflight (workflow_verify checks), step (workflow_step spans: stepIndex, sinceLastStepMs, engineMs, routing), load (get_* loads), usage, handoff, gate. timeline: true joins them into a per-step view with totals and the slowest step — answers where a run spent its time.",
     workflowRunQuerySchema,
     readOnly,
     handleWorkflowRunQuery

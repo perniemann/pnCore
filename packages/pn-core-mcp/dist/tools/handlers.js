@@ -14,10 +14,12 @@ import { truncateResourceBody } from "../resource-truncate.js";
 import { disposeVerifyAllowArgvEnabled, disposeVerifyEnabled, loadFeatures } from "../features.js";
 import { resolveCatalogArgv } from "../verify-catalog.js";
 import { VerifyPolicyError, assertSafeArgv, resolveSandboxBackend, sandboxLabel, spawnVerify, } from "../verify-sandbox.js";
-import { appendRunEvent, newAttestationId, readRunEvents, } from "../verify-attest.js";
+import { appendRunEvent, classifyVerify, newAttestationId, readRunEvents, } from "../verify-attest.js";
+import { runPreflight } from "../verify-preflight.js";
 import { readFileTail } from "../file-tail.js";
 import { writeFileAtomic } from "../atomic-write.js";
 import { recordStateSave, resolveStatePath } from "../state-path.js";
+import { commitCheckpoint, splitState } from "../checkpoint.js";
 import { appendWorkflowGateLog, createWorkflowGateLogEntry, validateWorkflowConfirmGate, } from "../workflow-gate-log.js";
 import { buildProjectContextPacket } from "../project-context.js";
 import { HARNESS_IDS, HARNESS_LAYOUTS, applyScaffoldPlan, buildScaffoldPlan, detectHarness, instructionsBudgetFor, layoutTable, upsertManagedBlock, } from "../harness.js";
@@ -287,7 +289,7 @@ export async function handleGetRule(args) {
 }
 export async function handleWorkflowStep(args) {
     const { workflowType, step, state } = args;
-    const st = (state ?? {});
+    const { state: st } = splitState((state ?? {}));
     const runId = resolveWorkflowRunId(st);
     const engineStart = performance.now();
     const result = getWorkflowStep(workflowType, step, st);
@@ -635,26 +637,55 @@ export async function handleGateLogAppend(args) {
         return mcpError("IO_ERROR", String(err), { gate_type, workflowType, step });
     }
 }
-export async function handleWorkflowStateSave(args) {
-    const { state, path: filePath } = args;
-    const target = resolveStatePath({ arg: filePath, cwd: safeBase });
-    if (!target.resolved)
-        return mcpError("PATH_TRAVERSAL", target.error ?? "Path rejected", { path: target.requested });
-    const path = target.resolved;
-    try {
-        writeFileAtomic(path, JSON.stringify(state));
-    }
-    catch (err) {
-        return mcpError("IO_ERROR", String(err), { path });
-    }
-    const runId = typeof state.run_id === "string" && state.run_id !== "" ? state.run_id : null;
+function recordSave(path, runId) {
     try {
         recordStateSave(path, runId, safeBase);
     }
     catch (err) {
         debug("workflows", "state-saves append failed", { path, err: String(err) });
     }
-    return textContent(JSON.stringify({ ok: true, path, source: target.source }));
+}
+export async function handleWorkflowStateSave(args) {
+    const { state, path: filePath, run_id, step, summary } = args;
+    const target = resolveStatePath({ arg: filePath, cwd: safeBase });
+    if (!target.resolved)
+        return mcpError("PATH_TRAVERSAL", target.error ?? "Path rejected", { path: target.requested });
+    const path = target.resolved;
+    const commitKeys = [run_id, step, summary].filter((v) => v !== undefined).length;
+    const commitOnly = args.expected_revision !== undefined || args.handoff_path || args.history;
+    if ((commitKeys > 0 && commitKeys < 3) || (commitKeys === 0 && commitOnly)) {
+        return mcpError("INVALID_STATE", "Commit mode needs run_id, step, and summary together (expected_revision, handoff_path, history apply only in commit mode).", { path });
+    }
+    if (commitKeys === 3) {
+        const handoffRel = args.handoff_path ?? defaultHandoffPath;
+        const handoffSafe = resolveSafePath(handoffRel);
+        if ("error" in handoffSafe)
+            return mcpError("PATH_TRAVERSAL", handoffSafe.error, { path: handoffRel });
+        const result = commitCheckpoint({
+            statePath: path,
+            handoffPath: handoffSafe.resolved,
+            historyPath: args.history ? `${path}.history.jsonl` : undefined,
+            state,
+            run_id: run_id,
+            step: step,
+            summary: summary,
+            expected_revision: args.expected_revision,
+        });
+        if (!result.ok) {
+            const { code, message, current_revision, current_run_id } = result;
+            return mcpError(code, message, { path, current_revision, current_run_id });
+        }
+        recordSave(path, result.run_id);
+        return textContent(JSON.stringify({ ...result, mode: "commit", source: target.source }));
+    }
+    try {
+        writeFileAtomic(path, JSON.stringify(state));
+    }
+    catch (err) {
+        return mcpError("IO_ERROR", String(err), { path });
+    }
+    recordSave(path, typeof state.run_id === "string" && state.run_id !== "" ? state.run_id : null);
+    return textContent(JSON.stringify({ ok: true, mode: "plain", path, source: target.source }));
 }
 export async function handleWorkflowStateLoad(args) {
     const { path: filePath } = args;
@@ -670,8 +701,8 @@ export async function handleWorkflowStateLoad(args) {
         if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
             return mcpError("PARSE_ERROR", "State file is not a JSON object", { path });
         }
-        const state = parsed;
-        return textContent(JSON.stringify({ state }));
+        const { state, meta } = splitState(parsed);
+        return textContent(JSON.stringify({ state, meta, path }));
     }
     catch (err) {
         if (err instanceof SyntaxError) {
@@ -749,7 +780,7 @@ export async function handlePaperclipIssueUpdate(args) {
     }
 }
 export async function handleWorkflowVerify(args) {
-    if (!disposeVerifyEnabled()) {
+    if (!disposeVerifyEnabled() && !args.preflight_only) {
         return mcpError("DISPOSE_UNAVAILABLE", "workflow_verify is off. Set PNCORE_DISPOSE_VERIFY=1 or PNCORE_FEATURES.disposeVerify true.", {});
     }
     const hasCmd = typeof args.commandId === "string" && args.commandId.trim() !== "";
@@ -782,12 +813,47 @@ export async function handleWorkflowVerify(args) {
         }
         argv = args.argv;
     }
+    let preflightId;
+    if (args.preflight_only || args.inputs?.length || args.env_required?.length) {
+        const pre = runPreflight({
+            argv,
+            cwd: cwdSafe.resolved,
+            workspaceRoot: safeBase,
+            inputs: args.inputs,
+            env_required: args.env_required,
+        });
+        const event = {
+            kind: "preflight",
+            run_id: args.run_id,
+            ts: new Date().toISOString(),
+            preflightId: newAttestationId(),
+            ok: pre.ok,
+            failureClass: pre.ok ? "none" : "missing_input",
+            checks: pre.checks,
+            argv,
+            cwd: cwdSafe.resolved,
+            commandId: hasCmd ? args.commandId : undefined,
+            candidate_id: args.candidate_id,
+            owner: args.owner,
+            workflowType: args.workflowType,
+            step: args.step,
+        };
+        const writtenPre = appendRunEvent(event);
+        if ("error" in writtenPre)
+            return mcpError("PATH_TRAVERSAL", writtenPre.error, {});
+        if (args.preflight_only || !pre.ok) {
+            return textContent(JSON.stringify({ launched: false, ...event }));
+        }
+        preflightId = event.preflightId;
+    }
     const backend = resolveSandboxBackend();
     if (backend === "unavailable") {
         return mcpError("DISPOSE_UNAVAILABLE", "Dispose-verify jail is unavailable. Install bwrap, set PNCORE_VERIFY_SANDBOX=restricted, or run under Vitest (test backend).", {});
     }
     const startedAt = new Date().toISOString();
     let spawned;
+    let spawnErrorCode = null;
+    let spawnError;
     try {
         spawned = await spawnVerify({
             argv,
@@ -799,7 +865,15 @@ export async function handleWorkflowVerify(args) {
     catch (err) {
         if (err instanceof VerifyPolicyError)
             return mcpError(err.code, err.message, {});
-        return mcpError("IO_ERROR", String(err), {});
+        spawnErrorCode = err.code ?? "SPAWN_FAILED";
+        spawnError = String(err).slice(0, 500);
+        spawned = {
+            exitCode: spawnErrorCode === "ENOENT" ? 127 : spawnErrorCode === "EACCES" ? 126 : 1,
+            timedOut: false,
+            stdoutTail: "",
+            stderrTail: spawnError,
+            signal: null,
+        };
     }
     const finishedAt = new Date().toISOString();
     const report = {
@@ -819,6 +893,11 @@ export async function handleWorkflowVerify(args) {
         workflowType: args.workflowType,
         step: args.step,
         sandbox: sandboxLabel(backend),
+        failureClass: classifyVerify({ ...spawned, spawnErrorCode }),
+        signal: spawned.signal,
+        ...(spawnError ? { spawnError } : {}),
+        ...(preflightId ? { preflightId } : {}),
+        ...(args.owner ? { owner: args.owner } : {}),
     };
     const written = appendRunEvent(report);
     if ("error" in written)
@@ -841,7 +920,7 @@ export async function handleWorkflowRunQuery(args) {
     // when the caller only asked for other kinds.
     const result = readRunEvents(runId, {
         path: args.path,
-        kinds: ["verify", "acceptance"],
+        kinds: ["verify", "acceptance", "preflight"],
         limit: 200,
     });
     if ("error" in result)
@@ -860,7 +939,7 @@ export async function handleWorkflowRunQuery(args) {
     let timeline;
     try {
         for (const k of kinds) {
-            if (k === "verify" || k === "acceptance")
+            if (k === "verify" || k === "acceptance" || k === "preflight")
                 continue;
             const trail = TRAIL_KIND[k];
             for (const rec of readTrailOrFail(trail)) {

@@ -31,6 +31,9 @@ export declare const ErrorCode: {
     readonly INVALID_GATE: "INVALID_GATE";
     readonly DISPOSE_UNAVAILABLE: "DISPOSE_UNAVAILABLE";
     readonly INVALID_ARGV: "INVALID_ARGV";
+    readonly REVISION_CONFLICT: "REVISION_CONFLICT";
+    readonly RUN_MISMATCH: "RUN_MISMATCH";
+    readonly LOCKED: "LOCKED";
 };
 export type ErrorCodeKey = keyof typeof ErrorCode;
 export declare function getMcpVersion(): string;
