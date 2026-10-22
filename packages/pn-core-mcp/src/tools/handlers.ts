@@ -1,4 +1,4 @@
-import { appendFileSync, mkdirSync, existsSync, readFileSync, writeFileSync } from "fs";
+import { appendFileSync, mkdirSync, existsSync, readFileSync } from "fs";
 import { dirname, join } from "path";
 import {
   listSkills,
@@ -58,6 +58,8 @@ import {
   type GateReport,
 } from "../verify-attest.js";
 import { readFileTail } from "../file-tail.js";
+import { writeFileAtomic } from "../atomic-write.js";
+import { recordStateSave, resolveStatePath } from "../state-path.js";
 import {
   appendWorkflowGateLog,
   createWorkflowGateLogEntry,
@@ -86,7 +88,6 @@ import {
   defaultGateLogPath,
   defaultHandoffPath,
   defaultHumanGateTicketsPath,
-  defaultStatePath,
   defaultUsagePath,
   getContentMaxChars,
   handoffScanMaxBytes,
@@ -194,6 +195,7 @@ export async function handleProjectContext(args: ShapeArgs<typeof projectContext
   const packet = buildProjectContextPacket({
     mode: args.mode,
     run_id: args.run_id,
+    state_path: args.state_path,
     max_trail: args.max_trail,
   });
   return textContent(JSON.stringify(packProjectContext(packet, args.max_tokens)));
@@ -806,26 +808,30 @@ export async function handleGateLogAppend(args: ShapeArgs<typeof gateLogAppendSc
 
 export async function handleWorkflowStateSave(args: ShapeArgs<typeof workflowStateSaveSchema>) {
   const { state, path: filePath } = args;
-  const safe = resolveSafePath(filePath ?? defaultStatePath);
-  if ("error" in safe)
-    return mcpError("PATH_TRAVERSAL", safe.error, { path: filePath ?? defaultStatePath });
+  const target = resolveStatePath({ arg: filePath, cwd: safeBase });
+  if (!target.resolved)
+    return mcpError("PATH_TRAVERSAL", target.error ?? "Path rejected", { path: target.requested });
+  const path = target.resolved;
   try {
-    const path = safe.resolved;
-    const dir = dirname(path);
-    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-    writeFileSync(path, JSON.stringify(state), "utf-8");
-    return textContent(JSON.stringify({ ok: true, path }));
+    writeFileAtomic(path, JSON.stringify(state));
   } catch (err) {
-    return mcpError("IO_ERROR", String(err), { path: safe.resolved });
+    return mcpError("IO_ERROR", String(err), { path });
   }
+  const runId = typeof state.run_id === "string" && state.run_id !== "" ? state.run_id : null;
+  try {
+    recordStateSave(path, runId, safeBase);
+  } catch (err) {
+    debug("workflows", "state-saves append failed", { path, err: String(err) });
+  }
+  return textContent(JSON.stringify({ ok: true, path, source: target.source }));
 }
 
 export async function handleWorkflowStateLoad(args: ShapeArgs<typeof workflowStateLoadSchema>) {
   const { path: filePath } = args;
-  const safe = resolveSafePath(filePath ?? defaultStatePath);
-  if ("error" in safe)
-    return mcpError("PATH_TRAVERSAL", safe.error, { path: filePath ?? defaultStatePath });
-  const path = safe.resolved;
+  const target = resolveStatePath({ arg: filePath, cwd: safeBase });
+  if (!target.resolved)
+    return mcpError("PATH_TRAVERSAL", target.error ?? "Path rejected", { path: target.requested });
+  const path = target.resolved;
   try {
     if (!existsSync(path)) return mcpError("FILE_NOT_FOUND", "File not found", { path });
     const raw = readFileSync(path, "utf-8");

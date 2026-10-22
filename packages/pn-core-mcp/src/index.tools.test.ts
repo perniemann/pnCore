@@ -676,6 +676,41 @@ describe("MCP per-tool integration", () => {
     expect(result.isError).toBeFalsy();
     const parsed = parseFirst(result);
     expect(parsed.ok).toBe(true);
+    expect(parsed.source).toBe("argument");
+  });
+
+  it("workflow_state_save → load → project_context agree on a custom path", async () => {
+    const path = ".pncore/state-roundtrip.json";
+    await client.callTool({
+      name: "workflow_state_save",
+      arguments: { state: { run_id: "test-roundtrip-001", plan: "p" }, path },
+    });
+    const loaded = parseFirst(
+      await client.callTool({ name: "workflow_state_load", arguments: { path } })
+    );
+    expect(loaded.state).toEqual({ run_id: "test-roundtrip-001", plan: "p" });
+
+    const bound = parseFirst(
+      await client.callTool({
+        name: "project_context",
+        arguments: { mode: "operator", state_path: path },
+      })
+    ) as {
+      active_run: { state_path: string; state_run_id: string | null };
+      consistency: { mismatches: Array<{ code: string }> };
+      drift_scope: string;
+    };
+    expect(bound.active_run.state_path).toBe(path);
+    expect(bound.active_run.state_run_id).toBe("test-roundtrip-001");
+    expect(bound.drift_scope).toBe("indexed_files");
+    expect(bound.consistency.mismatches.map((m) => m.code)).not.toContain("state_path_diverged");
+
+    const unbound = parseFirst(
+      await client.callTool({ name: "project_context", arguments: { mode: "operator" } })
+    ) as { consistency: { ok: boolean; mismatches: Array<{ code: string; detail: string }> } };
+    const diverged = unbound.consistency.mismatches.find((m) => m.code === "state_path_diverged");
+    expect(diverged?.detail).toContain(path);
+    expect(unbound.consistency.ok).toBe(false);
   });
 
   it("workflow_state_save: path traversal returns PATH_TRAVERSAL error", async () => {
