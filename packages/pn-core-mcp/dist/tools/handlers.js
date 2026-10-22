@@ -1,4 +1,4 @@
-import { appendFileSync, mkdirSync, existsSync, readFileSync, writeFileSync } from "fs";
+import { appendFileSync, mkdirSync, existsSync, readFileSync } from "fs";
 import { dirname, join } from "path";
 import { listSkills, getSkill, listAgents, listInternalAgents, getAgent, listCommands, getCommand, listRules, getRule, } from "../content.js";
 import { getWorkflowStep, PUBLIC_WORKFLOW_TYPES, resolveStepTier, workflowSteps, } from "../workflows.js";
@@ -16,10 +16,12 @@ import { resolveCatalogArgv } from "../verify-catalog.js";
 import { VerifyPolicyError, assertSafeArgv, resolveSandboxBackend, sandboxLabel, spawnVerify, } from "../verify-sandbox.js";
 import { appendRunEvent, newAttestationId, readRunEvents, } from "../verify-attest.js";
 import { readFileTail } from "../file-tail.js";
+import { writeFileAtomic } from "../atomic-write.js";
+import { recordStateSave, resolveStatePath } from "../state-path.js";
 import { appendWorkflowGateLog, createWorkflowGateLogEntry, validateWorkflowConfirmGate, } from "../workflow-gate-log.js";
 import { buildProjectContextPacket } from "../project-context.js";
 import { HARNESS_IDS, HARNESS_LAYOUTS, applyScaffoldPlan, buildScaffoldPlan, detectHarness, instructionsBudgetFor, layoutTable, upsertManagedBlock, } from "../harness.js";
-import { MCP_VERSION, appendSkillLoadLog, defaultGateLogPath, defaultHandoffPath, defaultHumanGateTicketsPath, defaultStatePath, defaultUsagePath, getContentMaxChars, handoffScanMaxBytes, HANDOFF_READ_MAX_LINES, HANDOFF_SUMMARY_MAX, mcpError, requiredHumanGateWorkflows, resolveSafePath, safeBase, textContent, usageScanMaxBytes, debug, } from "./tool-runtime.js";
+import { MCP_VERSION, appendSkillLoadLog, defaultGateLogPath, defaultHandoffPath, defaultHumanGateTicketsPath, defaultUsagePath, getContentMaxChars, handoffScanMaxBytes, HANDOFF_READ_MAX_LINES, HANDOFF_SUMMARY_MAX, mcpError, requiredHumanGateWorkflows, resolveSafePath, safeBase, textContent, usageScanMaxBytes, debug, } from "./tool-runtime.js";
 function paperclipNotConfigured() {
     return mcpError("INVALID_STATE", "Paperclip not configured. Set PAPERCLIP_API_URL and PAPERCLIP_API_KEY.", { hint: "Get API key from Paperclip agent settings" });
 }
@@ -78,6 +80,7 @@ export async function handleProjectContext(args) {
     const packet = buildProjectContextPacket({
         mode: args.mode,
         run_id: args.run_id,
+        state_path: args.state_path,
         max_trail: args.max_trail,
     });
     return textContent(JSON.stringify(packProjectContext(packet, args.max_tokens)));
@@ -634,27 +637,31 @@ export async function handleGateLogAppend(args) {
 }
 export async function handleWorkflowStateSave(args) {
     const { state, path: filePath } = args;
-    const safe = resolveSafePath(filePath ?? defaultStatePath);
-    if ("error" in safe)
-        return mcpError("PATH_TRAVERSAL", safe.error, { path: filePath ?? defaultStatePath });
+    const target = resolveStatePath({ arg: filePath, cwd: safeBase });
+    if (!target.resolved)
+        return mcpError("PATH_TRAVERSAL", target.error ?? "Path rejected", { path: target.requested });
+    const path = target.resolved;
     try {
-        const path = safe.resolved;
-        const dir = dirname(path);
-        if (!existsSync(dir))
-            mkdirSync(dir, { recursive: true });
-        writeFileSync(path, JSON.stringify(state), "utf-8");
-        return textContent(JSON.stringify({ ok: true, path }));
+        writeFileAtomic(path, JSON.stringify(state));
     }
     catch (err) {
-        return mcpError("IO_ERROR", String(err), { path: safe.resolved });
+        return mcpError("IO_ERROR", String(err), { path });
     }
+    const runId = typeof state.run_id === "string" && state.run_id !== "" ? state.run_id : null;
+    try {
+        recordStateSave(path, runId, safeBase);
+    }
+    catch (err) {
+        debug("workflows", "state-saves append failed", { path, err: String(err) });
+    }
+    return textContent(JSON.stringify({ ok: true, path, source: target.source }));
 }
 export async function handleWorkflowStateLoad(args) {
     const { path: filePath } = args;
-    const safe = resolveSafePath(filePath ?? defaultStatePath);
-    if ("error" in safe)
-        return mcpError("PATH_TRAVERSAL", safe.error, { path: filePath ?? defaultStatePath });
-    const path = safe.resolved;
+    const target = resolveStatePath({ arg: filePath, cwd: safeBase });
+    if (!target.resolved)
+        return mcpError("PATH_TRAVERSAL", target.error ?? "Path rejected", { path: target.requested });
+    const path = target.resolved;
     try {
         if (!existsSync(path))
             return mcpError("FILE_NOT_FOUND", "File not found", { path });
