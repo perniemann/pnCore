@@ -6,11 +6,19 @@
 import { existsSync, readFileSync } from "fs";
 import { join } from "path";
 import { readFileTail } from "./file-tail.js";
+import { trailPaths } from "./run-spans.js";
+import { resolveInside } from "./safe-path.js";
+import {
+  DEFAULT_STATE_REL,
+  readLastStateSave,
+  resolveStatePath,
+  type StatePathSource,
+} from "./state-path.js";
 import { defaultRunEventsPath, type RunEvent } from "./verify-attest.js";
 
 export const CONTEXT_INDEX_REL = "docs/refs/context-index.json";
 export const HUMAN_HANDOFF_REL = ".pncore/handoff.md";
-export const WORKFLOW_STATE_REL = ".pncore/workflow-state.json";
+export const WORKFLOW_STATE_REL = DEFAULT_STATE_REL;
 export const WORKFLOW_HANDOFF_REL = ".pncore/workflow-handoff.jsonl";
 
 export const ARTIFACT_TYPES = [
@@ -96,6 +104,60 @@ export const RESPONSE_ALIASES: readonly ResponseAlias[] = [
   },
 ];
 
+export type MismatchCode =
+  | "state_path_rejected"
+  | "workspace_root_suspect"
+  | "state_path_diverged"
+  | "default_state_shadowed"
+  | "newer_run_in_log"
+  | "handoff_run_mismatch"
+  | "state_run_differs"
+  | "handoff_skipped"
+  | "handoff_foreign";
+
+export type ConsistencyMismatch = {
+  code: MismatchCode;
+  severity: "error" | "warn";
+  detail: string;
+};
+
+/**
+ * Served vs completed for the selected run. `workflow_step` logs a step when its instruction is
+ * served; `workflow_handoff_append` logs it when the work is done. Served = completed + 1 is
+ * normal in-flight work, not a mismatch.
+ */
+export type StepStatus = "unknown" | "idle" | "in_progress" | "handoff_skipped" | "handoff_foreign";
+
+export type RunCandidate = {
+  run_id: string;
+  source: "argument" | "state" | "run_log" | "handoff_log" | "state_save";
+};
+
+export type ActiveRun = {
+  workspace_root: string;
+  state_path: string;
+  state_path_source: StatePathSource;
+  state_present: boolean;
+  state_run_id: string | null;
+  /** Selected run: explicit argument, or the state run when no source disagrees; else null. */
+  run_id: string | null;
+  run_id_source: "argument" | "state" | "none";
+  candidates: RunCandidate[];
+  workflowType: string | null;
+  last_served_step: number | null;
+  last_served_ts: string | null;
+  last_completed_step: number | null;
+  last_completed_ts: string | null;
+  step_status: StepStatus;
+  /** run_id of the newest workflow-handoff.jsonl line (any run). */
+  handoff_run_id: string | null;
+  resume: string | null;
+  /** Whether .pncore/handoff.md names the selected run; null when either is absent. */
+  resume_run_bound: boolean | null;
+};
+
+export type Consistency = { ok: boolean; mismatches: ConsistencyMismatch[] };
+
 export type ProjectContextPacket = {
   mode: "operator" | "agent";
   version: string;
@@ -109,6 +171,10 @@ export type ProjectContextPacket = {
   counts: Record<string, number>;
   active_run_id: string | null;
   resume: string | null;
+  active_run: ActiveRun;
+  consistency: Consistency;
+  /** `drift` covers context-index artifacts only; run/state freshness is under `consistency`. */
+  drift_scope: "indexed_files";
   drift: ArtifactReport[];
   next_incomplete: ArtifactReport | null;
   responseAliases: readonly ResponseAlias[];
@@ -142,13 +208,19 @@ export function loadContextIndex(cwd: string = process.cwd()): {
   return { index: raw as ContextIndex, path: CONTEXT_INDEX_REL, present: true };
 }
 
-export function readActiveRunId(cwd: string = process.cwd()): string | null {
-  const abs = join(cwd, WORKFLOW_STATE_REL);
-  const raw = readJsonSafe(abs);
+function readStateRunId(absPath: string): string | null {
+  const raw = readJsonSafe(absPath);
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
   const state = raw as Record<string, unknown>;
   if (typeof state.run_id === "string" && state.run_id.trim() !== "") return state.run_id;
   return null;
+}
+
+/** run_id from the resolved state file (argument > PNCORE_STATE_PATH > default). */
+export function readActiveRunId(cwd: string = process.cwd(), statePath?: string): string | null {
+  const resolved = resolveStatePath({ arg: statePath, cwd });
+  if (!resolved.resolved) return null;
+  return readStateRunId(resolved.resolved);
 }
 
 export function readResumeLine(cwd: string = process.cwd()): string | null {
@@ -412,9 +484,220 @@ function readRunEventTrail(runId: string | null, maxLines: number, cwd: string):
   });
 }
 
+type LogPoint = { run_id: string; step: number | null; ts: string; workflowType: string | null };
+
+/** Newest point overall plus every point for `runId`, from a run-log or handoff JSONL file. */
+function scanRunLog(
+  rel: string,
+  cwd: string,
+  runKey: "runId" | "run_id",
+  runId: string | null
+): { newest: LogPoint | null; forRun: LogPoint[] } {
+  const safe = resolveInside(cwd, rel);
+  if ("error" in safe || !existsSync(safe.resolved)) return { newest: null, forRun: [] };
+  let newest: LogPoint | null = null;
+  const forRun: LogPoint[] = [];
+  for (const line of readFileTail(safe.resolved, 786_432).split("\n")) {
+    const t = line.trim();
+    if (!t) continue;
+    let o: Record<string, unknown>;
+    try {
+      o = JSON.parse(t) as Record<string, unknown>;
+    } catch {
+      continue;
+    }
+    const id = o[runKey];
+    if (typeof id !== "string" || id === "") continue;
+    const point: LogPoint = {
+      run_id: id,
+      step: typeof o.step === "number" ? o.step : null,
+      ts: typeof o.ts === "string" ? o.ts : "",
+      workflowType: typeof o.workflowType === "string" ? o.workflowType : null,
+    };
+    if (!newest || point.ts >= newest.ts) newest = point;
+    if (runId && id === runId) forRun.push(point);
+  }
+  return { newest, forRun };
+}
+
+function deriveStepStatus(served: LogPoint[], completed: LogPoint | null): StepStatus {
+  const lastServed = served[served.length - 1];
+  if (!lastServed) return "unknown";
+  if (!completed) return "in_progress";
+  const after = served.filter((s) => s.ts > completed.ts);
+  if (after.length === 0) return lastServed.step === completed.step ? "idle" : "handoff_foreign";
+  return new Set(after.map((s) => s.step)).size === 1 ? "in_progress" : "handoff_skipped";
+}
+
+function readHumanHandoff(cwd: string): string | null {
+  const abs = join(cwd, HUMAN_HANDOFF_REL);
+  if (!existsSync(abs)) return null;
+  try {
+    return readFileSync(abs, "utf-8");
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Select the active run explicitly and report every disagreement between the state file,
+ * run log, handoff log, and last recorded save. A disagreeing source is never silently
+ * promoted: without an explicit run_id the selection is null and the mismatch says why.
+ */
+export function computeActiveRun(opts: {
+  cwd: string;
+  run_id?: string;
+  state_path?: string;
+  indexPresent: boolean;
+  env?: NodeJS.ProcessEnv;
+}): { active_run: ActiveRun; consistency: Consistency } {
+  const { cwd, indexPresent } = opts;
+  const env = opts.env ?? process.env;
+  const mismatches: ConsistencyMismatch[] = [];
+  const argRun = opts.run_id?.trim() || null;
+
+  const statePath = resolveStatePath({ arg: opts.state_path, cwd, env });
+  if (statePath.error) {
+    mismatches.push({ code: "state_path_rejected", severity: "error", detail: statePath.error });
+  }
+  const statePresent = statePath.resolved != null && existsSync(statePath.resolved);
+  const stateRunId = statePresent ? readStateRunId(statePath.resolved!) : null;
+
+  if (!existsSync(join(cwd, ".pncore")) && !indexPresent) {
+    mismatches.push({
+      code: "workspace_root_suspect",
+      severity: "warn",
+      detail: `No .pncore/ and no ${CONTEXT_INDEX_REL} under ${cwd}; the MCP cwd is likely not the workspace root.`,
+    });
+  }
+
+  const lastSave = readLastStateSave(cwd);
+  if (lastSave && statePath.resolved) {
+    const savedAbs = resolveInside(cwd, lastSave.path);
+    if ("resolved" in savedAbs && savedAbs.resolved !== statePath.resolved) {
+      mismatches.push({
+        code: "state_path_diverged",
+        severity: "error",
+        detail: `Last workflow_state_save (${lastSave.ts}) wrote ${lastSave.path}${lastSave.run_id ? ` for run ${lastSave.run_id}` : ""}, but this packet reads ${statePath.requested}. Pass state_path or set PNCORE_STATE_PATH.`,
+      });
+    }
+  }
+
+  if (statePath.source !== "default") {
+    const defaultAbs = join(cwd, DEFAULT_STATE_REL);
+    if (defaultAbs !== statePath.resolved && existsSync(defaultAbs)) {
+      const defaultRun = readStateRunId(defaultAbs);
+      if (defaultRun !== stateRunId) {
+        mismatches.push({
+          code: "default_state_shadowed",
+          severity: "warn",
+          detail: `${DEFAULT_STATE_REL} holds run ${defaultRun ?? "(none)"} while ${statePath.requested} holds ${stateRunId ?? "(none)"}; the default file is stale for this selection.`,
+        });
+      }
+    }
+  }
+
+  const target = argRun ?? stateRunId;
+  const paths = trailPaths(env);
+  const runLog = scanRunLog(paths.steps, cwd, "runId", target);
+  const handoffLog = scanRunLog(paths.handoff, cwd, "run_id", target);
+  const lastCompleted = handoffLog.forRun.reduce<LogPoint | null>(
+    (acc, p) => (!acc || p.ts >= acc.ts ? p : acc),
+    null
+  );
+  const lastServed = runLog.forRun[runLog.forRun.length - 1] ?? null;
+  const fromArg = argRun != null;
+  const sourceSeverity = fromArg ? "warn" : "error";
+
+  if (target && runLog.newest && runLog.newest.run_id !== target) {
+    mismatches.push({
+      code: "newer_run_in_log",
+      severity: sourceSeverity,
+      detail: `Newest workflow_step in the run log (${runLog.newest.ts}) is run ${runLog.newest.run_id}${runLog.newest.workflowType ? ` (${runLog.newest.workflowType})` : ""}, not ${target}.`,
+    });
+  }
+  if (target && handoffLog.newest && handoffLog.newest.run_id !== target) {
+    mismatches.push({
+      code: "handoff_run_mismatch",
+      severity: sourceSeverity,
+      detail: `Newest workflow handoff (${handoffLog.newest.ts}) belongs to run ${handoffLog.newest.run_id}, not ${target}.`,
+    });
+  }
+  if (argRun && stateRunId && argRun !== stateRunId) {
+    mismatches.push({
+      code: "state_run_differs",
+      severity: "warn",
+      detail: `run_id argument ${argRun} differs from ${statePath.requested} run ${stateRunId}.`,
+    });
+  }
+
+  const stepStatus = deriveStepStatus(runLog.forRun, lastCompleted);
+  if (stepStatus === "handoff_skipped") {
+    mismatches.push({
+      code: "handoff_skipped",
+      severity: "warn",
+      detail: `More than one step was served after the last handoff (step ${lastCompleted?.step}); a workflow_handoff_append was skipped.`,
+    });
+  } else if (stepStatus === "handoff_foreign") {
+    mismatches.push({
+      code: "handoff_foreign",
+      severity: "warn",
+      detail: `Last handoff is for step ${lastCompleted?.step} but the last served step is ${lastServed?.step}.`,
+    });
+  }
+
+  const hasError = mismatches.some((m) => m.severity === "error");
+  let runId: string | null = null;
+  let runIdSource: ActiveRun["run_id_source"] = "none";
+  if (argRun) {
+    runId = argRun;
+    runIdSource = "argument";
+  } else if (stateRunId && !hasError) {
+    runId = stateRunId;
+    runIdSource = "state";
+  }
+
+  const candidates: RunCandidate[] = [];
+  const addCandidate = (id: string | null | undefined, source: RunCandidate["source"]) => {
+    if (id && !candidates.some((c) => c.run_id === id)) candidates.push({ run_id: id, source });
+  };
+  addCandidate(argRun, "argument");
+  addCandidate(stateRunId, "state");
+  addCandidate(runLog.newest?.run_id, "run_log");
+  addCandidate(handoffLog.newest?.run_id, "handoff_log");
+  addCandidate(lastSave?.run_id, "state_save");
+
+  const handoffText = readHumanHandoff(cwd);
+  const resume = readResumeLine(cwd);
+
+  return {
+    active_run: {
+      workspace_root: cwd,
+      state_path: statePath.requested,
+      state_path_source: statePath.source,
+      state_present: statePresent,
+      state_run_id: stateRunId,
+      run_id: runId,
+      run_id_source: runIdSource,
+      candidates,
+      workflowType: lastServed?.workflowType ?? null,
+      last_served_step: lastServed?.step ?? null,
+      last_served_ts: lastServed?.ts ?? null,
+      last_completed_step: lastCompleted?.step ?? null,
+      last_completed_ts: lastCompleted?.ts ?? null,
+      step_status: stepStatus,
+      handoff_run_id: handoffLog.newest?.run_id ?? null,
+      resume,
+      resume_run_bound: resume && runId && handoffText ? handoffText.includes(runId) : null,
+    },
+    consistency: { ok: !hasError, mismatches },
+  };
+}
+
 export type BuildProjectContextOpts = {
   mode?: "operator" | "agent";
   run_id?: string;
+  state_path?: string;
   max_trail?: number;
   cwd?: string;
 };
@@ -426,7 +709,13 @@ export function buildProjectContextPacket(
   const cwd = opts.cwd ?? process.cwd();
   const maxTrail = Math.min(Math.max(opts.max_trail ?? 20, 1), 80);
   const { index, path: indexPath, present } = loadContextIndex(cwd);
-  const activeRunId = opts.run_id?.trim() || readActiveRunId(cwd);
+  const { active_run, consistency } = computeActiveRun({
+    cwd,
+    run_id: opts.run_id,
+    state_path: opts.state_path,
+    indexPresent: present,
+  });
+  const activeRunId = active_run.run_id;
   const artifactsRaw = Array.isArray(index?.artifacts) ? index!.artifacts! : [];
   const artifacts = artifactsRaw.filter(
     (a): a is ContextArtifact =>
@@ -465,7 +754,10 @@ export function buildProjectContextPacket(
     },
     counts: countByType(reports),
     active_run_id: activeRunId,
-    resume: readResumeLine(cwd),
+    resume: active_run.resume,
+    active_run,
+    consistency,
+    drift_scope: "indexed_files",
     drift,
     next_incomplete: pickNextIncomplete(reports),
     responseAliases: RESPONSE_ALIASES,
