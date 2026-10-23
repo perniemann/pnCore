@@ -23,14 +23,20 @@ export const ID_POINTERS = new Set(["current_checkpoint"]);
  * Lifecycle rules the JSON Schema cannot express:
  * - pointers.current_checkpoint names an existing artifact whose lifecycle is "current"
  * - at most one "current" artifact per type
- * - every superseded_by names an existing artifact; lifecycle "superseded" requires superseded_by
+ * - artifact ids are unique
+ * - lifecycle "superseded" requires superseded_by, and only it may carry one
+ * - every superseded_by names another existing artifact, with no cycles
  */
 export function lifecycleErrors(index) {
   const errors = [];
   const artifacts = Array.isArray(index?.artifacts)
-    ? index.artifacts.filter((a) => a && typeof a === "object")
+    ? index.artifacts.filter((a) => a && typeof a === "object" && typeof a.id === "string")
     : [];
-  const byId = new Map(artifacts.map((a) => [a.id, a]));
+  const byId = new Map();
+  for (const a of artifacts) {
+    if (byId.has(a.id)) errors.push(`duplicate artifact id "${a.id}"`);
+    else byId.set(a.id, a);
+  }
 
   const currentId = index?.pointers?.current_checkpoint;
   if (typeof currentId === "string" && currentId !== "") {
@@ -58,11 +64,34 @@ export function lifecycleErrors(index) {
   }
 
   for (const a of artifacts) {
-    if (typeof a.superseded_by === "string" && !byId.has(a.superseded_by)) {
-      errors.push(`artifact "${a.id}" superseded_by "${a.superseded_by}" does not exist`);
-    }
-    if (a.lifecycle === "superseded" && typeof a.superseded_by !== "string") {
+    const next = a.superseded_by;
+    if (a.lifecycle === "superseded" && typeof next !== "string") {
       errors.push(`artifact "${a.id}" is superseded but has no superseded_by`);
+    }
+    if (typeof next !== "string") continue;
+    if (a.lifecycle !== "superseded") {
+      errors.push(
+        `artifact "${a.id}" has superseded_by but lifecycle ${a.lifecycle ?? "(unset)"}, expected "superseded"`
+      );
+    }
+    if (next === a.id) {
+      errors.push(`artifact "${a.id}" supersedes itself`);
+    } else if (!byId.has(next)) {
+      errors.push(`artifact "${a.id}" superseded_by "${next}" does not exist`);
+    }
+  }
+
+  const reported = new Set();
+  for (const a of artifacts) {
+    const seen = [a.id];
+    let cursor = byId.get(a.superseded_by);
+    while (cursor && cursor.id !== a.id && !seen.includes(cursor.id)) {
+      seen.push(cursor.id);
+      cursor = byId.get(cursor.superseded_by);
+    }
+    if (cursor?.id === a.id && seen.length > 1 && !seen.some((id) => reported.has(id))) {
+      seen.forEach((id) => reported.add(id));
+      errors.push(`superseded_by cycle: ${[...seen, a.id].join(" -> ")}`);
     }
   }
   return errors;

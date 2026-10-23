@@ -30,7 +30,7 @@ export declare function splitState(raw: Record<string, unknown>): {
 };
 /** Envelope of a state file, or null when the file is missing, unparsable, or unversioned. */
 export declare function readCheckpointMeta(absPath: string): CheckpointMeta | null;
-export type CommitErrorCode = "REVISION_CONFLICT" | "RUN_MISMATCH" | "LOCKED" | "IO_ERROR";
+export type CommitErrorCode = "REVISION_CONFLICT" | "RUN_MISMATCH" | "LOCKED" | "IO_ERROR" | "PARSE_ERROR";
 export type CommitInput = {
     statePath: string;
     handoffPath: string;
@@ -40,6 +40,8 @@ export type CommitInput = {
     step: number;
     summary: string;
     expected_revision?: number;
+    /** Required to replace a state file that holds a different run. */
+    overwrite_run?: boolean;
 };
 export type CommitSuccess = {
     ok: true;
@@ -72,5 +74,35 @@ export type CommitDeps = {
     beforeCommit?: () => void;
     /** Test seam: runs after the state commit, before the read-back. */
     afterCommit?: () => void;
+    /** Test seam: runs after a lock is judged stale, before it is taken over. */
+    onStaleLock?: () => void;
 };
+type HandoffEntry = {
+    ts: string;
+    run_id: string;
+    step: number;
+    summary: string;
+    revision?: number;
+    stateHash?: string;
+};
+/** Append one handoff line (summary capped at HANDOFF_SUMMARY_LIMIT); returns the line written. */
+export declare function appendHandoffLine(path: string, entry: HandoffEntry): string;
+/** Commit-mode argument check: run_id, step, and summary together; commit-only keys need them. */
+export declare function commitArgsError(args: {
+    run_id?: string;
+    step?: number;
+    summary?: string;
+    expected_revision?: number;
+    handoff_path?: string;
+    history?: boolean;
+    overwrite_run?: boolean;
+}): string | null;
+/**
+ * Plain-mode save: no revision, but the same lock as commit mode, and any caller-supplied
+ * envelope is dropped so a stale revision cannot be written back.
+ */
+export declare function saveStatePlain(statePath: string, state: Record<string, unknown>, deps?: CommitDeps): {
+    ok: true;
+} | CommitFailure;
 export declare function commitCheckpoint(input: CommitInput, deps?: CommitDeps): CommitSuccess | CommitFailure;
+export {};

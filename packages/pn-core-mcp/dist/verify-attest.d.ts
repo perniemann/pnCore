@@ -1,10 +1,12 @@
 /**
  * Server-written verify attestations. Agents cannot invent kind=verify rows.
  */
+import type { AcceptanceScope } from "./acceptance.js";
 /**
  * Why a verify did not pass. Diagnostic only: gates still pass on exit 0 alone, and no class
  * refunds an attempt or relaxes a gate.
- * - missing_input: the command or a declared input/env was absent (exit 126/127, ENOENT, preflight)
+ * - missing_input: the command or a declared input/env was absent or not executable
+ *   (exit 126/127, spawn ENOENT/EACCES, preflight)
  * - infrastructure: timeout, signal, or spawn failure other than a missing command
  * - behavioral: the command ran and exited non-zero
  */
@@ -74,6 +76,7 @@ export type RunEvent = GateReport | PreflightEvent | {
     humanEarned: boolean;
     accepted: boolean;
     reasons: string[];
+    scope?: AcceptanceScope;
 };
 export declare function defaultRunEventsPath(): string;
 export declare function newAttestationId(): string;

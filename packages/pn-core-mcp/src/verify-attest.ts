@@ -5,13 +5,15 @@
 import { randomUUID } from "crypto";
 import { appendFileSync, existsSync, mkdirSync } from "fs";
 import { dirname } from "path";
+import type { AcceptanceScope } from "./acceptance.js";
 import { readFileTail } from "./file-tail.js";
 import { resolveSafePath } from "./safe-path.js";
 
 /**
  * Why a verify did not pass. Diagnostic only: gates still pass on exit 0 alone, and no class
  * refunds an attempt or relaxes a gate.
- * - missing_input: the command or a declared input/env was absent (exit 126/127, ENOENT, preflight)
+ * - missing_input: the command or a declared input/env was absent or not executable
+ *   (exit 126/127, spawn ENOENT/EACCES, preflight)
  * - infrastructure: timeout, signal, or spawn failure other than a missing command
  * - behavioral: the command ran and exited non-zero
  */
@@ -23,7 +25,11 @@ export function classifyVerify(r: {
   signal?: string | null;
   spawnErrorCode?: string | null;
 }): FailureClass {
-  if (r.spawnErrorCode) return r.spawnErrorCode === "ENOENT" ? "missing_input" : "infrastructure";
+  if (r.spawnErrorCode) {
+    return r.spawnErrorCode === "ENOENT" || r.spawnErrorCode === "EACCES"
+      ? "missing_input"
+      : "infrastructure";
+  }
   if (r.timedOut || r.signal) return "infrastructure";
   if (r.exitCode === 0) return "none";
   if (r.exitCode === 126 || r.exitCode === 127) return "missing_input";
@@ -95,10 +101,11 @@ export type RunEvent =
       humanEarned: boolean;
       accepted: boolean;
       reasons: string[];
+      scope?: AcceptanceScope;
     };
 
 export function defaultRunEventsPath(): string {
-  return process.env.PNCORE_RUN_EVENTS_PATH ?? ".pncore/run-events.jsonl";
+  return process.env.PNCORE_RUN_EVENTS_PATH || ".pncore/run-events.jsonl";
 }
 
 const SCAN_MAX = 786_432;

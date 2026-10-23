@@ -4,8 +4,8 @@
  * Precedence: explicit argument > PNCORE_STATE_PATH > default. Paths must stay inside the
  * workspace (MCP cwd); a rejected path is reported, never silently replaced by the default.
  */
-import { appendFileSync, existsSync, mkdirSync } from "fs";
-import { dirname, join, relative } from "path";
+import { appendFileSync, existsSync, mkdirSync, statSync } from "fs";
+import { dirname, join, relative, resolve } from "path";
 import { readFileTail } from "./file-tail.js";
 import { resolveInside } from "./safe-path.js";
 export const DEFAULT_STATE_REL = ".pncore/workflow-state.json";
@@ -20,15 +20,26 @@ export function resolveStatePath(opts = {}) {
     const requested = arg ?? fromEnv ?? DEFAULT_STATE_REL;
     const source = arg ? "argument" : fromEnv ? "env" : "default";
     const safe = resolveInside(cwd, requested);
-    if ("error" in safe) {
-        return {
-            requested,
-            source,
-            resolved: null,
-            error: `${safe.error}: ${requested} (workspace root ${cwd})`,
-        };
+    const reject = (reason) => ({
+        requested,
+        source,
+        resolved: null,
+        error: `${reason}: ${requested} (workspace root ${cwd})`,
+    });
+    if ("error" in safe)
+        return reject(safe.error);
+    if (safe.resolved === resolve(cwd) || isDirectory(safe.resolved)) {
+        return reject("State path must be a file inside the workspace");
     }
     return { requested, source, resolved: safe.resolved };
+}
+function isDirectory(absPath) {
+    try {
+        return statSync(absPath).isDirectory();
+    }
+    catch {
+        return false;
+    }
 }
 /** Append-only record of where state was last written, so readers can detect a diverged path. */
 export function recordStateSave(absPath, runId, cwd = process.cwd()) {

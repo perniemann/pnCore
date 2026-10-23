@@ -10,7 +10,7 @@
  * file's revision is uncommitted (the save was interrupted between the append and the rename);
  * readers ignore it, so an interrupted save leaves the prior state and handoff consistent.
  */
-import { createHash } from "crypto";
+import { createHash, randomBytes } from "crypto";
 import { appendFileSync, closeSync, existsSync, mkdirSync, openSync, readFileSync, statSync, unlinkSync, writeFileSync, } from "fs";
 import { dirname } from "path";
 import { writeFileAtomic } from "./atomic-write.js";
@@ -81,178 +81,255 @@ function ensureDir(path) {
     if (!existsSync(dir))
         mkdirSync(dir, { recursive: true });
 }
-function acquireLock(lockPath, staleMs, now) {
+/** Append one handoff line (summary capped at HANDOFF_SUMMARY_LIMIT); returns the line written. */
+export function appendHandoffLine(path, entry) {
+    const line = JSON.stringify({ ...entry, summary: entry.summary.slice(0, HANDOFF_SUMMARY_LIMIT) });
+    ensureDir(path);
+    appendFileSync(path, line + "\n", "utf-8");
+    return line;
+}
+function readLockToken(lockPath) {
+    try {
+        const o = JSON.parse(readFileSync(lockPath, "utf-8"));
+        return typeof o.token === "string" ? o.token : null;
+    }
+    catch {
+        return null;
+    }
+}
+/**
+ * Remove the lock judged stale, holding `<lock>.break` (created exclusive) so only one writer
+ * breaks it, and only if it is still that file (same inode and mtime). Returns false when
+ * another writer is breaking it. A break file left by a crash is cleared once it is stale too.
+ */
+function breakStaleLock(lockPath, judged, staleMs, now) {
+    const breakPath = `${lockPath}.break`;
+    try {
+        closeSync(openSync(breakPath, "wx"));
+    }
+    catch (err) {
+        if (err.code !== "EEXIST")
+            throw err;
+        try {
+            if (now.getTime() - statSync(breakPath).mtimeMs >= staleMs)
+                unlinkSync(breakPath);
+        }
+        catch {
+            /* the other breaker finished */
+        }
+        return false;
+    }
+    try {
+        const current = statSync(lockPath);
+        if (current.ino === judged.ino && current.mtimeMs === judged.mtimeMs)
+            unlinkSync(lockPath);
+    }
+    catch {
+        /* already removed */
+    }
+    finally {
+        unlinkSync(breakPath);
+    }
+    return true;
+}
+/** Take the lock, or return null when a fresh lock is held or another writer is breaking it. */
+function acquireLock(lockPath, staleMs, now, onStaleLock) {
     ensureDir(lockPath);
-    for (let attempt = 0; attempt < 2; attempt++) {
+    const token = randomBytes(8).toString("hex");
+    for (let attempt = 0; attempt < 3; attempt++) {
         try {
             const fd = openSync(lockPath, "wx");
             try {
-                writeFileSync(fd, JSON.stringify({ pid: process.pid, ts: now.toISOString() }), "utf-8");
+                writeFileSync(fd, JSON.stringify({ pid: process.pid, ts: now.toISOString(), token }));
             }
             finally {
                 closeSync(fd);
             }
-            return true;
+            return token;
         }
         catch (err) {
             if (err.code !== "EEXIST")
                 throw err;
-            let age = 0;
-            try {
-                age = now.getTime() - statSync(lockPath).mtimeMs;
-            }
-            catch {
-                continue;
-            }
-            if (age < staleMs)
-                return false;
-            try {
-                unlinkSync(lockPath);
-            }
-            catch {
-                /* another writer removed it first */
-            }
         }
+        let judged;
+        try {
+            judged = statSync(lockPath);
+        }
+        catch {
+            continue;
+        }
+        if (now.getTime() - judged.mtimeMs < staleMs)
+            return null;
+        onStaleLock?.();
+        if (!breakStaleLock(lockPath, judged, staleMs, now))
+            return null;
     }
-    return false;
+    return null;
 }
-function readPrior(statePath) {
-    if (!existsSync(statePath))
-        return { raw: null, meta: null, runId: null };
-    let parsed;
+function releaseLock(lockPath, token) {
+    if (readLockToken(lockPath) !== token)
+        return;
     try {
-        parsed = JSON.parse(readFileSync(statePath, "utf-8"));
+        unlinkSync(lockPath);
     }
     catch {
-        return { raw: null, meta: null, runId: null };
+        /* already gone */
     }
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-        return { raw: null, meta: null, runId: null };
-    }
-    const raw = parsed;
-    const { meta } = splitState(raw);
-    const runId = meta?.run_id ?? (typeof raw.run_id === "string" ? raw.run_id : null);
-    return { raw, meta, runId };
 }
-export function commitCheckpoint(input, deps = {}) {
+function lockedFailure(lockPath, staleMs) {
+    return {
+        ok: false,
+        code: "LOCKED",
+        message: `Another save holds ${lockPath}; retry after it finishes (stale locks expire after ${Math.round(staleMs / 1000)}s).`,
+    };
+}
+/** Run `fn` under `<statePath>.lock`; LOCKED when another holder has a fresh lock. */
+function withStateLock(statePath, deps, fn) {
     const now = (deps.now ?? (() => new Date()))();
-    const lockPath = `${input.statePath}.lock`;
+    const staleMs = deps.lockStaleMs ?? LOCK_STALE_MS;
+    const lockPath = `${statePath}.lock`;
+    let token;
     try {
-        if (!acquireLock(lockPath, deps.lockStaleMs ?? LOCK_STALE_MS, now)) {
-            return {
-                ok: false,
-                code: "LOCKED",
-                message: `Another save holds ${lockPath}; retry after it finishes (stale locks expire after ${Math.round((deps.lockStaleMs ?? LOCK_STALE_MS) / 1000)}s).`,
-            };
-        }
+        token = acquireLock(lockPath, staleMs, now, deps.onStaleLock);
     }
     catch (err) {
         return { ok: false, code: "IO_ERROR", message: String(err) };
     }
+    if (!token)
+        return lockedFailure(lockPath, staleMs);
     try {
-        const prior = readPrior(input.statePath);
-        const previousRevision = prior.meta?.revision ?? 0;
-        if (input.expected_revision !== undefined && input.expected_revision !== previousRevision) {
-            return {
-                ok: false,
-                code: "REVISION_CONFLICT",
-                message: `expected_revision ${input.expected_revision} but ${input.statePath} is at revision ${previousRevision}. Reload with workflow_state_load and retry.`,
-                current_revision: previousRevision,
-                current_run_id: prior.runId,
-            };
-        }
-        const bodyRun = input.state.run_id;
-        if (typeof bodyRun === "string" && bodyRun !== "" && bodyRun !== input.run_id) {
-            return {
-                ok: false,
-                code: "RUN_MISMATCH",
-                message: `state.run_id ${bodyRun} does not match run_id ${input.run_id}.`,
-                current_revision: previousRevision,
-                current_run_id: prior.runId,
-            };
-        }
-        if (prior.runId && prior.runId !== input.run_id && input.expected_revision === undefined) {
-            return {
-                ok: false,
-                code: "RUN_MISMATCH",
-                message: `${input.statePath} holds run ${prior.runId}; saving run ${input.run_id} over it requires expected_revision: ${previousRevision} (explicit overwrite) or a different path.`,
-                current_revision: previousRevision,
-                current_run_id: prior.runId,
-            };
-        }
-        const { state: routing } = splitState(input.state);
-        const state = { ...routing, run_id: input.run_id };
-        const revision = previousRevision + 1;
-        const stateHash = hashState(state);
-        const savedAt = now.toISOString();
-        const handoffLine = JSON.stringify({
-            ts: savedAt,
-            run_id: input.run_id,
-            step: input.step,
-            summary: input.summary.slice(0, HANDOFF_SUMMARY_LIMIT),
-            revision,
-            stateHash,
-        });
-        ensureDir(input.handoffPath);
-        appendFileSync(input.handoffPath, handoffLine + "\n", "utf-8");
-        const handoffHash = sha256(handoffLine);
-        if (input.historyPath && prior.raw) {
-            ensureDir(input.historyPath);
-            const { state: priorState } = splitState(prior.raw);
-            appendFileSync(input.historyPath, JSON.stringify({
-                ts: savedAt,
-                revision: previousRevision,
-                run_id: prior.runId,
-                state: priorState,
-            }) + "\n", "utf-8");
-        }
-        deps.beforeCommit?.();
-        const meta = {
-            revision,
-            run_id: input.run_id,
-            step: input.step,
-            savedAt,
-            stateHash,
-        };
-        writeFileAtomic(input.statePath, JSON.stringify({ ...state, [META_KEY]: meta }));
-        deps.afterCommit?.();
-        const back = readPrior(input.statePath);
-        const backState = back.raw ? splitState(back.raw).state : null;
-        if (!back.meta ||
-            back.meta.revision !== revision ||
-            !backState ||
-            hashState(backState) !== stateHash) {
-            return {
-                ok: false,
-                code: "IO_ERROR",
-                message: `Read-back of ${input.statePath} does not match revision ${revision}.`,
-                current_revision: back.meta?.revision ?? 0,
-                current_run_id: back.runId,
-            };
-        }
-        return {
-            ok: true,
-            revision,
-            previous_revision: previousRevision,
-            run_id: input.run_id,
-            step: input.step,
-            stateHash,
-            handoffHash,
-            path: input.statePath,
-            handoff_path: input.handoffPath,
-            ...(input.historyPath && prior.raw ? { history_path: input.historyPath } : {}),
-            readBack: { revision: back.meta.revision, stateHash, run_id: back.meta.run_id },
-        };
+        return fn(now);
     }
     catch (err) {
         return { ok: false, code: "IO_ERROR", message: String(err) };
     }
     finally {
-        try {
-            unlinkSync(lockPath);
-        }
-        catch {
-            /* already gone */
-        }
+        releaseLock(lockPath, token);
     }
+}
+function readPrior(statePath) {
+    const empty = { raw: null, meta: null, runId: null, unparsable: null };
+    if (!existsSync(statePath))
+        return empty;
+    const text = readFileSync(statePath, "utf-8");
+    let parsed;
+    try {
+        parsed = JSON.parse(text);
+    }
+    catch {
+        return { ...empty, unparsable: text };
+    }
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        return { ...empty, unparsable: text };
+    }
+    const raw = parsed;
+    const { meta } = splitState(raw);
+    const runId = meta?.run_id ?? (typeof raw.run_id === "string" ? raw.run_id : null);
+    return { raw, meta, runId, unparsable: null };
+}
+/** Commit-mode argument check: run_id, step, and summary together; commit-only keys need them. */
+export function commitArgsError(args) {
+    const commitKeys = [args.run_id, args.step, args.summary].filter((v) => v !== undefined).length;
+    const commitOnly = args.expected_revision !== undefined || args.handoff_path || args.history || args.overwrite_run;
+    if ((commitKeys > 0 && commitKeys < 3) || (commitKeys === 0 && commitOnly)) {
+        return "Commit mode needs run_id, step, and summary together (expected_revision, handoff_path, history, overwrite_run apply only in commit mode).";
+    }
+    return null;
+}
+/**
+ * Plain-mode save: no revision, but the same lock as commit mode, and any caller-supplied
+ * envelope is dropped so a stale revision cannot be written back.
+ */
+export function saveStatePlain(statePath, state, deps = {}) {
+    return withStateLock(statePath, deps, () => {
+        writeFileAtomic(statePath, JSON.stringify(splitState(state).state));
+        return { ok: true };
+    });
+}
+export function commitCheckpoint(input, deps = {}) {
+    return withStateLock(input.statePath, deps, (now) => commitLocked(input, deps, now));
+}
+function commitLocked(input, deps, now) {
+    const prior = readPrior(input.statePath);
+    const previousRevision = prior.meta?.revision ?? 0;
+    const conflict = (code, message) => ({
+        ok: false,
+        code,
+        message,
+        current_revision: previousRevision,
+        current_run_id: prior.runId,
+    });
+    if (prior.unparsable != null && input.expected_revision !== 0) {
+        return conflict("PARSE_ERROR", `${input.statePath} is not a JSON object; pass expected_revision: 0 to replace it (history: true keeps the old bytes).`);
+    }
+    if (input.expected_revision !== undefined && input.expected_revision !== previousRevision) {
+        return conflict("REVISION_CONFLICT", `expected_revision ${input.expected_revision} but ${input.statePath} is at revision ${previousRevision}. Reload with workflow_state_load and retry.`);
+    }
+    const bodyRun = input.state.run_id;
+    if (typeof bodyRun === "string" && bodyRun !== "" && bodyRun !== input.run_id) {
+        return conflict("RUN_MISMATCH", `state.run_id ${bodyRun} does not match run_id ${input.run_id}.`);
+    }
+    if (prior.runId && prior.runId !== input.run_id && input.overwrite_run !== true) {
+        return conflict("RUN_MISMATCH", `${input.statePath} holds run ${prior.runId}; saving run ${input.run_id} over it requires overwrite_run: true, or use a different path.`);
+    }
+    const { state: routing } = splitState(input.state);
+    const state = { ...routing, run_id: input.run_id };
+    const revision = previousRevision + 1;
+    const stateHash = hashState(state);
+    const savedAt = now.toISOString();
+    const handoffLine = appendHandoffLine(input.handoffPath, {
+        ts: savedAt,
+        run_id: input.run_id,
+        step: input.step,
+        summary: input.summary,
+        revision,
+        stateHash,
+    });
+    const handoffHash = sha256(handoffLine);
+    const historyEntry = prior.raw
+        ? { revision: previousRevision, run_id: prior.runId, state: splitState(prior.raw).state }
+        : prior.unparsable != null
+            ? { revision: 0, run_id: null, raw: prior.unparsable }
+            : null;
+    if (input.historyPath && historyEntry) {
+        ensureDir(input.historyPath);
+        appendFileSync(input.historyPath, JSON.stringify({ ts: savedAt, ...historyEntry }) + "\n", "utf-8");
+    }
+    deps.beforeCommit?.();
+    const meta = {
+        revision,
+        run_id: input.run_id,
+        step: input.step,
+        savedAt,
+        stateHash,
+    };
+    writeFileAtomic(input.statePath, JSON.stringify({ ...state, [META_KEY]: meta }));
+    deps.afterCommit?.();
+    const back = readPrior(input.statePath);
+    const backState = back.raw ? splitState(back.raw).state : null;
+    if (!back.meta ||
+        back.meta.revision !== revision ||
+        !backState ||
+        hashState(backState) !== stateHash) {
+        return {
+            ok: false,
+            code: "IO_ERROR",
+            message: `Read-back of ${input.statePath} does not match revision ${revision}.`,
+            current_revision: back.meta?.revision ?? 0,
+            current_run_id: back.runId,
+        };
+    }
+    return {
+        ok: true,
+        revision,
+        previous_revision: previousRevision,
+        run_id: input.run_id,
+        step: input.step,
+        stateHash,
+        handoffHash,
+        path: input.statePath,
+        handoff_path: input.handoffPath,
+        ...(input.historyPath && historyEntry ? { history_path: input.historyPath } : {}),
+        readBack: { revision: back.meta.revision, stateHash, run_id: back.meta.run_id },
+    };
 }

@@ -282,7 +282,7 @@ export const PN_CORE_TOOLS: ToolDefinition[] = [
   def(
     "workflow_state_save",
     "Workflow State Save",
-    "Save workflow state atomically (resume after disconnect). Path: path > PNCORE_STATE_PATH > .pncore/workflow-state.json, inside the workspace. Commit mode (run_id + step + summary, optional expected_revision): one call appends the handoff line and commits the state under revision N+1, refuses stale revisions (REVISION_CONFLICT), another run's file (RUN_MISMATCH), or a concurrent save (LOCKED), and returns revision + hashes read back from disk. Plain mode (state only) writes the file without a revision.",
+    "Save workflow state atomically (resume after disconnect). Path: path > PNCORE_STATE_PATH > .pncore/workflow-state.json, inside the workspace. Commit mode (run_id + step + summary, optional expected_revision): one call appends the handoff line and commits the state under revision N+1, refuses stale revisions (REVISION_CONFLICT), another run's file unless overwrite_run (RUN_MISMATCH), or a concurrent save (LOCKED), and returns revision + hashes read back from disk. Plain mode (state only) writes the file under the same lock without a revision.",
     workflowStateSaveSchema,
     { readOnlyHint: false, destructiveHint: false, idempotentHint: false },
     handleWorkflowStateSave
@@ -298,7 +298,7 @@ export const PN_CORE_TOOLS: ToolDefinition[] = [
   def(
     "workflow_verify",
     "Workflow Verify",
-    "Run a catalog (or policy-checked) verify command with no shell. Returns a GateReport with failureClass (none | missing_input | infrastructure | behavioral); exitCode !== 0 is a completed verify, not a tool error, and failureClass never changes a gate. inputs / env_required are checked immediately before spawn; a failed check records a preflight event and launches nothing. preflight_only runs just the checks (no disposeVerify needed). Spawning requires disposeVerify; fail-closed without a jail unless PNCORE_VERIFY_SANDBOX=restricted or Vitest test backend.",
+    "Run a catalog (or policy-checked) verify command with no shell. Returns a GateReport with failureClass (none | missing_input | infrastructure | behavioral); exitCode !== 0 is a completed verify, not a tool error, and failureClass never changes a gate. inputs / env_required are checked immediately before spawn; a failed check records a preflight event and launches nothing. env_required names must be listed in the server's PNCORE_VERIFY_PASS_ENV to reach the command (PNCORE_* never), and their values are redacted from the output. preflight_only runs just the checks (no disposeVerify needed). Spawning requires disposeVerify; fail-closed without a jail unless PNCORE_VERIFY_SANDBOX=restricted or Vitest test backend.",
     workflowVerifySchema,
     write,
     handleWorkflowVerify

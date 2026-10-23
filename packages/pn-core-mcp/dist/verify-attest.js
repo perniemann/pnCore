@@ -7,8 +7,11 @@ import { dirname } from "path";
 import { readFileTail } from "./file-tail.js";
 import { resolveSafePath } from "./safe-path.js";
 export function classifyVerify(r) {
-    if (r.spawnErrorCode)
-        return r.spawnErrorCode === "ENOENT" ? "missing_input" : "infrastructure";
+    if (r.spawnErrorCode) {
+        return r.spawnErrorCode === "ENOENT" || r.spawnErrorCode === "EACCES"
+            ? "missing_input"
+            : "infrastructure";
+    }
     if (r.timedOut || r.signal)
         return "infrastructure";
     if (r.exitCode === 0)
@@ -18,7 +21,7 @@ export function classifyVerify(r) {
     return "behavioral";
 }
 export function defaultRunEventsPath() {
-    return process.env.PNCORE_RUN_EVENTS_PATH ?? ".pncore/run-events.jsonl";
+    return process.env.PNCORE_RUN_EVENTS_PATH || ".pncore/run-events.jsonl";
 }
 const SCAN_MAX = 786_432;
 export function newAttestationId() {

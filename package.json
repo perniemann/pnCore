@@ -1,6 +1,6 @@
 {
   "name": "pn-core",
-  "version": "0.19.12",
+  "version": "0.19.13",
   "description": "MCP engine that runs software delivery as named, gated steps — skills, agents, rules, and pn-core:// resources for Cursor, Claude Code, Codex, and Pi.",
   "private": true,
   "type": "module",
@@ -60,7 +60,7 @@
     "node": ">=22"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.30.1",
+    "@modelcontextprotocol/sdk": "^1.32.1",
     "typebox": "^1.4.2",
     "zod": "4.6.7"
   },

@@ -120,7 +120,10 @@ export type RunTimeline = {
         sinceLastStepMs: number;
     } | null;
     accepted: boolean | null;
-    /** Usage lines whose observed responseModel differs from the requested model. */
+    /**
+     * Usage lines whose observed responseModel differs from the requested model. Names match
+     * exactly after trimming and case folding; an alias vs a dated snapshot counts as a mismatch.
+     */
     modelMismatches: Array<{
         stepIndex: number;
         step: number;

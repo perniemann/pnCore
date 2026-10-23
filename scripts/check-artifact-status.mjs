@@ -2,7 +2,8 @@
 /**
  * Attested derived-status check for docs/refs/context-index.json artifacts.
  * Fail when authored_status claims complete/done without a passing verify/acceptance
- * for the linked run_id, or when an artifact path is missing.
+ * for the linked run_id, or when an artifact path is missing. Historical / superseded
+ * artifacts are not held to the attestation rule.
  * Does NOT treat markdown checkboxes as truth.
  *
  * Run from repo root: npm run check:artifact-status
@@ -18,6 +19,8 @@ const indexPath = path.join(repoRoot, "docs/refs/context-index.json");
 const runEventsPath = path.join(repoRoot, ".pncore/run-events.jsonl");
 
 const COMPLETE = new Set(["complete", "done", "completed", "shipped"]);
+/** Historical / superseded artifacts are evidence only (context-index 1.4.0), as in project_context. */
+const EVIDENCE_ONLY = new Set(["historical", "superseded"]);
 
 function fail(msg) {
   console.error(msg);
@@ -78,6 +81,7 @@ for (const art of artifacts) {
     drifts.push(`${id}: path missing (${rel})`);
     continue;
   }
+  if (EVIDENCE_ONLY.has(art.lifecycle)) continue;
   const authored =
     typeof art.authored_status === "string" ? art.authored_status.trim().toLowerCase() : "";
   if (!COMPLETE.has(authored)) continue;

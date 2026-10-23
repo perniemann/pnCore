@@ -1,12 +1,22 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { existsSync, mkdirSync, readFileSync, rmSync, utimesSync, writeFileSync } from "fs";
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  utimesSync,
+  writeFileSync,
+} from "fs";
 import { join } from "path";
 import { tmpdir } from "os";
 import {
   META_KEY,
+  commitArgsError,
   commitCheckpoint,
   hashState,
   readCheckpointMeta,
+  saveStatePlain,
   splitState,
   type CommitInput,
 } from "./checkpoint.js";
@@ -82,12 +92,20 @@ describe("checkpoint commit protocol", () => {
     expect(handoffLines()).toHaveLength(1);
   });
 
-  it("refuses to overwrite another run unless expected_revision acknowledges it", () => {
+  it("refuses to overwrite another run unless overwrite_run is passed", () => {
     commitCheckpoint(input());
-    const blocked = commitCheckpoint(input({ run_id: "run-b", summary: "b0", step: 0 }));
-    expect(blocked).toMatchObject({ ok: false, code: "RUN_MISMATCH", current_run_id: "run-a" });
+    const other = { run_id: "run-b", summary: "b0", step: 0 };
+    expect(commitCheckpoint(input(other))).toMatchObject({
+      ok: false,
+      code: "RUN_MISMATCH",
+      current_run_id: "run-a",
+    });
+    expect(commitCheckpoint(input({ ...other, expected_revision: 1 }))).toMatchObject({
+      ok: false,
+      code: "RUN_MISMATCH",
+    });
     const allowed = commitCheckpoint(
-      input({ run_id: "run-b", summary: "b0", step: 0, expected_revision: 1 })
+      input({ ...other, expected_revision: 1, overwrite_run: true })
     );
     expect(allowed.ok && allowed.run_id).toBe("run-b");
   });
@@ -135,6 +153,88 @@ describe("checkpoint commit protocol", () => {
     utimesSync(`${statePath}.lock`, old, old);
     expect(commitCheckpoint(input())).toMatchObject({ ok: true, revision: 1 });
     expect(existsSync(`${statePath}.lock`)).toBe(false);
+  });
+
+  it("a stale lock replaced by a fresh one before takeover is put back, not stolen", () => {
+    const lockPath = `${statePath}.lock`;
+    writeFileSync(lockPath, "{}", "utf-8");
+    const old = new Date(Date.now() - 60_000);
+    utimesSync(lockPath, old, old);
+    const fresh = JSON.stringify({ token: "other-writer" });
+    const r = commitCheckpoint(input(), {
+      onStaleLock: () => {
+        rmSync(lockPath);
+        writeFileSync(lockPath, fresh, "utf-8");
+        const future = new Date(Date.now() + 1000);
+        utimesSync(lockPath, future, future);
+      },
+    });
+    expect(r).toMatchObject({ ok: false, code: "LOCKED" });
+    expect(readFileSync(lockPath, "utf-8")).toBe(fresh);
+    expect(existsSync(statePath)).toBe(false);
+    expect(readdirSync(join(cwd, ".pncore")).filter((f) => f.endsWith(".break"))).toEqual([]);
+  });
+
+  it("a writer breaking the stale lock holds off a second breaker; a crashed breaker expires", () => {
+    const lockPath = `${statePath}.lock`;
+    writeFileSync(lockPath, "{}", "utf-8");
+    const old = new Date(Date.now() - 60_000);
+    utimesSync(lockPath, old, old);
+    writeFileSync(`${lockPath}.break`, "", "utf-8");
+    expect(commitCheckpoint(input())).toMatchObject({ ok: false, code: "LOCKED" });
+    expect(existsSync(lockPath)).toBe(true);
+    expect(existsSync(`${lockPath}.break`)).toBe(true);
+
+    utimesSync(`${lockPath}.break`, old, old);
+    expect(commitCheckpoint(input())).toMatchObject({ ok: false, code: "LOCKED" });
+    expect(existsSync(`${lockPath}.break`)).toBe(false);
+    expect(commitCheckpoint(input())).toMatchObject({ ok: true, revision: 1 });
+    expect(existsSync(lockPath)).toBe(false);
+  });
+
+  it("gives up with LOCKED when a stale lock keeps being replaced during takeover", () => {
+    const lockPath = `${statePath}.lock`;
+    const old = new Date(Date.now() - 60_000);
+    const writeStale = () => {
+      rmSync(lockPath, { force: true });
+      writeFileSync(lockPath, JSON.stringify({ token: "crashed" }), "utf-8");
+      utimesSync(lockPath, old, old);
+    };
+    writeStale();
+    let replaced = 0;
+    const r = commitCheckpoint(input(), {
+      onStaleLock: () => {
+        replaced++;
+        writeStale();
+        const older = new Date(old.getTime() - replaced * 1000);
+        utimesSync(lockPath, older, older);
+      },
+    });
+    expect(r).toMatchObject({ ok: false, code: "LOCKED" });
+    expect(replaced).toBe(3);
+    expect(existsSync(statePath)).toBe(false);
+  });
+
+  it("a stale lock removed by another writer before takeover is simply retried", () => {
+    const lockPath = `${statePath}.lock`;
+    writeFileSync(lockPath, "{}", "utf-8");
+    const old = new Date(Date.now() - 60_000);
+    utimesSync(lockPath, old, old);
+    const r = commitCheckpoint(input(), { onStaleLock: () => rmSync(lockPath) });
+    expect(r).toMatchObject({ ok: true, revision: 1 });
+    expect(existsSync(lockPath)).toBe(false);
+  });
+
+  it("release leaves a lock that another holder owns or that cannot be read", () => {
+    const lockPath = `${statePath}.lock`;
+    for (const foreign of [JSON.stringify({ token: "other-writer" }), "{}", "not json"]) {
+      const r = commitCheckpoint(input(), {
+        beforeCommit: () => writeFileSync(lockPath, foreign, "utf-8"),
+      });
+      expect(r).toMatchObject({ ok: true });
+      expect(readFileSync(lockPath, "utf-8")).toBe(foreign);
+      rmSync(lockPath);
+    }
   });
 
   it("reports IO_ERROR when the lock cannot be created", () => {
@@ -188,13 +288,41 @@ describe("checkpoint commit protocol", () => {
     expect(splitState({ [META_KEY]: [] }).meta).toBeNull();
   });
 
-  it("an unparsable prior file is treated as revision 0", () => {
+  it("an unparsable prior file needs expected_revision 0; history keeps its bytes", () => {
+    const historyPath = `${statePath}.history.jsonl`;
     writeFileSync(statePath, "not json", "utf-8");
-    expect(commitCheckpoint(input({ expected_revision: 0 }))).toMatchObject({
-      ok: true,
-      revision: 1,
+    expect(commitCheckpoint(input())).toMatchObject({ ok: false, code: "PARSE_ERROR" });
+    expect(readFileSync(statePath, "utf-8")).toBe("not json");
+    const r = commitCheckpoint(input({ expected_revision: 0, historyPath }));
+    expect(r).toMatchObject({ ok: true, revision: 1, history_path: historyPath });
+    expect(JSON.parse(readFileSync(historyPath, "utf-8").trim())).toMatchObject({
+      revision: 0,
+      run_id: null,
+      raw: "not json",
     });
     writeFileSync(statePath, "[1]", "utf-8");
+    expect(commitCheckpoint(input({ expected_revision: 1 }))).toMatchObject({
+      ok: false,
+      code: "PARSE_ERROR",
+    });
     expect(commitCheckpoint(input({ expected_revision: 0 }))).toMatchObject({ ok: true });
+  });
+
+  it("plain saves drop a caller-supplied envelope and respect the lock", () => {
+    commitCheckpoint(input());
+    const raw = stored();
+    expect(saveStatePlain(statePath, { ...raw, plan: "edited" })).toEqual({ ok: true });
+    expect(stored()).toEqual({ plan: "edited", run_id: "run-a" });
+    expect(readCheckpointMeta(statePath)).toBeNull();
+    writeFileSync(`${statePath}.lock`, "{}", "utf-8");
+    expect(saveStatePlain(statePath, { plan: "x" })).toMatchObject({ ok: false, code: "LOCKED" });
+    expect(stored().plan).toBe("edited");
+  });
+
+  it("commitArgsError requires run_id, step, and summary together", () => {
+    expect(commitArgsError({})).toBeNull();
+    expect(commitArgsError({ run_id: "r", step: 1, summary: "s" })).toBeNull();
+    expect(commitArgsError({ run_id: "r" })).toMatch(/together/);
+    expect(commitArgsError({ overwrite_run: true })).toMatch(/together/);
   });
 });

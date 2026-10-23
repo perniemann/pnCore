@@ -74,21 +74,33 @@ describe("runPreflight", () => {
       "input:data.txt:not executable",
       "input:gone.txt:missing",
       "input:../escape.txt:outside workspace",
-      `input:data.txt:sha256 mismatch (actual ${good})`,
+      "input:data.txt:sha256 mismatch",
       "input:bin:not a file",
     ]);
   });
 
   it("checks required environment variables", () => {
-    const env = { PATH: join(root, "bin"), PRESENT: "1", EMPTY: "" };
+    const env = {
+      PATH: join(root, "bin"),
+      PRESENT: "1",
+      EMPTY: "",
+      UNLISTED: "1",
+      PNCORE_APPROVAL_TOKEN: "t",
+      PNCORE_VERIFY_PASS_ENV: "PRESENT, EMPTY,ABSENT,PNCORE_APPROVAL_TOKEN,bad-name",
+    };
     const r = runPreflight({
       argv: ["tool"],
       cwd: root,
       workspaceRoot: root,
       env,
-      env_required: ["PRESENT", "EMPTY", "ABSENT"],
+      env_required: ["PRESENT", "EMPTY", "ABSENT", "UNLISTED", "PNCORE_APPROVAL_TOKEN"],
     });
-    expect(failed(r)).toEqual(["env:EMPTY:unset or empty", "env:ABSENT:unset or empty"]);
+    expect(failed(r)).toEqual([
+      "env:EMPTY:unset or empty",
+      "env:ABSENT:unset or empty",
+      "env:UNLISTED:not in PNCORE_VERIFY_PASS_ENV",
+      "env:PNCORE_APPROVAL_TOKEN:not in PNCORE_VERIFY_PASS_ENV",
+    ]);
   });
 });
 

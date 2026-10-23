@@ -63,6 +63,40 @@ test("superseded_by must exist and superseded requires it", () => {
   ]);
 });
 
+test("duplicate ids, stray superseded_by, self-reference, and cycles fail", () => {
+  const errors = lifecycleErrors({
+    pointers: {},
+    artifacts: [
+      art("dup", { lifecycle: "historical" }),
+      art("dup", { lifecycle: "historical" }),
+      art("live", { lifecycle: "current", superseded_by: "dup" }),
+      art("self", { lifecycle: "superseded", superseded_by: "self" }),
+      art("a", { lifecycle: "superseded", superseded_by: "b" }),
+      art("b", { lifecycle: "superseded", superseded_by: "a" }),
+    ],
+  });
+  assert.deepEqual(errors, [
+    'duplicate artifact id "dup"',
+    'artifact "live" has superseded_by but lifecycle current, expected "superseded"',
+    'artifact "self" supersedes itself',
+    "superseded_by cycle: a -> b -> a",
+  ]);
+});
+
+test("longer cycles are reported once; a chain into a cycle flags only the cycle", () => {
+  const errors = lifecycleErrors({
+    pointers: {},
+    artifacts: [
+      art("d", { lifecycle: "superseded", superseded_by: "p" }),
+      art("p", { lifecycle: "superseded", superseded_by: "q" }),
+      art("q", { lifecycle: "superseded", superseded_by: "r" }),
+      art("r", { lifecycle: "superseded", superseded_by: "p" }),
+      { type: "plan", path: "docs/no-id.md", lifecycle: "historical" },
+    ],
+  });
+  assert.deepEqual(errors, ["superseded_by cycle: p -> q -> r -> p"]);
+});
+
 test("the repository index passes the CLI", () => {
   const r = spawnSync(process.execPath, [join(repoRoot, "scripts", "check-context-index.mjs")], {
     cwd: repoRoot,

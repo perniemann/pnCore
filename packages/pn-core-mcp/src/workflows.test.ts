@@ -1351,8 +1351,7 @@ describe("workflows contract", () => {
         });
         assertWorkflowStepResultShape(r);
         const w = r as WorkflowStepResult;
-        expect(w.acceptance?.phasesPassed).toBe(true);
-        expect(w.acceptance?.accepted).toBe(false);
+        expect(w.acceptance).toMatchObject({ phasesPassed: true, accepted: false });
         expect(w.instruction).toContain("go_no_go");
       });
 
@@ -1405,7 +1404,7 @@ describe("workflows contract", () => {
         const w = r as WorkflowStepResult;
         expect(w.nextStep).toBe(4);
         expect(w.instruction).toContain("path-a");
-        expect(w.acceptance?.accepted).toBe(true);
+        expect(w.acceptance).toMatchObject({ accepted: true });
       });
 
       it("step 2 attested two survivors proceeds to judge", async () => {
@@ -1445,7 +1444,7 @@ describe("workflows contract", () => {
         assertWorkflowStepResultShape(r);
         const w = r as WorkflowStepResult;
         expect(w.nextStep).toBe(3);
-        expect(w.acceptance?.accepted).toBe(true);
+        expect(w.acceptance).toMatchObject({ accepted: true });
       });
     });
 

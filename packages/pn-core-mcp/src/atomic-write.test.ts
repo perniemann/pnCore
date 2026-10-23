@@ -76,6 +76,7 @@ describe("atomic-write", () => {
     writeFileSync(blocked, "a file, not a directory", "utf-8");
     expect(() => writeFileAtomic(join(blocked, "state.json"), "next")).toThrow();
     expect(readFileSync(target, "utf-8")).toBe("prior");
+    expect(readdirSync(dir).sort()).toEqual(["blocked", "state.json"]);
   });
 
   it("gives up after the attempt cap and caps the backoff", () => {

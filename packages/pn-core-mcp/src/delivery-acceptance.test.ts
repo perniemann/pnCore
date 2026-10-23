@@ -140,6 +140,21 @@ describe("full_dev step 6 delivery ledger and acceptance", () => {
     );
   });
 
+  it("disposeVerify on: a passing attestation without the run's own run_id earns nothing", () => {
+    vi.stubEnv("PNCORE_DISPOSE_VERIFY", "1");
+    const other = attest({ run_id: "some-other-run" });
+    const state = {
+      reviewComplete: gate(),
+      skepticOutputPassed: gate(),
+      verifyAttestationIds: [other],
+    };
+    const missing = fullDevAcceptance(state);
+    expect(missing).toMatchObject({ accepted: false, verifyEarned: false, scope: "source" });
+    expect(missing !== "unearned" && missing.reasons).toContain("run_id_missing");
+    const padded = fullDevAcceptance({ ...state, run_id: " some-other-run " });
+    expect(padded).toMatchObject({ accepted: true, verifyEarned: true, scope: "static" });
+  });
+
   it("disposeVerify on: no attestations, bare or missing gates, and no_go are not accepted", () => {
     vi.stubEnv("PNCORE_DISPOSE_VERIFY", "1");
     const a = fullDevAcceptance({ reviewComplete: true });

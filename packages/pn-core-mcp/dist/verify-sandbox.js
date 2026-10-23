@@ -130,8 +130,53 @@ export function buildBwrapArgv(cwd, argv) {
             binds.push("--ro-bind-try", p, p);
         }
     }
-    binds.push("--bind", cwd, cwd, "--chdir", cwd, "--clearenv", "--setenv", "PATH", process.env.PATH ?? "/usr/bin:/bin", "--setenv", "HOME", cwd, "--setenv", "NODE_ENV", "test", "--setenv", "npm_config_update_notifier", "false", ...argv);
+    binds.push("--bind", cwd, cwd, "--chdir", cwd, ...argv);
     return binds;
+}
+const ENV_NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
+/** Shortest forwarded value that is redacted from output; shorter ones would mask ordinary text. */
+const REDACT_MIN_LENGTH = 4;
+/**
+ * Names the operator lets a verify command receive: PNCORE_VERIFY_PASS_ENV (comma-separated)
+ * in the MCP server env. PNCORE_* names (the approval token among them) are never forwarded,
+ * because the command's output returns to the caller.
+ */
+export function forwardableEnvNames(source = process.env) {
+    return new Set((source.PNCORE_VERIFY_PASS_ENV ?? "")
+        .split(",")
+        .map((n) => n.trim())
+        .filter((n) => ENV_NAME.test(n) && !n.startsWith("PNCORE_")));
+}
+/**
+ * The only environment a verify child sees, on every backend: a fixed minimal set plus the
+ * env_required names the operator allows. Values travel in the spawn env (owner-readable
+ * /proc/<pid>/environ), never in argv (world-readable cmdline).
+ */
+export function verifyChildEnv(cwd, passEnv = [], source = process.env) {
+    const env = {
+        PATH: source.PATH ?? "/usr/bin:/bin",
+        HOME: cwd,
+        NODE_ENV: "test",
+        npm_config_update_notifier: "false",
+    };
+    const allowed = forwardableEnvNames(source);
+    for (const name of passEnv) {
+        const value = source[name];
+        if (allowed.has(name) && typeof value === "string")
+            env[name] = value;
+    }
+    return env;
+}
+/** Replace every forwarded value that appears in `text` with `[REDACTED:<name>]`. */
+export function redactForwarded(text, passEnv, childEnv) {
+    let out = text;
+    for (const name of passEnv) {
+        const value = childEnv[name];
+        if (typeof value === "string" && value.length >= REDACT_MIN_LENGTH) {
+            out = out.split(value).join(`[REDACTED:${name}]`);
+        }
+    }
+    return out;
 }
 export function spawnVerify(opts) {
     const backend = opts.backend ?? resolveSandboxBackend();
@@ -142,14 +187,8 @@ export function spawnVerify(opts) {
     assertSafeArgv(opts.argv, { freeform });
     const timeoutMs = clampTimeoutMs(opts.timeoutMs);
     const spawnArgv = backend === "bubblewrap" ? buildBwrapArgv(opts.cwd, opts.argv) : opts.argv;
-    const env = backend === "bubblewrap"
-        ? undefined
-        : {
-            PATH: process.env.PATH ?? "/usr/bin:/bin",
-            HOME: opts.cwd,
-            NODE_ENV: "test",
-            npm_config_update_notifier: "false",
-        };
+    const passEnv = opts.passEnv ?? [];
+    const env = verifyChildEnv(opts.cwd, passEnv);
     return new Promise((resolve, reject) => {
         let stdout = "";
         let stderr = "";
@@ -186,12 +225,26 @@ export function spawnVerify(opts) {
             resolve({
                 exitCode: timedOut ? 124 : (code ?? 1),
                 timedOut,
-                stdoutTail: tailOutput(stdout),
-                stderrTail: tailOutput(stderr),
+                stdoutTail: tailOutput(redactForwarded(stdout, passEnv, env)),
+                stderrTail: tailOutput(redactForwarded(stderr, passEnv, env)),
                 signal: timedOut ? null : (signal ?? null),
             });
         });
     });
+}
+/** A spawn that never started, as a receipt: ENOENT → 127 and EACCES → 126, like a shell. */
+export function spawnFailureResult(err) {
+    const spawnErrorCode = err.code ?? "SPAWN_FAILED";
+    const spawnError = String(err).slice(0, 500);
+    return {
+        exitCode: spawnErrorCode === "ENOENT" ? 127 : spawnErrorCode === "EACCES" ? 126 : 1,
+        timedOut: false,
+        stdoutTail: "",
+        stderrTail: spawnError,
+        signal: null,
+        spawnErrorCode,
+        spawnError,
+    };
 }
 export function sandboxLabel(backend) {
     if (backend === "bubblewrap")
