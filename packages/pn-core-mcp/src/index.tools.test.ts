@@ -553,6 +553,7 @@ describe("MCP per-tool integration", () => {
       },
     });
     expect(result.isError).toBe(true);
+    expect(JSON.stringify(result.content)).toMatch(/observedBy/);
   });
 
   // ── workflow_usage_totals ────────────────────────────────────────────────

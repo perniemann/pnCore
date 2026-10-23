@@ -50,8 +50,9 @@ export function fullDevAcceptance(state: Record<string, unknown>): Acceptance | 
         )
       : [];
     if (ids.length === 0) reasons.push("no_verify_attestations");
-    const runId = typeof state.run_id === "string" ? state.run_id : null;
-    let allPassed = ids.length > 0;
+    const runId = typeof state.run_id === "string" ? state.run_id.trim() : "";
+    if (!runId) reasons.push("run_id_missing");
+    let allPassed = ids.length > 0 && runId !== "";
     for (const id of ids) {
       const report = loadGateReport(id);
       if (!report) {

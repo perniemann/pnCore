@@ -350,7 +350,7 @@ describe("buildRunTimeline", () => {
           inputTokens: 10,
           outputTokens: 1,
           requestModel: "claude-opus-5-5",
-          responseModel: "claude-opus-5-5",
+          responseModel: " Claude-Opus-5-5 ",
           reasoningEffort: "high",
           observedBy: "agent_claim",
         }),
@@ -380,7 +380,7 @@ describe("buildRunTimeline", () => {
     expect(t.steps[1].models).toEqual([
       {
         requestModel: "claude-opus-5-5",
-        responseModel: "claude-opus-5-5",
+        responseModel: "Claude-Opus-5-5",
         reasoningEffort: "high",
         workerId: null,
         observedBy: "agent_claim",

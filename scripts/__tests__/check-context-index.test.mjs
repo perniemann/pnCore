@@ -63,6 +63,26 @@ test("superseded_by must exist and superseded requires it", () => {
   ]);
 });
 
+test("duplicate ids, stray superseded_by, self-reference, and cycles fail", () => {
+  const errors = lifecycleErrors({
+    pointers: {},
+    artifacts: [
+      art("dup", { lifecycle: "historical" }),
+      art("dup", { lifecycle: "historical" }),
+      art("live", { lifecycle: "current", superseded_by: "dup" }),
+      art("self", { lifecycle: "superseded", superseded_by: "self" }),
+      art("a", { lifecycle: "superseded", superseded_by: "b" }),
+      art("b", { lifecycle: "superseded", superseded_by: "a" }),
+    ],
+  });
+  assert.deepEqual(errors, [
+    'duplicate artifact id "dup"',
+    'artifact "live" has superseded_by but lifecycle current, expected "superseded"',
+    'artifact "self" supersedes itself',
+    "superseded_by cycle: a -> b -> a",
+  ]);
+});
+
 test("the repository index passes the CLI", () => {
   const r = spawnSync(process.execPath, [join(repoRoot, "scripts", "check-context-index.mjs")], {
     cwd: repoRoot,

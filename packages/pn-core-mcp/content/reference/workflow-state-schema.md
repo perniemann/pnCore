@@ -61,7 +61,9 @@ Example (premium lead, parallel specialists):
 
 To enter step 5, state must contain either `specialistsComplete === true` or `taskResults` with an entry for every id in `specialistList`. When **`workflow_step` returns `workflowPhase: "merge"`** at step 5, complete merge work, then call step 5 again with **`mergeComplete: true`** and the same `taskResults` / `specialistList` / `run_id`.
 
-**State shape (full_dev):** `{ run_id?, request?, intent?, discoverySpec?, includeGenerativeMedia?, priorArt?, plan?, planArtifactPath?, planSummary?, skepticPassed?, createGithubIssues?, githubVerticalSlicesComplete?, githubIssuesSkipped?, specialistList?, routeConfirmed?, specialistSequentialComplete?, taskResults?, mergeComplete?, specialistsComplete?, reviewComplete?, skepticOutputPassed?, rollingSummary? }`
+**State shape (full_dev):** `{ run_id?, request?, intent?, discoverySpec?, includeGenerativeMedia?, priorArt?, plan?, planArtifactPath?, planSummary?, skepticPassed?, createGithubIssues?, githubVerticalSlicesComplete?, githubIssuesSkipped?, specialistList?, routeConfirmed?, specialistSequentialComplete?, taskResults?, mergeComplete?, specialistsComplete?, reviewComplete?, skepticOutputPassed?, verifyAttestationIds?, rollingSummary? }`
+
+- **verifyAttestationIds:** `string[]` — `workflow_verify` attestation ids for this run. Step 6 counts them toward server acceptance only when `disposeVerify` or `strictSkepticGates` is on, `run_id` is set, and every id is a passing attestation for that `run_id`.
 
 - **includeGenerativeMedia:** `boolean` — captured at step 0 from the pinned discovery question ("Does this run involve generative media beyond standard UI placeholders — campaigns, film, ComfyUI/T2V pipelines?"). When `true`, step 3 includes `pn-generative-media-director` in `specialistList` and step 4 MUST hand its work off to `workflow_step("media_director", 0, {})` rather than load the agent ad-hoc. No prompt-sniffing — explicit flag only.
 
@@ -436,7 +438,8 @@ When **`disposeVerify`** is true (`PNCORE_FEATURES` or `PNCORE_DISPOSE_VERIFY=1`
 
 - Call **`workflow_verify`** with a catalog `commandId` (`npm_test`, `npm_test_full`, `npm_validate`, `ruff_check`, `pytest`). The server runs argv with **no shell**. A red suite is a completed verify (`ok: true`, `exitCode !== 0`).
 - Tournament step 2 requires **`verifyAttestationIds`** (or `objectiveGateResults[].attestationId`). The server computes `passed` from attested `exitCode`. Agent-supplied `passed` is ignored.
-- **`workflow_step`** may return **`acceptance`**: `{ phasesPassed, verifyEarned, humanEarned, accepted, reasons[] }`. `accepted === false` with `phasesPassed === true` is a first-class result (all candidates red).
+- **`workflow_step`** may return **`acceptance`**: `{ phasesPassed, verifyEarned, humanEarned, accepted, reasons[], scope? }`. `accepted === false` with `phasesPassed === true` is a first-class result (all candidates red). `scope` (`source` < `static` < `runtime` < `product`) is the strongest evidence the server holds; the server never earns more than `static`.
+- **full_dev step 6** returns `acceptance: "unearned"` (a string, no event written) when neither `disposeVerify` nor `strictSkepticGates` is on; the delivery ledger in the instruction is then the only acceptance record.
 - Query attestations with **`workflow_run_query`** (`run_id`). Events live in `.pncore/run-events.jsonl` (`PNCORE_RUN_EVENTS_PATH`).
 
 When **`typedEnvelopes`** is true (`PNCORE_TYPED_ENVELOPES=1`), `taskResults` values for keys starting with `pn-` must be `{ kind: "specialist", specialistId, run_id, summary, filesTouched }` — not a free string. Non-`pn-` keys may remain strings.

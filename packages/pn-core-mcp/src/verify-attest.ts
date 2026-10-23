@@ -5,6 +5,7 @@
 import { randomUUID } from "crypto";
 import { appendFileSync, existsSync, mkdirSync } from "fs";
 import { dirname } from "path";
+import type { AcceptanceScope } from "./acceptance.js";
 import { readFileTail } from "./file-tail.js";
 import { resolveSafePath } from "./safe-path.js";
 
@@ -95,6 +96,7 @@ export type RunEvent =
       humanEarned: boolean;
       accepted: boolean;
       reasons: string[];
+      scope?: AcceptanceScope;
     };
 
 export function defaultRunEventsPath(): string {

@@ -185,7 +185,10 @@ export type RunTimeline = {
   /** Step whose preceding agent work took longest (by sinceLastStepMs). */
   slowest: { stepIndex: number; step: number; sinceLastStepMs: number } | null;
   accepted: boolean | null;
-  /** Usage lines whose observed responseModel differs from the requested model. */
+  /**
+   * Usage lines whose observed responseModel differs from the requested model. Names match
+   * exactly after trimming and case folding; an alias vs a dated snapshot counts as a mismatch.
+   */
   modelMismatches: Array<{
     stepIndex: number;
     step: number;
@@ -221,7 +224,7 @@ function stepIndexForTs(stepTsMs: number[], ts: string): number {
   return idx < 0 ? 0 : idx;
 }
 
-const str = (v: unknown): string | null => (typeof v === "string" && v !== "" ? v : null);
+const str = (v: unknown): string | null => (typeof v === "string" && v.trim() ? v.trim() : null);
 
 function usageModel(u: TrailRecord): TimelineModel | null {
   const requestModel = str(u.requestModel);
@@ -333,7 +336,11 @@ export function buildRunTimeline(runId: string, trails: TimelineTrails): RunTime
   const modelMismatches: RunTimeline["modelMismatches"] = [];
   for (const s of steps) {
     for (const m of s.models ?? []) {
-      if (m.requestModel && m.responseModel && m.requestModel !== m.responseModel) {
+      if (
+        m.requestModel &&
+        m.responseModel &&
+        m.requestModel.toLowerCase() !== m.responseModel.toLowerCase()
+      ) {
         modelMismatches.push({
           stepIndex: s.stepIndex,
           step: s.step,
