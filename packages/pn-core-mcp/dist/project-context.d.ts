@@ -4,7 +4,7 @@
  */
 import { type ActiveRun, type Consistency } from "./active-run.js";
 import { type ArtifactLifecycle, type ArtifactType, type ContextArtifact } from "./context-index.js";
-import { type RunEvent } from "./verify-attest.js";
+import type { RunEvent } from "./verify-attest.js";
 export type DerivedStatus = "ok" | "missing" | "complete_attested" | "drift" | "in_progress" | "unattested";
 export type ArtifactReport = {
     id: string;

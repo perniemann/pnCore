@@ -9,7 +9,6 @@ import { ARTIFACT_TYPES, currentCheckpointId, isEvidenceOnly, loadContextIndex, 
 import { readFileTail } from "./file-tail.js";
 import { trailPaths } from "./run-spans.js";
 import { resolveInside } from "./safe-path.js";
-import { defaultRunEventsPath } from "./verify-attest.js";
 export const RESPONSE_ALIASES = [
     {
         alias: "scr",
@@ -58,10 +57,10 @@ function parseRunEventLine(line) {
 }
 /** Read run-events for a run_id under an arbitrary cwd (tests + MCP handler). */
 export function loadRunEventsForCwd(run_id, cwd = process.cwd(), limit = 80) {
-    const abs = join(cwd, defaultRunEventsPath());
-    if (!existsSync(abs))
+    const safe = resolveInside(cwd, trailPaths().events);
+    if ("error" in safe || !existsSync(safe.resolved))
         return [];
-    const raw = readFileTail(abs, 786_432);
+    const raw = readFileTail(safe.resolved, 786_432);
     const matched = [];
     for (const line of raw.split("\n")) {
         const t = line.trim();

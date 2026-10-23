@@ -23,11 +23,19 @@ export declare function clampTimeoutMs(timeoutMs?: number): number;
 export declare function tailOutput(buf: string): string;
 export declare function buildBwrapArgv(cwd: string, argv: string[]): string[];
 /**
+ * Names the operator lets a verify command receive: PNCORE_VERIFY_PASS_ENV (comma-separated)
+ * in the MCP server env. PNCORE_* names (the approval token among them) are never forwarded,
+ * because the command's output returns to the caller.
+ */
+export declare function forwardableEnvNames(source?: NodeJS.ProcessEnv): Set<string>;
+/**
  * The only environment a verify child sees, on every backend: a fixed minimal set plus the
- * names the caller declared in env_required. Values travel in the spawn env (owner-readable
+ * env_required names the operator allows. Values travel in the spawn env (owner-readable
  * /proc/<pid>/environ), never in argv (world-readable cmdline).
  */
 export declare function verifyChildEnv(cwd: string, passEnv?: readonly string[], source?: NodeJS.ProcessEnv): NodeJS.ProcessEnv;
+/** Replace every forwarded value that appears in `text` with `[REDACTED:<name>]`. */
+export declare function redactForwarded(text: string, passEnv: readonly string[], childEnv: NodeJS.ProcessEnv): string;
 export declare function spawnVerify(opts: {
     argv: string[];
     cwd: string;

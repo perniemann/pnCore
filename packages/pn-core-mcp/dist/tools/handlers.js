@@ -810,11 +810,17 @@ export async function handleWorkflowVerify(args) {
     let preflightId;
     if (args.preflight_only || args.inputs?.length || args.env_required?.length) {
         const event = buildPreflightEvent({
-            ...args,
+            run_id: args.run_id,
             argv,
             cwd: cwdSafe.resolved,
             workspaceRoot: safeBase,
+            inputs: args.inputs,
+            env_required: args.env_required,
             commandId: hasCmd ? args.commandId : undefined,
+            candidate_id: args.candidate_id,
+            owner: args.owner,
+            workflowType: args.workflowType,
+            step: args.step,
         });
         const writtenPre = appendRunEvent(event);
         if ("error" in writtenPre)

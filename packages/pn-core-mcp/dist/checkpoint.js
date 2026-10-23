@@ -11,7 +11,7 @@
  * readers ignore it, so an interrupted save leaves the prior state and handoff consistent.
  */
 import { createHash, randomBytes } from "crypto";
-import { appendFileSync, closeSync, existsSync, linkSync, mkdirSync, openSync, readFileSync, renameSync, statSync, unlinkSync, writeFileSync, } from "fs";
+import { appendFileSync, closeSync, existsSync, mkdirSync, openSync, readFileSync, statSync, unlinkSync, writeFileSync, } from "fs";
 import { dirname } from "path";
 import { writeFileAtomic } from "./atomic-write.js";
 export const META_KEY = "_pncore";
@@ -98,10 +98,41 @@ function readLockToken(lockPath) {
     }
 }
 /**
- * Take the lock, or return null when a fresh lock is held. A stale lock is moved aside to a
- * unique tombstone and kept only if it is still the file that was judged stale (same inode and
- * mtime); a lock created in between is put back, so two writers cannot both take over.
+ * Remove the lock judged stale, holding `<lock>.break` (created exclusive) so only one writer
+ * breaks it, and only if it is still that file (same inode and mtime). Returns false when
+ * another writer is breaking it. A break file left by a crash is cleared once it is stale too.
  */
+function breakStaleLock(lockPath, judged, staleMs, now) {
+    const breakPath = `${lockPath}.break`;
+    try {
+        closeSync(openSync(breakPath, "wx"));
+    }
+    catch (err) {
+        if (err.code !== "EEXIST")
+            throw err;
+        try {
+            if (now.getTime() - statSync(breakPath).mtimeMs >= staleMs)
+                unlinkSync(breakPath);
+        }
+        catch {
+            /* the other breaker finished */
+        }
+        return false;
+    }
+    try {
+        const current = statSync(lockPath);
+        if (current.ino === judged.ino && current.mtimeMs === judged.mtimeMs)
+            unlinkSync(lockPath);
+    }
+    catch {
+        /* already removed */
+    }
+    finally {
+        unlinkSync(breakPath);
+    }
+    return true;
+}
+/** Take the lock, or return null when a fresh lock is held or another writer is breaking it. */
 function acquireLock(lockPath, staleMs, now, onStaleLock) {
     ensureDir(lockPath);
     const token = randomBytes(8).toString("hex");
@@ -130,25 +161,8 @@ function acquireLock(lockPath, staleMs, now, onStaleLock) {
         if (now.getTime() - judged.mtimeMs < staleMs)
             return null;
         onStaleLock?.();
-        const tomb = `${lockPath}.${token}.stale`;
-        try {
-            renameSync(lockPath, tomb);
-        }
-        catch {
-            continue;
-        }
-        const moved = statSync(tomb);
-        if (moved.ino !== judged.ino || moved.mtimeMs !== judged.mtimeMs) {
-            try {
-                linkSync(tomb, lockPath);
-            }
-            catch {
-                /* a third writer already holds a new lock */
-            }
-            unlinkSync(tomb);
+        if (!breakStaleLock(lockPath, judged, staleMs, now))
             return null;
-        }
-        unlinkSync(tomb);
     }
     return null;
 }

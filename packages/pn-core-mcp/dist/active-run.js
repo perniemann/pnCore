@@ -157,7 +157,9 @@ export function computeActiveRun(opts) {
     const paths = trailPaths(env);
     const serveScan = scanRunLog(paths.steps, cwd, "runId");
     const handoffScan = scanRunLog(paths.handoff, cwd, "run_id");
-    for (const err of [serveScan.error, handoffScan.error]) {
+    const eventsSafe = resolveInside(cwd, paths.events);
+    const eventsError = "error" in eventsSafe ? `${eventsSafe.error}: ${paths.events}` : undefined;
+    for (const err of [serveScan.error, handoffScan.error, eventsError]) {
         if (err)
             mismatches.push({ code: "trail_path_rejected", severity: "warn", detail: err });
     }
