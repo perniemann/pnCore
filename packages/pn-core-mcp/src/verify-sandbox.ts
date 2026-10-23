@@ -149,9 +149,27 @@ export function buildBwrapArgv(cwd: string, argv: string[]): string[] {
   return binds;
 }
 
+const ENV_NAME = /^[A-Za-z_][A-Za-z0-9_]*$/;
+/** Shortest forwarded value that is redacted from output; shorter ones would mask ordinary text. */
+const REDACT_MIN_LENGTH = 4;
+
+/**
+ * Names the operator lets a verify command receive: PNCORE_VERIFY_PASS_ENV (comma-separated)
+ * in the MCP server env. PNCORE_* names (the approval token among them) are never forwarded,
+ * because the command's output returns to the caller.
+ */
+export function forwardableEnvNames(source: NodeJS.ProcessEnv = process.env): Set<string> {
+  return new Set(
+    (source.PNCORE_VERIFY_PASS_ENV ?? "")
+      .split(",")
+      .map((n) => n.trim())
+      .filter((n) => ENV_NAME.test(n) && !n.startsWith("PNCORE_"))
+  );
+}
+
 /**
  * The only environment a verify child sees, on every backend: a fixed minimal set plus the
- * names the caller declared in env_required. Values travel in the spawn env (owner-readable
+ * env_required names the operator allows. Values travel in the spawn env (owner-readable
  * /proc/<pid>/environ), never in argv (world-readable cmdline).
  */
 export function verifyChildEnv(
@@ -165,11 +183,28 @@ export function verifyChildEnv(
     NODE_ENV: "test",
     npm_config_update_notifier: "false",
   };
+  const allowed = forwardableEnvNames(source);
   for (const name of passEnv) {
     const value = source[name];
-    if (typeof value === "string") env[name] = value;
+    if (allowed.has(name) && typeof value === "string") env[name] = value;
   }
   return env;
+}
+
+/** Replace every forwarded value that appears in `text` with `[REDACTED:<name>]`. */
+export function redactForwarded(
+  text: string,
+  passEnv: readonly string[],
+  childEnv: NodeJS.ProcessEnv
+): string {
+  let out = text;
+  for (const name of passEnv) {
+    const value = childEnv[name];
+    if (typeof value === "string" && value.length >= REDACT_MIN_LENGTH) {
+      out = out.split(value).join(`[REDACTED:${name}]`);
+    }
+  }
+  return out;
 }
 
 export function spawnVerify(opts: {
@@ -192,7 +227,8 @@ export function spawnVerify(opts: {
   assertSafeArgv(opts.argv, { freeform });
   const timeoutMs = clampTimeoutMs(opts.timeoutMs);
   const spawnArgv = backend === "bubblewrap" ? buildBwrapArgv(opts.cwd, opts.argv) : opts.argv;
-  const env = verifyChildEnv(opts.cwd, opts.passEnv);
+  const passEnv = opts.passEnv ?? [];
+  const env = verifyChildEnv(opts.cwd, passEnv);
 
   return new Promise((resolve, reject) => {
     let stdout = "";
@@ -228,8 +264,8 @@ export function spawnVerify(opts: {
       resolve({
         exitCode: timedOut ? 124 : (code ?? 1),
         timedOut,
-        stdoutTail: tailOutput(stdout),
-        stderrTail: tailOutput(stderr),
+        stdoutTail: tailOutput(redactForwarded(stdout, passEnv, env)),
+        stderrTail: tailOutput(redactForwarded(stderr, passEnv, env)),
         signal: timedOut ? null : (signal ?? null),
       });
     });

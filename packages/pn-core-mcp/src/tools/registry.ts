@@ -298,7 +298,7 @@ export const PN_CORE_TOOLS: ToolDefinition[] = [
   def(
     "workflow_verify",
     "Workflow Verify",
-    "Run a catalog (or policy-checked) verify command with no shell. Returns a GateReport with failureClass (none | missing_input | infrastructure | behavioral); exitCode !== 0 is a completed verify, not a tool error, and failureClass never changes a gate. inputs / env_required are checked immediately before spawn; a failed check records a preflight event and launches nothing. preflight_only runs just the checks (no disposeVerify needed). Spawning requires disposeVerify; fail-closed without a jail unless PNCORE_VERIFY_SANDBOX=restricted or Vitest test backend.",
+    "Run a catalog (or policy-checked) verify command with no shell. Returns a GateReport with failureClass (none | missing_input | infrastructure | behavioral); exitCode !== 0 is a completed verify, not a tool error, and failureClass never changes a gate. inputs / env_required are checked immediately before spawn; a failed check records a preflight event and launches nothing. env_required names must be listed in the server's PNCORE_VERIFY_PASS_ENV to reach the command (PNCORE_* never), and their values are redacted from the output. preflight_only runs just the checks (no disposeVerify needed). Spawning requires disposeVerify; fail-closed without a jail unless PNCORE_VERIFY_SANDBOX=restricted or Vitest test backend.",
     workflowVerifySchema,
     write,
     handleWorkflowVerify

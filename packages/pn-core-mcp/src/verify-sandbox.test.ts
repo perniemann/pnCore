@@ -10,6 +10,7 @@ import {
   spawnVerify,
   tailOutput,
   buildBwrapArgv,
+  redactForwarded,
   verifyChildEnv,
   VerifyPolicyError,
 } from "./verify-sandbox.js";
@@ -140,11 +141,14 @@ describe("spawnVerify", () => {
     ).rejects.toThrow();
   });
 
-  it("passes declared env names to the child and nothing else", async () => {
-    const env = verifyChildEnv("/w", ["API_KEY", "UNSET_ONE"], {
+  it("passes declared, operator-allowed env names to the child and nothing else", async () => {
+    const env = verifyChildEnv("/w", ["API_KEY", "UNSET_ONE", "NOT_LISTED", "PNCORE_SECRET"], {
       PATH: "/bin",
       API_KEY: "s3cret",
+      NOT_LISTED: "y",
+      PNCORE_SECRET: "z",
       OTHER: "x",
+      PNCORE_VERIFY_PASS_ENV: "API_KEY,UNSET_ONE,PNCORE_SECRET",
     });
     expect(env).toEqual({
       PATH: "/bin",
@@ -153,14 +157,22 @@ describe("spawnVerify", () => {
       npm_config_update_notifier: "false",
       API_KEY: "s3cret",
     });
-    vi.stubEnv("PNCORE_TEST_PASSED_VAR", "visible");
+    vi.stubEnv("VERIFY_TEST_PASSED_VAR", "visible");
+    vi.stubEnv("PNCORE_VERIFY_PASS_ENV", "VERIFY_TEST_PASSED_VAR");
     const r = await spawnVerify({
       argv: ["node", join(__dirname, "fixtures", "verify-print-env.mjs")],
       cwd: __dirname,
       backend: "restricted",
-      passEnv: ["PNCORE_TEST_PASSED_VAR"],
+      passEnv: ["VERIFY_TEST_PASSED_VAR"],
     });
-    expect(r.stdoutTail).toBe("visible");
+    expect(r.stdoutTail).toBe("length=7 value=[REDACTED:VERIFY_TEST_PASSED_VAR]");
+  });
+
+  it("redacts forwarded values of at least four characters", () => {
+    const childEnv = { LONG: "abcd", SHORT: "ab" };
+    expect(redactForwarded("x abcd ab abcd", ["LONG", "SHORT", "MISSING"], childEnv)).toBe(
+      "x [REDACTED:LONG] ab [REDACTED:LONG]"
+    );
   });
 
   it("builds a bwrap argv with no env values and tails long buffers", () => {

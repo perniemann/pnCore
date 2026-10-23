@@ -9,6 +9,7 @@ import { accessSync, constants, existsSync, readFileSync, statSync } from "fs";
 import { delimiter, isAbsolute, join, resolve } from "path";
 import { resolveInside } from "./safe-path.js";
 import { newAttestationId, type PreflightCheck, type PreflightEvent } from "./verify-attest.js";
+import { forwardableEnvNames } from "./verify-sandbox.js";
 
 export type PreflightInput = {
   path: string;
@@ -114,12 +115,15 @@ export function runPreflight(opts: {
   const checks: PreflightCheck[] = [checkCommand(opts.argv[0]!, opts.cwd, env, platform)];
   for (const input of opts.inputs ?? [])
     checks.push(checkInput(input, opts.cwd, opts.workspaceRoot));
+  const forwardable = forwardableEnvNames(env);
   for (const name of opts.env_required ?? []) {
     const present = typeof env[name] === "string" && env[name] !== "";
     checks.push(
-      present
-        ? { kind: "env", target: name, ok: true }
-        : { kind: "env", target: name, ok: false, reason: "unset or empty" }
+      !present
+        ? { kind: "env", target: name, ok: false, reason: "unset or empty" }
+        : !forwardable.has(name)
+          ? { kind: "env", target: name, ok: false, reason: "not in PNCORE_VERIFY_PASS_ENV" }
+          : { kind: "env", target: name, ok: true }
     );
   }
   return { ok: checks.every((c) => c.ok), checks };

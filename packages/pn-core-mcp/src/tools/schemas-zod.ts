@@ -477,7 +477,9 @@ export const workflowVerifySchema = {
     .array(z.string().regex(/^[A-Za-z_][A-Za-z0-9_]*$/))
     .max(50)
     .optional()
-    .describe("Preflight: environment variable names that must be set in the MCP server env"),
+    .describe(
+      "Preflight: environment variable names the command needs. Each must be set in the MCP server env and listed by the operator in PNCORE_VERIFY_PASS_ENV (PNCORE_* never qualifies); the value reaches the command and is redacted from stdoutTail/stderrTail"
+    ),
   preflight_only: z
     .boolean()
     .optional()
