@@ -23,9 +23,9 @@ export function trailPaths(env = process.env) {
         steps: env.PNCORE_RUN_LOG || ".pncore/workflow-runs.jsonl",
         loads: ".pncore/skill-load-log.jsonl",
         usage: ".pncore/usage.jsonl",
-        handoff: env.PNCORE_HANDOFF_LOG ?? ".pncore/workflow-handoff.jsonl",
+        handoff: env.PNCORE_HANDOFF_LOG || ".pncore/workflow-handoff.jsonl",
         gate: ".pncore/gate-log.jsonl",
-        events: env.PNCORE_RUN_EVENTS_PATH ?? ".pncore/run-events.jsonl",
+        events: env.PNCORE_RUN_EVENTS_PATH || ".pncore/run-events.jsonl",
     };
 }
 export const TRAIL_SCAN_MAX = 786_432;
@@ -125,7 +125,7 @@ function stepIndexForTs(stepTsMs, ts) {
     }
     return idx < 0 ? 0 : idx;
 }
-const str = (v) => (typeof v === "string" && v !== "" ? v : null);
+const str = (v) => (typeof v === "string" && v.trim() ? v.trim() : null);
 function usageModel(u) {
     const requestModel = str(u.requestModel);
     const responseModel = str(u.responseModel);
@@ -237,7 +237,9 @@ export function buildRunTimeline(runId, trails) {
     const modelMismatches = [];
     for (const s of steps) {
         for (const m of s.models ?? []) {
-            if (m.requestModel && m.responseModel && m.requestModel !== m.responseModel) {
+            if (m.requestModel &&
+                m.responseModel &&
+                m.requestModel.toLowerCase() !== m.responseModel.toLowerCase()) {
                 modelMismatches.push({
                     stepIndex: s.stepIndex,
                     step: s.step,

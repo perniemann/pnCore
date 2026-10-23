@@ -163,6 +163,7 @@ export const typeboxSchemas = {
         expected_revision: Type.Optional(Type.Integer({ minimum: 0 })),
         handoff_path: Type.Optional(Type.String()),
         history: Type.Optional(Type.Boolean()),
+        overwrite_run: Type.Optional(Type.Boolean()),
     }),
     workflow_state_load: Type.Object({
         path: Type.Optional(Type.String()),

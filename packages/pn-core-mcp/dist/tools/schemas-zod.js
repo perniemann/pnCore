@@ -296,7 +296,7 @@ export const workflowStateSaveSchema = {
         .string()
         .min(1)
         .optional()
-        .describe("Commit mode (with step + summary): binds the save to this run; the state file must hold the same run unless expected_revision acknowledges the overwrite"),
+        .describe("Commit mode (with step + summary): binds the save to this run; the state file must hold the same run unless overwrite_run is true"),
     step: z
         .number()
         .int()
@@ -323,6 +323,10 @@ export const workflowStateSaveSchema = {
         .boolean()
         .optional()
         .describe("Commit mode: append the prior state to <path>.history.jsonl before replacing it"),
+    overwrite_run: z
+        .boolean()
+        .optional()
+        .describe("Commit mode: replace a state file that holds a different run (otherwise RUN_MISMATCH)"),
 };
 export const workflowStateLoadSchema = {
     path: z

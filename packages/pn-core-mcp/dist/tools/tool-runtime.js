@@ -53,10 +53,8 @@ export const defaultHumanGateTicketsPath = process.env.PNCORE_HUMAN_GATE_TICKETS
 export const defaultUsagePath = ".pncore/usage.jsonl";
 export const usageScanMaxBytes = tailScanBytesFromEnv(process.env.PNCORE_USAGE_SCAN_BYTES, 786_432);
 export const handoffScanMaxBytes = tailScanBytesFromEnv(process.env.PNCORE_HANDOFF_SCAN_BYTES, 786_432);
-export const defaultHandoffPath = process.env.PNCORE_HANDOFF_LOG ?? ".pncore/workflow-handoff.jsonl";
-export const HANDOFF_SUMMARY_MAX = 4000;
+export const defaultHandoffPath = process.env.PNCORE_HANDOFF_LOG || ".pncore/workflow-handoff.jsonl";
 export const HANDOFF_READ_MAX_LINES = 80;
-export const defaultStatePath = process.env.PNCORE_STATE_PATH ?? ".pncore/workflow-state.json";
 export const runIdOptArg = z
     .string()
     .optional()

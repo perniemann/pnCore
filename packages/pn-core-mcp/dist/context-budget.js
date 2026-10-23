@@ -60,8 +60,8 @@ function worthDropping(section) {
  * A step is skipped when the section it would remove is smaller than the step record itself.
  *
  * `mode`, `version`, `calendarDateUtc`, `context_index`, `counts`, `active_run_id`, `resume`,
- * `active_run`, `consistency`, `drift_scope`, `drift` ids, and `next_incomplete` are never removed. If the packet still exceeds the budget
- * after step 7 the result reports `fits: false`.
+ * `active_run`, `consistency`, `drift_scope`, `drift` ids, and `next_incomplete` are never
+ * removed. If the packet still exceeds the budget after step 7 the result reports `fits: false`.
  */
 export function packProjectContext(packet, maxTokens) {
     const out = {

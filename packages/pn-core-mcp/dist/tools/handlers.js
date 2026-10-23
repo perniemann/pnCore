@@ -13,17 +13,16 @@ import { beginStepSpan, buildRunTimeline, readTrail, roundMs, trailPaths, } from
 import { truncateResourceBody } from "../resource-truncate.js";
 import { disposeVerifyAllowArgvEnabled, disposeVerifyEnabled, loadFeatures } from "../features.js";
 import { resolveCatalogArgv } from "../verify-catalog.js";
-import { VerifyPolicyError, assertSafeArgv, resolveSandboxBackend, sandboxLabel, spawnVerify, } from "../verify-sandbox.js";
+import { VerifyPolicyError, assertSafeArgv, resolveSandboxBackend, sandboxLabel, spawnFailureResult, spawnVerify, } from "../verify-sandbox.js";
 import { appendRunEvent, classifyVerify, newAttestationId, readRunEvents, } from "../verify-attest.js";
-import { runPreflight } from "../verify-preflight.js";
+import { buildPreflightEvent } from "../verify-preflight.js";
 import { readFileTail } from "../file-tail.js";
-import { writeFileAtomic } from "../atomic-write.js";
 import { recordStateSave, resolveStatePath } from "../state-path.js";
-import { commitCheckpoint, splitState } from "../checkpoint.js";
+import { appendHandoffLine, commitArgsError, commitCheckpoint, saveStatePlain, splitState, } from "../checkpoint.js";
 import { appendWorkflowGateLog, createWorkflowGateLogEntry, validateWorkflowConfirmGate, } from "../workflow-gate-log.js";
 import { buildProjectContextPacket } from "../project-context.js";
 import { HARNESS_IDS, HARNESS_LAYOUTS, applyScaffoldPlan, buildScaffoldPlan, detectHarness, instructionsBudgetFor, layoutTable, upsertManagedBlock, } from "../harness.js";
-import { MCP_VERSION, appendSkillLoadLog, defaultGateLogPath, defaultHandoffPath, defaultHumanGateTicketsPath, defaultUsagePath, getContentMaxChars, handoffScanMaxBytes, HANDOFF_READ_MAX_LINES, HANDOFF_SUMMARY_MAX, mcpError, requiredHumanGateWorkflows, resolveSafePath, safeBase, textContent, usageScanMaxBytes, debug, } from "./tool-runtime.js";
+import { MCP_VERSION, appendSkillLoadLog, defaultGateLogPath, defaultHandoffPath, defaultHumanGateTicketsPath, defaultUsagePath, getContentMaxChars, handoffScanMaxBytes, HANDOFF_READ_MAX_LINES, mcpError, requiredHumanGateWorkflows, resolveSafePath, safeBase, textContent, usageScanMaxBytes, debug, } from "./tool-runtime.js";
 function paperclipNotConfigured() {
     return mcpError("INVALID_STATE", "Paperclip not configured. Set PAPERCLIP_API_URL and PAPERCLIP_API_KEY.", { hint: "Get API key from Paperclip agent settings" });
 }
@@ -485,18 +484,8 @@ export async function handleWorkflowHandoffAppend(args) {
     if ("error" in safe)
         return mcpError("PATH_TRAVERSAL", safe.error, { path: rel });
     try {
-        const resolved = safe.resolved;
-        const dir = dirname(resolved);
-        if (!existsSync(dir))
-            mkdirSync(dir, { recursive: true });
-        const entry = {
-            ts: new Date().toISOString(),
-            run_id,
-            step,
-            summary: summary.slice(0, HANDOFF_SUMMARY_MAX),
-        };
-        appendFileSync(resolved, JSON.stringify(entry) + "\n", "utf-8");
-        return textContent(JSON.stringify({ ok: true, path: resolved }));
+        appendHandoffLine(safe.resolved, { ts: new Date().toISOString(), run_id, step, summary });
+        return textContent(JSON.stringify({ ok: true, path: safe.resolved }));
     }
     catch (err) {
         return mcpError("IO_ERROR", String(err), { run_id, step });
@@ -660,12 +649,10 @@ export async function handleWorkflowStateSave(args) {
     if (!target.resolved)
         return mcpError("PATH_TRAVERSAL", target.error ?? "Path rejected", { path: target.requested });
     const path = target.resolved;
-    const commitKeys = [run_id, step, summary].filter((v) => v !== undefined).length;
-    const commitOnly = args.expected_revision !== undefined || args.handoff_path || args.history;
-    if ((commitKeys > 0 && commitKeys < 3) || (commitKeys === 0 && commitOnly)) {
-        return mcpError("INVALID_STATE", "Commit mode needs run_id, step, and summary together (expected_revision, handoff_path, history apply only in commit mode).", { path });
-    }
-    if (commitKeys === 3) {
+    const argsError = commitArgsError(args);
+    if (argsError)
+        return mcpError("INVALID_STATE", argsError, { path });
+    if (run_id !== undefined && step !== undefined && summary !== undefined) {
         const handoffRel = args.handoff_path ?? defaultHandoffPath;
         const handoffSafe = resolveSafePath(handoffRel);
         if ("error" in handoffSafe)
@@ -675,10 +662,11 @@ export async function handleWorkflowStateSave(args) {
             handoffPath: handoffSafe.resolved,
             historyPath: args.history ? `${path}.history.jsonl` : undefined,
             state,
-            run_id: run_id,
-            step: step,
-            summary: summary,
+            run_id,
+            step,
+            summary,
             expected_revision: args.expected_revision,
+            overwrite_run: args.overwrite_run,
         });
         if (!result.ok) {
             const { code, message, current_revision, current_run_id } = result;
@@ -687,12 +675,9 @@ export async function handleWorkflowStateSave(args) {
         recordSave(path, result.run_id);
         return textContent(JSON.stringify({ ...result, mode: "commit", source: target.source }));
     }
-    try {
-        writeFileAtomic(path, JSON.stringify(state));
-    }
-    catch (err) {
-        return mcpError("IO_ERROR", String(err), { path });
-    }
+    const plain = saveStatePlain(path, state);
+    if (!plain.ok)
+        return mcpError(plain.code, plain.message, { path });
     recordSave(path, typeof state.run_id === "string" && state.run_id !== "" ? state.run_id : null);
     return textContent(JSON.stringify({ ok: true, mode: "plain", path, source: target.source }));
 }
@@ -824,33 +809,17 @@ export async function handleWorkflowVerify(args) {
     }
     let preflightId;
     if (args.preflight_only || args.inputs?.length || args.env_required?.length) {
-        const pre = runPreflight({
+        const event = buildPreflightEvent({
+            ...args,
             argv,
             cwd: cwdSafe.resolved,
             workspaceRoot: safeBase,
-            inputs: args.inputs,
-            env_required: args.env_required,
-        });
-        const event = {
-            kind: "preflight",
-            run_id: args.run_id,
-            ts: new Date().toISOString(),
-            preflightId: newAttestationId(),
-            ok: pre.ok,
-            failureClass: pre.ok ? "none" : "missing_input",
-            checks: pre.checks,
-            argv,
-            cwd: cwdSafe.resolved,
             commandId: hasCmd ? args.commandId : undefined,
-            candidate_id: args.candidate_id,
-            owner: args.owner,
-            workflowType: args.workflowType,
-            step: args.step,
-        };
+        });
         const writtenPre = appendRunEvent(event);
         if ("error" in writtenPre)
             return mcpError("PATH_TRAVERSAL", writtenPre.error, {});
-        if (args.preflight_only || !pre.ok) {
+        if (args.preflight_only || !event.ok) {
             return textContent(JSON.stringify({ launched: false, ...event }));
         }
         preflightId = event.preflightId;
@@ -861,28 +830,19 @@ export async function handleWorkflowVerify(args) {
     }
     const startedAt = new Date().toISOString();
     let spawned;
-    let spawnErrorCode = null;
-    let spawnError;
     try {
         spawned = await spawnVerify({
             argv,
             cwd: cwdSafe.resolved,
             timeoutMs: args.timeoutMs,
             backend,
+            passEnv: args.env_required,
         });
     }
     catch (err) {
         if (err instanceof VerifyPolicyError)
             return mcpError(err.code, err.message, {});
-        spawnErrorCode = err.code ?? "SPAWN_FAILED";
-        spawnError = String(err).slice(0, 500);
-        spawned = {
-            exitCode: spawnErrorCode === "ENOENT" ? 127 : spawnErrorCode === "EACCES" ? 126 : 1,
-            timedOut: false,
-            stdoutTail: "",
-            stderrTail: spawnError,
-            signal: null,
-        };
+        spawned = spawnFailureResult(err);
     }
     const finishedAt = new Date().toISOString();
     const report = {
@@ -902,9 +862,9 @@ export async function handleWorkflowVerify(args) {
         workflowType: args.workflowType,
         step: args.step,
         sandbox: sandboxLabel(backend),
-        failureClass: classifyVerify({ ...spawned, spawnErrorCode }),
+        failureClass: classifyVerify(spawned),
         signal: spawned.signal,
-        ...(spawnError ? { spawnError } : {}),
+        ...(spawned.spawnError ? { spawnError: spawned.spawnError } : {}),
         ...(preflightId ? { preflightId } : {}),
         ...(args.owner ? { owner: args.owner } : {}),
     };
@@ -929,7 +889,7 @@ export async function handleWorkflowRunQuery(args) {
     // when the caller only asked for other kinds.
     const result = readRunEvents(runId, {
         path: args.path,
-        kinds: ["verify", "acceptance", "preflight"],
+        kinds: ["verify", "acceptance", ...(kinds.includes("preflight") ? ["preflight"] : [])],
         limit: 200,
     });
     if ("error" in result)

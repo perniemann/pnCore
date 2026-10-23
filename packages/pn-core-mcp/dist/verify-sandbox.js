@@ -130,8 +130,27 @@ export function buildBwrapArgv(cwd, argv) {
             binds.push("--ro-bind-try", p, p);
         }
     }
-    binds.push("--bind", cwd, cwd, "--chdir", cwd, "--clearenv", "--setenv", "PATH", process.env.PATH ?? "/usr/bin:/bin", "--setenv", "HOME", cwd, "--setenv", "NODE_ENV", "test", "--setenv", "npm_config_update_notifier", "false", ...argv);
+    binds.push("--bind", cwd, cwd, "--chdir", cwd, ...argv);
     return binds;
+}
+/**
+ * The only environment a verify child sees, on every backend: a fixed minimal set plus the
+ * names the caller declared in env_required. Values travel in the spawn env (owner-readable
+ * /proc/<pid>/environ), never in argv (world-readable cmdline).
+ */
+export function verifyChildEnv(cwd, passEnv = [], source = process.env) {
+    const env = {
+        PATH: source.PATH ?? "/usr/bin:/bin",
+        HOME: cwd,
+        NODE_ENV: "test",
+        npm_config_update_notifier: "false",
+    };
+    for (const name of passEnv) {
+        const value = source[name];
+        if (typeof value === "string")
+            env[name] = value;
+    }
+    return env;
 }
 export function spawnVerify(opts) {
     const backend = opts.backend ?? resolveSandboxBackend();
@@ -142,14 +161,7 @@ export function spawnVerify(opts) {
     assertSafeArgv(opts.argv, { freeform });
     const timeoutMs = clampTimeoutMs(opts.timeoutMs);
     const spawnArgv = backend === "bubblewrap" ? buildBwrapArgv(opts.cwd, opts.argv) : opts.argv;
-    const env = backend === "bubblewrap"
-        ? undefined
-        : {
-            PATH: process.env.PATH ?? "/usr/bin:/bin",
-            HOME: opts.cwd,
-            NODE_ENV: "test",
-            npm_config_update_notifier: "false",
-        };
+    const env = verifyChildEnv(opts.cwd, opts.passEnv);
     return new Promise((resolve, reject) => {
         let stdout = "";
         let stderr = "";
@@ -192,6 +204,20 @@ export function spawnVerify(opts) {
             });
         });
     });
+}
+/** A spawn that never started, as a receipt: ENOENT → 127 and EACCES → 126, like a shell. */
+export function spawnFailureResult(err) {
+    const spawnErrorCode = err.code ?? "SPAWN_FAILED";
+    const spawnError = String(err).slice(0, 500);
+    return {
+        exitCode: spawnErrorCode === "ENOENT" ? 127 : spawnErrorCode === "EACCES" ? 126 : 1,
+        timedOut: false,
+        stdoutTail: "",
+        stderrTail: spawnError,
+        signal: null,
+        spawnErrorCode,
+        spawnError,
+    };
 }
 export function sandboxLabel(backend) {
     if (backend === "bubblewrap")

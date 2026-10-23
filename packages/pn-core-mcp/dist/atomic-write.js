@@ -59,7 +59,7 @@ export function writeFileAtomic(path, data, deps = {}) {
             unlinkSync(tmp);
         }
         catch {
-            /* never created or already renamed */
+            /* never created */
         }
         throw err;
     }

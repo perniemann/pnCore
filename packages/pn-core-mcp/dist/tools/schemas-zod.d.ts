@@ -285,6 +285,7 @@ export declare const workflowStateSaveSchema: {
     readonly expected_revision: z.ZodOptional<z.ZodNumber>;
     readonly handoff_path: z.ZodOptional<z.ZodString>;
     readonly history: z.ZodOptional<z.ZodBoolean>;
+    readonly overwrite_run: z.ZodOptional<z.ZodBoolean>;
 };
 export declare const workflowStateLoadSchema: {
     readonly path: z.ZodOptional<z.ZodString>;
@@ -352,11 +353,11 @@ export declare const workflowRunQuerySchema: {
     readonly run_id: z.ZodString;
     readonly kinds: z.ZodOptional<z.ZodArray<z.ZodEnum<{
         step: "step";
-        verify: "verify";
+        gate: "gate";
         acceptance: "acceptance";
+        verify: "verify";
         preflight: "preflight";
         handoff: "handoff";
-        gate: "gate";
         usage: "usage";
         load: "load";
     }>>>;
