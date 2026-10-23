@@ -83,6 +83,20 @@ test("duplicate ids, stray superseded_by, self-reference, and cycles fail", () =
   ]);
 });
 
+test("longer cycles are reported once; a chain into a cycle flags only the cycle", () => {
+  const errors = lifecycleErrors({
+    pointers: {},
+    artifacts: [
+      art("d", { lifecycle: "superseded", superseded_by: "p" }),
+      art("p", { lifecycle: "superseded", superseded_by: "q" }),
+      art("q", { lifecycle: "superseded", superseded_by: "r" }),
+      art("r", { lifecycle: "superseded", superseded_by: "p" }),
+      { type: "plan", path: "docs/no-id.md", lifecycle: "historical" },
+    ],
+  });
+  assert.deepEqual(errors, ["superseded_by cycle: p -> q -> r -> p"]);
+});
+
 test("the repository index passes the CLI", () => {
   const r = spawnSync(process.execPath, [join(repoRoot, "scripts", "check-context-index.mjs")], {
     cwd: repoRoot,

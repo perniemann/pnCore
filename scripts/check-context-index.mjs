@@ -30,7 +30,7 @@ export const ID_POINTERS = new Set(["current_checkpoint"]);
 export function lifecycleErrors(index) {
   const errors = [];
   const artifacts = Array.isArray(index?.artifacts)
-    ? index.artifacts.filter((a) => a && typeof a === "object")
+    ? index.artifacts.filter((a) => a && typeof a === "object" && typeof a.id === "string")
     : [];
   const byId = new Map();
   for (const a of artifacts) {

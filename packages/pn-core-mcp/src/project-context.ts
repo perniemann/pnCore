@@ -18,7 +18,7 @@ import {
 import { readFileTail } from "./file-tail.js";
 import { trailPaths } from "./run-spans.js";
 import { resolveInside } from "./safe-path.js";
-import { defaultRunEventsPath, type RunEvent } from "./verify-attest.js";
+import type { RunEvent } from "./verify-attest.js";
 
 export type DerivedStatus =
   "ok" | "missing" | "complete_attested" | "drift" | "in_progress" | "unattested";
@@ -135,9 +135,9 @@ export function loadRunEventsForCwd(
   cwd: string = process.cwd(),
   limit: number = 80
 ): RunEvent[] {
-  const abs = join(cwd, defaultRunEventsPath());
-  if (!existsSync(abs)) return [];
-  const raw = readFileTail(abs, 786_432);
+  const safe = resolveInside(cwd, trailPaths().events);
+  if ("error" in safe || !existsSync(safe.resolved)) return [];
+  const raw = readFileTail(safe.resolved, 786_432);
   const matched: RunEvent[] = [];
   for (const line of raw.split("\n")) {
     const t = line.trim();

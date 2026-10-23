@@ -50,6 +50,15 @@ describe("state-path", () => {
     expect(outside.error).toContain("workspace root");
   });
 
+  it("rejects the workspace root and existing directories as the state path", () => {
+    mkdirSync(join(cwd, ".pncore"));
+    for (const arg of [".", "./", cwd, ".pncore"]) {
+      const r = resolveStatePath({ arg, cwd, env: {} });
+      expect(r.resolved).toBeNull();
+      expect(r.error).toContain("must be a file inside the workspace");
+    }
+  });
+
   it("records saves append-only and reads back the newest", () => {
     expect(readLastStateSave(cwd)).toBeNull();
     recordStateSave(join(cwd, ".pncore", "a.json"), "run-a", cwd);

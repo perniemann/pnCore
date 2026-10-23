@@ -459,6 +459,7 @@ describe("project-context active run and consistency", () => {
     delete process.env.PNCORE_STATE_PATH;
     delete process.env.PNCORE_RUN_LOG;
     delete process.env.PNCORE_HANDOFF_LOG;
+    delete process.env.PNCORE_RUN_EVENTS_PATH;
   });
 
   afterEach(() => {
@@ -481,6 +482,16 @@ describe("project-context active run and consistency", () => {
     expect(notable(p)).toEqual([]);
     expect(p.drift_scope).toBe("indexed_files");
     expect(p.active_run_id).toBe("run-a");
+    expect(p.counts.historical).toBe(0);
+  });
+
+  it("the last served step is the newest by timestamp, not the last line", () => {
+    writeJson(".pncore/workflow-state.json", { run_id: "run-a" });
+    writeJsonl(".pncore/workflow-runs.jsonl", [
+      serve("run-a", 3, "2026-10-01T10:05:00.000Z"),
+      serve("run-a", 2, "2026-10-01T10:00:00.000Z"),
+    ]);
+    expect(buildProjectContextPacket({ cwd }).active_run.last_served_step).toBe(3);
   });
 
   it("stale default state with a save to a custom path raises a mismatch while drift is 0", () => {
@@ -663,13 +674,33 @@ describe("project-context active run and consistency", () => {
     writeJson(".pncore/workflow-state.json", { run_id: "run-a" });
     process.env.PNCORE_RUN_LOG = "../outside-runs.jsonl";
     process.env.PNCORE_HANDOFF_LOG = "../outside-handoff.jsonl";
+    process.env.PNCORE_RUN_EVENTS_PATH = "../outside-events.jsonl";
     const p = buildProjectContextPacket({ cwd });
-    expect(notable(p)).toEqual([
-      expect.objectContaining({ code: "trail_path_rejected", severity: "warn" }),
-      expect.objectContaining({ code: "trail_path_rejected", severity: "warn" }),
+    expect(notable(p).map((m) => [m.code, m.severity])).toEqual([
+      ["trail_path_rejected", "warn"],
+      ["trail_path_rejected", "warn"],
+      ["trail_path_rejected", "warn"],
     ]);
     expect(p.active_run.run_id).toBe("run-a");
     expect(p.trail).toEqual([]);
+  });
+
+  it("reads run events from an absolute PNCORE_RUN_EVENTS_PATH inside the workspace", () => {
+    const abs = join(cwd, ".pncore", "custom-events.jsonl");
+    writeFileSync(
+      abs,
+      JSON.stringify({
+        kind: "verify",
+        run_id: "r1",
+        argv: ["npm", "test"],
+        exitCode: 0,
+        attestationId: "a1",
+        finishedAt: "2026-01-01T00:00:00Z",
+      }) + "\n",
+      "utf-8"
+    );
+    process.env.PNCORE_RUN_EVENTS_PATH = abs;
+    expect(loadRunEventsForCwd("r1", cwd).map((e) => e.run_id)).toEqual(["r1"]);
   });
 
   it("an unreadable handoff.md or a state-saves log without valid lines is ignored", () => {
