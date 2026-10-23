@@ -8,7 +8,7 @@ import { createHash } from "crypto";
 import { accessSync, constants, existsSync, readFileSync, statSync } from "fs";
 import { delimiter, isAbsolute, join, resolve } from "path";
 import { resolveInside } from "./safe-path.js";
-import type { PreflightCheck } from "./verify-attest.js";
+import { newAttestationId, type PreflightCheck, type PreflightEvent } from "./verify-attest.js";
 
 export type PreflightInput = {
   path: string;
@@ -28,6 +28,14 @@ const ACCESS_REASON = {
   execute: "not executable",
 } as const;
 
+function isFile(path: string): boolean {
+  try {
+    return statSync(path).isFile();
+  } catch {
+    return false;
+  }
+}
+
 function canAccess(path: string, mode: number): boolean {
   try {
     accessSync(path, mode);
@@ -46,7 +54,7 @@ function findOnPath(cmd: string, env: NodeJS.ProcessEnv, platform: NodeJS.Platfo
   for (const dir of dirs) {
     for (const ext of exts) {
       const candidate = join(dir, cmd + ext);
-      if (!existsSync(candidate)) continue;
+      if (!isFile(candidate)) continue;
       if (platform === "win32" || canAccess(candidate, constants.X_OK)) return true;
     }
   }
@@ -61,7 +69,7 @@ function checkCommand(
 ): PreflightCheck {
   const isPath = argv0.includes("/") || argv0.includes("\\") || isAbsolute(argv0);
   const ok = isPath
-    ? existsSync(resolve(cwd, argv0)) && canAccess(resolve(cwd, argv0), constants.X_OK)
+    ? isFile(resolve(cwd, argv0)) && canAccess(resolve(cwd, argv0), constants.X_OK)
     : findOnPath(argv0, env, platform);
   return ok
     ? { kind: "command", target: argv0, ok }
@@ -83,10 +91,10 @@ function checkInput(input: PreflightInput, cwd: string, workspaceRoot: string): 
     return { kind: "input", target, ok: false, reason: ACCESS_REASON[input.access] };
   }
   if (input.sha256) {
-    if (!statSync(abs).isFile()) return { kind: "input", target, ok: false, reason: "not a file" };
+    if (!isFile(abs)) return { kind: "input", target, ok: false, reason: "not a file" };
     const actual = createHash("sha256").update(readFileSync(abs)).digest("hex");
     if (actual !== input.sha256.toLowerCase()) {
-      return { kind: "input", target, ok: false, reason: `sha256 mismatch (actual ${actual})` };
+      return { kind: "input", target, ok: false, reason: "sha256 mismatch" };
     }
   }
   return { kind: "input", target, ok: true };
@@ -115,4 +123,37 @@ export function runPreflight(opts: {
     );
   }
   return { ok: checks.every((c) => c.ok), checks };
+}
+
+/** Run the preflight checks and build the `kind: "preflight"` run event for them. */
+export function buildPreflightEvent(opts: {
+  run_id: string;
+  argv: string[];
+  cwd: string;
+  workspaceRoot: string;
+  inputs?: PreflightInput[];
+  env_required?: string[];
+  commandId?: string;
+  candidate_id?: string;
+  owner?: string;
+  workflowType?: string;
+  step?: number;
+}): PreflightEvent {
+  const { ok, checks } = runPreflight(opts);
+  return {
+    kind: "preflight",
+    run_id: opts.run_id,
+    ts: new Date().toISOString(),
+    preflightId: newAttestationId(),
+    ok,
+    failureClass: ok ? "none" : "missing_input",
+    checks,
+    argv: opts.argv,
+    cwd: opts.cwd,
+    commandId: opts.commandId,
+    candidate_id: opts.candidate_id,
+    owner: opts.owner,
+    workflowType: opts.workflowType,
+    step: opts.step,
+  };
 }

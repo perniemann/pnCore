@@ -10,6 +10,7 @@ import {
   spawnVerify,
   tailOutput,
   buildBwrapArgv,
+  verifyChildEnv,
   VerifyPolicyError,
 } from "./verify-sandbox.js";
 
@@ -139,10 +140,34 @@ describe("spawnVerify", () => {
     ).rejects.toThrow();
   });
 
-  it("builds a bwrap argv and tails long buffers", () => {
+  it("passes declared env names to the child and nothing else", async () => {
+    const env = verifyChildEnv("/w", ["API_KEY", "UNSET_ONE"], {
+      PATH: "/bin",
+      API_KEY: "s3cret",
+      OTHER: "x",
+    });
+    expect(env).toEqual({
+      PATH: "/bin",
+      HOME: "/w",
+      NODE_ENV: "test",
+      npm_config_update_notifier: "false",
+      API_KEY: "s3cret",
+    });
+    vi.stubEnv("PNCORE_TEST_PASSED_VAR", "visible");
+    const r = await spawnVerify({
+      argv: ["node", join(__dirname, "fixtures", "verify-print-env.mjs")],
+      cwd: __dirname,
+      backend: "restricted",
+      passEnv: ["PNCORE_TEST_PASSED_VAR"],
+    });
+    expect(r.stdoutTail).toBe("visible");
+  });
+
+  it("builds a bwrap argv with no env values and tails long buffers", () => {
     const argv = buildBwrapArgv(passCwd, ["npm", "test"]);
     expect(argv[0]).toBe("bwrap");
     expect(argv).toContain("--unshare-net");
+    expect(argv).not.toContain("--setenv");
     expect(argv.slice(-2)).toEqual(["npm", "test"]);
     expect(tailOutput("short")).toBe("short");
     expect(tailOutput("n".repeat(9000)).length).toBe(8192);

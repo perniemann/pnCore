@@ -157,4 +157,37 @@ describe("handleWorkflowVerify preflight and failure classes", () => {
     expect(fail.failureClass).toBe("behavioral");
     expect(fail.preflightId).toBeUndefined();
   });
+
+  it("a command that cannot spawn yields a receipt classified missing_input", async () => {
+    vi.stubEnv("PNCORE_DISPOSE_VERIFY", "1");
+    vi.stubEnv("PNCORE_DISPOSE_VERIFY_ALLOW_ARGV", "1");
+    vi.stubEnv("PNCORE_RUN_EVENTS_PATH", events);
+    const r = await handleWorkflowVerify({
+      run_id: "run-spawn",
+      argv: ["npm", "test"],
+      cwd: "pncore-missing-dir-xyz",
+    });
+    expect(r.isError).toBeFalsy();
+    const body = parse(r);
+    expect(body).toMatchObject({ ok: true, exitCode: 127, failureClass: "missing_input" });
+    expect(String(body.spawnError)).toMatch(/ENOENT/);
+  });
+
+  it("variables named in env_required reach the command", async () => {
+    vi.stubEnv("PNCORE_DISPOSE_VERIFY", "1");
+    vi.stubEnv("PNCORE_DISPOSE_VERIFY_ALLOW_ARGV", "1");
+    vi.stubEnv("PNCORE_RUN_EVENTS_PATH", events);
+    vi.stubEnv("PNCORE_TEST_PASSED_VAR", "visible");
+    const argv = ["node", join(__dirname, "fixtures", "verify-print-env.mjs")];
+    const withEnv = parse(
+      await handleWorkflowVerify({
+        run_id: "run-env",
+        argv,
+        env_required: ["PNCORE_TEST_PASSED_VAR"],
+      })
+    );
+    expect(withEnv).toMatchObject({ exitCode: 0, stdoutTail: "visible" });
+    const without = parse(await handleWorkflowVerify({ run_id: "run-env", argv }));
+    expect(without.stdoutTail).toBe("absent");
+  });
 });

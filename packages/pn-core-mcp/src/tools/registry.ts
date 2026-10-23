@@ -282,7 +282,7 @@ export const PN_CORE_TOOLS: ToolDefinition[] = [
   def(
     "workflow_state_save",
     "Workflow State Save",
-    "Save workflow state atomically (resume after disconnect). Path: path > PNCORE_STATE_PATH > .pncore/workflow-state.json, inside the workspace. Commit mode (run_id + step + summary, optional expected_revision): one call appends the handoff line and commits the state under revision N+1, refuses stale revisions (REVISION_CONFLICT), another run's file (RUN_MISMATCH), or a concurrent save (LOCKED), and returns revision + hashes read back from disk. Plain mode (state only) writes the file without a revision.",
+    "Save workflow state atomically (resume after disconnect). Path: path > PNCORE_STATE_PATH > .pncore/workflow-state.json, inside the workspace. Commit mode (run_id + step + summary, optional expected_revision): one call appends the handoff line and commits the state under revision N+1, refuses stale revisions (REVISION_CONFLICT), another run's file unless overwrite_run (RUN_MISMATCH), or a concurrent save (LOCKED), and returns revision + hashes read back from disk. Plain mode (state only) writes the file under the same lock without a revision.",
     workflowStateSaveSchema,
     { readOnlyHint: false, destructiveHint: false, idempotentHint: false },
     handleWorkflowStateSave

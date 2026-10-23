@@ -21,12 +21,14 @@ The skeptic review of the first plan rejected two new tools (`checkpoint_commit`
 
 ## Decision
 
-1. **Commit mode on the existing tool.** `workflow_state_save` with `run_id`, `step`, and `summary` (all three, or none) runs one protocol under a sibling lockfile `<state>.lock` (`open(wx)`; a lock older than 30 s is treated as stale and taken over):
-   1. Read the prior revision from the state envelope `_pncore: { revision, run_id, step, savedAt, stateHash }` (absent = revision 0).
+1. **Commit mode on the existing tool.** `workflow_state_save` with `run_id`, `step`, and `summary` (all three, or none) runs one protocol under a sibling lockfile `<state>.lock` (`open(wx)`, holding a random token; a lock older than 30 s is stale and is taken over by renaming it to a unique tombstone and keeping it only if it is still the same file, by inode and mtime, so two writers cannot both take over; release deletes the lock only when the token is still the holder's):
+   1. Read the prior revision from the state envelope `_pncore: { revision, run_id, step, savedAt, stateHash }` (absent = revision 0). A file that is not a JSON object returns `PARSE_ERROR` unless `expected_revision: 0` acknowledges replacing it (`history: true` keeps its raw bytes).
    2. `expected_revision`, when given, must equal it, or the call returns `REVISION_CONFLICT` and writes nothing.
-   3. Run binding: a file holding another run (envelope or legacy `run_id`) returns `RUN_MISMATCH` unless `expected_revision` acknowledges the overwrite. A state body whose `run_id` disagrees with `run_id` returns `RUN_MISMATCH` too.
+   3. Run binding: a file holding another run (envelope or legacy `run_id`) returns `RUN_MISMATCH` unless `overwrite_run: true` is passed. `expected_revision` alone does not acknowledge it, because the engine asks for `expected_revision` on every save. A state body whose `run_id` disagrees with `run_id` returns `RUN_MISMATCH` too.
    4. Append the handoff line `{ ts, run_id, step, summary, revision: N+1, stateHash }`.
    5. Optional `history: true` appends the prior state to `<state>.history.jsonl`.
+
+   Plain mode (state only) takes the same lock and drops any caller-supplied `_pncore`, so a stale revision cannot be written back.
    6. Atomic state write (`writeFileAtomic`: unique temp file, fsync, rename; transient win32 `EPERM` / `EBUSY` / `EACCES` retried with bounded backoff). **The rename is the only commit point.**
    7. Read back and compare revision and hash. Return `{ revision, previous_revision, stateHash, handoffHash, readBack }`.
 2. **Readers treat uncommitted lines as absent.** A handoff line whose `revision` is above the state file's revision for the same run came from an interrupted commit (step 4 ran, step 6 did not). `project_context` ignores it for `last_completed_step` and reports `handoff_revision_ahead` (warn). A state file without an envelope is reported as `state_unversioned` (info only; plain saves stay legal).
@@ -34,12 +36,12 @@ The skeptic review of the first plan rejected two new tools (`checkpoint_commit`
 4. **The engine asks for one call.** `HANDOFF_AFTER_STEP` points at commit mode (with `expected_revision` and the `REVISION_CONFLICT` retry) and keeps `workflow_handoff_append` only as the fallback when commit mode is unavailable.
 5. **Verify failure classes, diagnostic only.** `GateReport.failureClass` is one of:
    - `none`
-   - `missing_input`: exit 126/127, `ENOENT` on spawn, or a failed preflight
+   - `missing_input`: exit 126/127, `ENOENT` or `EACCES` on spawn, or a failed preflight
    - `infrastructure`: timeout, signal, or another spawn error
    - `behavioral`: the command ran and exited non-zero
 
    Gates still pass on exit 0 alone. No class refunds an attempt or relaxes a gate, so classification cannot be gamed into a pass. Spawn errors now produce a receipt instead of an `IO_ERROR`.
-6. **In-call preflight, no new tool.** `workflow_verify` accepts `inputs: [{ path, sha256?, access? }]`, `env_required: [names]`, and `owner`. They are checked in the same call immediately before spawn, together with the command itself (on `PATH` or by path). A failed check appends a `kind: "preflight"` run event and returns `launched: false` without spawning; a passing preflight links to the verify receipt via `preflightId`. `preflight_only: true` runs just the checks and works with `disposeVerify` off, since it executes nothing. `workflow_run_query` gains `kinds: ["preflight"]`.
+6. **In-call preflight, no new tool.** `workflow_verify` accepts `inputs: [{ path, sha256?, access? }]`, `env_required: [names]`, and `owner`. Inputs and environment variables are checked in the same call immediately before spawn, together with the command itself (on `PATH` or by path). A failed check appends a `kind: "preflight"` run event and returns `launched: false` without spawning; a passing preflight links to the verify receipt via `preflightId`. `preflight_only: true` runs just the checks and works with `disposeVerify` off, since it executes nothing. `workflow_run_query` gains `kinds: ["preflight"]`. `owner` is recorded on the event and receipt, not checked. Variables named in `env_required` are passed to the child, which otherwise sees only a fixed minimal environment; values go through the spawn environment, never argv.
 
 Tool count stays at 29.
 
@@ -51,10 +53,10 @@ Tool count stays at 29.
   - An interrupted save leaves the prior state authoritative.
   - A red verify says whether to fix code, fix the environment, or fetch an input. The preflight cannot drift from the spawn because they are the same call.
 - **Negative / open:**
-  - The lock is advisory and local. Two machines on a network share, or a writer that bypasses the tool, are not serialized.
+  - The lock is advisory and local. Two machines on a network share, or a writer that bypasses the tool, are not serialized. A lock is held for one synchronous save, so the stale takeover only matters after a crash.
   - The 30 s stale timeout means a crashed writer blocks saves for up to 30 s.
   - Plain-mode saves drop the envelope, so mixing modes resets the revision to 0. Callers that want CAS must stay in commit mode.
-  - `env_required` checks the MCP server's environment. Under the restricted sandbox the child gets a minimal env, so a present variable is not necessarily visible to the command.
+  - `env_required` values must be present in the MCP server's environment to be passed on.
   - The fsync covers the file, not the directory entry. On power loss a POSIX filesystem can still lose the rename, though never mix old and new content.
 
 ## References

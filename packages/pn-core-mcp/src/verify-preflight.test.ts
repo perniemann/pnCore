@@ -74,7 +74,7 @@ describe("runPreflight", () => {
       "input:data.txt:not executable",
       "input:gone.txt:missing",
       "input:../escape.txt:outside workspace",
-      `input:data.txt:sha256 mismatch (actual ${good})`,
+      "input:data.txt:sha256 mismatch",
       "input:bin:not a file",
     ]);
   });
