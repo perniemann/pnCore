@@ -16,6 +16,8 @@ Fixes from an independent review of 0.19.10–0.19.12.
 - `workflow_verify` passes `env_required` variables to the command on every backend, through the spawn environment (never argv), when the operator lists them in **`PNCORE_VERIFY_PASS_ENV`** (comma-separated). `PNCORE_*` names, the approval token among them, are never forwarded. A required name outside the list fails preflight with `not in PNCORE_VERIFY_PASS_ENV`, and forwarded values are redacted from `stdoutTail` / `stderrTail`. Previously the check ran against the server's environment while the command never saw the variable. `owner` is recorded, not checked. A spawn `EACCES` is classified `missing_input`, like exit 126.
 - full_dev step 6 earns verify only when `state.run_id` is set (reason `run_id_missing` otherwise); `run_id` is trimmed before matching attestations.
 - `npm run check:context-index` also rejects duplicate artifact ids, `superseded_by` on an artifact that is not `superseded`, self-references, and `superseded_by` cycles. `npm run check:artifact-status` skips `historical` / `superseded` artifacts, matching `project_context`.
+- `project-context.ts` split into `active-run.ts` (run selection, consistency) and `context-index.ts` (index shape, lifecycle): 911 → 465 lines. Commit-arg validation, plain save, and the handoff line writer moved into `checkpoint.ts`; preflight event building and the spawn-failure receipt left `handlers.ts` (1202 → 1168 lines).
+- Root `@modelcontextprotocol/sdk` floor raised to `^1.32.1`.
 
 ### Fixed
 
@@ -26,11 +28,6 @@ Fixes from an independent review of 0.19.10–0.19.12.
 - A `current_checkpoint` pointing at a historical artifact could become `next_incomplete`; a run that also owns the current checkpoint was flagged `historical_entry_selected`.
 - `resume_run_bound` matched `run-1` inside `run-10`. `modelMismatches` compares trimmed, case-folded names. `counts.historical` is always present.
 - Preflight no longer accepts a directory as the command and no longer echoes the actual hash on a sha256 mismatch. `workflow_run_query` loads preflight events only when `kinds` asks for them.
-
-### Internal
-
-- `project-context.ts` split into `active-run.ts` (run selection, consistency) and `context-index.ts` (index shape, lifecycle): 911 → 465 lines. Commit-arg validation, plain save, and the handoff line writer moved into `checkpoint.ts`; preflight event building and the spawn-failure receipt left `handlers.ts` (1202 → 1168 lines).
-- Root `@modelcontextprotocol/sdk` floor raised to `^1.32.1`.
 
 ## [0.19.12] - 2026-10-22
 
