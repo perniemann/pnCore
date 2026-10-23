@@ -13,11 +13,7 @@
         "priorArt": "none",
         "plan": "plan",
         "skepticPassed": true,
-        "specialistList": [
-          "pn-scaffolder",
-          "pn-frontend-developer",
-          "pn-backend-developer"
-        ],
+        "specialistList": ["pn-scaffolder", "pn-frontend-developer", "pn-backend-developer"],
         "routeConfirmed": true
       },
       "expect": {
@@ -34,11 +30,7 @@
         "priorArt": "none",
         "plan": "plan",
         "skepticPassed": true,
-        "specialistList": [
-          "pn-scaffolder",
-          "pn-frontend-developer",
-          "pn-backend-developer"
-        ],
+        "specialistList": ["pn-scaffolder", "pn-frontend-developer", "pn-backend-developer"],
         "routeConfirmed": true
       },
       "expect": {
@@ -55,11 +47,7 @@
         "priorArt": "none",
         "plan": "plan",
         "skepticPassed": true,
-        "specialistList": [
-          "pn-scaffolder",
-          "pn-frontend-developer",
-          "pn-backend-developer"
-        ],
+        "specialistList": ["pn-scaffolder", "pn-frontend-developer", "pn-backend-developer"],
         "routeConfirmed": true,
         "specialistSequentialComplete": true,
         "taskResults": {
@@ -71,10 +59,7 @@
         "gate": "model",
         "done": false,
         "parallel": true,
-        "taskIds": [
-          "pn-frontend-developer",
-          "pn-backend-developer"
-        ]
+        "taskIds": ["pn-frontend-developer", "pn-backend-developer"]
       }
     },
     {
@@ -85,11 +70,7 @@
         "priorArt": "none",
         "plan": "plan",
         "skepticPassed": true,
-        "specialistList": [
-          "pn-scaffolder",
-          "pn-frontend-developer",
-          "pn-backend-developer"
-        ],
+        "specialistList": ["pn-scaffolder", "pn-frontend-developer", "pn-backend-developer"],
         "routeConfirmed": true,
         "specialistSequentialComplete": true,
         "taskResults": {
@@ -113,11 +94,7 @@
         "priorArt": "none",
         "plan": "plan",
         "skepticPassed": true,
-        "specialistList": [
-          "pn-scaffolder",
-          "pn-frontend-developer",
-          "pn-backend-developer"
-        ],
+        "specialistList": ["pn-scaffolder", "pn-frontend-developer", "pn-backend-developer"],
         "routeConfirmed": true,
         "specialistSequentialComplete": true,
         "taskResults": {

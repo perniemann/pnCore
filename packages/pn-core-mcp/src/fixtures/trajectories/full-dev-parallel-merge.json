@@ -73,10 +73,7 @@
         "skepticPassed": true,
         "planArtifactPath": "docs/plans/storefront.md",
         "planSummary": "3 phases",
-        "specialistList": [
-          "pn-frontend-developer",
-          "pn-backend-developer"
-        ],
+        "specialistList": ["pn-frontend-developer", "pn-backend-developer"],
         "routeConfirmed": true
       },
       "expect": {
@@ -84,10 +81,7 @@
         "gate": "model",
         "done": false,
         "parallel": true,
-        "taskIds": [
-          "pn-frontend-developer",
-          "pn-backend-developer"
-        ]
+        "taskIds": ["pn-frontend-developer", "pn-backend-developer"]
       }
     },
     {
@@ -101,10 +95,7 @@
         "skepticPassed": true,
         "planArtifactPath": "docs/plans/storefront.md",
         "planSummary": "3 phases",
-        "specialistList": [
-          "pn-frontend-developer",
-          "pn-backend-developer"
-        ],
+        "specialistList": ["pn-frontend-developer", "pn-backend-developer"],
         "routeConfirmed": true,
         "taskResults": {
           "pn-frontend-developer": "UI done",
@@ -129,10 +120,7 @@
         "skepticPassed": true,
         "planArtifactPath": "docs/plans/storefront.md",
         "planSummary": "3 phases",
-        "specialistList": [
-          "pn-frontend-developer",
-          "pn-backend-developer"
-        ],
+        "specialistList": ["pn-frontend-developer", "pn-backend-developer"],
         "routeConfirmed": true,
         "taskResults": {
           "pn-frontend-developer": "UI done",
@@ -157,10 +145,7 @@
         "skepticPassed": true,
         "planArtifactPath": "docs/plans/storefront.md",
         "planSummary": "3 phases",
-        "specialistList": [
-          "pn-frontend-developer",
-          "pn-backend-developer"
-        ],
+        "specialistList": ["pn-frontend-developer", "pn-backend-developer"],
         "routeConfirmed": true,
         "taskResults": {
           "pn-frontend-developer": "UI done",

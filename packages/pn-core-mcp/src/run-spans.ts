@@ -29,9 +29,9 @@ export function trailPaths(env: NodeJS.ProcessEnv = process.env): Record<TrailId
     steps: env.PNCORE_RUN_LOG || ".pncore/workflow-runs.jsonl",
     loads: ".pncore/skill-load-log.jsonl",
     usage: ".pncore/usage.jsonl",
-    handoff: env.PNCORE_HANDOFF_LOG ?? ".pncore/workflow-handoff.jsonl",
+    handoff: env.PNCORE_HANDOFF_LOG || ".pncore/workflow-handoff.jsonl",
     gate: ".pncore/gate-log.jsonl",
-    events: env.PNCORE_RUN_EVENTS_PATH ?? ".pncore/run-events.jsonl",
+    events: env.PNCORE_RUN_EVENTS_PATH || ".pncore/run-events.jsonl",
   };
 }
 

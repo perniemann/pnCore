@@ -73,7 +73,7 @@ export function writeFileAtomic(path: string, data: string, deps: AtomicWriteDep
     try {
       unlinkSync(tmp);
     } catch {
-      /* never created or already renamed */
+      /* never created */
     }
     throw err;
   }

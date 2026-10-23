@@ -6,6 +6,7 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { rmSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
@@ -47,6 +48,14 @@ describe("MCP per-tool integration", () => {
 
   afterAll(async () => {
     await transport.close();
+    for (const rel of [
+      ".pncore/state-roundtrip.json",
+      ".pncore/state-saves.jsonl",
+      ".pncore/state-commit-it.json",
+      ".pncore/handoff-commit-it.jsonl",
+    ]) {
+      rmSync(join(__dirname, "..", rel), { force: true });
+    }
   });
 
   // ── health ──────────────────────────────────────────────────────────────
@@ -777,8 +786,10 @@ describe("MCP per-tool integration", () => {
   });
 
   it("workflow_state_save commit mode: revision CAS, read-back, and load meta (ADR-0022)", async () => {
-    const path = `.pncore/state-commit-${Date.now()}.json`;
-    const handoff_path = `.pncore/handoff-commit-${Date.now()}.jsonl`;
+    const path = ".pncore/state-commit-it.json";
+    const handoff_path = ".pncore/handoff-commit-it.jsonl";
+    rmSync(join(__dirname, "..", path), { force: true });
+    rmSync(join(__dirname, "..", handoff_path), { force: true });
     const first = parseFirst(
       await client.callTool({
         name: "workflow_state_save",

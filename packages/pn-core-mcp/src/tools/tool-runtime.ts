@@ -79,10 +79,9 @@ export const handoffScanMaxBytes = tailScanBytesFromEnv(
   786_432
 );
 export const defaultHandoffPath =
-  process.env.PNCORE_HANDOFF_LOG ?? ".pncore/workflow-handoff.jsonl";
+  process.env.PNCORE_HANDOFF_LOG || ".pncore/workflow-handoff.jsonl";
 export const HANDOFF_SUMMARY_MAX = 4000;
 export const HANDOFF_READ_MAX_LINES = 80;
-export const defaultStatePath = process.env.PNCORE_STATE_PATH ?? ".pncore/workflow-state.json";
 
 export const runIdOptArg = z
   .string()

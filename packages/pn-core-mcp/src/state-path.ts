@@ -5,8 +5,8 @@
  * workspace (MCP cwd); a rejected path is reported, never silently replaced by the default.
  */
 
-import { appendFileSync, existsSync, mkdirSync } from "fs";
-import { dirname, join, relative } from "path";
+import { appendFileSync, existsSync, mkdirSync, statSync } from "fs";
+import { dirname, join, relative, resolve } from "path";
 import { readFileTail } from "./file-tail.js";
 import { resolveInside } from "./safe-path.js";
 
@@ -37,15 +37,25 @@ export function resolveStatePath(
   const requested = arg ?? fromEnv ?? DEFAULT_STATE_REL;
   const source: StatePathSource = arg ? "argument" : fromEnv ? "env" : "default";
   const safe = resolveInside(cwd, requested);
-  if ("error" in safe) {
-    return {
-      requested,
-      source,
-      resolved: null,
-      error: `${safe.error}: ${requested} (workspace root ${cwd})`,
-    };
+  const reject = (reason: string): ResolvedStatePath => ({
+    requested,
+    source,
+    resolved: null,
+    error: `${reason}: ${requested} (workspace root ${cwd})`,
+  });
+  if ("error" in safe) return reject(safe.error);
+  if (safe.resolved === resolve(cwd) || isDirectory(safe.resolved)) {
+    return reject("State path must be a file inside the workspace");
   }
   return { requested, source, resolved: safe.resolved };
+}
+
+function isDirectory(absPath: string): boolean {
+  try {
+    return statSync(absPath).isDirectory();
+  } catch {
+    return false;
+  }
 }
 
 export type StateSaveRecord = { ts: string; path: string; run_id: string | null };

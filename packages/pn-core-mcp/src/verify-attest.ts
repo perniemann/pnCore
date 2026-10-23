@@ -98,7 +98,7 @@ export type RunEvent =
     };
 
 export function defaultRunEventsPath(): string {
-  return process.env.PNCORE_RUN_EVENTS_PATH ?? ".pncore/run-events.jsonl";
+  return process.env.PNCORE_RUN_EVENTS_PATH || ".pncore/run-events.jsonl";
 }
 
 const SCAN_MAX = 786_432;
