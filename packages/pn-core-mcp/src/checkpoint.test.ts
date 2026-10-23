@@ -172,7 +172,47 @@ describe("checkpoint commit protocol", () => {
     expect(r).toMatchObject({ ok: false, code: "LOCKED" });
     expect(readFileSync(lockPath, "utf-8")).toBe(fresh);
     expect(existsSync(statePath)).toBe(false);
-    expect(readdirSync(join(cwd, ".pncore")).filter((f) => f.endsWith(".stale"))).toEqual([]);
+    expect(readdirSync(join(cwd, ".pncore")).filter((f) => f.endsWith(".break"))).toEqual([]);
+  });
+
+  it("a writer breaking the stale lock holds off a second breaker; a crashed breaker expires", () => {
+    const lockPath = `${statePath}.lock`;
+    writeFileSync(lockPath, "{}", "utf-8");
+    const old = new Date(Date.now() - 60_000);
+    utimesSync(lockPath, old, old);
+    writeFileSync(`${lockPath}.break`, "", "utf-8");
+    expect(commitCheckpoint(input())).toMatchObject({ ok: false, code: "LOCKED" });
+    expect(existsSync(lockPath)).toBe(true);
+    expect(existsSync(`${lockPath}.break`)).toBe(true);
+
+    utimesSync(`${lockPath}.break`, old, old);
+    expect(commitCheckpoint(input())).toMatchObject({ ok: false, code: "LOCKED" });
+    expect(existsSync(`${lockPath}.break`)).toBe(false);
+    expect(commitCheckpoint(input())).toMatchObject({ ok: true, revision: 1 });
+    expect(existsSync(lockPath)).toBe(false);
+  });
+
+  it("gives up with LOCKED when a stale lock keeps being replaced during takeover", () => {
+    const lockPath = `${statePath}.lock`;
+    const old = new Date(Date.now() - 60_000);
+    const writeStale = () => {
+      rmSync(lockPath, { force: true });
+      writeFileSync(lockPath, JSON.stringify({ token: "crashed" }), "utf-8");
+      utimesSync(lockPath, old, old);
+    };
+    writeStale();
+    let replaced = 0;
+    const r = commitCheckpoint(input(), {
+      onStaleLock: () => {
+        replaced++;
+        writeStale();
+        const older = new Date(old.getTime() - replaced * 1000);
+        utimesSync(lockPath, older, older);
+      },
+    });
+    expect(r).toMatchObject({ ok: false, code: "LOCKED" });
+    expect(replaced).toBe(3);
+    expect(existsSync(statePath)).toBe(false);
   });
 
   it("a stale lock removed by another writer before takeover is simply retried", () => {
