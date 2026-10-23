@@ -63,7 +63,10 @@
         "mode": "thesis",
         "framing": "Enter EU mid-market payroll",
         "evidenceLogPath": "docs/strategy/evidence.md",
-        "frames": ["porter", "jtbd"]
+        "frames": [
+          "porter",
+          "jtbd"
+        ]
       },
       "expect": {
         "nextStep": 5,
@@ -78,7 +81,10 @@
         "mode": "thesis",
         "framing": "Enter EU mid-market payroll",
         "evidenceLogPath": "docs/strategy/evidence.md",
-        "frames": ["porter", "jtbd"],
+        "frames": [
+          "porter",
+          "jtbd"
+        ],
         "grillComplete": true,
         "pressureTestVerdict": "Weak"
       },
@@ -95,7 +101,10 @@
         "mode": "thesis",
         "framing": "Enter EU mid-market payroll",
         "evidenceLogPath": "docs/strategy/evidence.md",
-        "frames": ["porter", "jtbd"],
+        "frames": [
+          "porter",
+          "jtbd"
+        ],
         "grillComplete": false,
         "pressureTestVerdict": "Weak",
         "discussionIterations": 1
@@ -113,7 +122,10 @@
         "mode": "thesis",
         "framing": "Enter EU mid-market payroll",
         "evidenceLogPath": "docs/strategy/evidence.md",
-        "frames": ["porter", "jtbd"],
+        "frames": [
+          "porter",
+          "jtbd"
+        ],
         "grillComplete": true,
         "pressureTestVerdict": "Strong",
         "discussionIterations": 1
@@ -131,7 +143,10 @@
         "mode": "thesis",
         "framing": "Enter EU mid-market payroll",
         "evidenceLogPath": "docs/strategy/evidence.md",
-        "frames": ["porter", "jtbd"],
+        "frames": [
+          "porter",
+          "jtbd"
+        ],
         "grillComplete": true,
         "pressureTestVerdict": "Strong",
         "discussionIterations": 1
@@ -149,7 +164,10 @@
         "mode": "thesis",
         "framing": "Enter EU mid-market payroll",
         "evidenceLogPath": "docs/strategy/evidence.md",
-        "frames": ["porter", "jtbd"],
+        "frames": [
+          "porter",
+          "jtbd"
+        ],
         "grillComplete": true,
         "pressureTestVerdict": "Strong",
         "discussionIterations": 1
@@ -167,7 +185,10 @@
         "mode": "thesis",
         "framing": "Enter EU mid-market payroll",
         "evidenceLogPath": "docs/strategy/evidence.md",
-        "frames": ["porter", "jtbd"],
+        "frames": [
+          "porter",
+          "jtbd"
+        ],
         "grillComplete": true,
         "pressureTestVerdict": "Strong",
         "discussionIterations": 1,
