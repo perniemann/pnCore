@@ -36,6 +36,12 @@ describe("state-path", () => {
     });
   });
 
+  it("defaults to process.cwd() and process.env", () => {
+    const r = resolveStatePath();
+    expect(r.requested).toBe(process.env.PNCORE_STATE_PATH?.trim() || DEFAULT_STATE_REL);
+    expect(r.resolved).toBe(join(process.cwd(), r.requested));
+  });
+
   it("accepts absolute paths inside the workspace and rejects paths outside it", () => {
     const inside = join(cwd, ".pncore", "abs.json");
     expect(resolveStatePath({ arg: inside, cwd, env: {} }).resolved).toBe(inside);

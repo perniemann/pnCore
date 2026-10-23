@@ -175,14 +175,26 @@ describe("checkpoint commit protocol", () => {
     expect(readdirSync(join(cwd, ".pncore")).filter((f) => f.endsWith(".stale"))).toEqual([]);
   });
 
-  it("release leaves a lock that another holder owns", () => {
+  it("a stale lock removed by another writer before takeover is simply retried", () => {
     const lockPath = `${statePath}.lock`;
-    const foreign = JSON.stringify({ token: "other-writer" });
-    const r = commitCheckpoint(input(), {
-      beforeCommit: () => writeFileSync(lockPath, foreign, "utf-8"),
-    });
-    expect(r).toMatchObject({ ok: true });
-    expect(readFileSync(lockPath, "utf-8")).toBe(foreign);
+    writeFileSync(lockPath, "{}", "utf-8");
+    const old = new Date(Date.now() - 60_000);
+    utimesSync(lockPath, old, old);
+    const r = commitCheckpoint(input(), { onStaleLock: () => rmSync(lockPath) });
+    expect(r).toMatchObject({ ok: true, revision: 1 });
+    expect(existsSync(lockPath)).toBe(false);
+  });
+
+  it("release leaves a lock that another holder owns or that cannot be read", () => {
+    const lockPath = `${statePath}.lock`;
+    for (const foreign of [JSON.stringify({ token: "other-writer" }), "{}", "not json"]) {
+      const r = commitCheckpoint(input(), {
+        beforeCommit: () => writeFileSync(lockPath, foreign, "utf-8"),
+      });
+      expect(r).toMatchObject({ ok: true });
+      expect(readFileSync(lockPath, "utf-8")).toBe(foreign);
+      rmSync(lockPath);
+    }
   });
 
   it("reports IO_ERROR when the lock cannot be created", () => {

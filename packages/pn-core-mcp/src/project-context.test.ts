@@ -637,6 +637,19 @@ describe("project-context active run and consistency", () => {
     expect(p.trail?.map((t) => t.summary)).toEqual(["step 1 done"]);
   });
 
+  it("run-log lines without a run id are skipped; missing step or ts read as null / empty", () => {
+    writeJson(".pncore/workflow-state.json", { run_id: "run-a" });
+    writeJsonl(".pncore/workflow-runs.jsonl", [
+      { ts: "2026-10-01T10:00:00.000Z", step: 1 },
+      { runId: "", step: 1 },
+      { runId: "run-a" },
+    ]);
+    const p = buildProjectContextPacket({ cwd });
+    expect(p.active_run.last_served_step).toBeNull();
+    expect(p.active_run.last_served_ts).toBe("");
+    expect(p.active_run.step_status).toBe("in_progress");
+  });
+
   it("an empty PNCORE_HANDOFF_LOG falls back to the default log", () => {
     writeJson(".pncore/workflow-state.json", { run_id: "run-a" });
     writeJsonl(".pncore/workflow-handoff.jsonl", [handoff("run-a", 1, "2026-10-01T10:01:00.000Z")]);
@@ -646,14 +659,28 @@ describe("project-context active run and consistency", () => {
     expect(p.trail?.map((t) => t.summary)).toEqual(["step 1 done"]);
   });
 
-  it("a log override outside the workspace is reported as trail_path_rejected", () => {
+  it("log overrides outside the workspace are reported as trail_path_rejected", () => {
     writeJson(".pncore/workflow-state.json", { run_id: "run-a" });
     process.env.PNCORE_RUN_LOG = "../outside-runs.jsonl";
+    process.env.PNCORE_HANDOFF_LOG = "../outside-handoff.jsonl";
     const p = buildProjectContextPacket({ cwd });
     expect(notable(p)).toEqual([
       expect.objectContaining({ code: "trail_path_rejected", severity: "warn" }),
+      expect.objectContaining({ code: "trail_path_rejected", severity: "warn" }),
     ]);
     expect(p.active_run.run_id).toBe("run-a");
+    expect(p.trail).toEqual([]);
+  });
+
+  it("an unreadable handoff.md or a state-saves log without valid lines is ignored", () => {
+    writeJson(".pncore/workflow-state.json", { run_id: "run-a" });
+    mkdirSync(join(cwd, ".pncore", "handoff.md"));
+    writeFileSync(join(cwd, ".pncore", "state-saves.jsonl"), "{partial\n{}\n", "utf-8");
+    const p = buildProjectContextPacket({ cwd });
+    expect(p.active_run.resume).toBeNull();
+    expect(p.active_run.resume_run_bound).toBeNull();
+    expect(p.active_run.candidates.map((c) => c.source)).toEqual(["state"]);
+    expect(codes(p)).toEqual([]);
   });
 
   it("resume_run_bound matches the run id as a whole token", () => {
@@ -840,7 +867,8 @@ describe("project-context active run and consistency", () => {
           id: "h",
           type: "plan",
           path: "docs/convention.md",
-          lifecycle: "historical",
+          lifecycle: "superseded",
+          superseded_by: "c",
           run_id: "run-old",
         },
       ],
@@ -848,6 +876,7 @@ describe("project-context active run and consistency", () => {
     writeJson(".pncore/workflow-state.json", { run_id: "run-old" });
     const p = buildProjectContextPacket({ cwd });
     expect(codes(p)).toEqual(["state_vs_declared_current", "historical_entry_selected"]);
+    expect(notable(p)[1]?.detail).toMatch(/lifecycle superseded, superseded by c/);
     expect(p.consistency.ok).toBe(true);
     expect(p.active_run.run_id).toBe("run-old");
   });
