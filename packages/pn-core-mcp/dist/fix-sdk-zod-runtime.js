@@ -6,40 +6,41 @@
 import { cpSync, existsSync, mkdirSync, rmSync, symlinkSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-const distDir = dirname(fileURLToPath(import.meta.url));
-const pkgRoot = join(distDir, "..");
-const nested = join(pkgRoot, "node_modules", "@modelcontextprotocol", "sdk", "node_modules", "zod");
-const hoisted = join(pkgRoot, "node_modules", "zod");
 function nestedZodLooksComplete(dir) {
     return (existsSync(join(dir, "package.json")) &&
         existsSync(join(dir, "v3", "index.js")) &&
         existsSync(join(dir, "v4", "index.js")));
 }
-if (!existsSync(join(hoisted, "package.json"))) {
+/**
+ * Repair `<pkgRoot>/node_modules/@modelcontextprotocol/sdk/node_modules/zod` when it is missing or
+ * incomplete. Exported so tests cover every branch without depending on the install layout.
+ */
+export function ensureSdkNestedZod(pkgRoot, opts = {}) {
+    const platform = opts.platform ?? process.platform;
+    const link = opts.link ?? symlinkSync;
+    const nested = join(pkgRoot, "node_modules", "@modelcontextprotocol", "sdk", "node_modules", "zod");
+    const hoisted = join(pkgRoot, "node_modules", "zod");
     // Nothing to anchor to yet (pre-install); ignore.
-    void nested;
-}
-else {
-    const needsFix = !existsSync(nested) || !nestedZodLooksComplete(nested);
-    if (needsFix) {
+    if (!existsSync(join(hoisted, "package.json")))
+        return "no_hoisted";
+    if (existsSync(nested) && nestedZodLooksComplete(nested))
+        return "complete";
+    try {
+        rmSync(nested, { recursive: true, force: true });
+        mkdirSync(dirname(nested), { recursive: true });
+        link(hoisted, nested, platform === "win32" ? "junction" : "dir");
+        return "linked";
+    }
+    catch {
         try {
-            rmSync(nested, { recursive: true, force: true });
             mkdirSync(dirname(nested), { recursive: true });
-            if (process.platform === "win32") {
-                symlinkSync(hoisted, nested, "junction");
-            }
-            else {
-                symlinkSync(hoisted, nested, "dir");
-            }
+            cpSync(hoisted, nested, { recursive: true, dereference: true });
+            return "copied";
         }
         catch {
-            try {
-                mkdirSync(dirname(nested), { recursive: true });
-                cpSync(hoisted, nested, { recursive: true, dereference: true });
-            }
-            catch {
-                /* best-effort */
-            }
+            /* best-effort */
+            return "failed";
         }
     }
 }
+ensureSdkNestedZod(join(dirname(fileURLToPath(import.meta.url)), ".."));

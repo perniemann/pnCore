@@ -4,6 +4,15 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.19.14] - 2026-11-21
+
+Every PR was red at `npm audit --audit-level=high`. This release clears the audit and takes an install-layout dependency out of the coverage gate.
+
+### Fixed
+
+- Lockfiles regenerated with `npm audit fix --package-lock-only` (root and `packages/pn-core-mcp`): `body-parser` 2.3.0 to 2.4.0 (high advisory, via `@modelcontextprotocol/sdk` and express), plus `hono`, `@hono/node-server`, `minimatch` and the eslint chain (moderate). `npm audit` reports 0 vulnerabilities in both trees. No `package.json` range changed.
+- Coverage depended on the npm install layout. `fix-sdk-zod-runtime.ts` repairs the SDK's nested `zod` only when npm leaves it incomplete, so its branches ran or did not run depending on the lockfile, and the regenerated lockfile dropped lines and branches under the floor. The repair is now `ensureSdkNestedZod(pkgRoot, opts)`, and `fix-sdk-zod-runtime.test.ts` covers every outcome (`no_hoisted`, `complete`, `linked`, `copied`, `failed`) against temp directories. The coverage floor is unchanged.
+
 ## [0.19.13] - 2026-10-23
 
 Fixes from an independent review of 0.19.10–0.19.12.
