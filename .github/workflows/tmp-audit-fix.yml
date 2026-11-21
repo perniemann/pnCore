@@ -1,0 +1,35 @@
+# One-shot: regenerate lockfiles with `npm audit fix` on this branch only.
+# Removed before the PR merges.
+name: tmp audit fix
+
+on:
+  push:
+    branches: [chore/audit-fix-lockfile]
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22"
+      - name: Audit fix (lockfiles only)
+        run: |
+          set -eu
+          npm audit fix --package-lock-only || true
+          (cd packages/pn-core-mcp && npm audit fix --package-lock-only || true)
+          echo "== root"; npm audit --audit-level=high || true
+          echo "== mcp"; (cd packages/pn-core-mcp && npm audit --audit-level=high || true)
+      - name: Commit lockfiles
+        run: |
+          set -eu
+          git config user.name "github-actions[bot]"
+          git config user.email "41898699+github-actions[bot]@users.noreply.github.com"
+          git add package-lock.json packages/pn-core-mcp/package-lock.json
+          if git diff --cached --quiet; then echo "no lockfile change"; exit 0; fi
+          git commit -m "chore(deps): npm audit fix lockfiles"
+          git push origin HEAD:chore/audit-fix-lockfile
