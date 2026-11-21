@@ -41,7 +41,7 @@ Whenever a plan needs user input, ask before locking. See `pn-build-gate` and `r
 |------|------|------|
 | PM routing | `get_command("pn")` or `pn-guide` | Unsure which PM workflow |
 | Stakeholder alignment | PRD (`pn-create-prd`) → prior art → plan | User requests product spec |
-| Backlog/sprint planning | `pn-user-stories` or `pn-job-stories` → plan | User requests backlog or sprint items |
+| Backlog/sprint planning | `pn-user-stories` or `pn-user-stories` → plan | User requests backlog or sprint items |
 | Release notes | `pn-release-notes` (before or after summary) | User wants release notes |
 
 See ADR-0008 for Cursor vs pi.dev delivery differences.

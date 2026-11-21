@@ -66,7 +66,7 @@ For any UI project with a logo:
 
 When discovery 3g (Design ambition) is **award-winning** or **distinctive**:
 
-**Logo:** Forbid "single letter on colored shape" unless explicitly requested. Require art-direction questions: symbol + wordmark intent, metaphor, mood. pn-svg-creator spec must include identity beyond monogram-on-rect.
+**Logo:** Forbid "single letter on colored shape" unless explicitly requested. Require art-direction questions: symbol + wordmark intent, metaphor, mood. pn-image-creator spec must include identity beyond monogram-on-rect.
 
 **Hero:** Require scene description (e.g. "student at desk with notebook, AI tutor UI overlay"). Prefer `image_create` (raster) for scene/illustration; SVG only when scene is diagrammatic or abstract. Use unDraw, Storyset, or similar as style reference when generating.
 
@@ -90,7 +90,7 @@ Use as inspiration or base; recolor to match project tokens.
 - Custom hero, product shot, mockup → workflow_step("image_create", 0, {}) or get_command("pn-assets") (image option)
 - Programmatic video clip (repeatable demo, marketing cut, social variant, data viz) → **pn-html-to-video** (deterministic HTML composition; GSAP / Lottie / CSS Frame Adapter)
 - Generative video clip (AI-generated scene, T2V/I2V) → **pn-generative-video-pipelines** via pn-generative-media-director
-- "Just need something to fill" → placeholder URL (pn-placeholder skill when available)
+- "Just need something to fill" → placeholder URL (pn-frontend-scaffolding skill when available)
 
 ## Asset taxonomy (elements where images should exist)
 
@@ -98,7 +98,7 @@ Per pn-frontend-design-philosophy ("Media proves | text orients"): logo, favicon
 
 ## Output
 
-- SVG at `assets/<slug>.svg` or `public/icons/<slug>.svg` (from pn-svg-creator).
+- SVG at `assets/<slug>.svg` or `public/icons/<slug>.svg` (from pn-image-creator).
 - Lottie at `assets/<name>.json` or via dotLottie player (respect prefers-reduced-motion).
 - Raster at `assets/<name>.png` (or format from generation).
 - Placeholder URLs in components when used; note in README.
@@ -106,6 +106,6 @@ Per pn-frontend-design-philosophy ("Media proves | text orients"): logo, favicon
 ## Guardrails
 
 - Do not overwrite existing assets without user confirmation.
-- For SVG (interactive): follow pn-svg-creator guardrails (gate on spec confirmation).
+- For SVG (interactive): follow pn-image-creator guardrails (gate on spec confirmation).
 - For placeholders: prefer picsum or placehold.co; avoid external APIs when placeholder suffices.
 - **Autonomous contract:** When running as specialist with UI in scope: MUST produce at least placeholders for logo, hero, and icons. Fail explicitly (`ASSET_PHASE_FAILED`) if neither real assets nor placeholders are created. Do not declare the asset phase complete with zero outputs.

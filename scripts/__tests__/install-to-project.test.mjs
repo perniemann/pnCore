@@ -198,7 +198,7 @@ test("--harness codex,pi shares .agents/skills and writes .pi/prompts once", () 
     assert.deepEqual(settings.packages, ["git:github.com/perniemann/pnCore@main"]);
     const agents = readFileSync(join(target, "AGENTS.md"), "utf8");
     assert.match(agents, /## pnCore \(Codex \+ Pi\)/);
-    assert.match(r.stdout, /171 skills, flat ids/);
+    assert.match(r.stdout, /142 skills, flat ids/);
     assert.equal((r.stdout.match(/flat ids/g) ?? []).length, 1, "skills copied once for both");
   } finally {
     rmSync(target, { recursive: true, force: true });

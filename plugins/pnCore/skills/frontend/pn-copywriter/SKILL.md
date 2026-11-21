@@ -1,6 +1,6 @@
 ---
 name: pn-copywriter
-description: "Brand-agnostic copy style system: diagnose brand, build style fingerprint, structure proof, optimize conversion. Use for service/portfolio copy, landing pages, CTAs. Tone, rhythm, and format rules."
+description: "Brand-agnostic copy and content strategy: diagnose brand, style fingerprint, proof structure, conversion. Use for service/portfolio copy, landing pages, CTAs, and content plans."
 ---
 
 # Copywriter skill
@@ -104,3 +104,32 @@ State which mode you are using before producing the rewrite pack.
 - Do not copy source phrasing or sentence shapes.
 - Do not let tone become generic-corporate during "optimization."
 - Do not improve conversion at the cost of voice consistency.
+
+<!-- merged from pn-content-strategy (0.22.0) -->
+## Content strategy
+
+### When to use
+
+- Content strategy and editorial calendars.
+- Blog, video scripts, social content.
+- Brand storytelling and narrative.
+- SEO content, repurposing across platforms.
+
+### Workflow
+
+1. **Strategy:** Audience, pillars, channels, calendar.
+2. **Creation:** Structure, hooks, CTAs.
+3. **Optimization:** SEO, platform-specific format.
+4. **Repurpose:** Adapt for other channels.
+
+### Output
+
+- Content strategy, editorial calendar, or channel-specific outlines with SEO and repurposing notes where relevant.
+
+### Guardrails
+
+- Match brand voice; do not invent metrics or claims without sources.
+
+### Integration
+
+- **pn-frontend-design** — When content lives in UI (landing pages).

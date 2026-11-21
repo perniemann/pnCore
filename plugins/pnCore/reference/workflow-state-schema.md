@@ -227,7 +227,7 @@ Unified entry for UE and Godot. Pass **`state.engine`**: `"unreal"` or `"godot"`
 **Additional keys:** `ueVersion`, `ueMcpServer`
 
 - **ueVersion:** string — UE version (e.g. `"5.7"`).
-- **ueMcpServer:** string — chosen MCP server id per `pn-unreal-mcp`.
+- **ueMcpServer:** string — chosen MCP server id per `pn-engine-mcp`.
 - **apiProbe:** object — output from `pn-api-probe` scoped to the UE version.
 
 ### Godot (`engine: "godot"`)
@@ -235,7 +235,7 @@ Unified entry for UE and Godot. Pass **`state.engine`**: `"unreal"` or `"godot"`
 **Additional keys:** `godotVersion`, `godotMcpServer`
 
 - **godotVersion:** string — e.g. `"4.4"`.
-- **godotMcpServer:** string — chosen server id per `pn-godot-mcp`.
+- **godotMcpServer:** string — chosen server id per `pn-engine-mcp`.
 
 ---
 

@@ -34,7 +34,7 @@ If not specified: "Which routes or modules should I audit? Or reply 'all' for fu
 
 ### 3. Audit
 
-Load `get_skill("pn-openapi-design")` and consult `pn-core://skills/backend/reference/api-design.md`.
+Load `get_skill("pn-openapi-design")` and consult `pn-core://skills/backend/reference/api-design.md`. For a GraphQL API, also load `get_skill("pn-graphql")` and audit schema design, resolvers, N+1 and depth/complexity limits against it.
 
 For each route or endpoint group, audit:
 

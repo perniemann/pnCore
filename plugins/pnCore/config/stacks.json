@@ -64,37 +64,37 @@
     {
       "id": "python",
       "rule": "pn-python-backend",
-      "scaffold": "pn-python-scaffolding",
+      "scaffold": "pn-backend-scaffolding",
       "agent": "pn-backend-developer"
     },
     {
       "id": "go",
       "rule": "pn-go-backend",
-      "scaffold": "pn-go-scaffolding",
+      "scaffold": "pn-backend-scaffolding",
       "agent": "pn-backend-developer"
     },
     {
       "id": "rust",
       "rule": "pn-rust-backend",
-      "scaffold": "pn-rust-scaffolding",
+      "scaffold": "pn-backend-scaffolding",
       "agent": "pn-backend-developer"
     },
     {
       "id": "ruby",
       "rule": "pn-ruby-backend",
-      "scaffold": "pn-ruby-scaffolding",
+      "scaffold": "pn-backend-scaffolding",
       "agent": "pn-backend-developer"
     },
     {
       "id": "php",
       "rule": "pn-php-backend",
-      "scaffold": "pn-php-scaffolding",
+      "scaffold": "pn-backend-scaffolding",
       "agent": "pn-backend-developer"
     },
     {
       "id": "babylon",
       "rule": "pn-babylon",
-      "scaffold": "pn-babylon-scaffolding",
+      "scaffold": "pn-babylon-dev",
       "agent": "pn-game-developer"
     }
   ]

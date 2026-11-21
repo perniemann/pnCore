@@ -95,7 +95,7 @@ Common adapters and their native fit:
 1. **Composition spec:** Declare width × height, total duration, aspect ratio (16:9 / 9:16 / 1:1), fps target (24 / 25 / 30). Apply `pn-cinematography-lighting` vocabulary when the composition includes scene imagery.
 2. **Asset inventory:** List all `src` assets (video clips, images, audio, fonts). Confirm local paths. Generate or procure any missing assets via `pn-assets-manager` before building the composition.
 3. **Track layout:** Map clips to tracks; higher track = higher z-order. Avoid track collisions unless intentional overlap.
-4. **Animation layer:** Choose Frame Adapter and wire it. Load `pn-gsap` for GSAP timelines; defer to `pn-svg-creator` Lottie path for JSON animations.
+4. **Animation layer:** Choose Frame Adapter and wire it. Load `pn-gsap` for GSAP timelines; defer to `pn-image-creator` Lottie path for JSON animations.
 5. **Audio:** If TTS narration is needed, run `pn-tts` before assembly. If existing audio needs transcript/captions, run `pn-transcribe`. Align audio `data-start` to narration cues before rendering.
 6. **Lint before render:** Run `pn-video-lint` — check track timing sums, audio levels, asset resolution, caption presence.
 7. **Render:** Use the chosen CLI (`hyperframes render` / `npx remotion render` / `motion-canvas render`). Verify codec, fps, and color range against the delivery sheet below.
@@ -142,7 +142,7 @@ A creative blocks registry — installable HTML composition templates for common
 ## Integration
 
 - **pn-gsap** — Timeline authoring for GSAP Frame Adapter sequences.
-- **pn-svg-creator** — Lottie / dotLottie animated vector assets within compositions.
+- **pn-image-creator** — Lottie / dotLottie animated vector assets within compositions.
 - **pn-tts** — Generate narration audio before assembly.
 - **pn-transcribe** — Caption track generation from narration audio.
 - **pn-video-lint** — Pre-render composition checklist.

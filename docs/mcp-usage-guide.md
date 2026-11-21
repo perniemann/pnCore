@@ -21,7 +21,7 @@ pn-core is the **MCP engine** for pnCore. It exposes skills, agents, commands, r
 | `project_context` | Cold-session packet from `docs/refs/context-index.json` + `.pncore` trails; `mode=operator` (counts/drift) or `agent` (artifacts + handoff/run-events trail); derived status is attested, not checkbox truth; `max_tokens` packs the packet to a budget and lists the cuts in `budget.steps` | AI — **call at session start** |
 | `harness_detect` | Which harness this session runs in (`cursor` / `claude_code` / `codex` / `pi`) with evidence, plus every harness's file layout (instructions, rules, skills, commands, agents, MCP config). Precedence `PNCORE_HARNESS` > env signals > workspace folders | AI — **call before writing project files** |
 | `harness_scaffold` | Write project-context, project skill, trailer rule, optional MCP config **only** into the selected harness's folders (`.cursor/`, `.claude/`, `.agents/skills` + `AGENTS.md` block, `.pi/`); `dryRun` returns the plan with contents | AI (`/pn-setup`, `/pn-new`, `project_kickoff`) |
-| `list_workflow_types` | List workflow types and step counts: `project_kickoff`, `design`, `full_dev`, `prompt_optimize`, `frontend_audit`, `backend_audit`, `image_create`, `visual_tweak`, `game_feature`, `svg_create`, `engine_feature`, `fsi_analyst_draft`, `business_strategy`, `media_director`, `feature_program`, `implementation_tournament` | AI (discoverability) |
+| `list_workflow_types` | List workflow types and step counts: `project_kickoff`, `design`, `full_dev`, `prompt_optimize`, `frontend_audit`, `backend_audit`, `image_create` (PNG or SVG), `visual_tweak`, `game_feature`, `engine_feature`, `fsi_analyst_draft`, `business_strategy`, `media_director`, `feature_program`, `implementation_tournament` | AI (discoverability) |
 | `suggest_model_tier` | Suggested LLM model tier for a workflow step or subagent role (`fast` / `standard` / `premium` / `premium_thinking` / `long_horizon`); pass `role` for subagent routing (`orchestrator` → long_horizon); omit `step` for the full per-step table | AI |
 | `list_skills` | Without filters, return a category index with counts and samples; use `category`, `filter`, or `limit` to drill in (`limit=0` returns all) | AI |
 | `get_skill` | Load full markdown of a skill by id | AI |
@@ -33,19 +33,15 @@ pn-core is the **MCP engine** for pnCore. It exposes skills, agents, commands, r
 | `get_rule` | Load full markdown of a rule by id | AI |
 | `workflow_step` | Deterministic workflow engine: one instruction per step for all types returned by `list_workflow_types`; validates state; enforces gates (discovery, skeptic, audits, etc.). With `PNCORE_REQUIRE_APPROVAL_FOR_WORKFLOWS`, human gates need `pncoreHumanGateTicket` in state | AI |
 | `report_usage` | Report token/cost usage for a workflow step; optional append to JSONL under cwd | Client / AI |
-| `workflow_usage_totals` | Sum `inputTokens`, `outputTokens`, and optional `costUsd` for a workflow `run_id` from a usage JSONL file (tail scan for safety) | AI / Client |
 | `workflow_handoff_append` | Append a bounded step summary line for cross-session handoff (same `run_id` as `workflow_step`) | AI / Client |
-| `workflow_handoff_read` | Read recent handoff lines for a `run_id` (e.g. new chat restore) | AI / Client |
 | `workflow_state_save` | Persist workflow state to file for resume after disconnect | AI / Client |
 | `workflow_state_load` | Load workflow state from file | AI / Client |
 | `workflow_verify` | Run a catalog verify command with no shell; returns a GateReport (`exitCode !== 0` is a completed verify). Requires `disposeVerify`. Fail-closed without a jail unless `PNCORE_VERIFY_SANDBOX=restricted` or Vitest | AI |
-| `workflow_run_query` | Query one `run_id` across the `.pncore` trails: verify/acceptance, `step` spans, `load`, `usage`, `handoff`, `gate`; `timeline: true` for a per-step view of where the run spent its time | AI / Client |
+| `workflow_run_query` | Query one `run_id` across the `.pncore` trails: verify/acceptance, `step` spans, `load`, `usage`, `handoff`, `gate`; `usage` adds token and cost sums (with the `PNCORE_USAGE_WARN_INPUT_TOKENS` warning); `handoff` restores context in a new chat; `timeline: true` for a per-step view of where the run spent its time | AI / Client |
 | `workflow_confirm` | Structured confirmation gate (MCP-only `ask_question` approximation). Returns prompt + options; model outputs them and stops until user replies | AI (gates when ask_question unavailable) |
 | `approval_checkpoint` | Hard gate: succeeds only if `approval_token` matches `PNCORE_APPROVAL_TOKEN` on the MCP server (`env` in MCP config). Optional `workflow_type` + `workflow_step` issue `pncoreHumanGateTicket` for opt-in mandatory human gates | AI + user (high-risk steps) |
 | `gate_log_append` | Append-only gate audit line (JSONL), default `.pncore/gate-log.jsonl` | AI / ops audit |
-| `paperclip_issue_checkout` | Check out a Paperclip issue before starting work. Requires PAPERCLIP_API_URL and PAPERCLIP_API_KEY; optional PAPERCLIP_ISSUE_ID when `issueId` is omitted | AI |
-| `paperclip_issue_comment` | Post a markdown comment on an issue. Same env; optional default issue id | AI |
-| `paperclip_issue_update` | PATCH issue status (e.g. mark done when a workflow completes). Prefer checkout for `in_progress` per pn-paperclip | AI |
+| `paperclip_issue` | One Paperclip issue tool: `action` `checkout` before starting work, `comment` (needs `body`), `update` (needs `status`, e.g. done when a workflow completes). Requires PAPERCLIP_API_URL and PAPERCLIP_API_KEY; optional PAPERCLIP_ISSUE_ID when `issueId` is omitted | AI |
 
 **List vs get:** Use **list_*** (`list_skills`, `list_agents`, `list_commands`, `list_rules`) to discover ids and short descriptions. Use **get_*** (`get_skill`, `get_agent`, `get_command`, `get_rule`) to load the full markdown content by id. Discovery first, then load.
 
@@ -72,7 +68,6 @@ When `workflow_step` is available, use it for build/design flows instead of load
 | `image_create` | 0–4 | Questionnaire → Spec confirmation → Generate → Skeptic on output → Summary |
 | `visual_tweak` | 0–3 | Target → Plan → Implement → Summary |
 | `game_feature` | 0–4 | Questionnaire → Plan+Skeptic → Implement → Skeptic on output → Summary |
-| `svg_create` | 0–4 | Questionnaire → Spec + confirmation → Generate → Skeptic on output → Summary |
 | `engine_feature` | 0–4 | Unified UE / Godot entry — set `state.engine` to `"unreal"` or `"godot"`; MCP server pick → api-probe + plan + skeptic → build → render-verify + skeptic on output (iteration cap) → Summary |
 | `fsi_analyst_draft` | 0–5 | Scope → sources + assumptions → draft (deliverable-typed FSI skill) → QC + skeptic → mandatory analyst sign-off (human gate) → delivery summary |
 | `business_strategy` | 0–8 | Framing → codebase intake (conditional) → evidence → strategic frame → grill → pressure-test (Strong / Weak / Pivot, iteration cap=2) → conditional skeptic → verdict lock → HTML + markdown brief |
@@ -84,7 +79,7 @@ When `workflow_step` is available, use it for build/design flows instead of load
 
 **`design` workflow — failed skeptic-on-output:** At step **4** (skeptic on output), if the client calls `workflow_step("design", 4, state)` with **`skepticOutputPassed: false`**, the tool returns **`nextStep: 3`** and an instruction to increment **`iterationCount`** in state and rebuild. When **`iterationCount >= 2`** and skeptic still fails without **`iterationCapApproved: true`**, the tool returns an **`error`** directing the client to **`approval_checkpoint`** (then pass **`pncoreHumanGateTicket`** and **`iterationCapApproved: true`** on the next attempt). See **`pn-core://reference/workflow-state-schema.md`**. Command **`pn-design`** references skills **`pn-api-probe`** (optional, before plan) and **`pn-render-verify`** (before skeptic for visual artifacts).
 
-**`engine_feature` workflow — failed skeptic-on-output:** Same iteration-cap pattern as `design`, applied at step **3** (render-verify + skeptic on output). When `skepticOutputPassed: false`, the tool returns **`nextStep: 2`** with an instruction to increment `iterationCount` and rebuild via the chosen engine MCP server. When `iterationCount >= 2` without `iterationCapApproved: true`, the tool returns an error requiring `approval_checkpoint` with `workflow_type: "engine_feature", workflow_step: 3`, and matching **`run_id`**. Step 0 loads **`pn-unreal-mcp`** or **`pn-godot-mcp`** depending on `state.engine`; step 1 runs **`pn-api-probe`**; step 3 runs **`pn-render-verify`** with the engine-specific appendix.
+**`engine_feature` workflow — failed skeptic-on-output:** Same iteration-cap pattern as `design`, applied at step **3** (render-verify + skeptic on output). When `skepticOutputPassed: false`, the tool returns **`nextStep: 2`** with an instruction to increment `iterationCount` and rebuild via the chosen engine MCP server. When `iterationCount >= 2` without `iterationCapApproved: true`, the tool returns an error requiring `approval_checkpoint` with `workflow_type: "engine_feature", workflow_step: 3`, and matching **`run_id`**. Step 0 loads **`pn-engine-mcp`** or **`pn-engine-mcp`** depending on `state.engine`; step 1 runs **`pn-api-probe`**; step 3 runs **`pn-render-verify`** with the engine-specific appendix.
 
 **Usage:** Call `workflow_step(workflowType, step, state)` at start and after each step. The tool returns `instruction`, `nextStep`, `requiredInputs`, and `gate` (`human` = wait for user reply before next call). If state is missing required fields, the tool returns an error: "Complete step N first." Users say natural-language prompts like "Build X. Use the design workflow." or "Audit this frontend with the frontend audit workflow."; the model translates to tool calls.
 
@@ -234,7 +229,7 @@ When you have a **new project with no refs** (no **`docs/refs/PRD.md`**, no `.re
 **Pattern 2: Fix CI**
 
 - Ask "my CI is failing, please fix it".
-- AI can call `get_skill` with `pn-ci-fix` or `pn-ci-triage` and follow that workflow.
+- AI can call `get_skill` with `pn-ci-fix` or `pn-ci-fix` and follow that workflow.
 
 **Pattern 3: Multi-step feature**
 
@@ -258,7 +253,7 @@ When you have a **new project with no refs** (no **`docs/refs/PRD.md`**, no `.re
 
 **Pattern 7: Documentation or prompt optimize**
 
-- **What to say:** "Format this README per pn-documentation." or `/pn-document`.
+- **What to say:** "Format this README per pn-documentation." or `get_skill("pn-documentation")`.
 - **What happens:** AI loads `get_skill("pn-documentation")` and applies format.
 
 **Full list:** For example prompts for every main command and workflow mapping, see [How to use pnCore — Example prompts by command](how-to-use-guide.md#example-prompts-by-command).

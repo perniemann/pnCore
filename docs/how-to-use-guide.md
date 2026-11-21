@@ -38,7 +38,7 @@ Deeper orientation: [Plugin reference](plugin-reference.md).
 - **Competing implementations** — `/pn-best-of-n` or `workflow_step("implementation_tournament", 0, {})` when `bestOfN.enabled: true`. Not for auth/security — use review panel per `pn-build-gate`.
 - **Multi-slice program** — `/pn-program` or `workflow_step("feature_program", 0, {})` when ≥2 independent vertical slices and `featureProgram: true`.
 - **Optimize a prompt** — `/pn-prompt-optimize` or `workflow_step("prompt_optimize", 0, {})`.
-- **Define domain vocabulary** — "Run pn-domain-language" or "Extract our ubiquitous language." DDD-style glossary.
+- **Define domain vocabulary** — "Run pn-create-domain-doc" or "Extract our ubiquitous language." DDD-style glossary.
 - **Curate agent context** — `get_skill("pn-context-engineering")` when output drifts, you switch tasks, or you need a smaller, correct context window.
 - **Vendor-doc-backed code** — `get_skill("pn-source-driven-implementation")` when framework or library behavior must match official docs for the versions in your lockfile.
 - **Compress or scope-lock a reply** — type `scr`, `eli`, `foc`, `ref`, or `scp` as a whole token (see `/pn-guide` Chat shortcodes). Load `get_skill("pn-response-aliases")`. Do not make `pn-communication-contract` always-on.
@@ -56,20 +56,20 @@ Deeper orientation: [Plugin reference](plugin-reference.md).
 ### Assets (image, SVG, placeholders)
 
 - **Assets when UI in scope** — Full dev and orchestrator flows automatically include pn-assets-manager when the build has UI (landing page, frontend, product page, components). Images must exist for all elements where they should exist (logo, hero, feature icons, subject icons, badge icons, empty-state illustrations per asset taxonomy). Run `validate:assets` before build or in CI. pn-deliver (verify phase) runs this check for UI projects.
-- **Image, SVG, or diagram (single entry)** — `/pn-assets` or "Create an image or SVG." Asks: SVG (logo, icon, illustration), image (PNG/raster), **diagram**, or placeholder? Diagrams route to `/pn-diagram`, not `svg_create`.
+- **Image, SVG, or diagram (single entry)** — `/pn-assets` or "Create an image or SVG." Asks: SVG (logo, icon, illustration), image (PNG/raster), **diagram**, or placeholder? Diagrams route to `/pn-diagram`, not `image_create`.
 - **Placeholder images** — Choose "placeholder" in pn-assets or "Create placeholder images for this component." Uses picsum, placehold.co, or SVG data-URI.
 - **Diagrams** — `/pn-diagram` or "Draw an architecture diagram." Mermaid in docs or editorial HTML/SVG. Not for logos (use `/pn-assets`).
 
 ### CI, testing, and review
 
-- **Fixing CI** — "My CI is failing, please fix it." AI loads pn-ci-fix or pn-ci-triage and follows the workflow.
+- **Fixing CI** — "My CI is failing, please fix it." AI loads pn-ci-fix or pn-ci-fix and follows the workflow.
 - **Smoke tests** — "Fix my failing tests and run CI"; "Run smoke tests after changes." pn-testing-specialist agent, pn-smoke-tests skill.
 - **Quality and performance pass** — `/pn-review`; "Review and optimize this codebase." One-shot review + optimization.
 - **Plugin submission review** — "Review this Cursor plugin for submission." pn-review-plugin-submission skill.
 - **Security audit** — "Audit this auth flow"; "Run pn-security-audit." OWASP, secrets, dependencies, input validation.
 - **Deliver with verification** — "Validate this output against acceptance criteria, then package." `/pn-deliver` runs verify (Phase 1) then packaging (Phase 2 only if Phase 1 passes).
 - **Pre-ship checklist** — `get_skill("pn-ship-checklist")` before production deploy or risky promotion (composes smoke tests, config review, rollback — not a full DevOps runbook).
-- **Browser runtime checks** — `get_skill("pn-browser-runtime-verify")` when you need console, network, or live DOM evidence (screenshot-first flows stay on **pn-evidence-qa**).
+- **Browser runtime checks** — `get_skill("pn-evidence-qa")` when you need console, network, or live DOM evidence (screenshot-first flows stay on **pn-evidence-qa**).
 - **Deprecate or remove a feature/API** — `get_skill("pn-deprecation-and-removal")` for sunsets and migration windows; stack upgrades stay on **pn-migration-planning**.
 
 ### Integrations (n8n, web3)
@@ -79,7 +79,7 @@ Deeper orientation: [Plugin reference](plugin-reference.md).
 
 ### Documentation and learning
 
-- **Format or validate docs** — `/pn-document`; "Format this README per pn-documentation"; "Check format compliance for docs/discovery/." Loads pn-documentation skill.
+- **Format or validate docs**: "Format this README per pn-documentation"; "Check format compliance for docs/discovery/." Loads pn-documentation skill.
 - **Prompt optimization** — `/pn-prompt-optimize`; "Optimize this prompt for reliability" or "Optimize the prompt below." Questionnaire-driven; outputs optimized prompt with notes.
 - **Continual learning** — "Update AGENTS.md from my transcripts"; "Run pn-continual-learning." Extracts preferences and facts from transcripts into AGENTS.md. Plugin: auto-runs on chat stop via hook; MCP only: on-demand.
 - **Docs sync** — "Sync documentation with recent code changes." pn-docs-sync skill.
@@ -111,9 +111,8 @@ Copy-pasteable prompts for the main user-centric commands. When MCP is available
 | **pn-grill** | Socratic plan stress-test | `/pn-grill` or "Grill me on this plan before we build." | — (interactive) |
 | **pn-pressure-test** | Startup idea validation | `/pn-pressure-test` or "Pressure-test this startup idea before we write a PRD." | — (skill-backed report; optional playbooks in skill `references/`) |
 | **pn-design-variants** | Parallel different designs to compare | `/pn-design-variants` or "Generate 3 radically different designs." | — (parallel sub-agents) |
-| **pn-assets** | Image, SVG, diagram, or placeholder (single entry) | `/pn-assets` or "Create an image or SVG." | Routes to `svg_create`, `image_create`, or `pn-diagram` |
+| **pn-assets** | Image, SVG, diagram, or placeholder (single entry) | `/pn-assets` or "Create an image or SVG." | Routes to `image_create` (PNG or SVG) or `pn-diagram` |
 | **pn-diagram** | Architecture / flowchart / sequence / state / loop / quadrant / layers / process / data-flow / org-chart | `/pn-diagram` or "Draw an architecture diagram." | Skill `pn-diagram-design` (no workflowType) |
-| **pn-document** | Format or validate project docs | `/pn-document` or "Format this README per pn-documentation." | — (one-shot) |
 | **pn-prompt-optimize** | Structured prompt improvement | `/pn-prompt-optimize` or "Optimize this prompt for reliability." | `prompt_optimize` (0→2) |
 | `game_feature` | Add incremental game mechanic | "Add a [mechanic] to this game." or "Use the game feature workflow." | `game_feature` (no slash command — use natural language) |
 
@@ -178,7 +177,6 @@ Indices are **inclusive**. Call `list_workflow_types` for the live list; routing
 | `image_create` | 0–4 | Questionnaire → Spec confirmation → Generate image → Skeptic on output → Summary |
 | `visual_tweak` | 0–3 | Clarify target → Plan confirmation → Implement → Summary |
 | `game_feature` | 0–4 | Questionnaire → Plan+Skeptic → Implement → Skeptic on output → Summary |
-| `svg_create` | 0–4 | Questionnaire → Spec save + confirmation → Generate SVG → Skeptic on output → Summary |
 | `engine_feature` | 0–4 | Unified UE / Godot entry — set `state.engine` to `"unreal"` or `"godot"` |
 | `fsi_analyst_draft` | 0–5 | Scope → sources + assumptions → draft → QC + skeptic → mandatory analyst sign-off → delivery summary |
 | `business_strategy` | 0–8 | Framing → codebase intake (conditional) → evidence → strategic frame → grill → pressure-test (Strong / Weak / Pivot) → conditional skeptic → verdict lock → HTML + markdown brief |

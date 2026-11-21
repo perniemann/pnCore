@@ -126,4 +126,4 @@ Total GL lines: X  |  Matched: Y  |  Open breaks: Z  |  Net break amount: $A
 
 - **pn-fsi-analyst-discipline** — always load first; human gate on recon output is structural.
 - **approval_checkpoint (MCP)** — use for hard HITL enforcement on sign-off when `PNCORE_APPROVAL_TOKEN` is configured.
-- **pn-compliance-check** — escalate when breaks involve regulatory capital accounts, reserve calculations, or fund distribution amounts.
+- **pn-agent-governance** — escalate when breaks involve regulatory capital accounts, reserve calculations, or fund distribution amounts.

@@ -17,17 +17,17 @@ MCP servers that pair well with **pnCore**: research, UI libraries, testing, pay
 |-----|---------|---------|----------------|
 | **Octocode** | Code forensics: LSP goto-def, call hierarchy, references, prior-art search, GitHub integration | `npx -y octocode-mcp@latest` — [Octocode](https://github.com/bgauryy/octocode-mcp) | `pn-prior-art-research`, `pn-codebase-to-strategy` |
 | **shadcn** | shadcn/ui components, Tailwind, Radix | Cursor: `npx shadcn@latest mcp init --client cursor` | `pn-ui-component-libraries` |
-| **Playwright** | Browser automation, E2E generation, trace inspection | `npx -y @playwright/mcp@latest` — [Playwright MCP](https://github.com/microsoft/playwright-mcp) | `pn-smoke-tests`, `pn-browser-runtime-verify` |
+| **Playwright** | Browser automation, E2E generation, trace inspection | `npx -y @playwright/mcp@latest` — [Playwright MCP](https://github.com/microsoft/playwright-mcp) | `pn-smoke-tests`, `pn-evidence-qa` |
 | **Stripe** | Payments, subscriptions, invoicing | Preferred remote: `https://mcp.stripe.com`; local: `npx -y @stripe/mcp@latest` with `STRIPE_SECRET_KEY` — [Stripe MCP](https://docs.stripe.com/mcp) | `pn-payment-integration` |
-| **Chrome DevTools** | Browser debugging and performance | `npx -y chrome-devtools-mcp@latest` — [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp) | `pn-browser-runtime-verify` |
+| **Chrome DevTools** | Browser debugging and performance | `npx -y chrome-devtools-mcp@latest` — [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp) | `pn-evidence-qa` |
 | **Cloudflare** | Workers, KV, D1, R2, and the Cloudflare API | Remote Code Mode: `https://mcp.cloudflare.com/mcp` — [Cloudflare MCP](https://github.com/cloudflare/mcp) | Cloudflare stack and CI skills |
 | **n8n** | Workflow automation; expose workflows as MCP tools | [MCP Server Trigger](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.mcptrigger), [MCP Client Tool](https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.toolmcp) | `pn-n8n-patterns` |
-| **ChiR24/Unreal_mcp** | Unreal Engine 5.0–5.8 automation via the `McpAutomationBridge` plugin | Native: enable **Native MCP** and connect to `http://localhost:3000/mcp`; bridge: `npx -y unreal-engine-mcp-server` — [ChiR24/Unreal_mcp](https://github.com/ChiR24/Unreal_mcp) | Load `pn-unreal-mcp`, then `pn-unreal-dev` |
+| **ChiR24/Unreal_mcp** | Unreal Engine 5.0–5.8 automation via the `McpAutomationBridge` plugin | Native: enable **Native MCP** and connect to `http://localhost:3000/mcp`; bridge: `npx -y unreal-engine-mcp-server` — [ChiR24/Unreal_mcp](https://github.com/ChiR24/Unreal_mcp) | Load `pn-engine-mcp`, then `pn-unreal-dev` |
 | **Blender MCP** (official) | Live Blender control and Python API access; requires Blender 5.1+ | Install the add-on and server from [Blender Lab](https://www.blender.org/lab/mcp-server/). **Isolate generated-code execution.** | `pn-blender-scripting` |
-| **Coding-Solo/godot-mcp** | External CLI bridge for Godot 4.x; editor launch, project runs, logs, scenes, and nodes | `npx -y github:Coding-Solo/godot-mcp`; set `GODOT_PATH` — [Coding-Solo/godot-mcp](https://github.com/Coding-Solo/godot-mcp) | Load `pn-godot-mcp`, then `pn-godot-dev` |
-| **3ddelano/gdai-mcp** | Live editor control for Godot 4.1+: scene tree, scripts, debugger, and screenshots | Follow the [GDAI installation guide](https://gdaimcp.com/docs/installation); keep the editor plugin running | Load `pn-godot-mcp`, then `pn-godot-dev` |
+| **Coding-Solo/godot-mcp** | External CLI bridge for Godot 4.x; editor launch, project runs, logs, scenes, and nodes | `npx -y github:Coding-Solo/godot-mcp`; set `GODOT_PATH` — [Coding-Solo/godot-mcp](https://github.com/Coding-Solo/godot-mcp) | Load `pn-engine-mcp`, then `pn-godot-dev` |
+| **3ddelano/gdai-mcp** | Live editor control for Godot 4.1+: scene tree, scripts, debugger, and screenshots | Follow the [GDAI installation guide](https://gdaimcp.com/docs/installation); keep the editor plugin running | Load `pn-engine-mcp`, then `pn-godot-dev` |
 
-Use one Godot MCP surface per workflow run. `pn-godot-mcp` compares five maintained/community options; `pn-unreal-mcp` compares six Unreal options and emits the install plan used by `engine_feature`.
+Use one Godot MCP surface per workflow run. `pn-engine-mcp` compares five maintained/community options; `pn-engine-mcp` compares six Unreal options and emits the install plan used by `engine_feature`.
 
 ---
 
@@ -63,7 +63,7 @@ Use `cursor`, `claude_code`, `codex`, `pi`, or `all` instead of `auto`. `--with-
 | **pn-create-refs-index** | Generating a refs index linking all project reference docs |
 | **pn-create-stack-doc** | Documenting the tech stack (STACK.md) |
 | **pn-user-stories** | Breaking features into backlog items (3 C's, INVEST) |
-| **pn-job-stories** | JTBD-style backlog items (When...I want...so I can) |
+| **pn-user-stories** | JTBD-style backlog items (When...I want...so I can) |
 | **pn-release-notes** | Converting tickets/changelogs into user-facing release notes |
 | **pn-idea-miner** | Mining transcripts or notes for feature ideas and priorities |
 | **pn-pressure-test** | Stress-testing a business thesis before implementation planning |

@@ -29,7 +29,7 @@ description: "CI/CD pipelines, IaC, container orchestration, monitoring, alertin
 
 ## Integration
 
-- **pn-ci-triage**, **pn-ci-fix** — CI pipeline fixes.
+- **pn-ci-fix**, **pn-ci-fix** — CI pipeline fixes.
 - **pn-ci-dev-prod-split** — Environment separation.
 - **pn-config-review** — Connection pools, timeouts.
 - **pn-backend-philosophy** — Secrets, error handling.

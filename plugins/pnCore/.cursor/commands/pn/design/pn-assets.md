@@ -19,7 +19,7 @@ Single entry point for creating any visual asset. Asks what you need, then runs 
    When MCP `workflow_step` is available: call `workflow_step("svg_create", 0, {})` and follow each returned instruction.
 
    Otherwise run the SVG flow:
-   1. Load `get_skill("pn-svg-creator")`. Present sections (Purpose, Identity, Style, Animation, Colors, Size, Constraints) using `ask_question` when available. Ask explicitly for each item not in the user prompt.
+   1. Load `get_skill("pn-image-creator")`. Present sections (Purpose, Identity, Style, Animation, Colors, Size, Constraints) using `ask_question` when available. Ask explicitly for each item not in the user prompt.
    2. Save spec to `docs/svg/YYYY-MM-DD-<slug>-spec.md`. Gate: confirm "SVG spec complete. Proceed with generation?" — do not generate until confirmed.
    3. Generate SVG per spec using pn-svg patterns. Write to path from spec (default: `assets/<slug>.svg`).
    4. Review output against spec — structure (defs, layering), animation quality, accessibility. Fix once if gaps.

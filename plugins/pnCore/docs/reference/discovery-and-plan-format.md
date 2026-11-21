@@ -15,7 +15,7 @@ docs/
 │   ├── DOMAIN-DOC.md       # pn-create-domain-doc (optional)
 │   ├── STACK.md            # pn-create-stack-doc (optional)
 │   ├── MCP-ARCHITECTURE.md # pn-create-mcp-architecture (optional)
-│   └── UI-DESIGN-SPEC.md   # pn-ui-design-specs (optional)
+│   └── UI-DESIGN-SPEC.md   # pn-design-system (optional)
 ├── discovery/              # pn-discovery-questionnaire
 ├── research/               # pn-prior-art-research
 └── plans/                  # pn-writing-plans (during full_dev / build; not in project_kickoff)

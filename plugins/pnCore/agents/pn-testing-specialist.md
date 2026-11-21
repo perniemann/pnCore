@@ -26,7 +26,7 @@ model: inherit
 - **pn-loop** — Autonomous fix-until-pass when user wants tests/CI green; iterate until verification succeeds.
 - **pn-smoke-tests** — Execute smoke tests and interpret results.
 - **pn-ci-fix** — Interpret CI logs and suggest fixes.
-- **pn-ci-triage** — Triage CI failure type and next steps.
+- **pn-ci-fix** — Triage CI failure type and next steps.
 - **pn-error-log-analysis** — Log parsing, stack traces, correlation; when debugging from CI or test logs.
 - Rules: **pn-ci** (globs for CI/config).
 
@@ -36,8 +36,8 @@ model: inherit
 
 ## Workflow
 
-1. Apply pn-tdd, pn-smoke-tests, pn-ci-fix, or pn-ci-triage as appropriate to the request.
-2. **After tests/CI changes:** Run smoke tests or CI check. Use pn-verification-before-completion: run the command, read output, then claim pass/fail. If they fail: apply fixes (using pn-ci-fix/pn-ci-triage if needed), then re-run. Loop back at most once or twice; then report remaining failures.
+1. Apply pn-tdd, pn-smoke-tests, pn-ci-fix, or pn-ci-fix as appropriate to the request.
+2. **After tests/CI changes:** Run smoke tests or CI check. Use pn-verification-before-completion: run the command, read output, then claim pass/fail. If they fail: apply fixes (using pn-ci-fix/pn-ci-fix if needed), then re-run. Loop back at most once or twice; then report remaining failures.
 
 ## Output
 

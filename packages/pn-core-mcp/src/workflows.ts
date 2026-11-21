@@ -39,7 +39,6 @@ export type WorkflowType =
   | "image_create"
   | "visual_tweak"
   | "game_feature"
-  | "svg_create"
   | "engine_feature"
   | "unreal_feature"
   | "godot_feature"
@@ -112,7 +111,7 @@ export interface WorkflowStepResult {
 /** Terminal-step reminder — only emitted when Paperclip env vars are configured. */
 function paperclipWorkflowHint(): string {
   if (!process.env.PAPERCLIP_API_URL || !process.env.PAPERCLIP_API_KEY) return "";
-  return " Paperclip: load get_skill('pn-paperclip'); use paperclip_issue_checkout before work when governance requires it; when finished, call paperclip_issue_update with status done (issueId from context or PAPERCLIP_ISSUE_ID) and an optional comment.";
+  return " Paperclip: load get_skill('pn-paperclip'); use paperclip_issue({ action: 'checkout' }) before work when governance requires it; when finished, call paperclip_issue({ action: 'update' }) with status done (issueId from context or PAPERCLIP_ISSUE_ID) and an optional comment.";
 }
 
 const HANDOFF_AFTER_STEP =
@@ -147,7 +146,7 @@ const designSteps: StepDef[] = [
   },
   {
     instruction:
-      "Run pn-assets-manager in batch mode with discoverySpec and plan. Create logo, hero, icons per taxonomy. Do NOT invoke svg_create/image_create workflows. Output ASSET_PHASE_FAILED if nothing created; fix and re-run. When done, call workflow_step(step=3) with state: { assetsComplete: true }.",
+      "Run pn-assets-manager in batch mode with discoverySpec and plan. Create logo, hero, icons per taxonomy. Do NOT invoke the image_create workflow. Output ASSET_PHASE_FAILED if nothing created; fix and re-run. When done, call workflow_step(step=3) with state: { assetsComplete: true }.",
     gate: "model",
     nextStep: 3,
     requiredFromState: ["plan", "skepticPassed", "skepticVerdict"],
@@ -310,7 +309,7 @@ const projectKickoffSteps: StepDef[] = [
   },
   {
     instruction:
-      "Optional refs (run when applicable): multi-stack → get_skill('pn-create-stack-doc') → docs/refs/STACK.md; multiple MCPs → get_skill('pn-create-mcp-architecture') → docs/refs/MCP-ARCHITECTURE.md; UI in scope → get_skill('pn-ui-design-specs') → docs/refs/UI-DESIGN-SPEC.md. Skip non-applicable. After user confirms, call workflow_step(step=6) with state: { stackDocPath?, mcpArchPath?, uiSpecPath? }.",
+      "Optional refs (run when applicable): multi-stack → get_skill('pn-create-stack-doc') → docs/refs/STACK.md; multiple MCPs → get_skill('pn-create-mcp-architecture') → docs/refs/MCP-ARCHITECTURE.md; UI in scope → get_skill('pn-design-system') → docs/refs/UI-DESIGN-SPEC.md. Skip non-applicable. After user confirms, call workflow_step(step=6) with state: { stackDocPath?, mcpArchPath?, uiSpecPath? }.",
     gate: "human",
     nextStep: 6,
     requiredFromState: ["priorArtPath"],
@@ -403,7 +402,7 @@ const frontendAuditSteps: StepDef[] = [
 const imageCreateSteps: StepDef[] = [
   {
     instruction:
-      "Load get_skill('pn-cinematography-lighting'), get_skill('pn-image-prompt-engineering'), get_skill('pn-image-creator'). Present questionnaire (subject, environment, lighting, camera, style, output, constraints). Use ask_question when available. Do not infer. After user replies, call workflow_step(step=1) with state: { imageSpec }.",
+      "Load get_skill('pn-image-creator'). Ask the format first: PNG (raster) or SVG (logo, icon, illustration, animation). PNG: also load get_skill('pn-cinematography-lighting') and get_skill('pn-image-prompt-engineering'); present the raster questionnaire (subject, environment, lighting, camera, style, output, constraints). SVG: present the SVG questionnaire from the skill (purpose, identity, style, animation, colors, size, constraints). Use ask_question when available. Do not infer. After user replies, call workflow_step(step=1) with state: { imageSpec } where imageSpec.format is 'png' or 'svg'.",
     gate: "human",
     nextStep: 1,
     requiredFromState: [],
@@ -412,33 +411,34 @@ const imageCreateSteps: StepDef[] = [
   },
   {
     instruction:
-      "Produce image spec (summary, format, dimensions, path). Present output contract for confirmation. Do not generate until confirmed. After confirmed, call workflow_step(step=2) with state: { specConfirmed: true, imageSpec }.",
+      "Produce the image spec (summary, format, dimensions, path). SVG: write it as Markdown via get_skill('pn-documentation') to docs/svg/ and set imageSpec.specPath. Present the output contract for confirmation. Do not generate until confirmed. After confirmed, call workflow_step(step=2) with state: { specConfirmed: true, imageSpec }.",
     gate: "human",
     nextStep: 2,
     requiredFromState: ["imageSpec"],
   },
   {
     instruction:
-      "Generate image per imageSpec. PNG: finalize prompt via pn-cinematography-lighting + pn-image-prompt-engineering, then generate; save to assets/. SVG: route to pn-svg-creator. When done, call workflow_step(step=3) with state: { imageComplete: true, outputPath }.",
+      "Generate per imageSpec. PNG: finalize the prompt via pn-cinematography-lighting + pn-image-prompt-engineering, then generate; save to assets/. SVG: hand-author per spec using get_skill('pn-svg'); write to assets/ or the spec path. When done, call workflow_step(step=3) with state: { imageComplete: true, outputPath }.",
     gate: "model",
     nextStep: 3,
     requiredFromState: ["specConfirmed", "imageSpec"],
-    modelTier: "fast",
-    tierRationale: "Image generation is offloaded to the gen-image tool.",
+    modelTier: "premium",
+    tierRationale:
+      "SVG paths and animation are hand-authored reasoning; PNG generation is offloaded to the gen-image tool.",
   },
   {
     instruction:
-      "REQUIRED: Run get_skill('pn-render-verify') on outputPath, then get_skill('pn-skeptic-challenge') post-build on the image. Output skeptic verdict. After user confirms, call workflow_step(step=4) with state: { skepticOutputPassed: <gate record from workflow_confirm>, skepticOutputVerdict }." +
+      "REQUIRED: PNG: run get_skill('pn-render-verify') on outputPath. Then run get_skill('pn-skeptic-challenge') post-build on the image (PNG or SVG). Output skeptic verdict. After user confirms, call workflow_step(step=4) with state: { skepticOutputPassed: <gate record from workflow_confirm>, skepticOutputVerdict }." +
       GATE_STATE_FROM_CONFIRM,
     gate: "human",
     nextStep: 4,
     requiredFromState: ["imageComplete", "outputPath"],
     modelTier: "premium",
-    tierRationale: "Skeptic review of generated image against spec (parity with svg_create).",
+    tierRationale: "Skeptic review of the generated image or SVG against spec.",
   },
   {
     instruction:
-      "Output summary: what was created, path, format, skeptic verdict. Image_create complete." +
+      "Output summary: what was created, path, format, spec path (SVG), skeptic verdict. Image_create complete." +
       paperclipWorkflowHint() +
       " Do not call workflow_step again.",
     gate: "model",
@@ -606,55 +606,6 @@ const gameFeatureSteps: StepDef[] = [
   },
 ];
 
-const svgCreateSteps: StepDef[] = [
-  {
-    instruction:
-      "Load get_skill('pn-svg-creator'). Present questionnaire (Purpose, Identity, Style, Animation, Colors, Size, Constraints). Use ask_question when available. Do not infer. After user replies, call workflow_step(step=1) with state: { svgSpec }.",
-    gate: "human",
-    nextStep: 1,
-    requiredFromState: [],
-    modelTier: "fast",
-    tierRationale: "Structured SVG-intake questionnaire.",
-  },
-  {
-    instruction:
-      "Produce SVG spec (Markdown) via get_skill('pn-documentation'). Save to docs/svg/. Do not generate until user confirms. After confirmed, call workflow_step(step=2) with state: { specPath, svgSpec, specConfirmed: true }.",
-    gate: "human",
-    nextStep: 2,
-    requiredFromState: ["svgSpec"],
-  },
-  {
-    instruction:
-      "Generate SVG per spec using get_skill('pn-svg'). Write to assets/ or path from spec. When done, call workflow_step(step=3) with state: { svgComplete: true, svgPath }.",
-    gate: "model",
-    nextStep: 3,
-    requiredFromState: ["specConfirmed", "svgSpec"],
-    modelTier: "premium",
-    tierRationale: "Hand-authoring SVG paths and animation is non-trivial reasoning.",
-  },
-  {
-    instruction:
-      "REQUIRED: Run get_skill('pn-skeptic-challenge') post-build on the SVG. Output skeptic verdict. After user confirms, call workflow_step(step=4) with state: { skepticOutputPassed: <gate record from workflow_confirm>, skepticOutputVerdict }." +
-      GATE_STATE_FROM_CONFIRM,
-    gate: "human",
-    nextStep: 4,
-    requiredFromState: ["svgComplete", "svgPath"],
-    modelTier: "premium",
-    tierRationale: "Skeptic review of generated SVG.",
-  },
-  {
-    instruction:
-      "Output summary: spec path, SVG path, skeptic verdict. Svg_create complete." +
-      paperclipWorkflowHint() +
-      " Do not call workflow_step again.",
-    gate: "model",
-    nextStep: 4,
-    requiredFromState: ["skepticOutputPassed", "skepticOutputVerdict"],
-    modelTier: "fast",
-    tierRationale: "Brief terminal summary.",
-  },
-];
-
 const backendAuditSteps: StepDef[] = [
   {
     instruction:
@@ -721,7 +672,7 @@ const backendAuditSteps: StepDef[] = [
 const unrealFeatureSteps: StepDef[] = [
   {
     instruction:
-      "Load get_skill('pn-unreal-mcp'). Present the comparison matrix and decision tree. Use ask_question when available. Collect: UE version (e.g. 5.7), chosen MCP server (ChiR24/remi/Sallah/kangnam/jim/StraySpark), and feature scope. Produce discoverySpec. After user confirms, call workflow_step(step=1) with state: { discoverySpec, ueVersion, ueMcpServer }.",
+      "Load get_skill('pn-engine-mcp') and use its Unreal Engine 5.x section. Present the comparison matrix and decision tree. Use ask_question when available. Collect: UE version (e.g. 5.7), chosen MCP server (ChiR24/remi/Sallah/kangnam/jim/StraySpark), and feature scope. Produce discoverySpec. After user confirms, call workflow_step(step=1) with state: { discoverySpec, ueVersion, ueMcpServer }.",
     gate: "human",
     nextStep: 1,
     requiredFromState: [],
@@ -738,7 +689,7 @@ const unrealFeatureSteps: StepDef[] = [
   },
   {
     instruction:
-      "Build the feature using the connected UE MCP server's tool surface (actor, Blueprint, material, level, and sequencer tools as appropriate per plan and ueMcpServer). Follow the tool-name mapping from pn-unreal-mcp for the chosen server. Address every acceptance criterion in the plan. When done, call workflow_step(step=3) with state: { buildComplete: true }.",
+      "Build the feature using the connected UE MCP server's tool surface (actor, Blueprint, material, level, and sequencer tools as appropriate per plan and ueMcpServer). Follow the tool-name mapping from pn-engine-mcp for the chosen server. Address every acceptance criterion in the plan. When done, call workflow_step(step=3) with state: { buildComplete: true }.",
     gate: "model",
     nextStep: 3,
     requiredFromState: ["plan", "skepticPassed", "skepticVerdict"],
@@ -769,7 +720,7 @@ const unrealFeatureSteps: StepDef[] = [
 const godotFeatureSteps: StepDef[] = [
   {
     instruction:
-      "Load get_skill('pn-godot-mcp'). Present the comparison matrix and decision tree. Use ask_question when available. Collect: Godot version (e.g. 4.4), chosen MCP server (Coding-Solo/gdai/ee0pdt/tugcantopaloglu/bradypp), and feature scope. Produce discoverySpec. After user confirms, call workflow_step(step=1) with state: { discoverySpec, godotVersion, godotMcpServer }.",
+      "Load get_skill('pn-engine-mcp') and use its Godot 4.x section. Present the comparison matrix and decision tree. Use ask_question when available. Collect: Godot version (e.g. 4.4), chosen MCP server (Coding-Solo/gdai/ee0pdt/tugcantopaloglu/bradypp), and feature scope. Produce discoverySpec. After user confirms, call workflow_step(step=1) with state: { discoverySpec, godotVersion, godotMcpServer }.",
     gate: "human",
     nextStep: 1,
     requiredFromState: [],
@@ -786,7 +737,7 @@ const godotFeatureSteps: StepDef[] = [
   },
   {
     instruction:
-      "Build the feature using the connected Godot MCP server's tool surface (node creation, scene edit, script creation/fixing, project run, error capture as appropriate per plan and godotMcpServer). Follow the tool-name mapping from pn-godot-mcp for the chosen server. Address every acceptance criterion in the plan. When done, call workflow_step(step=3) with state: { buildComplete: true }.",
+      "Build the feature using the connected Godot MCP server's tool surface (node creation, scene edit, script creation/fixing, project run, error capture as appropriate per plan and godotMcpServer). Follow the tool-name mapping from pn-engine-mcp for the chosen server. Address every acceptance criterion in the plan. When done, call workflow_step(step=3) with state: { buildComplete: true }.",
     gate: "model",
     nextStep: 3,
     requiredFromState: ["plan", "skepticPassed", "skepticVerdict"],
@@ -946,7 +897,7 @@ const businessStrategySteps: StepDef[] = [
   // Step 7: Verdict lock + user spot-check
   {
     instruction:
-      "Verdict lock gate. Call workflow_handoff_read to surface the evidence log. Present the evidence count per scorecard row and per companion source. Use workflow_confirm with three options: 'confirm' (lock verdict, proceed to delivery), 'revise' (send specific rows back to grill — call workflow_step(step=4) with grillComplete: false), 'audit' (render N=3 random evidence citations with verbatim quotes for side-by-side inspection, then return to this step). State explicitly to the user: 'This workflow guarantees auditable evidence, not absolute truth — citation truthfulness depends on your spot-check here.' After user confirms, call workflow_step(step=8) with state: { verdictLocked: true }.",
+      "Verdict lock gate. Call workflow_run_query({ run_id, kinds: ["handoff"] }) to surface the evidence log. Present the evidence count per scorecard row and per companion source. Use workflow_confirm with three options: 'confirm' (lock verdict, proceed to delivery), 'revise' (send specific rows back to grill — call workflow_step(step=4) with grillComplete: false), 'audit' (render N=3 random evidence citations with verbatim quotes for side-by-side inspection, then return to this step). State explicitly to the user: 'This workflow guarantees auditable evidence, not absolute truth — citation truthfulness depends on your spot-check here.' After user confirms, call workflow_step(step=8) with state: { verdictLocked: true }.",
     gate: "human",
     nextStep: 8,
     requiredFromState: ["pressureTestVerdict"],
@@ -1149,7 +1100,7 @@ const featureProgramSteps: StepDef[] = [
 //   fsi_analyst_draft, business_strategy, media_director, feature_program,
 //   implementation_tournament.
 // The remaining workflows (prompt_optimize, frontend_audit, image_create,
-// visual_tweak, game_feature, svg_create) are short, atomic, or single-artifact
+// visual_tweak, game_feature) are short, atomic, or single-artifact
 // flows where the handoff log adds noise without recovery value. Add withHandoff()
 // when a new workflow has >=4 steps OR spans multiple sessions.
 /** Internal engine step keys — not exposed on workflowTypeEnum. */
@@ -1165,7 +1116,6 @@ export const workflowSteps: Record<WorkflowType, StepDef[]> = {
   image_create: imageCreateSteps,
   visual_tweak: visualTweakSteps,
   game_feature: gameFeatureSteps,
-  svg_create: svgCreateSteps,
   /** engine_feature routes to unreal_feature or godot_feature via state.engine in getWorkflowStep. */
   engine_feature: withHandoff(unrealFeatureSteps),
   unreal_feature: withHandoff(unrealFeatureSteps),
@@ -1275,6 +1225,12 @@ function partitionSpecialistsForParallel(
   return { sequentialIds, parallelIds, canParallelizeParallelIds };
 }
 
+/** Workflow types removed from the public enum, with the replacement to name in the error. */
+const RETIRED_WORKFLOW_TYPES: Record<string, string> = {
+  svg_create:
+    "svg_create was retired in 0.22.0 (ADR-0024): use image_create with imageSpec.format 'svg'.",
+};
+
 export function getWorkflowStep(
   workflowType: WorkflowType,
   step: number,
@@ -1293,6 +1249,8 @@ export function getWorkflowStep(
     return getWorkflowStep((engine + "_feature") as WorkflowType, step, state);
   }
 
+  const retired = RETIRED_WORKFLOW_TYPES[workflowType as string];
+  if (retired) return { error: retired };
   const steps = workflowSteps[workflowType];
   if (!steps) return { error: `Unknown workflow type: ${workflowType}` };
   if (step < 0 || step >= steps.length)

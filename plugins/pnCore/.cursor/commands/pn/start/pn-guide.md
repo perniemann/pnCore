@@ -9,7 +9,7 @@ description: Show all pnCore capabilities — commands, agents, and recommended 
 
 Show the user what pnCore can do and recommend the right starting point.
 
-> **Slash palette:** Open **`/pn`** in Cursor IDE for the pnCore submenu (**30** leaves in start/build/design/pm/audit/challenge/ship). Top-level **`/pn`** stub routes on CLI. **31** visible palette files total. Another **18** palette-hidden surgical commands remain canonical-only. Live counts are asserted by `scripts/check-doc-inventory.mjs` against disk; `list_commands` is the runtime inventory.
+> **Slash palette:** Open **`/pn`** in Cursor IDE for the pnCore submenu (**28** leaves in start/build/design/pm/audit/challenge/ship). Top-level **`/pn`** stub routes on CLI. **29** visible palette files total. Another **18** palette-hidden surgical commands remain canonical-only. Live counts are asserted by `scripts/check-doc-inventory.mjs` against disk; `list_commands` is the runtime inventory.
 
 ## Chat shortcodes
 
@@ -78,10 +78,8 @@ Use `ask_question` when available:
 
 **Product management (`pn/pm/`):**
 - **pn-create-prd** — PRD / product spec
-- **pn-user-stories** — Backlog items (3 C's, INVEST)
 - **pn-strategy** — Business strategy workflow
 - **pn-pressure-test** — Startup idea verdict
-- **pn-document** — Format or generate project docs
 
 **Audit (`pn/audit/`):**
 - **pn-frontend-audit** — Frontend audit umbrella

@@ -6,6 +6,8 @@ globs: ["**/*.sol", "**/contracts/**", "**/hardhat*", "**/foundry*", "**/scripts
 
 # Web3 security rules
 
+For contract design, testing and deployment workflow, load `get_skill("pn-web3-contracts")`; this rule covers security conventions only.
+
 - Never hardcode private keys, mnemonics, or API keys. Use environment variables or secure vaults.
 - Use environment variables for RPC URLs and chain IDs in config and scripts.
 - Use explicit visibility (`public`, `external`, `internal`, `private`) for all functions and state variables.

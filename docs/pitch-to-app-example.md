@@ -22,7 +22,7 @@ Requirements:
 - Tech stack: Ask me in discovery (React, Next.js, Astro, or vanilla). Do not assume. Backend: Supabase (auth, db), Stripe. Component library: recommend and justify in Design section.
 - Roadmap: Dev phases (scaffold+auth → core features → payments → polish) for autonomous development. Save to docs/plans/.
 - Design: see "Design aligned with me" above.
-- Assets: pn-assets (single entry for image or SVG); routes to pn-svg-creator or pn-image-creator; placeholder images when chosen.
+- Assets: pn-assets (single entry for image or SVG); routes to pn-image-creator or pn-image-creator; placeholder images when chosen.
 - Backend: pn-backend-developer (Supabase); pn-payment-integration (Stripe).
 - Testing: pn-testing-specialist after each phase; pn-reviewer and pn-security-audit at end.
 

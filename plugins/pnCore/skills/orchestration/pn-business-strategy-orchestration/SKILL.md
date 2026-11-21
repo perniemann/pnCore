@@ -163,7 +163,7 @@ When `pressureTestVerdict === "Weak"`:
 | `pn-fsi-analyst-discipline` | 2–3 (when market_data companion absent) | Flag uncited estimates; refuse fabrication |
 | `pn-market-research` | 3 | Market sizing and competitive landscape when needed |
 | `pn-prior-art-research` | 3 | Solution/technology landscape when applicable |
-| `pn-trend-research` | 3 | Emerging trend identification and market intelligence |
+| `pn-idea-miner` | 3 | Emerging trend identification and market intelligence |
 | `pn-codebase-to-strategy` | 1 | Repo → N≤3 candidate angles (codebase/hybrid mode only) |
 | `canvas` (Cursor built-in, **external**) | 8 (optional) | IDE-bound live review of the brief; not shipped by pnCore — use only when Cursor's user-installed `canvas` skill is detected in the session |
 

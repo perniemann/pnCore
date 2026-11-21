@@ -29,5 +29,5 @@ description: "Collect, analyze, and synthesize user feedback into actionable pro
 
 ## Integration
 
-- **pn-sprint-prioritization** — Feed into backlog.
+- **pn-user-stories** — Feed into backlog.
 - **pn-discovery-questionnaire** — When defining research scope.

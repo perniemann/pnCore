@@ -58,7 +58,7 @@ Run a pn-loop until CI is green.
 
 - **pn-verification-before-completion** — The loop uses this for the completion gate. Before claiming done, run verification and confirm output.
 - **pn-review-optimize-loop** — Single pass (review then optimize, fix once). pn-loop is multi-pass until verification succeeds.
-- **pn-ci-fix / pn-ci-triage** — Use these inside the loop when interpreting CI failures and deciding fixes.
+- **pn-ci-fix / pn-ci-fix** — Use these inside the loop when interpreting CI failures and deciding fixes.
 - **pn-systematic-debugging** — Use when failures need reproduce → isolate → fix → verify.
 
 ## Output

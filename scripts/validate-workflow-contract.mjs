@@ -147,11 +147,15 @@ assert(!("error" in vt0), "visual_tweak step 0 should not error");
 if (!("error" in vt0)) passed++;
 else failed++;
 
-// svg_create step 0
+// svg_create retired into image_create (ADR-0024): step 0 asks the format and loads pn-image-creator
 const sc0 = getWorkflowStep("svg_create", 0, {});
-assert(!("error" in sc0), "svg_create step 0 should not error");
-if (!("error" in sc0)) passed++;
+assert("error" in sc0, "svg_create is retired and must error");
+if ("error" in sc0) passed++;
 else failed++;
+assert(
+  !("error" in ic0) && ic0.instruction.includes("SVG") && ic0.instruction.includes("pn-image-creator"),
+  "image_create step 0 covers the SVG format via pn-image-creator"
+);
 
 // project_kickoff step 0: no state required
 const pk0 = getWorkflowStep("project_kickoff", 0, {});

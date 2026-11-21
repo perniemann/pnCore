@@ -1,6 +1,6 @@
 ---
 name: pn-create-mcp-architecture
-description: "Create MCP.md documenting MCP servers in use, purpose, and integration points. Use when project uses multiple MCPs or needs MCP documentation."
+description: "Create MCP.md documenting MCP servers, purpose, and integration points, and maintain MCP tooling (config review, version compatibility). Use when a project uses several MCPs."
 ---
 
 # Create MCP Architecture Document
@@ -61,4 +61,33 @@ Example flows: e.g. Frontend work → pn-core → pn-frontend-developer; Code tr
 ## Integration
 
 - **pn-new (Involved mode):** Optional step when MCPs in use; runs before refs index.
-- **pn-tooling-mcp-maintenance:** For config review and version compatibility; this skill produces the doc.
+- Config review and version compatibility: § MCP tooling and maintenance below. This skill produces the doc.
+
+<!-- merged from pn-tooling-mcp-maintenance (0.22.0) -->
+## MCP tooling and maintenance
+
+### When to use
+
+- Adding a new MCP server to `.cursor/mcp.json` or equivalent
+- Updating an existing MCP server version
+- Diagnosing MCP connection or tool availability issues
+- Maintaining a catalog of approved servers (ownership, versions, capabilities)
+
+### Workflow
+
+1. **Configuration review:** Check `mcp.json` for correct server paths, env vars, and required config. Ensure no inline secrets.
+2. **Version compatibility:** Document server and SDK versions. Pin versions for reproducibility. Check changelog for breaking changes.
+3. **Integration test:** Verify server starts, `health` (if available) returns OK, tools are discoverable. Test one read and one write (if applicable) per server.
+4. **Catalog:** When maintaining an approved list, record: server id, version, capabilities, security review date, compliance tags.
+
+### MCP Best Practices alignment
+
+- **Vet and catalog:** Only adopt servers that are maintained, reviewed, versioned, and policy-compliant.
+- **Versioned APIs:** Keep backward-compatible endpoints for long-running pipelines.
+- **Dependency protection:** Bounded concurrency, strict validation of third-party responses.
+
+### Output
+
+- Config review notes (pass/fail, recommendations)
+- Upgrade checklist when updating
+- Runbook entry for common failures (connection, timeout, tool not found)

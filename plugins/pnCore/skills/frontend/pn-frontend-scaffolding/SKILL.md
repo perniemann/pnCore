@@ -1,6 +1,6 @@
 ---
 name: pn-frontend-scaffolding
-description: "Scaffolds new pages and components by stack (React, Next.js, Astro, Solid 2.0, or vanilla). Use when adding a new page or component; branch by stack per config; covers pages, components, layout, and a11y basics."
+description: "Scaffolds new pages and components by stack (React, Next.js, Astro, Solid 2.0, or vanilla), including placeholder content and images. Use when adding a new page or component; covers layout and a11y basics."
 ---
 
 # Frontend scaffolding
@@ -59,3 +59,24 @@ Use the subsection below that matches the project stack (from discovery or confi
 
 - **pn-frontend-design** — Apply for visual and UX quality once scaffold exists.
 - **pn-react-next-perf** — Use for React/Next data loading and performance when adding data or routes.
+
+<!-- merged from pn-placeholder (0.22.0) -->
+## Placeholder images
+
+### When to use
+
+- Scaffolding pages or components that need image slots.
+- Quick mockups before real assets exist.
+- "Just need something to show" during development.
+
+### Services
+
+- **picsum.photos** (photos): `https://picsum.photos/{width}/{height}` — random photos. Add `?random=1` for cache busting.
+- **placehold.co** (solid/gradient): `https://placehold.co/{width}x{height}/{bg}/{text}` — e.g. `https://placehold.co/800x600/333/fff` for dark bg, white text.
+- **SVG data-URI:** Inline SVG placeholder when no external URL desired (avoids third-party requests).
+
+### Usage
+
+- Add `src` and `alt` to `<img>`. For placeholders, use descriptive alt (e.g. `alt="Placeholder: hero image"`).
+- Document in README: "Placeholder images from picsum.photos/placehold.co — replace before production."
+- Prefer placeholder URLs over external APIs when placeholder suffices.

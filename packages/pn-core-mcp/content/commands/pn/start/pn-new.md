@@ -66,7 +66,7 @@ Use `workflow_step("project_kickoff", 0, {})` when MCP available (8 steps; match
 3. **DESIGN** — pn-create-design-doc. Save to **`docs/refs/DESIGN-DOC.md`**. Gate.
 4. **Domain doc** — pn-create-domain-doc when mechanics in scope. Save to **`docs/refs/DOMAIN-DOC.md`**. Gate or skip.
 5. **Prior art** — pn-prior-art-research. Save to `docs/research/YYYY-MM-DD-<slug>-prior-art.md`. Gate.
-6. **Optional refs** — When applicable: pn-create-stack-doc → **`docs/refs/STACK.md`**, pn-create-mcp-architecture → **`docs/refs/MCP-ARCHITECTURE.md`**, pn-ui-design-specs → **`docs/refs/UI-DESIGN-SPEC.md`**. Gate.
+6. **Optional refs** — When applicable: pn-create-stack-doc → **`docs/refs/STACK.md`**, pn-create-mcp-architecture → **`docs/refs/MCP-ARCHITECTURE.md`**, pn-design-system → **`docs/refs/UI-DESIGN-SPEC.md`**. Gate.
 7. **Refs index** — pn-create-refs-index. Save to **`docs/refs/README.md`**. Gate.
 8. **Project context** — `harness_detect` → `harness_scaffold` (project context + project skill in the active harness's folders; see [Project setup template](#project-setup-template)).
 

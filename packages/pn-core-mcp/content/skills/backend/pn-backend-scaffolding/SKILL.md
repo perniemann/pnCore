@@ -1,6 +1,6 @@
 ---
 name: pn-backend-scaffolding
-description: "Scaffolds new API routes, modules, or services in Node (Express, Fastify, Hono) or similar. Use when adding a new route/module/service; covers project layout, env/secrets pattern, error-handling stub, and stack-specific conventions. Reference pn-node-api and pn-backend-philosophy for design rules."
+description: "Scaffolds API routes, modules, or services: Node (Express, Fastify, Hono) by default, with Python, Go, Rust, Ruby and PHP references. Use when adding a route/module/service; covers layout, env/secrets, error handling."
 ---
 
 # Backend scaffolding
@@ -184,3 +184,13 @@ Add one route or one module per PR. Mixing multiple domain changes in a single d
 - **pn-node-api** — API design, DB access patterns, and error handling depth.
 - **pn-backend-philosophy** — Authoritative backend rulebook (security, OWASP, REST, secrets).
 - **pn-backend-architecture** — Use when designing the overall service structure before scaffolding individual routes.
+
+## Other languages
+
+The sections above are the Node default. For another backend language, load the matching reference before scaffolding and follow it in place of the Node layout:
+
+- **Python** (FastAPI, Flask, Django): `pn-core://skills/backend/pn-backend-scaffolding/python.md` (installed plugin: `references/python.md` next to this file).
+- **Go** (net/http, chi, Gin): `pn-core://skills/backend/pn-backend-scaffolding/go.md` (installed plugin: `references/go.md` next to this file).
+- **Rust** (Axum, Actix): `pn-core://skills/backend/pn-backend-scaffolding/rust.md` (installed plugin: `references/rust.md` next to this file).
+- **Ruby** (Rails, Sinatra): `pn-core://skills/backend/pn-backend-scaffolding/ruby.md` (installed plugin: `references/ruby.md` next to this file).
+- **PHP** (Laravel, Symfony): `pn-core://skills/backend/pn-backend-scaffolding/php.md` (installed plugin: `references/php.md` next to this file).

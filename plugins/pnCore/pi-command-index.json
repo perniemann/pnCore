@@ -116,12 +116,6 @@
       "file": "pn-create-prd.md"
     },
     {
-      "id": "pn-document",
-      "category": "Product",
-      "description": "Format, validate, or generate project docs — discovery specs, plans, prior-art briefs, README, CHANGELOG. Enforces consistent structure across all doc types.",
-      "file": "pn-document.md"
-    },
-    {
       "id": "pn-pressure-test",
       "category": "Product",
       "description": "Startup idea pressure-test — verdict, scorecard, fatal flaws, problem reality, competition, first customers, MVP wedge (Strong/Weak/Pivot). Not for implementation plans; use pn-skeptic or pn-grill for those.",
@@ -132,12 +126,6 @@
       "category": "Product",
       "description": "Business strategy workflow — evidence-led pressure-test of a startup idea or codebase-derived angle. Runs framing, evidence gathering, strategic frame, grill, pressure-test (Strong/Weak/Pivot), and delivers an HTML brief + markdown digest.",
       "file": "pn-strategy.md"
-    },
-    {
-      "id": "pn-user-stories",
-      "category": "Product",
-      "description": "Create user stories — 3 C's and INVEST criteria. Use when breaking a feature or PRD into backlog items before pn-writing-plans.",
-      "file": "pn-user-stories.md"
     },
     {
       "id": "pn-handoff",

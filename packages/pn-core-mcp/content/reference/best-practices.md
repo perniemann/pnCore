@@ -42,7 +42,7 @@ Cross-cutting checklist for design, full_dev, and frontend_audit workflows. Cove
 
 When `report_usage`, multi-tenant workflows, RAG, or heavy tool use are in play:
 
-- **Meter before optimizing:** Track token and API usage per workflow, session, or tenant; use provider dashboards or MCP `report_usage` / `workflow_usage_totals` when wired.
+- **Meter before optimizing:** Track token and API usage per workflow, session, or tenant; use provider dashboards or MCP `report_usage` / `workflow_run_query` (`kinds: ["usage"]`) when wired.
 - **Budgets:** Set soft or hard caps; alert at thresholds (e.g. 80%). Prefer **pn-budget-cost-monitor** for workflow structure and for **hidden token drivers** (tool schemas, duplicated context, RAG top-k, multimodal attachments).
 - **Context cost:** **pn-context-engineering** — slim tiers intentionally; do not fund unnecessary input every turn.
 - **Tool output hygiene:** Collapse or truncate large tool results before the next model call; LLM-summarize only when collapsed output still exceeds threshold; never re-paste results already in context. See **pn-budget-cost-monitor**.

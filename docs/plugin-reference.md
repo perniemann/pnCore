@@ -16,7 +16,7 @@ Orientation for **pnCore**: stacks, agents, commands, hooks, and contribution pa
 | **pnCore agents** | Specialist prompts (markdown in `content/agents/`). Used as reusable prompts in workflows; invoked when `full_dev` / `pn-build` routes work. Examples: pn-skeptic, pn-frontend-developer. |
 | **Paperclip agents** | DB entities in [Paperclip](https://github.com/paperclipai/paperclip) with adapter config, org chart, budgets. External runtimes (OpenClaw, Cursor, Codex) that Paperclip invokes via heartbeats. |
 
-When integrating with Paperclip, pnCore workflows run in the **active harness**; use `paperclip_issue_checkout` before work when governance requires it, `paperclip_issue_comment` for updates, and `paperclip_issue_update` (e.g. `status: done`) when a workflow completes. Set `PAPERCLIP_ISSUE_ID` when the issue id is not in chat. See skill `pn-paperclip`.
+When integrating with Paperclip, pnCore workflows run in the **active harness**; use `paperclip_issue` (`action: "checkout"`) before work when governance requires it, `paperclip_issue` (`action: "comment"`) for updates, and `paperclip_issue` (`action: "update"`) (e.g. `status: done`) when a workflow completes. Set `PAPERCLIP_ISSUE_ID` when the issue id is not in chat. See skill `pn-paperclip`.
 
 ---
 
@@ -39,7 +39,7 @@ Rules live as `.mdc` files under `content/rules/` (always-apply or glob-scoped f
 
 Use **`list_rules`** / **`get_rule`** and **`list_skills`** / **`get_skill`** for exact ids and full text. **Note:** **`pn-design-system`** exists as both a rule (CSS/SCSS token enforcement) and a skill (establish or audit design systems). See [agents-md-guide](agents-md-guide.md) for hard constraints vs learned preferences.
 
-Orchestration includes **pn-cultural-heritage-research** for tiered museum and art-history source discipline before period-specific UI, games, or copy. **pn-render-verify** and **pn-api-probe** support design and build flows (visual artifact verification and live API/version probes). **pn-context-engineering** curates what agents load (rules → spec → task files → errors); **pn-deprecation-and-removal** covers API/feature sunsets and zombie code (distinct from **pn-migration-planning** for framework version jumps). **Discipline** adds **pn-source-driven-implementation** (vendor docs for locked versions). **Review** adds **pn-browser-runtime-verify** (runtime DOM/console/network/perf vs screenshot **pn-evidence-qa**). **CI** adds **pn-ship-checklist** (composable pre-ship gate). **Integrations** adds **pn-rag-evaluation** (golden sets, automated RAG metrics, human rubrics, CI regression gates). **Support** expands **pn-budget-cost-monitor** (hidden token drivers: tools, RAG k, duplicated context, multimodal). **pn-unreal-mcp** and **pn-godot-mcp** compare engine MCP servers at `engine_feature` step 0 before `pn-api-probe` verifies the chosen tool surface.
+Orchestration includes **pn-cultural-heritage-research** for tiered museum and art-history source discipline before period-specific UI, games, or copy. **pn-render-verify** and **pn-api-probe** support design and build flows (visual artifact verification and live API/version probes). **pn-context-engineering** curates what agents load (rules → spec → task files → errors); **pn-deprecation-and-removal** covers API/feature sunsets and zombie code (distinct from **pn-migration-planning** for framework version jumps). **Discipline** adds **pn-source-driven-implementation** (vendor docs for locked versions). **Review** adds **pn-evidence-qa** (runtime DOM/console/network/perf vs screenshot **pn-evidence-qa**). **CI** adds **pn-ship-checklist** (composable pre-ship gate). **Integrations** adds **pn-rag-evaluation** (golden sets, automated RAG metrics, human rubrics, CI regression gates). **Support** expands **pn-budget-cost-monitor** (hidden token drivers: tools, RAG k, duplicated context, multimodal). **pn-engine-mcp** and **pn-engine-mcp** compare engine MCP servers at `engine_feature` step 0 before `pn-api-probe` verifies the chosen tool surface.
 
 **Embedded studio DNA:** MCP resource **`pn-core://reference/embedded-studio-dna.md`**; skill **pn-embedded-studio-dna**; command **pn-design-dna** (DNA preamble then **`pn-design`** / `workflow_step("design")`). For cinematic portfolio, reel, studio, and lab surfaces.
 
@@ -69,7 +69,7 @@ Invoked by `/pn-build` and `workflow_step("full_dev")`. Do not present these as 
 
 - **pn-project-builder** — Discovery → user confirms → prior art → pn-writing-plans → **pn-skeptic-challenge** on plan → routes to specialists → pn-reviewer for final review+optimize loop.
 - **pn-scaffolder** — Discovery-driven plugin, web (React, Astro, Next, vanilla), backend (Node, Python, Go, Rust, Ruby, PHP), or 3D (Babylon.js) scaffold; pn-discovery-questionnaire; pn-writing-skills when creating skills; post-scaffold review.
-- **pn-assets-manager** — SVG, raster images, logos, diagrams, placeholders; routes to workflow_step("svg_create")/inline SVG, workflow_step("image_create")/inline image, `pn-diagram` for architecture/flow visuals, or placeholder URLs.
+- **pn-assets-manager** — SVG, raster images, logos, diagrams, placeholders; routes to workflow_step("image_create") (format SVG)/inline SVG, workflow_step("image_create")/inline image, `pn-diagram` for architecture/flow visuals, or placeholder URLs.
 - **pn-game-developer** — Three.js, Babylon.js, Godot, Unity scenes; shaders; game logic; post-change review.
 - **pn-reviewer** — Quality review loop with deslop, pn-verification-before-completion, and performance optimization; repeat until pass.
 - **pn-security-auditor** — Security-focused review; OWASP, auth, dependencies, secrets, input validation.
@@ -89,10 +89,9 @@ User-entry commands ship under **`plugins/pnCore/.cursor/commands/`** (the Curso
 - **pn-design-dna** — Same as design flow after loading **embedded studio DNA** (`pn-core://reference/embedded-studio-dna.md`) and **pn-embedded-studio-dna**; for portfolio / reel / lab editorial structure. Prefer chaining `workflow_step("design", …)` with DNA summary in context when MCP available.
 - **pn-review** — One review+optimize pass: quality gates, deslop, pn-reality-check, pn-react-next-perf / pn-systematic-debugging where relevant.
 - **pn-deliver** — Strict delivery gate. Phase 1: verify against acceptance criteria and quality gates. Phase 2 (only if Phase 1 passes): package results (summary, file list, how-to-test, checklist, residual risks, followups).
-- **pn-assets** — Single entry for any visual asset. Routes to SVG flow (`workflow_step("svg_create")` or inline), image flow (`workflow_step("image_create")` or inline), **diagram** (`pn-diagram` / `pn-diagram-design`), or placeholder URLs. Content discussed before generation.
+- **pn-assets** — Single entry for any visual asset. Routes to SVG flow (`workflow_step("image_create") (format SVG)` or inline), image flow (`workflow_step("image_create")` or inline), **diagram** (`pn-diagram` / `pn-diagram-design`), or placeholder URLs. Content discussed before generation.
 - **pn-diagram** — Architecture, flowchart, sequence, state, loop, quadrant, layers, process, data-flow, or org-chart as Mermaid-in-docs or editorial HTML/SVG. Import-redraw with a fidelity ledger (no draw.io extractors). Skill `pn-diagram-design`; no `workflowType`.
 - **pn-strategy** — Business-strategy entry point: framing → grill → pressure-test → HTML + markdown brief. Prefer `workflow_step("business_strategy", …)` when MCP available.
-- **pn-document** — Format or validate project docs; loads pn-documentation for discovery, plans, prior-art, SVG specs, README, CHANGELOG.
 - **pn-guide** — Routing reference for the command and skill catalog (clusters, when-to-use guidance, surgical-audit map).
 - **pn-video-lint** — Lint and review generated video / motion deliverables for spec, pacing, and pipeline drift.
 
@@ -112,7 +111,6 @@ User-entry commands ship under **`plugins/pnCore/.cursor/commands/`** (the Curso
 ### Product management
 
 - **pn-create-prd** — Product requirements document (8-section template or feature-matrix). Use before plans when stakeholders need a spec.
-- **pn-user-stories** — Backlog items (3 C's, INVEST) from a feature or PRD.
 
 ### Full audits
 

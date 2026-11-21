@@ -98,7 +98,7 @@ Step 1 must emit `.cursor/worktrees.json`. Use `get_skill('pn-slice-contracts')`
 
 After each step, `workflow_handoff_append` is called automatically. To resume:
 1. Call `workflow_state_load("feature_program", programSlug)` to restore state.
-2. Call `workflow_handoff_read(run_id)` to read the last handoff.
+2. Call `workflow_run_query({ run_id, kinds: ["handoff"] })` to read the last handoff.
 3. Call `workflow_step("feature_program", <lastStep>, <restoredState>)` to continue.
 
 ## MCP-absent fallback

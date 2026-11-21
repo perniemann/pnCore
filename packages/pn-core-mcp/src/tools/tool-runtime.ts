@@ -7,7 +7,6 @@ import { loadFeatures } from "../features.js";
 import { maxResourceCharsFromEnv } from "../resource-truncate.js";
 import { debug } from "../debug.js";
 import { parseRequiredApprovalWorkflows } from "../human-gate-tickets.js";
-import { tailScanBytesFromEnv } from "../file-tail.js";
 import { defaultGateLogPath } from "../workflow-gate-log.js";
 import { currentStepIndex } from "../run-spans.js";
 
@@ -73,15 +72,8 @@ export const requiredHumanGateWorkflows = parseRequiredApprovalWorkflows(
 export const defaultHumanGateTicketsPath =
   process.env.PNCORE_HUMAN_GATE_TICKETS_PATH ?? ".pncore/human-gate-tickets.jsonl";
 
-export const defaultUsagePath = ".pncore/usage.jsonl";
-export const usageScanMaxBytes = tailScanBytesFromEnv(process.env.PNCORE_USAGE_SCAN_BYTES, 786_432);
-export const handoffScanMaxBytes = tailScanBytesFromEnv(
-  process.env.PNCORE_HANDOFF_SCAN_BYTES,
-  786_432
-);
 export const defaultHandoffPath =
   process.env.PNCORE_HANDOFF_LOG || ".pncore/workflow-handoff.jsonl";
-export const HANDOFF_READ_MAX_LINES = 80;
 
 export const runIdOptArg = z
   .string()

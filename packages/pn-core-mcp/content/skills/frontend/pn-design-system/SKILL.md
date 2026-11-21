@@ -1,6 +1,6 @@
 ---
 name: pn-design-system
-description: "Establishes or maintains a design system: tokens, CSS variables, spacing/type scales, theming, and consistency auditing. Use when defining tokens or auditing components. The pn-design-system rule enforces token usage when editing CSS/SCSS files."
+description: "Establishes or maintains a design system: tokens, CSS variables, spacing/type scales, theming, UI design specs, and consistency auditing. Use when defining tokens, writing component specs, or auditing components."
 ---
 
 # Design system skill
@@ -81,3 +81,29 @@ This ensures WCAG 2.2 compliance when any `transition` or `animation` is used. P
 - Components that reference tokens exclusively.
 - Theme files with light/dark overrides.
 - Reference pn-frontend-design for aesthetics; pn-ux-patterns for a11y.
+
+<!-- merged from pn-ui-design-specs (0.22.0) -->
+## UI design specs
+
+### When to use
+
+- Design system or component library specs for handoff.
+- Design tokens (color, typography, spacing, shadows).
+- Visual design specifications with measurements and usage guidelines.
+- WCAG AA compliance specs.
+
+### Workflow
+
+1. **Tokens:** Color, typography, spacing, shadow systems.
+2. **Components:** Variants, states (hover, disabled, loading, error).
+3. **Responsive:** Breakpoints, layout behavior.
+4. **Handoff:** Specs with measurements; export guidance for assets.
+
+### Output path (project kickoff)
+
+When used in project kickoff (pn-new Involved mode) and UI is in scope: save to `docs/UI.md`. Otherwise save to `docs/design/YYYY-MM-DD-<slug>-ui-spec.md` or as specified.
+
+### Integration
+
+- **pn-frontend-developer** — Use when frontend work needs design specs or token definitions.
+- **pn-new (Involved mode)** — When UI in scope, run this skill and save to `docs/UI.md`.

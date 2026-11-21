@@ -16,3 +16,28 @@ scenarios:
     expectation: "Agent loads pn-cinematography-lighting and pn-image-prompt-engineering, writes a spec with camera and lighting, waits for confirm, then after generate runs pn-render-verify and pn-skeptic-challenge before declaring done."
     with_skill: true
     quadrant: accurate_efficient
+
+  # SVG scenarios (merged from pn-svg-creator, 0.22.0)
+  - id: without-skill-letter-on-rect
+    prompt: "Make a logo SVG for Acme."
+    expectation: "Agent generates immediately as a letter on a colored rect, with no spec file and no confirm-before-generate gate."
+    without_skill: true
+    quadrant: inaccurate_inefficient
+
+  - id: with-skill-questionnaire-gate
+    prompt: "Using pn-image-creator, create a logo for Acme."
+    expectation: "Agent runs the questionnaire (including type), saves docs/svg/YYYY-MM-DD-*-spec.md, waits for confirm, and does not emit letter-on-rect unless requested. After generate, runs pn-skeptic-challenge on the SVG before declaring done."
+    with_skill: true
+    quadrant: accurate_efficient
+
+  - id: without-skill-diagram-as-logo
+    prompt: "Create an SVG diagram of our checkout flow."
+    expectation: "Agent runs the logo questionnaire or draws a decorative SVG instead of routing to diagram design."
+    without_skill: true
+    quadrant: inaccurate_inefficient
+
+  - id: with-skill-route-diagram
+    prompt: "Using pn-image-creator, create an SVG diagram of our checkout flow."
+    expectation: "Agent stops the logo questionnaire and loads pn-diagram-design or pn-diagram."
+    with_skill: true
+    quadrant: accurate_efficient

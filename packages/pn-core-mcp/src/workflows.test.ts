@@ -415,7 +415,7 @@ describe("workflows contract", () => {
       const r = result as WorkflowStepResult;
       expect(r.nextStep).toBe(1);
       expect(r.gate).toBe("human");
-      expect(r.instruction).toContain("pn-unreal-mcp");
+      expect(r.instruction).toContain("pn-engine-mcp");
     });
 
     it("unreal_feature step 3 fresh (no skepticOutputPassed) returns nextStep:4", () => {
@@ -1683,5 +1683,33 @@ describe("handoff instruction (ADR-0022)", () => {
     expect(result.instruction.indexOf("workflow_state_save")).toBeLessThan(
       result.instruction.indexOf("workflow_handoff_append")
     );
+  });
+});
+
+describe("ADR-0024 consolidation", () => {
+  it("svg_create is retired with a pointer to image_create", () => {
+    const r = getWorkflowStep("svg_create" as never, 0, {});
+    expect("error" in r && r.error).toMatch(/image_create with imageSpec.format 'svg'/);
+  });
+
+  it("image_create step 0 asks the format and covers SVG through pn-image-creator", () => {
+    const r = getWorkflowStep("image_create", 0, {});
+    if ("error" in r) throw new Error(r.error);
+    expect(r.instruction).toContain("get_skill('pn-image-creator')");
+    expect(r.instruction).toMatch(/PNG \(raster\) or SVG/);
+  });
+
+  it("image_create generate step routes SVG to pn-svg on a premium tier", () => {
+    const r = getWorkflowStep("image_create", 2, { specConfirmed: true, imageSpec: {} });
+    if ("error" in r) throw new Error(r.error);
+    expect(r.instruction).toContain("get_skill('pn-svg')");
+    expect(r.suggestedModelTier?.tier).toBe("premium");
+  });
+
+  it("business_strategy verdict gate reads handoff through workflow_run_query", () => {
+    const all = JSON.stringify(Object.values(workflowSteps));
+    expect(all).not.toContain("workflow_handoff_read");
+    expect(all).not.toContain("workflow_usage_totals");
+    expect(all).not.toMatch(/paperclip_issue_(checkout|comment|update)/);
   });
 });

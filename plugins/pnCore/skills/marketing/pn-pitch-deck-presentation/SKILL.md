@@ -79,7 +79,7 @@ Adapt slide structure to purpose:
 
 ## Instructions
 
-1. **Gather Information**: Use discovery spec (pn-discovery-questionnaire), PRD (pn-create-prd), or content strategy (pn-content-strategy) when available. Ask for traction metrics, team bios, and target audience.
+1. **Gather Information**: Use discovery spec (pn-discovery-questionnaire), PRD (pn-create-prd), or content strategy (pn-copywriter) when available. Ask for traction metrics, team bios, and target audience.
 
 2. **Apply Template**: For investor decks, use the 10–12 slide order above. For other types, follow General Presentation structure.
 
@@ -99,7 +99,7 @@ Adapt slide structure to purpose:
 ## Integration
 
 - **pn-discovery-questionnaire** — Pull context for problem, solution, market
-- **pn-content-strategy** — Narrative and storytelling alignment
+- **pn-copywriter** — Narrative and storytelling alignment
 - **pn-create-prd** — Product context, value prop, segments
 - **pn-landing-page** — Align messaging across pitch and web
 - **pn-copywriter** — Persuasive copy, tone, CTAs

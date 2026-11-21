@@ -49,7 +49,7 @@ description: "Tiered research for art history, movements, museums, period-accura
 - **pn-frontend-design**, **pn-typography**, **pn-color-system** — Period-consistent UI choices after research.
 - **pn-image-creator**, **pn-image-prompt-engineering** — Era-accurate prompts with explicit “inspired by / not a reproduction” boundaries.
 - **pn-game-developer**, **pn-gamedev-philosophy** — Art direction and setting research.
-- **pn-content-strategy**, **pn-copywriter** — Editorial tone vs factual exhibition copy.
+- **pn-copywriter**, **pn-copywriter** — Editorial tone vs factual exhibition copy.
 - **pn-cultural-researcher** agent — Dedicated handoff when the user wants a full research pass before design or implementation.
 
 ## Output

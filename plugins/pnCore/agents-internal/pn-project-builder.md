@@ -26,7 +26,7 @@ Follow FLOW.md standard sequence (Discovery → Prior art → Plan → Workflow 
 
 - **Step 0 (Discovery):** Run pn-discovery-questionnaire. When frontend/UI in scope present 3a–3g; otherwise 3a only. Skip path: user provides complete spec.
 - **Step 0.5 (Prior art):** Run pn-prior-art-research. Skip path: user says "no research" or "build from scratch."
-- **Step 0.75 (PM skills, optional):** Run pn-create-prd and/or pn-user-stories / pn-job-stories when product spec or backlog is requested. Use as additional plan input.
+- **Step 0.75 (PM skills, optional):** Run pn-create-prd and/or pn-user-stories / pn-user-stories when product spec or backlog is requested. Use as additional plan input.
 - **Step 1 (Decide specialists):** From `config/specialists.json`. **Required when build includes UI:** pn-assets-manager must run — create logo, hero, icons, empty states per asset taxonomy; run validate-assets.mjs before declaring landing complete. **Required when discovery or plan treats generative media as first-class** (ComfyUI, T2V, cinematic AI pipelines, campaign-grade AI imagery beyond UI asset taxonomy): pn-generative-media-director must run. Omit it when only standard UI assets are needed. **Required when Supabase/backend in scope:** pn-backend-developer must run. Use pn-writing-plans from the discovery spec + any PRD/backlog docs.
 - **Step 1.5 (Skeptic):** Run pn-skeptic-challenge on the plan. Do not run specialists until accepted.
 - **Step 2 (Confirm list):** Gate: "I will run: [list and order]. Proceed?" (yes / adjust) — see `reference/conventions.md`.
