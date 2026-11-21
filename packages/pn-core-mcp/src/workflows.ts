@@ -897,7 +897,7 @@ const businessStrategySteps: StepDef[] = [
   // Step 7: Verdict lock + user spot-check
   {
     instruction:
-      "Verdict lock gate. Call workflow_run_query({ run_id, kinds: ["handoff"] }) to surface the evidence log. Present the evidence count per scorecard row and per companion source. Use workflow_confirm with three options: 'confirm' (lock verdict, proceed to delivery), 'revise' (send specific rows back to grill — call workflow_step(step=4) with grillComplete: false), 'audit' (render N=3 random evidence citations with verbatim quotes for side-by-side inspection, then return to this step). State explicitly to the user: 'This workflow guarantees auditable evidence, not absolute truth — citation truthfulness depends on your spot-check here.' After user confirms, call workflow_step(step=8) with state: { verdictLocked: true }.",
+      "Verdict lock gate. Call workflow_run_query({ run_id, kinds: ['handoff'] }) to surface the evidence log. Present the evidence count per scorecard row and per companion source. Use workflow_confirm with three options: 'confirm' (lock verdict, proceed to delivery), 'revise' (send specific rows back to grill — call workflow_step(step=4) with grillComplete: false), 'audit' (render N=3 random evidence citations with verbatim quotes for side-by-side inspection, then return to this step). State explicitly to the user: 'This workflow guarantees auditable evidence, not absolute truth — citation truthfulness depends on your spot-check here.' After user confirms, call workflow_step(step=8) with state: { verdictLocked: true }.",
     gate: "human",
     nextStep: 8,
     requiredFromState: ["pressureTestVerdict"],
