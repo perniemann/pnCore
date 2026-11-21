@@ -8,6 +8,7 @@ import { fileURLToPath } from "url";
 import { spawnSync, execFileSync } from "child_process";
 import { resolveDiffRange, listChangedFiles } from "./git-diff-lib.mjs";
 import { validateChangedMarkdown } from "./validate-doc-structure-lib.mjs";
+import { hasBareTodo } from "./pn-pr-review-lib.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(__dirname, "..");
@@ -59,7 +60,7 @@ function reviewDiff(changedFiles, range) {
     if (/console\.(log|debug)\(/.test(chunk)) {
       findings.push(`${file}: added console.log/debug — remove before merge`);
     }
-    if (/\bTODO\b(?!\s*\(#\d+\))/i.test(chunk) && !file.includes("__tests__")) {
+    if (hasBareTodo(chunk) && !file.includes("__tests__")) {
       findings.push(`${file}: added bare TODO without issue reference`);
     }
   }
