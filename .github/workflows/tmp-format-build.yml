@@ -36,5 +36,5 @@ jobs:
             git push origin HEAD:feat/catalog-consolidation
           fi
       - name: test:full (log only)
-        run: npm run test:full 2>&1 | tail -400
+        run: npm run test:full
         continue-on-error: true

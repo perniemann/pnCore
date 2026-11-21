@@ -7,6 +7,12 @@ description: "Compare and install a game-engine MCP server (Unreal Engine 5.x or
 
 One skill for both engines: pick the section that matches the project's engine. `engine_feature` step 0 loads this skill for either engine.
 
+## When to use
+
+- Discovery for an Unreal Engine 5.x or Godot 4.x project that will drive the editor through MCP (`engine_feature` step 0).
+- Choosing, installing or replacing an engine MCP server.
+- Before planning: verify the live tool list of the installed server; plan only against tools it exposes.
+
 <!-- merged from pn-unreal-mcp (0.22.0) -->
 ## Unreal Engine 5.x
 

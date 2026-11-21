@@ -1,0 +1,24 @@
+# Evaluation suite for pn-engine-mcp
+# Convention: pn-core://reference/eval-convention.md
+
+skill: pn-engine-mcp
+owner: pncore-maintainers
+
+scenarios:
+  - id: without-skill-plan-against-assumed-tools
+    prompt: "Add a day/night cycle to my Unreal 5.7 project through MCP."
+    expectation: "Agent assumes an MCP server and its tool names, then plans the feature without comparing servers, installing one, or listing the tools it actually exposes."
+    without_skill: true
+    quadrant: inaccurate_inefficient
+
+  - id: with-skill-unreal-select-install-verify
+    prompt: "Using pn-engine-mcp, set up editor automation for my Unreal 5.7 project before we plan a day/night cycle."
+    expectation: "Agent uses the Unreal Engine 5.x section: presents the server comparison matrix and decision tree, asks the UE version and server choice, gives install steps, and verifies the live tool list before any planning. It plans only against verified tools."
+    with_skill: true
+    quadrant: accurate_efficient
+
+  - id: with-skill-godot-section
+    prompt: "Using pn-engine-mcp, pick an MCP server for my Godot 4.4 project."
+    expectation: "Agent uses the Godot 4.x section, not the Unreal one: Godot server comparison and decision tree, Godot version, install, and tool-list verification."
+    with_skill: true
+    quadrant: accurate_efficient
