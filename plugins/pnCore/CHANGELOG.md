@@ -4,6 +4,22 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.20.0] - 2026-11-21
+
+The 🔺 marker now reaches Claude Code, Codex and Pi on the turn that owes it, not only Cursor (ADR-0023).
+
+### Added
+
+- **Every pn-core tool result ends with a `pn-indicator:` text block** naming the tag the tool implies: `get_agent` gives `[pn-agent] 🔺`, `get_command` and `workflow_step` give `[pn-command] 🔺`, `get_skill` gives `[pn-skill] 🔺`, any other tool gives `[pn-default] 🔺`. A more specific active tag still wins (plan > agent > command > skill > default). The JSON payload stays the first block. The wrap lives in `def()` in `tools/registry.ts`, so MCP and Pi share it.
+- **MCP server `instructions`** state the indicator contract: the touch definition, every tag, the precedence.
+
+### Changed
+
+- The generated `AGENTS.md` / instructions line (`TRIANGLE_LINE` in `harness.ts`) follows the rule's "touched by pnCore" definition. It said "every response in this project", which contradicted the rule.
+- The Pi extension forwards every content block of a tool result, not only the first.
+- `ToolContentResult.content` is an array of text blocks, not a one-element tuple.
+- Rule `pn-visual-indicator` documents the engine reminder.
+
 ## [0.19.14] - 2026-11-21
 
 Every PR was red at `npm audit --audit-level=high`. This release clears the audit and takes an install-layout dependency out of the coverage gate.

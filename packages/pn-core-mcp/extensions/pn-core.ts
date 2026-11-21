@@ -20,17 +20,9 @@ export default function registerPnCoreTools(pi: ExtensionAPI): void {
       parameters: tool.typeboxParameters,
       async execute(_toolCallId, params) {
         const result = await tool.handler(params as never);
-        const text = result.content[0]?.text ?? "";
-        if (result.isError) {
-          return {
-            content: [{ type: "text" as const, text }],
-            details: { isError: true },
-          };
-        }
-        return {
-          content: [{ type: "text" as const, text }],
-          details: {},
-        };
+        // Keep every block: the last one is the pn-indicator reminder (ADR-0023).
+        const content = result.content.map((c) => ({ type: "text" as const, text: c.text }));
+        return { content, details: result.isError ? { isError: true } : {} };
       },
     });
   }

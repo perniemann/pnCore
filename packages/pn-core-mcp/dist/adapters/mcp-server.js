@@ -7,6 +7,7 @@ import { debug } from "../debug.js";
 import { MCP_VERSION } from "../tools/tool-runtime.js";
 import { contextArgSchema } from "../tools/schemas-zod.js";
 import { PN_CORE_TOOLS } from "../tools/registry.js";
+import { PN_INDICATOR_INSTRUCTIONS } from "../indicator.js";
 const ERROR_CODE_TO_JSON_RPC = {
     NOT_FOUND: -32004,
     INVALID_STATE: -32600,
@@ -19,7 +20,7 @@ const ERROR_CODE_TO_JSON_RPC = {
     DISPOSE_UNAVAILABLE: -32005,
     INVALID_ARGV: -32602,
 };
-const server = new McpServer({ name: "pn-core-mcp", version: MCP_VERSION }, { capabilities: { prompts: {}, resources: {} } });
+const server = new McpServer({ name: "pn-core-mcp", version: MCP_VERSION }, { capabilities: { prompts: {}, resources: {} }, instructions: PN_INDICATOR_INSTRUCTIONS });
 function regTool(name, description, schema, annotations, handler) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     server.tool(name, description, schema, annotations, handler);

@@ -14,10 +14,11 @@ export type ToolAnnotations = {
     idempotentHint?: boolean;
 };
 export type ToolContentResult = {
-    content: [{
+    /** First block: the tool's payload. Registry-wrapped results end with the pn-indicator line (ADR-0023). */
+    content: Array<{
         type: "text";
         text: string;
-    }];
+    }>;
     isError?: true;
 };
 export declare const ErrorCode: {
@@ -40,7 +41,7 @@ export declare function getMcpVersion(): string;
 export declare const MCP_VERSION: string;
 export { safeBase, resolveSafePath };
 export declare const requiredHumanGateWorkflows: Set<import("../workflows.js").WorkflowType> | null;
-export declare const defaultHumanGateTicketsPath: string;
+export declare const defaultHumanGateTicketsPath: any;
 export declare const defaultUsagePath = ".pncore/usage.jsonl";
 export declare const usageScanMaxBytes: number;
 export declare const handoffScanMaxBytes: number;

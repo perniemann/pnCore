@@ -32,6 +32,7 @@ import {
   workflowVerifySchema,
 } from "./schemas-zod.js";
 import { typeboxSchemas, PN_CORE_TOOL_NAMES } from "./schemas-typebox.js";
+import { withIndicator } from "../indicator.js";
 import {
   handleApprovalCheckpoint,
   handleGateLogAppend,
@@ -94,7 +95,7 @@ function def(
     zodSchema,
     typeboxParameters,
     annotations,
-    handler: handler as ToolDefinition["handler"],
+    handler: async (args) => withIndicator(name, await handler(args)),
   };
 }
 

@@ -21,7 +21,8 @@ export type ToolAnnotations = {
 };
 
 export type ToolContentResult = {
-  content: [{ type: "text"; text: string }];
+  /** First block: the tool's payload. Registry-wrapped results end with the pn-indicator line (ADR-0023). */
+  content: Array<{ type: "text"; text: string }>;
   isError?: true;
 };
 
