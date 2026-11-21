@@ -11,7 +11,7 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-function parse(result: { content: [{ type: "text"; text: string }] }) {
+function parse(result: { content: Array<{ type: "text"; text: string }> }) {
   return JSON.parse(result.content[0]!.text) as Record<string, unknown>;
 }
 

@@ -67,6 +67,15 @@ describe("MCP per-tool integration", () => {
     expect(parsed.calendarDateUtc).toMatch(/^\d{4}-\d{2}-\d{2}$/);
   });
 
+  // ── pn-indicator (ADR-0023) ────────────────────────────────────────────
+  it("indicator: instructions and the trailing pn-indicator block reach the client", async () => {
+    expect(client.getInstructions()).toContain("[pn-default] \u{1F53A}");
+    const result = await client.callTool({ name: "health", arguments: {} });
+    const blocks = (result.content as Array<{ type: string; text?: string }>) ?? [];
+    expect(blocks.length).toBeGreaterThanOrEqual(2);
+    expect(blocks[blocks.length - 1].text).toMatch(/^pn-indicator: .*`\[pn-default\] \u{1F53A}`/u);
+  });
+
   // F1.2 follow-up: the audit roadmap asks for `z.object({}).strict()` so empty-arg
   // tools reject typos at the JSON-RPC layer. The SDK's `registerTool({ inputSchema:
   // ZodObject })` overload supports this but its generic

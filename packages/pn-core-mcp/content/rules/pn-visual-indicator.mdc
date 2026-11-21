@@ -29,6 +29,10 @@ Tag the response if **any** of the following happened this turn:
 
 Do **not** tag a response solely because this rule (or any other `alwaysApply` pn rule) is loaded into context. Mere presence of a pn rule file is not a "touch" — there must be an actual contribution from a pn surface to the response.
 
+## Engine reminder (all harnesses)
+
+Every pn-core tool result ends with a text block starting `pn-indicator:` that names the tag implied by that tool (`get_agent` → `[pn-agent]`, `get_command` / `workflow_step` → `[pn-command]`, `get_skill` → `[pn-skill]`, any other tool → `[pn-default]`). Follow it unless a more specific tag is already active (plan > agent > command > skill > default). The MCP server `instructions` carry the same contract. This is how Claude Code, Codex and Pi get the per-turn signal Cursor gets from always-apply rule injection (ADR-0023).
+
 ## Plan mode override
 
 When the Cursor IDE indicates plan mode is active (e.g. "Plan mode is active" in the system context):

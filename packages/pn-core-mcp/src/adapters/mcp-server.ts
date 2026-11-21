@@ -15,6 +15,7 @@ import { MCP_VERSION } from "../tools/tool-runtime.js";
 import type { RawShape, ShapeArgs } from "../tools/tool-runtime.js";
 import { contextArgSchema } from "../tools/schemas-zod.js";
 import { PN_CORE_TOOLS } from "../tools/registry.js";
+import { PN_INDICATOR_INSTRUCTIONS } from "../indicator.js";
 
 const ERROR_CODE_TO_JSON_RPC = {
   NOT_FOUND: -32004,
@@ -33,7 +34,7 @@ type ErrorCodeKey = keyof typeof ERROR_CODE_TO_JSON_RPC;
 
 const server = new McpServer(
   { name: "pn-core-mcp", version: MCP_VERSION },
-  { capabilities: { prompts: {}, resources: {} } }
+  { capabilities: { prompts: {}, resources: {} }, instructions: PN_INDICATOR_INSTRUCTIONS }
 );
 
 function regTool<S extends RawShape>(

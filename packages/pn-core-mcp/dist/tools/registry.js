@@ -1,5 +1,6 @@
 import { approvalCheckpointSchema, gateLogAppendSchema, getAgentSchema, getCommandSchema, getRuleSchema, getSkillSchema, harnessDetectSchema, harnessScaffoldSchema, healthSchema, projectContextSchema, listAgentsSchema, listCommandsSchema, listRulesSchema, listSkillsSchema, listWorkflowTypesSchema, paperclipIssueCheckoutSchema, paperclipIssueCommentSchema, paperclipIssueUpdateSchema, reportUsageSchema, suggestModelTierSchema, workflowConfirmSchema, workflowHandoffAppendSchema, workflowHandoffReadSchema, workflowStateLoadSchema, workflowStateSaveSchema, workflowRunQuerySchema, workflowStepSchema, workflowUsageTotalsSchema, workflowVerifySchema, } from "./schemas-zod.js";
 import { typeboxSchemas, PN_CORE_TOOL_NAMES } from "./schemas-typebox.js";
+import { withIndicator } from "../indicator.js";
 import { handleApprovalCheckpoint, handleGateLogAppend, handleGetAgent, handleGetCommand, handleGetRule, handleGetSkill, handleHarnessDetect, handleHarnessScaffold, handleHealth, handleProjectContext, handleListAgents, handleListCommands, handleListRules, handleListSkills, handleListWorkflowTypes, handlePaperclipIssueCheckout, handlePaperclipIssueComment, handlePaperclipIssueUpdate, handleReportUsage, handleSuggestModelTier, handleWorkflowConfirm, handleWorkflowHandoffAppend, handleWorkflowHandoffRead, handleWorkflowStateLoad, handleWorkflowStateSave, handleWorkflowRunQuery, handleWorkflowStep, handleWorkflowUsageTotals, handleWorkflowVerify, } from "./handlers.js";
 function def(name, label, description, zodSchema, annotations, 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -15,7 +16,7 @@ handler) {
         zodSchema,
         typeboxParameters,
         annotations,
-        handler: handler,
+        handler: async (args) => withIndicator(name, await handler(args)),
     };
 }
 const readOnly = { readOnlyHint: true, destructiveHint: false, idempotentHint: true };

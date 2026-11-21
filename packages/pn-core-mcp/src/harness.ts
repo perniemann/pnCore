@@ -390,7 +390,7 @@ export function portableMcpServerEntry(): {
 }
 
 const TRIANGLE_LINE =
-  "Begin every response in this project with the appropriate context tag and 🔺 (Unicode U+1F53A). Default `[pn-default] 🔺`; use `[pn-command] 🔺` / `[pn-agent] 🔺` / `[pn-skill] 🔺` / `[pn-plan] 🔺` when a pn command, agent, skill, or plan mode is active. See pnCore rule `pn-visual-indicator`.";
+  "Begin every response touched by pnCore (a pn-core tool call, a pn skill, command, agent or rule applied, or a pn-core:// resource read this turn) with one context tag and 🔺 (U+1F53A): `[pn-plan] 🔺` > `[pn-agent] 🔺` > `[pn-command] 🔺` > `[pn-skill] 🔺` > `[pn-default] 🔺`, most specific wins. Every pn-core tool result ends with a `pn-indicator:` line naming the tag. See pnCore rule `pn-visual-indicator`.";
 
 const MCP_BOOTSTRAP_LINE =
   'When pn-core MCP (or Pi native pn-core tools) is available: call `project_context` at session start; load `get_rule("pn-build-gate")` and `get_rule("pn-mcp-proactive")` and follow them; for verbose replies or the aliases `scr`/`eli`/`foc`/`ref`/`scp` load `get_rule("pn-communication-contract")` and `get_skill("pn-response-aliases")`.';
