@@ -877,7 +877,7 @@ const businessStrategySteps: StepDef[] = [
   // Step 5: Pressure-test verdict
   {
     instruction:
-      "Load get_skill('pn-pressure-test'). Apply the 6-row scorecard (pain intensity, buyer clarity, urgency, differentiation, speed to validate, founder advantage) to the framing + evidence log. Call workflow_handoff_read and verify each scorecard row has ≥1 evidence entry tagged to that row. If any row has zero entries, do not lock verdict — return to grill (set grillComplete: false and call workflow_step(step=4)). When evidence gate passes, output verdict: Strong / Weak / Pivot, plus killCriteria and firstTenCustomers. Call workflow_step(step=6) with state: { pressureTestVerdict, killCriteria, firstTenCustomers }.",
+      "Load get_skill('pn-pressure-test'). Apply the 6-row scorecard (pain intensity, buyer clarity, urgency, differentiation, speed to validate, founder advantage) to the framing + evidence log. Call workflow_run_query({ run_id, kinds: ['handoff'] }) and verify each scorecard row has ≥1 evidence entry tagged to that row. If any row has zero entries, do not lock verdict — return to grill (set grillComplete: false and call workflow_step(step=4)). When evidence gate passes, output verdict: Strong / Weak / Pivot, plus killCriteria and firstTenCustomers. Call workflow_step(step=6) with state: { pressureTestVerdict, killCriteria, firstTenCustomers }.",
     gate: "human",
     nextStep: 6,
     requiredFromState: ["grillComplete"],
