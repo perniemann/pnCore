@@ -21,7 +21,7 @@ model: inherit
 
 - **pn-backend-architecture** — When designing APIs, DBs, or infrastructure before implementation.
 - **pn-node-api** — API design, env/secrets, error handling, DB patterns (when stack is Node).
-- **pn-python-scaffolding**, **pn-go-scaffolding**, **pn-rust-scaffolding**, **pn-ruby-scaffolding**, **pn-php-scaffolding** — When stack is Python/Go/Rust/Ruby/PHP: use for patterns, layout, env/secrets.
+- **pn-backend-scaffolding**, **pn-backend-scaffolding**, **pn-backend-scaffolding**, **pn-backend-scaffolding**, **pn-backend-scaffolding** — When stack is Python/Go/Rust/Ruby/PHP: use for patterns, layout, env/secrets.
 - **pn-security-audit** — When implementing auth (JWT, OAuth), API security, or security-sensitive endpoints.
 - **pn-legacy-modernizer** — When migrating or refactoring legacy code; strangler fig, tests before refactor.
 - **pn-payment-integration** — When implementing payments, billing, subscriptions; checkout, webhooks, PCI.
@@ -29,7 +29,7 @@ model: inherit
 
 ## Workflow
 
-1. **Stack detection:** When stack is Node: use pn-node-api and pn-node-backend. When stack is Python/Go/Rust/Ruby/PHP: load the matching scaffold skill (pn-python-scaffolding, etc.) and rule (pn-python-backend, etc.) for patterns.
+1. **Stack detection:** When stack is Node: use pn-node-api and pn-node-backend. When stack is Python/Go/Rust/Ruby/PHP: load the matching scaffold skill (pn-backend-scaffolding, etc.) and rule (pn-python-backend, etc.) for patterns.
 2. Apply the relevant skills and rules to the requested actions or API work.
 3. **After actions/API changes:** Run an API/state/error review:
    - Consistent error payloads and status codes; no secrets in client.

@@ -1,6 +1,6 @@
 # pn-core-mcp
 
-MCP engine for [pnCore](https://github.com/perniemann/pnCore) **0.21.0**: `workflow_step` plus the other tools, `pn-core://` resources, and canonical content under `content/`. Four harness adapters (Cursor, Claude Code, Codex, Pi) consume that same engine. Use from any MCP client without installing a harness plugin.
+MCP engine for [pnCore](https://github.com/perniemann/pnCore) **0.22.0**: `workflow_step` plus the other tools, `pn-core://` resources, and canonical content under `content/`. Four harness adapters (Cursor, Claude Code, Codex, Pi) consume that same engine. Use from any MCP client without installing a harness plugin.
 
 ## Installation
 
@@ -125,9 +125,7 @@ Skills, agents, rules, config, docs, reference, and hooks in this package live i
 | **list_rules** | read | Rule ids and descriptions. |
 | **get_rule** | read | Full rule markdown (same truncation rules). |
 | **workflow_step** | write | Deterministic workflow engine; response includes **`run_id`**. Echo **`run_id`** in `state` on every call. Human gates may require **`pncoreHumanGateTicket`**. Appends to run log and may consume single-use gate tickets — retries are not benign when approval is required. |
-| **workflow_usage_totals** | read | Sum tokens/cost for a **`run_id`** over usage JSONL (tail scan). |
 | **workflow_handoff_append** | append | Append bounded step summary line for a **`run_id`**. |
-| **workflow_handoff_read** | read | Read recent handoff lines for a **`run_id`**. |
 | **workflow_verify** | write | No-shell catalog verify; returns a GateReport with **`failureClass`** (`none` / `missing_input` / `infrastructure` / `behavioral`; diagnostic only, never changes a gate). **`inputs`** (`path`, `sha256`, `access`) and **`env_required`** are checked in the same call right before spawn; a failed check records a `preflight` run event and launches nothing. An `env_required` name reaches the command only when the operator lists it in **`PNCORE_VERIFY_PASS_ENV`** (comma-separated; `PNCORE_*` never qualifies), and its value is redacted from the output tails. **`preflight_only`** runs just the checks and works without `disposeVerify`. Spawning requires **`disposeVerify`**; fail-closed without a jail unless **`PNCORE_VERIFY_SANDBOX=restricted`** or the Vitest test backend (ADR-0022). |
 | **workflow_run_query** | read | Query one **`run_id`** across the `.pncore` trails: verify/acceptance (default), `kinds` `preflight`, `step` (spans: `stepIndex`, `sinceLastStepMs`, `engineMs`, routing), `load`, `usage`, `handoff`, `gate`; `timeline: true` joins them per step with totals and the slowest step (ADR-0020). |
 | **report_usage** | append | Append usage line; include optional **`run_id`** and requested vs observed model (`requestModel`, `responseModel`, `reasoningEffort`, `workerId`, `observedBy`). |
@@ -136,15 +134,13 @@ Skills, agents, rules, config, docs, reference, and hooks in this package live i
 | **workflow_confirm** | read | Structured confirmation gate (MCP-only). |
 | **approval_checkpoint** | gate | Token must match **`PNCORE_APPROVAL_TOKEN`**; optional **`workflow_type`** + **`workflow_step`** + **`run_id`** for human-gate tickets. |
 | **gate_log_append** | append | JSONL gate audit; optional **`run_id`**. |
-| **paperclip_issue_checkout** | external | Paperclip API. |
-| **paperclip_issue_comment** | external (destructive) | Paperclip API — mutates remote issue. |
-| **paperclip_issue_update** | external (destructive) | Paperclip API — mutates remote issue status. |
+| **paperclip_issue** | external (destructive) | Paperclip API: `action` checkout, comment, or update; comment and update mutate the remote issue. |
 
 **Risk:** `read` = no workspace writes; `append` = JSONL/state under cwd rules; `gate` = shared secret; `external` = network API.
 
 See rule **`pn-tool-risk-policy`** for the full matrix.
 
-Path parameters for **report_usage**, **gate_log_append**, **workflow_state_save**, **workflow_state_load**, **workflow_handoff_***, and **workflow_usage_totals** should be under the workspace (e.g. `.pncore/...`). When `process.cwd()` is not the workspace root, pass explicit paths. Env: **`PNCORE_STATE_PATH`**, **`PNCORE_HANDOFF_LOG`**, **`PNCORE_FEATURES`** (JSON overrides `pn-core://config/features.json`), **`PNCORE_USAGE_SCAN_BYTES`**, **`PNCORE_USAGE_WARN_INPUT_TOKENS`**, **`PNCORE_MAX_RESOURCE_CHARS`**, **`PNCORE_SKILL_LOG_SAMPLE_RATE`** (integer N; writes 1-in-N entries to skill-load log; default 1 = log every call), **`PNCORE_HARNESS`** (comma list `cursor` / `claude_code` / `codex` / `pi`; authoritative for `harness_detect` / `harness_scaffold` when the host exposes no env signal), **`PNCORE_AGENTS_MD_CAP_BYTES`** (byte cap the installer and `harness_scaffold` measure `AGENTS.md` against for Codex; default 32768 = Codex `project_doc_max_bytes`).
+Path parameters for **report_usage**, **gate_log_append**, **workflow_state_save**, **workflow_state_load**, and **workflow_handoff_append** should be under the workspace (e.g. `.pncore/...`). When `process.cwd()` is not the workspace root, pass explicit paths. Env: **`PNCORE_STATE_PATH`**, **`PNCORE_HANDOFF_LOG`**, **`PNCORE_FEATURES`** (JSON overrides `pn-core://config/features.json`), **`PNCORE_USAGE_SCAN_BYTES`**, **`PNCORE_USAGE_WARN_INPUT_TOKENS`**, **`PNCORE_MAX_RESOURCE_CHARS`**, **`PNCORE_SKILL_LOG_SAMPLE_RATE`** (integer N; writes 1-in-N entries to skill-load log; default 1 = log every call), **`PNCORE_HARNESS`** (comma list `cursor` / `claude_code` / `codex` / `pi`; authoritative for `harness_detect` / `harness_scaffold` when the host exposes no env signal), **`PNCORE_AGENTS_MD_CAP_BYTES`** (byte cap the installer and `harness_scaffold` measure `AGENTS.md` against for Codex; default 32768 = Codex `project_doc_max_bytes`).
 
 **Model-tier suggestions:** `workflow_step` responses include a `suggestedModelTier` field — `{ tier, exemplar, rationale }` — and prepend a short `**Suggested model tier:**` hint to the instruction when the tier is non-default. Pass **`leadModelTier`**, **`sessionModel`**, or **`orchestrationIntent`** in state to receive **`orchestrationMode`** (`lead` | `light_delegate` | `implementer`) and **`subagentTierHints`** on parallel fan-out (see rule **`pn-orchestrator-lead`**). Tiers: `fast` (e.g. composer-2.5-fast), `standard` (e.g. claude-4.6-sonnet-medium-thinking), `premium` (e.g. claude-opus-4-8-thinking-high), `premium_thinking` (e.g. claude-opus-4-8-thinking-high + MAX Mode), `long_horizon` (e.g. claude-fable-5-1 — loop orchestration / escalation; alternates in `TIER_META`). Subagent routing: `pn-core://reference/subagent-routing.md`; loops: `pn-core://reference/loop-orchestration-guide.md`. Disambiguation: pnCore uses *delivery tier* (MVP/Full), *context tier* (1–4), and *model tier* — see [model-tiers.ts](src/model-tiers.ts). Override per-step via `PNCORE_FEATURES.modelTierOverrides` keyed `<workflowType>.<step>`; remap globally via `PNCORE_FEATURES.tierAliases` (e.g. `{"premium_thinking":"premium"}` or `{"long_horizon":"premium"}` when Fable is unavailable). **Pi:** pass the same state keys when using pn-core MCP native tools; `/pn program` and `/pn build` templates document lead orchestration.
 
@@ -177,13 +173,13 @@ When a tool returns an error, the response includes `{ error: string, code: stri
 
 ### report_usage
 
-Call after each `workflow_step` when the client has usage data. Pass **`run_id`** from `workflow_step`, `inputTokens`, `outputTokens`, and optionally `costUsd`, `latencyMs`. With `path` (e.g. `.pncore/usage.jsonl`), appends one JSON line per call. Use **`workflow_usage_totals`** to aggregate per run.
+Call after each `workflow_step` when the client has usage data. Pass **`run_id`** from `workflow_step`, `inputTokens`, `outputTokens`, and optionally `costUsd`, `latencyMs`. With `path` (e.g. `.pncore/usage.jsonl`), appends one JSON line per call. Use **`workflow_run_query`** (`kinds: ["usage"]`) to aggregate per run.
 
 Model fields follow the OTel GenAI names: `requestModel` (the model the agent asked for, `gen_ai.request.model`), `responseModel` (the model that answered as the harness reported it, `gen_ai.response.model`), `reasoningEffort`, and `workerId` (subagent that produced the usage). `observedBy` records provenance: `agent_claim` (the default when any model field is set) or `unavailable` (the harness exposes no model; `responseModel` is then rejected with `INVALID_STATE`). `hook` is reserved for lines a harness hook writes directly to the usage file and is not accepted from the tool. An agent's own claim about which model ran is not proof; only `hook` lines are harness-observed.
 
-### workflow_usage_totals / workflow_handoff_*
+### Usage totals and handoff
 
-**`workflow_usage_totals`** scans the tail of a usage JSONL file (default `.pncore/usage.jsonl`) and sums lines matching **`run_id`**. **`workflow_handoff_append`** / **`workflow_handoff_read`** use `.pncore/workflow-handoff.jsonl` by default (`PNCORE_HANDOFF_LOG` to override).
+**`workflow_run_query`** with `kinds: ["usage"]` returns a `usage` summary for a **`run_id`** (token and cost sums over `.pncore/usage.jsonl`, plus `warn` when `PNCORE_USAGE_WARN_INPUT_TOKENS` is reached). **`workflow_handoff_append`** writes and **`workflow_run_query`** with `kinds: ["handoff"]` reads `.pncore/workflow-handoff.jsonl` (`PNCORE_HANDOFF_LOG` to override). `workflow_usage_totals` and `workflow_handoff_read` were retired in 0.22.0 (ADR-0024).
 
 ### workflow_state_save / workflow_state_load
 
@@ -221,7 +217,7 @@ MCP prompts expose agents and commands as reusable prompt templates. Clients (e.
 | **pn-new** | Command | Easiest entry: (1) references yes/no; (2) intent (full auto | design focused | involved). Context-dependent flow. |
 | *...and others* | | One prompt per public agent and command. Internal orchestrators (`pn-project-builder` and the other `agents-internal` ids) are loaded by `pn-build` / `full_dev`, not as a user-picked slash entry. |
 
-**pn-assets:** Single entry for image or SVG. Use `get_command("pn-assets")` to run it; it asks type (SVG/image/placeholder) then routes to workflow_step("svg_create") or workflow_step("image_create") or placeholder URLs. When the build has UI (landing page, frontend, product page, components), full_dev and orchestrator flows **automatically include** pn-assets-manager—logos, icons, hero images, or placeholders without explicit request.
+**pn-assets:** Single entry for image or SVG. Use `get_command("pn-assets")` to run it; it asks type (SVG/image/placeholder) then routes to workflow_step("image_create") (format SVG) or workflow_step("image_create") or placeholder URLs. When the build has UI (landing page, frontend, product page, components), full_dev and orchestrator flows **automatically include** pn-assets-manager—logos, icons, hero images, or placeholders without explicit request.
 
 Use `list_*` to discover ids, then `get_*` to load the content. For build/design, say **"Build [X]. Use the design workflow."** or **"Build [X]. Use the full dev workflow."** The model uses the workflow tool when available; control flow is deterministic and discovery and skeptic cannot be skipped. The client can run any pnCore workflow (discovery, prior-art research, plans, skeptic challenge, full dev loop, assets, and others) by fetching the relevant skill, agent, or command and following it.
 
@@ -303,7 +299,7 @@ Intent: Involved — full gates at discovery, prior-art, plan, specialist list, 
 Delivery tier: full. Design ambition: distinctive.
 ```
 
-Answer Step 0: Yes, Both. Step 1: (3) Involved. Use pn-document (or `get_command("pn-document")`) to format/check `docs/discovery/`, `docs/plans/`, `docs/research/`.
+Answer Step 0: Yes, Both. Step 1: (3) Involved. Use the pn-documentation skill (`get_skill("pn-documentation")`) to format/check `docs/discovery/`, `docs/plans/`, `docs/research/`.
 
 **Avoid:** Saying only "Build [X]" or "Create the [X] app" for new projects—that can route to `workflow_step` directly and behave like full auto. Start with pn-new when you want full involvement.
 

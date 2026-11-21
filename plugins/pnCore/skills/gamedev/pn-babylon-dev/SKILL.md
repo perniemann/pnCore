@@ -1,6 +1,6 @@
 ---
 name: pn-babylon-dev
-description: "Guides Babylon.js scenes, cameras, lighting, asset loading, animation, and performance. Use when working on Babylon.js; covers scene structure, engine setup, GLTF loading, and disposal."
+description: "Guides Babylon.js project setup, scenes, cameras, lighting, asset loading, animation, and performance. Use when starting or working on a Babylon.js project."
 ---
 
 # Babylon.js core skill
@@ -69,7 +69,7 @@ description: "Guides Babylon.js scenes, cameras, lighting, asset loading, animat
 
 - Working Babylon.js code with clear structure, proper disposal, and performance-conscious choices.
 - Reference pn-game-logic for game loop, state, and input when building games.
-- Reference pn-babylon-scaffolding for minimal project setup.
+- See § Babylon.js scaffolding below for minimal project setup.
 
 ## WebXR
 
@@ -93,3 +93,39 @@ NodeMaterial is the visual shader graph for Babylon.js; equivalent to Three.js T
 - **Procedural effects:** Combine `SimplexPerlinBlock`, `PosterizeBlock`, `GradientBlock` for stylized or data-driven visuals.
 - **Animated uniforms:** Expose `InputBlock` as a uniform (`block.isUniform = true`) then set `block.value` per frame for animation. Avoid shader recompilation in the render loop.
 - **Snippet library:** Community snippets available at `nme.babylonjs.com`. Load with `NodeMaterial.ParseFromSnippetAsync("#snippet-id")` for quick prototyping.
+
+<!-- merged from pn-babylon-scaffolding (0.22.0) -->
+## Babylon.js scaffolding
+
+### When to use
+
+- Starting a new Babylon.js 3D project
+- Adding a minimal scene (engine, canvas, camera, lighting)
+- Setting up the first mesh or basic scene structure
+
+### Minimal scene
+
+1. **Engine and canvas:** Create `Engine` with canvas element; handle resize. Use `engine.runRenderLoop()` for the loop.
+2. **Scene:** Create `Scene` with optional `clearColor`. Attach to engine.
+3. **Camera:** Use `ArcRotateCamera` for orbit, or `UniversalCamera` for FPS. Attach controls if needed.
+4. **Lighting:** Add `HemisphericLight` as base; `DirectionalLight` or `PointLight` for key light.
+5. **First mesh:** Add `MeshBuilder.CreateBox` or `CreateSphere` for placeholder. Use `StandardMaterial` or `PBRMaterial`.
+6. **Disposal:** On unmount or scene switch, dispose scene and engine. Reference pn-babylon rule.
+
+### HTML + script setup
+
+- One HTML file with `<canvas id="renderCanvas">` and script tag, or use a bundler (Vite, webpack) for TypeScript/ESM.
+- Import from `@babylonjs/core` or CDN. Prefer npm + bundler for production.
+
+### One at a time
+
+- Prefer scaffolding one scene or one feature per change. Add assets (GLTF loader) after base scene works.
+
+### Output
+
+- Working scene with engine, camera, light, and at least one mesh.
+- Disposal on teardown. See the sections above for asset loading and performance.
+
+### Guardrails
+
+- **pn-babylon** — Rule for file-glob activation and disposal.

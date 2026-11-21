@@ -4,6 +4,52 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.22.0] - 2026-11-21
+
+Catalog consolidation (ADR-0024): skills 171 → 142, tools 29 → 25, workflow types 16 → 15, commands 49 → 47. Nothing is aliased; every removal is listed below with its replacement.
+
+### Removed
+
+- **Tools.** `paperclip_issue_checkout`, `paperclip_issue_comment` and `paperclip_issue_update` are replaced by `paperclip_issue({ action: "checkout" | "comment" | "update", … })`. `workflow_usage_totals` is replaced by `workflow_run_query({ run_id, kinds: ["usage"] })`, and `workflow_handoff_read` by `workflow_run_query({ run_id, kinds: ["handoff"] })`.
+- **Workflow type `svg_create`.** Use `image_create` with `imageSpec.format: "svg"`. A `workflow_step("svg_create", …)` call returns an error naming the replacement.
+- **Commands `pn-user-stories` and `pn-document`.** Load `get_skill("pn-user-stories")` or `get_skill("pn-documentation")`.
+- **Skills deleted** (no inbound references): `pn-analytics-reporting`, `pn-financial-analysis`, `pn-risk-monitor`, `pn-community-engagement`, `pn-growth-experiments`, `pn-workflow-reporter`, `pn-game-feature`.
+- **Skills merged** (content kept as a section of the target):
+
+  | Retired id | Load instead |
+  |------------|--------------|
+  | `pn-test-generation` | `pn-tdd` |
+  | `pn-ci-triage` | `pn-ci-fix` |
+  | `pn-job-stories`, `pn-sprint-prioritization` | `pn-user-stories` |
+  | `pn-ui-design-specs` | `pn-design-system` |
+  | `pn-placeholder` | `pn-frontend-scaffolding` |
+  | `pn-babylon-scaffolding` | `pn-babylon-dev` |
+  | `pn-trend-research` | `pn-idea-miner` |
+  | `pn-tooling-mcp-maintenance` | `pn-create-mcp-architecture` |
+  | `pn-domain-language` | `pn-create-domain-doc` |
+  | `pn-browser-runtime-verify` | `pn-evidence-qa` |
+  | `pn-compliance-check` | `pn-agent-governance` |
+  | `pn-content-strategy` | `pn-copywriter` |
+  | `pn-paperclip-create-agent`, `pn-paperclip-create-agent-adapter` | `pn-paperclip` |
+  | `pn-svg-creator` | `pn-image-creator` (eval scenarios moved too) |
+  | `pn-go-`, `pn-php-`, `pn-python-`, `pn-ruby-`, `pn-rust-scaffolding` | `pn-backend-scaffolding` |
+  | `pn-unreal-mcp`, `pn-godot-mcp` | `pn-engine-mcp` (new) |
+
+### Added
+
+- `pn-engine-mcp`: one MCP-server selection skill for Unreal Engine 5.x and Godot 4.x. `engine_feature` step 0 loads it and names the engine section.
+- `pn-backend-scaffolding` language references at `pn-core://skills/backend/pn-backend-scaffolding/{python,go,rust,ruby,php}.md` (`references/<lang>.md` in installed plugins), so one load pays for one language.
+- `workflow_run_query` returns a `usage` summary when `kinds` includes `usage` or `timeline` is set: `lines`, `inputTokens`, `outputTokens`, `costUsd` (or null), `warn` and `warnMessage` from `PNCORE_USAGE_WARN_INPUT_TOKENS`.
+
+### Changed
+
+- `image_create` asks the format at step 0, writes an SVG spec to `docs/svg/` at step 1, and hand-authors SVG through `pn-svg` at step 2, which now runs on the premium tier.
+- `pn-budget-cost-monitor` moves to `orchestration/`; the `support/` category is gone.
+- `pn-audit-api` loads `pn-graphql` for GraphQL APIs; `pn-web3-security` points at `pn-web3-contracts`.
+- Merged skills have descriptions that name what they absorbed, so discovery still finds them.
+- README Honest edges lists non-Node backends, Solidity / web3, Unreal and Godot, and the manually invoked mobile, visionOS and WebXR agents. web3 leaves the best-fit list.
+- The PR review gate and `validate-doc-structure` point at the `pn-documentation` skill instead of `/pn-document`.
+
 ## [0.21.0] - 2026-11-21
 
 Solid 2.0 joins the frontend stacks. `solid-js` 2.0 went stable on 2026-11-16 and removed or renamed much of the 1.x API, and most model training data is React or Solid 1.x, so the stack ships as a rule that forbids the old surface.

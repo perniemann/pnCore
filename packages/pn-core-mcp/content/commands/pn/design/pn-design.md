@@ -43,7 +43,7 @@ Produce design plan: Design Read + dials, narrative-intent yes/no, page mode (Po
 
 ## 4. Assets
 
-**Invoke** **pn-assets-manager**. Pass discovery spec and plan. Run in autonomous (batch) mode: create logo, hero, icons per taxonomy. Do not invoke `workflow_step("svg_create")` or `workflow_step("image_create")` — they block. Output `ASSET_PHASE_FAILED` if nothing created.
+**Invoke** **pn-assets-manager**. Pass discovery spec and plan. Run in autonomous (batch) mode: create logo, hero, icons per taxonomy. Do not invoke `workflow_step("image_create") (format SVG)` or `workflow_step("image_create")` — they block. Output `ASSET_PHASE_FAILED` if nothing created.
 
 **Gate:** Do not proceed to build if ASSET_PHASE_FAILED.
 

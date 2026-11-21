@@ -1,6 +1,6 @@
 ---
 name: pn-evidence-qa
-description: "Screenshot-based QA and visual proof for UI deliverables. Captures before/after states, cross-device views, and user journey evidence. Use for UI-heavy projects when visual verification is required."
+description: "Visual and runtime proof for UI deliverables: screenshots before/after and across devices, plus console and network checks in a real browser. Use when UI work needs verification evidence."
 ---
 
 # Evidence QA
@@ -44,7 +44,7 @@ description: "Screenshot-based QA and visual proof for UI deliverables. Captures
 - **pn-review-optimize-loop** — Optional evidence phase before reality check; run when UI is the primary deliverable.
 - **pn-reality-check** — Uses evidence from this skill when certifying production readiness.
 - **pn-testing-specialist** — Complements automated tests; evidence QA adds visual verification.
-- **pn-browser-runtime-verify** — Use when the question is **runtime** (console, network, client behavior), not static layout only. Timeline sampling does not replace a console/network pass.
+- **Runtime questions** (console, network, client behavior): § Browser runtime verification below. Timeline sampling does not replace a console/network pass.
 - **pn-scroll-narrative** — Narrative Map + feel-check; this skill supplies the contact strip and pinned-keyboard evidence.
 
 ## Output
@@ -53,3 +53,63 @@ description: "Screenshot-based QA and visual proof for UI deliverables. Captures
 - User journey assessment (PASS/FAIL) with evidence
 - Performance metrics when captured
 - Issues found with screenshot references
+
+<!-- merged from pn-browser-runtime-verify (0.22.0) -->
+## Browser runtime verification
+
+### When to use
+
+- Behavior depends on **runtime** (JS, network, timing, hydration), not just static HTML/CSS
+- Bugs that do not reproduce in unit tests alone (CORS, wrong status codes, racey fetches)
+- Performance suspicions (slow waterfalls, runaway requests, layout thrash)
+- After meaningful changes to data fetching, auth cookies, or client-side routing
+
+### When not to use
+
+- Pure visual/layout sign-off against a spec — use the static workflow above (screenshots / Playwright captures)
+- Non-browser surfaces (CLI, workers only) — use logs and tests
+
+### Process
+
+1. **Reproduce** in a running environment (dev or preview); note URL and steps.
+2. **DOM / accessibility snapshot** — confirm elements, roles, and critical attributes match expectations (not "looks fine").
+3. **Console** — zero unexpected errors or warnings for the exercised path; capture relevant messages.
+4. **Network** — status codes, failed requests, duplicate calls, unexpected hosts; note HAR or request list summary.
+5. **Performance (when relevant)** — profile or trace for the suspected issue; tie conclusions to observed data (long tasks, large payloads).
+6. **Summarize evidence** — pass/fail per check with what you observed, not what you assumed.
+
+When **Cursor IDE browser MCP** (or equivalent) is available, use it for navigation, snapshot, console, and network tooling rather than guessing from source.
+
+### Rationalizations
+
+| Excuse | Reality |
+|--------|---------|
+| "Tests are green; the browser is fine." | Integration gaps (real cookies, CSP, minify) still break production. |
+| "I'll check the console if something fails." | Proactive console/network passes catch silent failures. |
+| "Screenshot proves it works." | Screenshots hide 404s, console errors, and slow XHRs. |
+| "DevTools is optional luxury." | For browser apps, runtime evidence is the ground truth. |
+
+### Red flags — stop
+
+- Claiming "no console errors" without opening console for the flow under test.
+- Dismissing failed network requests as "probably cache" without verification.
+
+### Verification
+
+- Checklist completed for the **same user path** that was changed: DOM snapshot (or equivalent), console, network; performance when in scope.
+- Artifacts: snapshot refs, log excerpts, or structured notes suitable for **pn-reality-check** / issue filed.
+
+### Guardrails
+
+- Iframe-only flows may be inaccessible to some automation — say so and propose manual steps.
+- Do not ship credentials in evidence paste; redact tokens.
+
+### Integration
+
+- Static and cross-viewport visual proof is the workflow above; this section is **runtime** proof.
+- **pn-review-optimize-loop** — use before **pn-reality-check** when the risk is client runtime.
+- **pn-systematic-debugging** — share repro and isolation discipline.
+
+### Output
+
+- Structured pass/fail per dimension (DOM, console, network, perf) with observed facts and paths/URLs.

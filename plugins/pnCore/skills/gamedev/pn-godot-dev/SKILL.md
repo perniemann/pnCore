@@ -220,4 +220,4 @@ Godot 4.x ships a high-level multiplayer API built on `MultiplayerPeer` (ENet by
 - Export presets configured per target platform; headless CI export command documented.
 - Reference `pn-blender-scripting` for Blender → Godot GLTF export pipeline.
 - Reference `pn-game-logic` for game loop, state machine, and save system patterns.
-- Reference `pn-godot-mcp` for MCP server selection when live editor automation is needed.
+- Reference `pn-engine-mcp` for MCP server selection when live editor automation is needed.

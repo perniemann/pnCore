@@ -1,7 +1,7 @@
 /**
  * Bounded tail-read for append-only JSONL logs.
  *
- * Used by workflow_usage_totals and workflow_handoff_read to cap memory when
+ * Used by the .pncore trail readers (run-spans, active-run, verify-attest) to cap memory when
  * scanning workflow logs that may grow unboundedly across runs.
  */
 import { closeSync, openSync, readFileSync, readSync, statSync } from "fs";

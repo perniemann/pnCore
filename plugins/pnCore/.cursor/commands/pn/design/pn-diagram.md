@@ -33,7 +33,7 @@ Single entry for diagrams. Load `get_skill("pn-diagram-design")` and `pn-core://
 ## See also
 
 - **`pn-diagram-design`** — Full procedure and type refs.
-- **`pn-svg-creator`** — Logos and icons, not diagrams.
+- **`pn-image-creator`** — Logos and icons, not diagrams.
 - **`pn-html-preview`** — Save and open editorial HTML.
 - **`pn-preflight`** — Same PASS/FAIL job for marketing UI (P-01–P-15).
 - **`pn-skeptic-challenge`** / **`pn-render-verify`** — Post-build gates on `/pn-diagram`.

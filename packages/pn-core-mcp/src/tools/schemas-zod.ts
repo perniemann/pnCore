@@ -12,7 +12,6 @@ export const workflowTypeEnum = z.enum([
   "image_create",
   "visual_tweak",
   "game_feature",
-  "svg_create",
   "engine_feature",
   "fsi_analyst_draft",
   "business_strategy",
@@ -156,7 +155,7 @@ export const getSkillSchema = {
   id: z
     .string()
     .describe(
-      "Skill id (e.g. pn-discovery-questionnaire, pn-writing-plans, pn-svg-creator, pn-frontend-design-philosophy)"
+      "Skill id (e.g. pn-discovery-questionnaire, pn-writing-plans, pn-image-creator, pn-frontend-design-philosophy)"
     ),
   run_id: runIdOptArg,
 } as const;
@@ -199,7 +198,7 @@ export const getRuleSchema = {
 
 export const workflowStepSchema = {
   workflowType: workflowTypeEnum.describe(
-    "Workflow type: design (6), full_dev (7), project_kickoff (8), prompt_optimize (3), frontend_audit (3), backend_audit (7), image_create (5), visual_tweak (4), game_feature (5), svg_create (5), engine_feature (5; requires state.engine: 'unreal'|'godot'), fsi_analyst_draft (6), business_strategy (9), media_director (7), feature_program (6; requires featureProgram: true), implementation_tournament (6; requires bestOfN.enabled: true)"
+    "Workflow type: design (6), full_dev (7), project_kickoff (8), prompt_optimize (3), frontend_audit (3), backend_audit (7), image_create (5; state.imageSpec.format: png or svg), visual_tweak (4), game_feature (5), engine_feature (5; requires state.engine: 'unreal'|'godot'), fsi_analyst_draft (6), business_strategy (9), media_director (7), feature_program (6; requires featureProgram: true), implementation_tournament (6; requires bestOfN.enabled: true)"
   ),
   step: z.number().int().min(0).describe("Current step number (0 = start)"),
   state: z
@@ -258,11 +257,6 @@ export const reportUsageSchema = {
     ),
 } as const;
 
-export const workflowUsageTotalsSchema = {
-  run_id: z.string().min(1).describe("run_id from workflow_step responses"),
-  path: z.string().optional().describe("Optional usage JSONL path (default .pncore/usage.jsonl)"),
-} as const;
-
 export const workflowHandoffAppendSchema = {
   run_id: z.string().min(1).describe("Echo run_id from workflow_step"),
   step: z.number().int().min(0).describe("Workflow step index just completed"),
@@ -271,21 +265,6 @@ export const workflowHandoffAppendSchema = {
     .string()
     .optional()
     .describe("Optional JSONL path (default .pncore/workflow-handoff.jsonl)"),
-} as const;
-
-export const workflowHandoffReadSchema = {
-  run_id: z.string().min(1).describe("Echo run_id from workflow_step / workflow_handoff_append"),
-  path: z
-    .string()
-    .optional()
-    .describe("Optional JSONL path (default .pncore/workflow-handoff.jsonl)"),
-  max_lines: z
-    .number()
-    .int()
-    .min(1)
-    .max(200)
-    .optional()
-    .describe("Max matching lines (default 80)"),
 } as const;
 
 export const workflowConfirmSchema = {
@@ -419,24 +398,25 @@ export const workflowStateLoadSchema = {
     ),
 } as const;
 
-export const paperclipIssueCheckoutSchema = {
-  issueId: z
+export const paperclipIssueSchema = {
+  action: z
+    .enum(["checkout", "comment", "update"])
+    .describe(
+      "checkout = POST /api/issues/:id/checkout (before work); comment = POST /api/issues/:id/comments (needs body); update = PATCH /api/issues/:id (needs status)"
+    ),
+  issueId: z.string().optional().describe("Issue ID; defaults to PAPERCLIP_ISSUE_ID when set"),
+  body: z
     .string()
     .optional()
-    .describe("Issue ID (e.g. uuid or PAP-123); defaults to PAPERCLIP_ISSUE_ID when set"),
-} as const;
-
-export const paperclipIssueCommentSchema = {
-  issueId: z.string().optional().describe("Issue ID; defaults to PAPERCLIP_ISSUE_ID when set"),
-  body: z.string().describe("Comment body (markdown); supports @mentions per Paperclip docs"),
-} as const;
-
-export const paperclipIssueUpdateSchema = {
-  issueId: z.string().optional().describe("Issue ID; defaults to PAPERCLIP_ISSUE_ID when set"),
+    .describe("action comment: comment body (markdown); supports @mentions per Paperclip docs"),
   status: z
     .enum(["backlog", "todo", "in_progress", "in_review", "done", "blocked", "cancelled"])
-    .describe("New status (done = workflow complete)"),
-  comment: z.string().optional().describe("Optional comment with the update (summary of work)"),
+    .optional()
+    .describe("action update: new status (done = workflow complete)"),
+  comment: z
+    .string()
+    .optional()
+    .describe("action update: optional comment with the update (summary of work)"),
 } as const;
 
 export const workflowVerifySchema = {

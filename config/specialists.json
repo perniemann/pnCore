@@ -35,11 +35,11 @@
     "astro": "pn-frontend-scaffolding",
     "vanilla": "pn-frontend-scaffolding",
     "node": "pn-backend-scaffolding",
-    "python": "pn-python-scaffolding",
-    "go": "pn-go-scaffolding",
-    "rust": "pn-rust-scaffolding",
-    "ruby": "pn-ruby-scaffolding",
-    "php": "pn-php-scaffolding",
-    "babylon": "pn-babylon-scaffolding"
+    "python": "pn-backend-scaffolding",
+    "go": "pn-backend-scaffolding",
+    "rust": "pn-backend-scaffolding",
+    "ruby": "pn-backend-scaffolding",
+    "php": "pn-backend-scaffolding",
+    "babylon": "pn-babylon-dev"
   }
 }

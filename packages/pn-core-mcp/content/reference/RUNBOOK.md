@@ -19,7 +19,7 @@ Whenever a plan needs user input, ask before locking. See `pn-build-gate` and `r
 | **Frontend redo (existing app, sequential UI slices)** | `get_command("pn-frontend-redo")` | Audit → plan → S1–Sn with slice-verify artifacts + Task checker. **Not** `feature_program` (no worktrees). |
 | Targeted visual tweak | `workflow_step("visual_tweak", step, state)` or `get_command("pn-visual-tweak")` | Bounded layout/color/type/motion change; not full pn-design. |
 | Static HTML preview | `get_skill("pn-html-preview")` | Extract fenced **html** code block → save under `html_outputs/` → open in browser; optional evidence. |
-| Create image or SVG | `get_command("pn-assets")` — routes to `workflow_step("svg_create", ...)` or `workflow_step("image_create", ...)` | Single entry for image and SVG creation. Logos/icons only — diagrams use `pn-diagram`. |
+| Create image or SVG | `get_command("pn-assets")` — routes to `workflow_step("image_create", ...)` (PNG or SVG) | Single entry for image and SVG creation. Logos/icons only — diagrams use `pn-diagram`. |
 | Architecture / flowchart / sequence / state / loop / quadrant / layers / process / data-flow / org-chart | `get_command("pn-diagram")` or `get_skill("pn-diagram-design")` | Mermaid-in-docs, editorial HTML/SVG, or import-redraw (fidelity ledger; no draw.io extractors). Floor: `pn-core://reference/diagram-baseline.md` (D-01–D-10; skeptic + `pn-render-verify` on `/pn-diagram` visual track). |
 | Generative media (ComfyUI, T2V, DOP-style prompts) | `workflow_step("media_director", 0, {})` for the gated deep flow; `get_agent("pn-generative-media-director")` for ad-hoc reference — skills: `pn-comfyui-workflows`, `pn-generative-video-pipelines`, `pn-cinematography-lighting`, `pn-grill` | 7 steps: intent → topics+inline-grill → brief → plan+pipeline+skeptic → produce → review → delivery. **Opt-in only**: listed in `specialists.json` under `optInOnly` (parallelGroup 1 when included). `full_dev` includes the agent and dispatches to this sub-flow only when `state.includeGenerativeMedia === true` (captured at the discovery step — no prompt-sniffing). Use pn-assets-manager alone for standard UI placeholders. |
 | Game feature (5 steps) | `workflow_step("game_feature", step, state)` | spec → plan+skeptic → build → **skeptic-on-output (human gate)** → summary. |
@@ -41,7 +41,7 @@ Whenever a plan needs user input, ask before locking. See `pn-build-gate` and `r
 |------|------|------|
 | PM routing | `get_command("pn")` or `pn-guide` | Unsure which PM workflow |
 | Stakeholder alignment | PRD (`pn-create-prd`) → prior art → plan | User requests product spec |
-| Backlog/sprint planning | `pn-user-stories` or `pn-job-stories` → plan | User requests backlog or sprint items |
+| Backlog/sprint planning | `pn-user-stories` or `pn-user-stories` → plan | User requests backlog or sprint items |
 | Release notes | `pn-release-notes` (before or after summary) | User wants release notes |
 
 See ADR-0008 for Cursor vs pi.dev delivery differences.
@@ -77,8 +77,8 @@ Tradeoffs: HTML is often slower to generate and **noisier in git diffs** than ma
 ## Run correlation and budgets
 
 - **`run_id`:** Every `workflow_step` response includes **`run_id`** when generated or echoed; put the same value in `state` on subsequent calls. Pass **`run_id`** into **`report_usage`**, **`gate_log_append`**, and **`approval_checkpoint`** (optional) for correlated JSONL lines.
-- **`workflow_usage_totals`:** Sums tokens/cost for a **`run_id`** over `.pncore/usage.jsonl` (optional path). Env **`PNCORE_USAGE_WARN_INPUT_TOKENS`** adds a **`warn`** flag when input totals exceed the threshold.
-- **Handoff:** **`workflow_handoff_append`** / **`workflow_handoff_read`** on `.pncore/workflow-handoff.jsonl` (override with **`PNCORE_HANDOFF_LOG`**). **`PNCORE_USAGE_SCAN_BYTES`** caps how much of a large usage file is scanned (default 786432).
+- **`workflow_run_query` (`kinds: ["usage"]`):** Sums tokens/cost for a **`run_id`** over `.pncore/usage.jsonl` (optional path). Env **`PNCORE_USAGE_WARN_INPUT_TOKENS`** adds a **`warn`** flag when input totals exceed the threshold.
+- **Handoff:** **`workflow_handoff_append`** / **`workflow_run_query`** (`kinds: ["handoff"]`) on `.pncore/workflow-handoff.jsonl` (override with **`PNCORE_HANDOFF_LOG`**). **`PNCORE_USAGE_SCAN_BYTES`** caps how much of a large usage file is scanned (default 786432).
 
 ## Large skill bodies
 
@@ -111,7 +111,7 @@ For skills, rules, agents, commands, and reference shipped from the repo:
 
 ## Token and cost visibility
 
-Token/cost reporting is client-side. Call `report_usage` after each `workflow_step` when possible; include **`run_id`** from `workflow_step`. Use **`workflow_usage_totals`** to aggregate per run. See `pn-core://reference/workflow-state-schema.md`.
+Token/cost reporting is client-side. Call `report_usage` after each `workflow_step` when possible; include **`run_id`** from `workflow_step`. Use **`workflow_run_query`** (`kinds: ["usage"]`) to aggregate per run. See `pn-core://reference/workflow-state-schema.md`.
 
 **Context / response hygiene:** Prefer agent-requested `pn-communication-contract` and `get_skill("pn-response-aliases")` for verbose chat or aliases (`scr`/`eli`/`foc`/`ref`/`scp`) — do not add them as `alwaysApply`. Discover the tokens in `project_context.responseAliases`, `/pn-guide` (Chat shortcodes), and one `pn-mcp-proactive` map row (ADR-0017). Reference-point codes (`F1`/`D1`/…) live in `pn-context-engineering`. Static always-on footprint and Codex description-catalog size: `node scripts/measure-tokens.mjs`.
 

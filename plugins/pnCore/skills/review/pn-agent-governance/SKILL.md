@@ -1,6 +1,6 @@
 ---
 name: pn-agent-governance
-description: "Production agent governance: audit trails, HITL, privacy, compliance evidence. Use when moving agents to production or writing an org agent policy."
+description: "Production agent governance: audit trails, HITL, privacy, compliance checks and evidence. Use when moving agents to production, checking regulatory compliance, or writing an org agent policy."
 ---
 
 # Agent Governance Skill
@@ -206,7 +206,6 @@ Implement as middleware or pre-tool-call hooks in your agent runtime. Surface an
 
 - **pn-security-audit** — Covers OWASP Agentic Applications 2026; pair for full security posture
 - **pn-a2a-interop** — A2A inter-agent tasks must emit audit entries using this schema
-- **pn-compliance-check** — Regulatory mapping (GDPR, CCPA) for data handling section
 - **pn-verification-before-completion** — Apply as the final check before claiming production-ready
 - **approval_checkpoint (MCP tool)** — Hard gate implementation
 
@@ -215,3 +214,26 @@ Implement as middleware or pre-tool-call hooks in your agent runtime. Surface an
 - [OWASP Top 10 for Agentic Applications 2026](https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/)
 - [NIST AI risk management framework](https://airc.nist.gov/RMF)
 - [Google Cloud responsible agent deployment](https://cloud.google.com/blog/products/ai-machine-learning/introducing-gemini-enterprise)
+
+<!-- merged from pn-compliance-check (0.22.0) -->
+## Compliance check
+
+### When to use
+
+- Regulatory compliance (GDPR, CCPA, etc.).
+- Privacy policy and data handling review.
+- Terms of service and legal documents.
+- Compliance risk identification.
+
+### Workflow
+
+1. **Scope:** Jurisdictions, product scope, data types.
+2. **Map:** Applicable regulations and requirements.
+3. **Assess:** Gap analysis; compliance status.
+4. **Recommend:** Actions; escalate to counsel when needed.
+
+### Guardrails
+
+- Provides guidance, not legal advice.
+- Recommend professional legal review for binding decisions.
+- Use anonymized examples; no confidential data.

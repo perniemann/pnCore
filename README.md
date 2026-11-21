@@ -2,7 +2,7 @@
   <img src="plugins/pnCore/assets/pn-logo.svg" width="176" alt="pnCore" />
 </p>
 
-# pnCore — v0.21.0
+# pnCore — v0.22.0
 
 pnCore is an MCP engine with harness adapters for Cursor, Claude Code, Codex, and Pi. It runs software delivery as a sequence of named, gated steps instead of one long chat.
 
@@ -12,7 +12,7 @@ pnCore is an MCP engine with harness adapters for Cursor, Claude Code, Codex, an
 
 It runs named workflows through a deterministic `workflow_step` engine — discovery, plan, build, review on `full_dev`; design, audits, assets, and deliver as other types — backed by skills, agents, rules, and `pn-core://` resources, not a folder of prompts.
 
-**Catalog:** 171 skills, 9 public agents + 6 internal orchestration agents, 31 visible slash palette files (30 under **`pn`** submenu + **`/pn`** stub) + 18 palette-hidden surgical commands (49 command files total), 29 MCP tools, 16 workflow types, plus `pn-core://` resources and prompts.
+**Catalog:** 142 skills, 9 public agents + 6 internal orchestration agents, 29 visible slash palette files (28 under **`pn`** submenu + **`/pn`** stub) + 18 palette-hidden surgical commands (47 command files total), 25 MCP tools, 15 workflow types, plus `pn-core://` resources and prompts.
 
 ---
 
@@ -156,7 +156,7 @@ Call `list_workflow_types` for live step counts.
 | Design-first UI | `design` | `/pn-design` | `workflow_step("design", 0, {})` |
 | Scored frontend diagnosis + fix roadmap | `frontend_audit` | `/pn-frontend-audit` | `workflow_step("frontend_audit", 0, {})` |
 | API, security, data, errors, performance | `backend_audit` | `/pn-backend-audit` | `workflow_step("backend_audit", 0, {})` |
-| SVG, raster, or placeholders | `svg_create` / `image_create` | `/pn-assets` | `workflow_step("svg_create" \| "image_create", 0, {})` |
+| SVG, raster, or placeholders | `image_create` | `/pn-assets` | `workflow_step("image_create", 0, {})` with `imageSpec.format` png or svg |
 | Evidence-led strategy brief | `business_strategy` | `/pn-strategy` | `workflow_step("business_strategy", 0, {})` |
 | Competing implementations (2–3 worktrees) | `implementation_tournament` | `/pn-best-of-n` (`bestOfN.enabled: true`) | `workflow_step("implementation_tournament", 0, {})` |
 | Multi-slice hierarchical build | `feature_program` | `/pn-program` (preview; `featureProgram: true`) | `workflow_step("feature_program", 0, {})` |
@@ -209,9 +209,13 @@ Load before a build session: `pn-core://reference/best-practices.md`, `pn-core:/
 | First npx on a git+https package URL | Cursor MCP can time out on a cold clone | Pre-warm once, then reload. Matrix: [MCP README](packages/pn-core-mcp/README.md#troubleshooting-mcp-wont-connect-in-cursor) |
 | `feature_program` / `bestOfN` | Preview flags; off by default | Set `featureProgram: true` or `bestOfN.enabled: true` |
 | Solid 2.0 | Rule `pn-solid` and the frontend scaffold; no eval yet. Models default to React or Solid 1.x APIs | Keep `pn-solid` in context and check imports against its 1.x to 2.0 map |
-| Vue, Svelte, Angular, Unity | Limited support | Prefer React, Astro, Next, vanilla web, Node, Three.js / Babylon, n8n, web3 |
+| Python, Go, Rust, Ruby, PHP backends | One rule and one scaffold reference each; audits and examples are Node-first | Expect Node-shaped defaults; check output against the language rule |
+| Solidity / web3 | Security rule `pn-web3-security` and one contract skill; no stack entry, workflow or eval | Use for review support, not delivery |
+| Unreal, Godot | `engine_feature` drives the editor through a third-party MCP server you install; tool coverage varies by server | Run the `pn-engine-mcp` comparison at step 0 and verify the tool list before planning |
+| Mobile, visionOS, WebXR | Specialist agents exist but are not auto-routed | Invoke `pn-mobile-builder`, `pn-visionos-engineer` or `pn-webxr-developer` directly |
+| Vue, Svelte, Angular, Unity | Limited support | Prefer React, Astro, Next, vanilla web, Node, Three.js / Babylon, n8n |
 
-**Best fit:** teams building with Cursor, Claude Code, Codex, or Pi on React, Astro, Next.js, vanilla web, Node backends, Three.js / Babylon / gamedev, n8n, and web3. Inventory: [docs/plugin-reference.md](docs/plugin-reference.md).
+**Best fit:** teams building with Cursor, Claude Code, Codex, or Pi on React, Astro, Next.js, vanilla web, Node backends, Three.js / Babylon / gamedev, and n8n. Inventory: [docs/plugin-reference.md](docs/plugin-reference.md).
 
 ---
 

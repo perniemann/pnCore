@@ -195,7 +195,7 @@ For parallel specialist work, apply `get_skill("pn-orchestration-philosophy")` m
 
 ## Integration
 
-- **pn-tooling-mcp-maintenance** — Document A2A servers in `docs/MCP.md` alongside MCP servers
+- **pn-create-mcp-architecture** — Document A2A servers in `docs/MCP.md` alongside MCP servers
 - **pn-orchestration-philosophy** — Parallel specialist merge conventions apply across A2A boundaries
 - **pn-security-audit** — Review inter-agent auth; see OWASP Agentic Applications 2026
 - **pn-create-mcp-architecture** — Add A2A endpoints to architecture doc

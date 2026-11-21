@@ -55,7 +55,7 @@ For each phase in the plan, determine which pn-core commands/skills run at each 
 | Accessibility audit, Lighthouse | pn-frontend-audit |
 | Code review, quality gates | pn-reviewer |
 | Acceptance verification + delivery | pn-deliver |
-| Doc updates | pn-document |
+| Doc updates | pn-documentation (skill) |
 
 ### 3. Assign model tiers
 

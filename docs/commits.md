@@ -61,14 +61,14 @@ Three workflows gate merges to `main`:
 | Check | Workflow | What it enforces |
 |-------|----------|------------------|
 | `pn-gates` | [pn-gates.yml](../.github/workflows/pn-gates.yml) | Version/CHANGELOG policy + pn-documentation structure on changed markdown |
-| `pn-review` | [pn-pr-review.yml](../.github/workflows/pn-pr-review.yml) | Deterministic review findings; posts Cloud Agent instructions for full `/pn-review` + `/pn-document` |
+| `pn-review` | [pn-pr-review.yml](../.github/workflows/pn-pr-review.yml) | Deterministic review findings; posts Cloud Agent instructions for full `/pn-review` + the `pn-documentation` skill |
 | `sync (22)` / `sync (24)` / `no-ide-trailers` | Existing CI | Full `test:full`, commit policy |
 
 ### Author workflow
 
 1. Branch from `main`; implement the change.
 2. For release-path edits: `npm version patch|minor|major` → update `plugins/pnCore/CHANGELOG.md`.
-3. Run `/pn-document` on changed docs locally when helpful.
+3. Apply the `pn-documentation` skill to changed docs locally when helpful.
 4. Open a PR; wait for `pn-gates` and `pn-review` to pass.
 5. Add the **`automerge`** label when ready for squash-merge to `main`.
 

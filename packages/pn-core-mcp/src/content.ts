@@ -630,6 +630,46 @@ export const resourceDefs: {
     path: "reference/schemas/best-of-n.contract.json",
     mimeType: "application/json",
   },
+  {
+    uri: "pn-core://skills/backend/pn-backend-scaffolding/python.md",
+    name: "backend-scaffolding-python.md",
+    description:
+      "pn-backend-scaffolding reference: Python (FastAPI, Flask, Django) layout, env, validation, errors",
+    path: "skills/backend/pn-backend-scaffolding/references/python.md",
+    mimeType: "text/markdown",
+  },
+  {
+    uri: "pn-core://skills/backend/pn-backend-scaffolding/go.md",
+    name: "backend-scaffolding-go.md",
+    description:
+      "pn-backend-scaffolding reference: Go (net/http, chi, Gin) layout, env, validation, errors",
+    path: "skills/backend/pn-backend-scaffolding/references/go.md",
+    mimeType: "text/markdown",
+  },
+  {
+    uri: "pn-core://skills/backend/pn-backend-scaffolding/rust.md",
+    name: "backend-scaffolding-rust.md",
+    description:
+      "pn-backend-scaffolding reference: Rust (Axum, Actix) layout, env, validation, errors",
+    path: "skills/backend/pn-backend-scaffolding/references/rust.md",
+    mimeType: "text/markdown",
+  },
+  {
+    uri: "pn-core://skills/backend/pn-backend-scaffolding/ruby.md",
+    name: "backend-scaffolding-ruby.md",
+    description:
+      "pn-backend-scaffolding reference: Ruby (Rails, Sinatra) layout, env, validation, errors",
+    path: "skills/backend/pn-backend-scaffolding/references/ruby.md",
+    mimeType: "text/markdown",
+  },
+  {
+    uri: "pn-core://skills/backend/pn-backend-scaffolding/php.md",
+    name: "backend-scaffolding-php.md",
+    description:
+      "pn-backend-scaffolding reference: PHP (Laravel, Symfony) layout, env, validation, errors",
+    path: "skills/backend/pn-backend-scaffolding/references/php.md",
+    mimeType: "text/markdown",
+  },
 ];
 
 export function getResource(uri: string): { text: string; mimeType: string } | null {

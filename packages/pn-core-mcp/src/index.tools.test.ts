@@ -1,6 +1,6 @@
 /**
  * Per-tool integration tests via StdioClientTransport.
- * Covers all 29 tools: one happy-path + one negative case each.
+ * Covers all 25 tools: one happy-path + one negative case each.
  * Negatives assert the unified error envelope: { isError: true, content: [{ type: "text", text: JSON({ code, error }) }] }
  * Depends on: F1.1 (error envelope shape), F1.4 (list_agents cardinality)
  */
@@ -565,30 +565,6 @@ describe("MCP per-tool integration", () => {
     expect(JSON.stringify(result.content)).toMatch(/observedBy/);
   });
 
-  // ── workflow_usage_totals ────────────────────────────────────────────────
-  it("workflow_usage_totals: nonexistent file returns zero totals", async () => {
-    const result = await client.callTool({
-      name: "workflow_usage_totals",
-      arguments: {
-        run_id: "test-nonexistent-run",
-        path: ".pncore/usage-test-nonexistent.jsonl",
-      },
-    });
-    expect(result.isError).toBeFalsy();
-    const parsed = parseFirst(result);
-    expect(parsed.linesMatched).toBe(0);
-    expect(parsed.inputTokens).toBe(0);
-  });
-
-  it("workflow_usage_totals: path traversal returns PATH_TRAVERSAL error", async () => {
-    const result = await client.callTool({
-      name: "workflow_usage_totals",
-      arguments: { run_id: "test", path: "../escape.jsonl" },
-    });
-    const err = assertErrorEnvelope(result);
-    expect(err.code).toBe("PATH_TRAVERSAL");
-  });
-
   // ── workflow_handoff_append ───────────────────────────────────────────────
   it("workflow_handoff_append: writes entry successfully", async () => {
     const result = await client.callTool({
@@ -609,30 +585,6 @@ describe("MCP per-tool integration", () => {
     const result = await client.callTool({
       name: "workflow_handoff_append",
       arguments: { run_id: "x", step: 0, summary: "s", path: "../escape.jsonl" },
-    });
-    const err = assertErrorEnvelope(result);
-    expect(err.code).toBe("PATH_TRAVERSAL");
-  });
-
-  // ── workflow_handoff_read ─────────────────────────────────────────────────
-  it("workflow_handoff_read: nonexistent path returns empty lines", async () => {
-    const result = await client.callTool({
-      name: "workflow_handoff_read",
-      arguments: {
-        run_id: "nonexistent-run",
-        path: ".pncore/handoff-test-nonexistent.jsonl",
-      },
-    });
-    expect(result.isError).toBeFalsy();
-    const parsed = parseFirst(result);
-    expect(Array.isArray(parsed.lines)).toBe(true);
-    expect((parsed.lines as unknown[]).length).toBe(0);
-  });
-
-  it("workflow_handoff_read: path traversal returns PATH_TRAVERSAL error", async () => {
-    const result = await client.callTool({
-      name: "workflow_handoff_read",
-      arguments: { run_id: "x", path: "../escape.jsonl" },
     });
     const err = assertErrorEnvelope(result);
     expect(err.code).toBe("PATH_TRAVERSAL");
@@ -907,58 +859,105 @@ describe("MCP per-tool integration", () => {
     expect(err.code).toBe("INVALID_STATE");
   });
 
-  // ── paperclip_issue_checkout ──────────────────────────────────────────────
-  it("paperclip_issue_checkout: unconfigured returns INVALID_STATE", async () => {
+  // ── paperclip_issue (ADR-0024: replaces checkout / comment / update) ───────
+  it("paperclip_issue: checkout unconfigured returns INVALID_STATE", async () => {
     const result = await client.callTool({
-      name: "paperclip_issue_checkout",
-      arguments: { issueId: "TEST-001" },
+      name: "paperclip_issue",
+      arguments: { action: "checkout", issueId: "TEST-001" },
     });
     const err = assertErrorEnvelope(result);
     expect(err.code).toBe("INVALID_STATE");
   });
 
-  it("paperclip_issue_checkout: missing issueId without env returns INVALID_STATE", async () => {
+  it("paperclip_issue: comment without body returns INVALID_STATE", async () => {
     const result = await client.callTool({
-      name: "paperclip_issue_checkout",
-      arguments: {},
+      name: "paperclip_issue",
+      arguments: { action: "comment", issueId: "TEST-001" },
     });
-    expect(result.isError).toBe(true);
+    const err = assertErrorEnvelope(result);
+    expect(err.code).toBe("INVALID_STATE");
+    expect(err.error).toMatch(/requires body/);
   });
 
-  // ── paperclip_issue_comment ───────────────────────────────────────────────
-  it("paperclip_issue_comment: unconfigured returns INVALID_STATE", async () => {
+  it("paperclip_issue: update without status returns INVALID_STATE", async () => {
     const result = await client.callTool({
-      name: "paperclip_issue_comment",
-      arguments: { issueId: "TEST-001", body: "test comment" },
+      name: "paperclip_issue",
+      arguments: { action: "update", issueId: "TEST-001" },
+    });
+    const err = assertErrorEnvelope(result);
+    expect(err.error).toMatch(/requires status/);
+  });
+
+  it("paperclip_issue: update unconfigured returns INVALID_STATE", async () => {
+    const result = await client.callTool({
+      name: "paperclip_issue",
+      arguments: { action: "update", issueId: "TEST-001", status: "done" },
     });
     const err = assertErrorEnvelope(result);
     expect(err.code).toBe("INVALID_STATE");
   });
 
-  it("paperclip_issue_comment: missing body returns validation error", async () => {
-    const result = await client.callTool({
-      name: "paperclip_issue_comment",
-      arguments: { issueId: "TEST-001" },
+  it("paperclip_issue: invalid action or status is rejected", async () => {
+    const badAction = await client.callTool({
+      name: "paperclip_issue",
+      arguments: { action: "delete", issueId: "TEST-001" },
     });
-    expect(result.isError).toBe(true);
+    expect(badAction.isError).toBe(true);
+    const badStatus = await client.callTool({
+      name: "paperclip_issue",
+      arguments: { action: "update", issueId: "TEST-001", status: "invalid_status" },
+    });
+    expect(badStatus.isError).toBe(true);
   });
 
-  // ── paperclip_issue_update ────────────────────────────────────────────────
-  it("paperclip_issue_update: unconfigured returns INVALID_STATE", async () => {
-    const result = await client.callTool({
-      name: "paperclip_issue_update",
-      arguments: { issueId: "TEST-001", status: "done" },
-    });
-    const err = assertErrorEnvelope(result);
-    expect(err.code).toBe("INVALID_STATE");
+  it("retired tools are gone (ADR-0024)", async () => {
+    const { tools } = await client.listTools();
+    const names = tools.map((t) => t.name);
+    for (const gone of [
+      "workflow_usage_totals",
+      "workflow_handoff_read",
+      "paperclip_issue_checkout",
+      "paperclip_issue_comment",
+      "paperclip_issue_update",
+    ]) {
+      expect(names).not.toContain(gone);
+    }
+    expect(names).toHaveLength(25);
   });
 
-  it("paperclip_issue_update: invalid status returns validation error", async () => {
+  // ── workflow_run_query: usage and handoff (replace the retired read tools) ─
+  it("workflow_run_query: kinds usage returns a zero usage summary for an unknown run", async () => {
     const result = await client.callTool({
-      name: "paperclip_issue_update",
-      arguments: { issueId: "TEST-001", status: "invalid_status" },
+      name: "workflow_run_query",
+      arguments: { run_id: "test-usage-none-adr0024", kinds: ["usage"] },
     });
-    expect(result.isError).toBe(true);
+    expect(result.isError).toBeFalsy();
+    const parsed = parseFirst(result);
+    expect(parsed.usage).toEqual({
+      lines: 0,
+      inputTokens: 0,
+      outputTokens: 0,
+      costUsd: null,
+      warn: false,
+    });
+  });
+
+  it("workflow_run_query: kinds handoff returns lines from workflow_handoff_append", async () => {
+    const runId = `test-handoff-query-${Date.now()}`;
+    const appended = await client.callTool({
+      name: "workflow_handoff_append",
+      arguments: { run_id: runId, step: 2, summary: "handoff via run_query" },
+    });
+    expect(appended.isError).toBeFalsy();
+    const result = await client.callTool({
+      name: "workflow_run_query",
+      arguments: { run_id: runId, kinds: ["handoff"] },
+    });
+    const parsed = parseFirst(result);
+    const events = parsed.events as Array<{ kind: string; summary?: string; step?: number }>;
+    expect(events.some((e) => e.kind === "handoff" && e.summary === "handoff via run_query")).toBe(
+      true
+    );
   });
 
   it("workflow_verify: off by default returns DISPOSE_UNAVAILABLE", async () => {

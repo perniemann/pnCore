@@ -61,7 +61,6 @@ import {
   type GateReport,
 } from "../verify-attest.js";
 import { buildPreflightEvent } from "../verify-preflight.js";
-import { readFileTail } from "../file-tail.js";
 import { recordStateSave, resolveStatePath } from "../state-path.js";
 import {
   appendHandoffLine,
@@ -98,16 +97,12 @@ import {
   defaultGateLogPath,
   defaultHandoffPath,
   defaultHumanGateTicketsPath,
-  defaultUsagePath,
   getContentMaxChars,
-  handoffScanMaxBytes,
-  HANDOFF_READ_MAX_LINES,
   mcpError,
   requiredHumanGateWorkflows,
   resolveSafePath,
   safeBase,
   textContent,
-  usageScanMaxBytes,
   debug,
 } from "./tool-runtime.js";
 import type {
@@ -121,20 +116,16 @@ import type {
   harnessScaffoldSchema,
   listAgentsSchema,
   listSkillsSchema,
-  paperclipIssueCheckoutSchema,
-  paperclipIssueCommentSchema,
-  paperclipIssueUpdateSchema,
+  paperclipIssueSchema,
   projectContextSchema,
   reportUsageSchema,
   suggestModelTierSchema,
   workflowConfirmSchema,
   workflowHandoffAppendSchema,
-  workflowHandoffReadSchema,
   workflowStateLoadSchema,
   workflowStateSaveSchema,
   workflowRunQuerySchema,
   workflowStepSchema,
-  workflowUsageTotalsSchema,
   workflowVerifySchema,
 } from "./schemas-zod.js";
 
@@ -182,16 +173,12 @@ export async function handleHealth() {
       "harness_scaffold",
       "workflow_step",
       "workflow_confirm",
-      "workflow_usage_totals",
       "workflow_handoff_append",
-      "workflow_handoff_read",
       "workflow_verify",
       "workflow_run_query",
       "approval_checkpoint",
       "gate_log_append",
-      "paperclip_issue_checkout",
-      "paperclip_issue_comment",
-      "paperclip_issue_update",
+      "paperclip_issue",
       "suggest_model_tier",
       "resources",
       "prompts",
@@ -579,76 +566,6 @@ export async function handleReportUsage(args: ShapeArgs<typeof reportUsageSchema
   return textContent(JSON.stringify({ summary: entry }));
 }
 
-export async function handleWorkflowUsageTotals(args: ShapeArgs<typeof workflowUsageTotalsSchema>) {
-  const { run_id, path: filePath } = args;
-  const rel = filePath ?? defaultUsagePath;
-  const safe = resolveSafePath(rel);
-  if ("error" in safe) return mcpError("PATH_TRAVERSAL", safe.error, { path: rel });
-  const resolved = safe.resolved;
-  if (!existsSync(resolved)) {
-    return textContent(
-      JSON.stringify({
-        run_id,
-        path: resolved,
-        linesMatched: 0,
-        inputTokens: 0,
-        outputTokens: 0,
-        costUsd: null as number | null,
-        warn: false,
-      })
-    );
-  }
-  try {
-    const raw = readFileTail(resolved, usageScanMaxBytes);
-    let inputTokens = 0;
-    let outputTokens = 0;
-    let costUsd = 0;
-    let hasCost = false;
-    let linesMatched = 0;
-    for (const line of raw.split("\n")) {
-      const t = line.trim();
-      if (!t) continue;
-      try {
-        const o = JSON.parse(t) as Record<string, unknown>;
-        if (o.run_id !== run_id) continue;
-        linesMatched += 1;
-        const it = o.inputTokens;
-        const ot = o.outputTokens;
-        if (typeof it === "number" && Number.isFinite(it)) inputTokens += it;
-        if (typeof ot === "number" && Number.isFinite(ot)) outputTokens += ot;
-        const c = o.costUsd;
-        if (typeof c === "number" && Number.isFinite(c)) {
-          costUsd += c;
-          hasCost = true;
-        }
-      } catch {
-        /* skip line */
-      }
-    }
-    const warnThreshold = parseInt(process.env.PNCORE_USAGE_WARN_INPUT_TOKENS ?? "", 10);
-    const warn =
-      Number.isFinite(warnThreshold) && warnThreshold > 0 && inputTokens >= warnThreshold;
-    return textContent(
-      JSON.stringify({
-        run_id,
-        path: resolved,
-        linesMatched,
-        inputTokens,
-        outputTokens,
-        costUsd: hasCost ? costUsd : null,
-        warn,
-        ...(warn
-          ? {
-              warnMessage: `inputTokens ${inputTokens} >= PNCORE_USAGE_WARN_INPUT_TOKENS (${warnThreshold})`,
-            }
-          : {}),
-      })
-    );
-  } catch (err) {
-    return mcpError("IO_ERROR", String(err), { path: resolved });
-  }
-}
-
 export async function handleWorkflowHandoffAppend(
   args: ShapeArgs<typeof workflowHandoffAppendSchema>
 ) {
@@ -661,39 +578,6 @@ export async function handleWorkflowHandoffAppend(
     return textContent(JSON.stringify({ ok: true, path: safe.resolved }));
   } catch (err) {
     return mcpError("IO_ERROR", String(err), { run_id, step });
-  }
-}
-
-export async function handleWorkflowHandoffRead(args: ShapeArgs<typeof workflowHandoffReadSchema>) {
-  const { run_id, path: filePath, max_lines } = args;
-  const rel = filePath ?? defaultHandoffPath;
-  const safe = resolveSafePath(rel);
-  if ("error" in safe) return mcpError("PATH_TRAVERSAL", safe.error, { path: rel });
-  const resolved = safe.resolved;
-  if (!existsSync(resolved))
-    return textContent(JSON.stringify({ run_id, path: resolved, lines: [] }));
-  const cap = max_lines ?? HANDOFF_READ_MAX_LINES;
-  try {
-    const raw = readFileTail(resolved, handoffScanMaxBytes);
-    const matched: { ts: string; step: number; summary: string }[] = [];
-    for (const line of raw.split("\n")) {
-      const t = line.trim();
-      if (!t) continue;
-      try {
-        const o = JSON.parse(t) as Record<string, unknown>;
-        if (o.run_id !== run_id) continue;
-        const ts = typeof o.ts === "string" ? o.ts : "";
-        const step = typeof o.step === "number" ? o.step : -1;
-        const summary = typeof o.summary === "string" ? o.summary : "";
-        matched.push({ ts, step, summary });
-      } catch {
-        /* skip */
-      }
-    }
-    const tail = matched.slice(-cap);
-    return textContent(JSON.stringify({ run_id, path: resolved, lines: tail }));
-  } catch (err) {
-    return mcpError("IO_ERROR", String(err), { path: resolved });
   }
 }
 
@@ -896,9 +780,7 @@ export async function handleWorkflowStateLoad(args: ShapeArgs<typeof workflowSta
   }
 }
 
-export async function handlePaperclipIssueCheckout(
-  args: ShapeArgs<typeof paperclipIssueCheckoutSchema>
-) {
+async function paperclipCheckout(args: { issueId?: string }) {
   const cfg = loadPaperclipConfig();
   if (!cfg) return paperclipNotConfigured();
   const id = resolvePaperclipIssueId(args.issueId);
@@ -915,9 +797,7 @@ export async function handlePaperclipIssueCheckout(
   }
 }
 
-export async function handlePaperclipIssueComment(
-  args: ShapeArgs<typeof paperclipIssueCommentSchema>
-) {
+async function paperclipComment(args: { issueId?: string; body: string }) {
   const cfg = loadPaperclipConfig();
   if (!cfg) return paperclipNotConfigured();
   const id = resolvePaperclipIssueId(args.issueId);
@@ -938,9 +818,7 @@ export async function handlePaperclipIssueComment(
   }
 }
 
-export async function handlePaperclipIssueUpdate(
-  args: ShapeArgs<typeof paperclipIssueUpdateSchema>
-) {
+async function paperclipUpdate(args: { issueId?: string; status: string; comment?: string }) {
   const cfg = loadPaperclipConfig();
   if (!cfg) return paperclipNotConfigured();
   const id = resolvePaperclipIssueId(args.issueId);
@@ -963,6 +841,17 @@ export async function handlePaperclipIssueUpdate(
       hint: "Check PAPERCLIP_API_URL reachability",
     });
   }
+}
+
+/** One Paperclip issue tool; `action` picks the endpoint (ADR-0024). */
+export async function handlePaperclipIssue(args: ShapeArgs<typeof paperclipIssueSchema>) {
+  if (args.action === "checkout") return paperclipCheckout({ issueId: args.issueId });
+  if (args.action === "comment") {
+    if (!args.body) return mcpError("INVALID_STATE", "action comment requires body");
+    return paperclipComment({ issueId: args.issueId, body: args.body });
+  }
+  if (!args.status) return mcpError("INVALID_STATE", "action update requires status");
+  return paperclipUpdate({ issueId: args.issueId, status: args.status, comment: args.comment });
 }
 
 export async function handleWorkflowVerify(args: ShapeArgs<typeof workflowVerifySchema>) {
@@ -1088,6 +977,43 @@ const TRAIL_KIND: Record<"step" | "load" | "usage" | "handoff" | "gate", TrailId
   gate: "gate",
 };
 
+/**
+ * Usage totals for one run (replaces workflow_usage_totals, ADR-0024): token and cost sums over
+ * the usage trail, plus the PNCORE_USAGE_WARN_INPUT_TOKENS warning.
+ */
+export function summarizeUsage(records: Record<string, unknown>[]) {
+  let inputTokens = 0;
+  let outputTokens = 0;
+  let costUsd = 0;
+  let hasCost = false;
+  for (const o of records) {
+    if (typeof o.inputTokens === "number" && Number.isFinite(o.inputTokens)) {
+      inputTokens += o.inputTokens;
+    }
+    if (typeof o.outputTokens === "number" && Number.isFinite(o.outputTokens)) {
+      outputTokens += o.outputTokens;
+    }
+    if (typeof o.costUsd === "number" && Number.isFinite(o.costUsd)) {
+      costUsd += o.costUsd;
+      hasCost = true;
+    }
+  }
+  const threshold = parseInt(process.env.PNCORE_USAGE_WARN_INPUT_TOKENS ?? "", 10);
+  const warn = Number.isFinite(threshold) && threshold > 0 && inputTokens >= threshold;
+  return {
+    lines: records.length,
+    inputTokens,
+    outputTokens,
+    costUsd: hasCost ? costUsd : null,
+    warn,
+    ...(warn
+      ? {
+          warnMessage: `inputTokens ${inputTokens} >= PNCORE_USAGE_WARN_INPUT_TOKENS (${threshold})`,
+        }
+      : {}),
+  };
+}
+
 export async function handleWorkflowRunQuery(args: ShapeArgs<typeof workflowRunQuerySchema>) {
   const kinds = args.kinds ?? ["verify", "acceptance"];
   const runId = args.run_id;
@@ -1149,6 +1075,9 @@ export async function handleWorkflowRunQuery(args: ShapeArgs<typeof workflowRunQ
     });
   }
 
+  const usage =
+    kinds.includes("usage") || args.timeline ? summarizeUsage(trailRecords.usage ?? []) : undefined;
+
   merged.sort((a, b) => String(a.ts ?? "").localeCompare(String(b.ts ?? "")));
   const cap = args.limit && args.limit > 0 ? Math.min(args.limit, 200) : 80;
   merged = merged.slice(-cap);
@@ -1162,6 +1091,7 @@ export async function handleWorkflowRunQuery(args: ShapeArgs<typeof workflowRunQ
       events: merged,
       verify,
       acceptance: acceptance ?? null,
+      ...(usage ? { usage } : {}),
       ...(timeline ? { timeline } : {}),
     })
   );

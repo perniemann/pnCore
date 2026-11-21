@@ -14,9 +14,9 @@ Load and run `get_skill("pn-create-prd")`.
 | Signal | Use |
 |--------|-----|
 | Writing a PRD before implementation | Yes |
-| Backlog only, spec exists | No — `/pn-user-stories` |
+| Backlog only, spec exists | No — `get_skill("pn-user-stories")` |
 | Startup viability only | No — `/pn-pressure-test` or `/pn-strategy` |
 
 ## Next steps
 
-After approval: `/pn-user-stories` → `pn-writing-plans` → `/pn-build`.
+After approval: `get_skill("pn-user-stories")` → `pn-writing-plans` → `/pn-build`.

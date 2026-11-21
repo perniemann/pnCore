@@ -110,7 +110,7 @@ const summary = [
   "",
   highRisk
     ? "> High-risk paths detected (auth/RLS/payments/secrets). Run full `/pn-review` with readonly checker + bugbot per `pn-build-gate`."
-    : "> Run `/pn-document` on changed docs and `/pn-review` on the diff for semantic review.",
+    : "> Apply the `pn-documentation` skill to changed docs and run `/pn-review` on the diff for semantic review.",
   "",
 ];
 
@@ -123,9 +123,9 @@ if (allFindings.length) {
 summary.push(
   "",
   "### Cloud Agent (optional full review)",
-  "For semantic `pn-review` + `pn-document` coverage, invoke a Cursor Cloud Agent on this PR with:",
+  "For semantic `pn-review` + `pn-documentation` coverage, invoke a Cursor Cloud Agent on this PR with:",
   "- `get_command('pn-review')` on the PR diff",
-  "- `get_command('pn-document')` compliance on changed README/CHANGELOG/docs",
+  "- `get_skill('pn-documentation')` compliance on changed README/CHANGELOG/docs",
   "- Apply label `pn-ready` on pass or `pn-blocked` on fail"
 );
 

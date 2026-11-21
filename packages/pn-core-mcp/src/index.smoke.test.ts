@@ -51,9 +51,10 @@ describe("MCP server smoke", () => {
     expect(parsed.capabilities).toContain("workflow_step");
     expect(parsed.capabilities).toContain("approval_checkpoint");
     expect(parsed.capabilities).toContain("gate_log_append");
-    expect(parsed.capabilities).toContain("workflow_usage_totals");
     expect(parsed.capabilities).toContain("workflow_handoff_append");
-    expect(parsed.capabilities).toContain("workflow_handoff_read");
+    expect(parsed.capabilities).toContain("paperclip_issue");
+    expect(parsed.capabilities).not.toContain("workflow_handoff_read");
+    expect(parsed.capabilities).not.toContain("workflow_usage_totals");
     expect(parsed.capabilities).toContain("workflow_verify");
     expect(parsed.capabilities).toContain("workflow_run_query");
   });

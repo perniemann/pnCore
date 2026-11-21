@@ -35,7 +35,7 @@ Product stance: we borrow **lifecycle and governance discipline** from agent-pro
 - **Engineering discipline:** `packages/pn-core-mcp/content/skills/discipline/pn-discipline-philosophy/SKILL.md` (TDD, review, performance baselines).
 - **Orchestration:** `packages/pn-core-mcp/content/skills/orchestration/pn-orchestration-philosophy/SKILL.md` (scope, prior art, plans, spec vs reality).
 - **Skeptic / plan challenge:** `packages/pn-core-mcp/content/skills/orchestration/pn-skeptic-challenge/SKILL.md` (inversion, alternatives).
-- **Context, docs, ship:** `pn-context-engineering`, `pn-source-driven-implementation`, `pn-browser-runtime-verify`, `pn-deprecation-and-removal`, `pn-ship-checklist` under `content/skills/` (see `content/skills/README.md` for categories and optional “gate skill” authoring patterns).
+- **Context, docs, ship:** `pn-context-engineering`, `pn-source-driven-implementation`, `pn-evidence-qa`, `pn-deprecation-and-removal`, `pn-ship-checklist` under `content/skills/` (see `content/skills/README.md` for categories and optional “gate skill” authoring patterns).
 - **Skill security (SkillSpector):** After editing skills, run `npm run validate:skill-security` (requires `pip install skillspector`). CI enforces `block_dni` (no DO_NOT_INSTALL). See `pn-writing-skills` § SkillSpector hygiene and the CAUTION output from `validate-skill-security.mjs`.
 - **RAG quality and token economics:** `packages/pn-core-mcp/content/skills/integrations/pn-rag-evaluation/SKILL.md`; `packages/pn-core-mcp/content/skills/support/pn-budget-cost-monitor/SKILL.md` (with `pn-context-engineering` for context cost).
 - **Cross-cutting checklist:** `packages/pn-core-mcp/content/reference/best-practices.md` (resource `pn-core://reference/best-practices.md`).

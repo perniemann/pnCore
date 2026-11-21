@@ -66,7 +66,7 @@ For review by: [analyst / PM / compliance / counsel]
 
 - **pn-comps-analysis, pn-dcf-model, pn-earnings-analysis, pn-ic-memo, pn-gl-reconciler** — load this skill first or reference it in the workflow step 0 instruction.
 - **approval_checkpoint (MCP)** — use for hard HITL enforcement on recon approval, IC memo sign-off, or LP report distribution when `PNCORE_APPROVAL_TOKEN` is configured.
-- **pn-compliance-check** — escalate to pn-compliance-check when regulatory classification questions arise (KYC rules grid, fund distribution rules, MNPI taint analysis).
+- **pn-agent-governance** — escalate to pn-agent-governance when regulatory classification questions arise (KYC rules grid, fund distribution rules, MNPI taint analysis).
 
 ## Rationalizations → counter-arguments
 

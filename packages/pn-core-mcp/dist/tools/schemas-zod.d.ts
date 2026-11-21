@@ -10,7 +10,6 @@ export declare const workflowTypeEnum: z.ZodEnum<{
     image_create: "image_create";
     visual_tweak: "visual_tweak";
     game_feature: "game_feature";
-    svg_create: "svg_create";
     engine_feature: "engine_feature";
     fsi_analyst_draft: "fsi_analyst_draft";
     business_strategy: "business_strategy";
@@ -19,10 +18,10 @@ export declare const workflowTypeEnum: z.ZodEnum<{
     implementation_tournament: "implementation_tournament";
 }>;
 export declare const workflowGateTypeEnum: z.ZodOptional<z.ZodEnum<{
+    discovery: "discovery";
+    plan: "plan";
     design: "design";
     skeptic: "skeptic";
-    plan: "plan";
-    discovery: "discovery";
 }>>;
 export declare const workflowGateVerdictEnum: z.ZodOptional<z.ZodEnum<{
     proceed: "proceed";
@@ -89,7 +88,6 @@ export declare const suggestModelTierSchema: {
         image_create: "image_create";
         visual_tweak: "visual_tweak";
         game_feature: "game_feature";
-        svg_create: "svg_create";
         engine_feature: "engine_feature";
         fsi_analyst_draft: "fsi_analyst_draft";
         business_strategy: "business_strategy";
@@ -147,7 +145,6 @@ export declare const workflowStepSchema: {
         image_create: "image_create";
         visual_tweak: "visual_tweak";
         game_feature: "game_feature";
-        svg_create: "svg_create";
         engine_feature: "engine_feature";
         fsi_analyst_draft: "fsi_analyst_draft";
         business_strategy: "business_strategy";
@@ -169,7 +166,6 @@ export declare const reportUsageSchema: {
         image_create: "image_create";
         visual_tweak: "visual_tweak";
         game_feature: "game_feature";
-        svg_create: "svg_create";
         engine_feature: "engine_feature";
         fsi_analyst_draft: "fsi_analyst_draft";
         business_strategy: "business_strategy";
@@ -189,13 +185,9 @@ export declare const reportUsageSchema: {
     readonly reasoningEffort: z.ZodOptional<z.ZodString>;
     readonly workerId: z.ZodOptional<z.ZodString>;
     readonly observedBy: z.ZodOptional<z.ZodEnum<{
-        agent_claim: "agent_claim";
         unavailable: "unavailable";
+        agent_claim: "agent_claim";
     }>>;
-};
-export declare const workflowUsageTotalsSchema: {
-    readonly run_id: z.ZodString;
-    readonly path: z.ZodOptional<z.ZodString>;
 };
 export declare const workflowHandoffAppendSchema: {
     readonly run_id: z.ZodString;
@@ -203,20 +195,15 @@ export declare const workflowHandoffAppendSchema: {
     readonly summary: z.ZodString;
     readonly path: z.ZodOptional<z.ZodString>;
 };
-export declare const workflowHandoffReadSchema: {
-    readonly run_id: z.ZodString;
-    readonly path: z.ZodOptional<z.ZodString>;
-    readonly max_lines: z.ZodOptional<z.ZodNumber>;
-};
 export declare const workflowConfirmSchema: {
     readonly question: z.ZodString;
     readonly options: z.ZodArray<z.ZodString>;
     readonly context: z.ZodOptional<z.ZodString>;
     readonly gate_type: z.ZodOptional<z.ZodEnum<{
+        discovery: "discovery";
+        plan: "plan";
         design: "design";
         skeptic: "skeptic";
-        plan: "plan";
-        discovery: "discovery";
     }>>;
     readonly verdict: z.ZodOptional<z.ZodEnum<{
         proceed: "proceed";
@@ -239,7 +226,6 @@ export declare const approvalCheckpointSchema: {
         image_create: "image_create";
         visual_tweak: "visual_tweak";
         game_feature: "game_feature";
-        svg_create: "svg_create";
         engine_feature: "engine_feature";
         fsi_analyst_draft: "fsi_analyst_draft";
         business_strategy: "business_strategy";
@@ -262,7 +248,6 @@ export declare const gateLogAppendSchema: {
         image_create: "image_create";
         visual_tweak: "visual_tweak";
         game_feature: "game_feature";
-        svg_create: "svg_create";
         engine_feature: "engine_feature";
         fsi_analyst_draft: "fsi_analyst_draft";
         business_strategy: "business_strategy";
@@ -290,24 +275,23 @@ export declare const workflowStateSaveSchema: {
 export declare const workflowStateLoadSchema: {
     readonly path: z.ZodOptional<z.ZodString>;
 };
-export declare const paperclipIssueCheckoutSchema: {
+export declare const paperclipIssueSchema: {
+    readonly action: z.ZodEnum<{
+        checkout: "checkout";
+        comment: "comment";
+        update: "update";
+    }>;
     readonly issueId: z.ZodOptional<z.ZodString>;
-};
-export declare const paperclipIssueCommentSchema: {
-    readonly issueId: z.ZodOptional<z.ZodString>;
-    readonly body: z.ZodString;
-};
-export declare const paperclipIssueUpdateSchema: {
-    readonly issueId: z.ZodOptional<z.ZodString>;
-    readonly status: z.ZodEnum<{
-        in_progress: "in_progress";
+    readonly body: z.ZodOptional<z.ZodString>;
+    readonly status: z.ZodOptional<z.ZodEnum<{
         done: "done";
+        in_progress: "in_progress";
         backlog: "backlog";
         todo: "todo";
         in_review: "in_review";
         blocked: "blocked";
         cancelled: "cancelled";
-    }>;
+    }>>;
     readonly comment: z.ZodOptional<z.ZodString>;
 };
 export declare const workflowVerifySchema: {
@@ -327,7 +311,6 @@ export declare const workflowVerifySchema: {
         image_create: "image_create";
         visual_tweak: "visual_tweak";
         game_feature: "game_feature";
-        svg_create: "svg_create";
         engine_feature: "engine_feature";
         fsi_analyst_draft: "fsi_analyst_draft";
         business_strategy: "business_strategy";
@@ -340,8 +323,8 @@ export declare const workflowVerifySchema: {
         path: z.ZodString;
         sha256: z.ZodOptional<z.ZodString>;
         access: z.ZodOptional<z.ZodEnum<{
-            read: "read";
             write: "write";
+            read: "read";
             execute: "execute";
         }>>;
     }, z.core.$strip>>>;
@@ -353,12 +336,12 @@ export declare const workflowRunQuerySchema: {
     readonly run_id: z.ZodString;
     readonly kinds: z.ZodOptional<z.ZodArray<z.ZodEnum<{
         step: "step";
-        gate: "gate";
-        acceptance: "acceptance";
-        verify: "verify";
         preflight: "preflight";
-        handoff: "handoff";
+        verify: "verify";
+        acceptance: "acceptance";
+        gate: "gate";
         usage: "usage";
+        handoff: "handoff";
         load: "load";
     }>>>;
     readonly limit: z.ZodOptional<z.ZodNumber>;

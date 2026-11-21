@@ -14,7 +14,7 @@ Informed by [diagram-design](https://github.com/cathrynlavery/diagram-design) (M
 
 - User asks for an architecture, flowchart, sequence, state, loop, quadrant, layers, process, data-flow, or org-chart diagram.
 - A plan, ADR, or design doc needs a visual that a paragraph cannot replace.
-- `pn-svg` / `pn-svg-creator` purpose is **diagram** (not logo/icon).
+- `pn-svg` / `pn-image-creator` purpose is **diagram** (not logo/icon).
 - Editing markdown, HTML, or `.mmd`/`.mermaid` sources that will contain a diagram.
 - User wants an existing diagram redrawn (pasted Mermaid or described nodes) — not a draw.io parser.
 
@@ -106,7 +106,7 @@ Identical boxes; accent on every node; mono on human names; cyan/purple glow; di
 
 ## Integration
 
-- **Used by:** `pn-diagram`, `pn-writing-plans`, `pn-documentation`, `pn-create-design-doc`, `pn-create-workflow-roadmap`, `pn-cx-agent-patterns`, `pn-svg` / `pn-svg-creator` (diagram type), `pn-assets` (Diagram need), `pn-frontend-developer`, rule `pn-diagrams`.
+- **Used by:** `pn-diagram`, `pn-writing-plans`, `pn-documentation`, `pn-create-design-doc`, `pn-create-workflow-roadmap`, `pn-cx-agent-patterns`, `pn-svg` / `pn-image-creator` (diagram type), `pn-assets` (Diagram need), `pn-frontend-developer`, rule `pn-diagrams`.
 - **Governed by:** `pn-core://reference/diagram-baseline.md`, `.pncore-design.md`.
 - **Preview / verify:** `pn-html-preview`, then `pn-render-verify` + `pn-skeptic-challenge` on `/pn-diagram` visual track. Motion (optional): `pn-animation` Reveal/Orient only.
-- **Not:** logo/icon generation (`pn-svg-creator`), raster heroes (`pn-image-creator`), draw.io extractors.
+- **Not:** logo/icon generation (`pn-image-creator`), raster heroes (`pn-image-creator`), draw.io extractors.

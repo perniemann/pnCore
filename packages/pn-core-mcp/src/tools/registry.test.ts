@@ -53,9 +53,9 @@ function zodEnumValues(schema: unknown): string[] {
 }
 
 describe("PN_CORE tool registry", () => {
-  it("exports 29 tools with matching TypeBox schemas", () => {
-    expect(PN_CORE_TOOLS).toHaveLength(29);
-    expect(PN_CORE_TOOL_NAMES).toHaveLength(29);
+  it("exports 25 tools with matching TypeBox schemas", () => {
+    expect(PN_CORE_TOOLS).toHaveLength(25);
+    expect(PN_CORE_TOOL_NAMES).toHaveLength(25);
     for (const tool of PN_CORE_TOOLS) {
       expect(typeboxSchemas[tool.name]).toBeDefined();
       expect(tool.name).toBe(tool.name.toLowerCase());

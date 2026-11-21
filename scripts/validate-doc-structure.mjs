@@ -21,7 +21,7 @@ const errors = validateChangedMarkdown(repoRoot, changedFiles);
 
 if (errors.length) {
   for (const e of errors) console.error(e);
-  console.error("\nRun /pn-document locally or fix structure per pn-documentation skill.");
+  console.error("\nFix structure per the pn-documentation skill.");
   process.exit(1);
 }
 

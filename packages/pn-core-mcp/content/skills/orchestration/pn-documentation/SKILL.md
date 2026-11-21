@@ -10,7 +10,7 @@ This SKILL.md is a router; load `reference.md` only when that workflow is active
 ## When to use
 
 - Whenever creating or updating discovery specs, implementation plans, workflow roadmaps, prior-art research, SVG specs, README, CHANGELOG, or API docs
-- When any doc-producing skill (pn-discovery-questionnaire, pn-writing-plans, pn-create-workflow-roadmap, pn-prior-art-research, pn-svg-creator, pn-diagram-design, pn-docs-sync) runs: follow this skill for format compliance
+- When any doc-producing skill (pn-discovery-questionnaire, pn-writing-plans, pn-create-workflow-roadmap, pn-prior-art-research, pn-image-creator, pn-diagram-design, pn-docs-sync) runs: follow this skill for format compliance
 
 For full document templates and format structures, see [reference.md](reference.md).
 
@@ -72,7 +72,7 @@ Sections: Candidates table (Name, Repo/package, Stars, License, Fit, Pros, Cons)
 
 **Save path:** `docs/svg/YYYY-MM-DD-<slug>-spec.md`
 
-Sections mirror the pn-svg-creator questionnaire: Purpose, Identity, Style, Animation, Colors, Size, Constraints. Full template in [reference.md](reference.md).
+Sections mirror the pn-image-creator questionnaire: Purpose, Identity, Style, Animation, Colors, Size, Constraints. Full template in [reference.md](reference.md).
 
 ## README
 

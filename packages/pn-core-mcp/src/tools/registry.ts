@@ -16,19 +16,15 @@ import {
   listRulesSchema,
   listSkillsSchema,
   listWorkflowTypesSchema,
-  paperclipIssueCheckoutSchema,
-  paperclipIssueCommentSchema,
-  paperclipIssueUpdateSchema,
+  paperclipIssueSchema,
   reportUsageSchema,
   suggestModelTierSchema,
   workflowConfirmSchema,
   workflowHandoffAppendSchema,
-  workflowHandoffReadSchema,
   workflowStateLoadSchema,
   workflowStateSaveSchema,
   workflowRunQuerySchema,
   workflowStepSchema,
-  workflowUsageTotalsSchema,
   workflowVerifySchema,
 } from "./schemas-zod.js";
 import { typeboxSchemas, PN_CORE_TOOL_NAMES } from "./schemas-typebox.js";
@@ -49,19 +45,15 @@ import {
   handleListRules,
   handleListSkills,
   handleListWorkflowTypes,
-  handlePaperclipIssueCheckout,
-  handlePaperclipIssueComment,
-  handlePaperclipIssueUpdate,
+  handlePaperclipIssue,
   handleReportUsage,
   handleSuggestModelTier,
   handleWorkflowConfirm,
   handleWorkflowHandoffAppend,
-  handleWorkflowHandoffRead,
   handleWorkflowStateLoad,
   handleWorkflowStateSave,
   handleWorkflowRunQuery,
   handleWorkflowStep,
-  handleWorkflowUsageTotals,
   handleWorkflowVerify,
 } from "./handlers.js";
 
@@ -163,7 +155,7 @@ export const PN_CORE_TOOLS: ToolDefinition[] = [
   def(
     "get_skill",
     "Get Skill",
-    "Return full markdown content of a skill by id (e.g. pn-discovery-questionnaire, pn-svg-creator).",
+    "Return full markdown content of a skill by id (e.g. pn-discovery-questionnaire, pn-image-creator).",
     getSkillSchema,
     readOnly,
     handleGetSkill
@@ -195,7 +187,7 @@ export const PN_CORE_TOOLS: ToolDefinition[] = [
   def(
     "get_command",
     "Get Command",
-    "Return full markdown content of a command by id (e.g. pn-build, pn-new, pn-design, pn-svg-creator).",
+    "Return full markdown content of a command by id (e.g. pn-build, pn-new, pn-design, pn-assets).",
     getCommandSchema,
     readOnly,
     handleGetCommand
@@ -233,28 +225,12 @@ export const PN_CORE_TOOLS: ToolDefinition[] = [
     handleReportUsage
   ),
   def(
-    "workflow_usage_totals",
-    "Workflow Usage Totals",
-    "Sum inputTokens, outputTokens, and optional costUsd for a workflow run_id from a usage JSONL file (same format as report_usage). Scans tail of file for safety.",
-    workflowUsageTotalsSchema,
-    readOnly,
-    handleWorkflowUsageTotals
-  ),
-  def(
     "workflow_handoff_append",
     "Workflow Handoff Append",
     "Append a bounded workflow step summary to JSONL for cross-session handoff (same run_id as workflow_step).",
     workflowHandoffAppendSchema,
     write,
     handleWorkflowHandoffAppend
-  ),
-  def(
-    "workflow_handoff_read",
-    "Workflow Handoff Read",
-    "Read recent handoff lines for a run_id (workflow_handoff_append). New chat: call with run_id to restore context.",
-    workflowHandoffReadSchema,
-    readOnly,
-    handleWorkflowHandoffRead
   ),
   def(
     "workflow_confirm",
@@ -307,34 +283,18 @@ export const PN_CORE_TOOLS: ToolDefinition[] = [
   def(
     "workflow_run_query",
     "Workflow Run Query",
-    "Query one run_id across the .pncore trails: verify attestations and acceptance (run-events.jsonl, default), plus kinds preflight (workflow_verify checks), step (workflow_step spans: stepIndex, sinceLastStepMs, engineMs, routing), load (get_* loads), usage, handoff, gate. timeline: true joins them into a per-step view with totals and the slowest step — answers where a run spent its time.",
+    "Query one run_id across the .pncore trails: verify attestations and acceptance (run-events.jsonl, default), plus kinds preflight (workflow_verify checks), step (workflow_step spans: stepIndex, sinceLastStepMs, engineMs, routing), load (get_* loads), usage, handoff, gate. kinds usage (or timeline) adds a usage summary: token and cost sums plus the PNCORE_USAGE_WARN_INPUT_TOKENS warning. kinds handoff returns the handoff lines (restore context in a new chat). timeline: true joins them into a per-step view with totals and the slowest step.",
     workflowRunQuerySchema,
     readOnly,
     handleWorkflowRunQuery
   ),
   def(
-    "paperclip_issue_checkout",
-    "Paperclip Issue Checkout",
-    "Check out a Paperclip issue (POST /api/issues/:id/checkout). Use before starting work per pn-paperclip governance. Requires PAPERCLIP_API_URL, PAPERCLIP_API_KEY. issueId optional if PAPERCLIP_ISSUE_ID is set.",
-    paperclipIssueCheckoutSchema,
-    write,
-    handlePaperclipIssueCheckout
-  ),
-  def(
-    "paperclip_issue_comment",
-    "Paperclip Issue Comment",
-    "Add a markdown comment on a Paperclip issue (POST /api/issues/:id/comments with body). Requires PAPERCLIP_API_URL, PAPERCLIP_API_KEY. issueId optional if PAPERCLIP_ISSUE_ID is set.",
-    paperclipIssueCommentSchema,
+    "paperclip_issue",
+    "Paperclip Issue",
+    "Act on a Paperclip issue. action checkout (POST /api/issues/:id/checkout) before starting work per pn-paperclip governance; comment (POST /api/issues/:id/comments, needs body); update (PATCH /api/issues/:id, needs status; optional comment). Requires PAPERCLIP_API_URL, PAPERCLIP_API_KEY. issueId optional if PAPERCLIP_ISSUE_ID is set.",
+    paperclipIssueSchema,
     destructive,
-    handlePaperclipIssueComment
-  ),
-  def(
-    "paperclip_issue_update",
-    "Paperclip Issue Update",
-    "Update a Paperclip issue status (PATCH /api/issues/:id). Prefer paperclip_issue_checkout for in_progress per governance. Requires PAPERCLIP_API_URL, PAPERCLIP_API_KEY. issueId optional if PAPERCLIP_ISSUE_ID is set.",
-    paperclipIssueUpdateSchema,
-    destructive,
-    handlePaperclipIssueUpdate
+    handlePaperclipIssue
   ),
 ];
 

@@ -69,7 +69,7 @@ const KEEP_STATUSES = new Set<ArtifactReport["derived_status"]>([
 ]);
 
 const PACK_HINT =
-  "Packed to budget. For the omitted detail call project_context again with a larger max_tokens, or workflow_handoff_read / workflow_run_query for the trail.";
+  "Packed to budget. For the omitted detail call project_context again with a larger max_tokens, or workflow_run_query (kinds handoff, usage, step) for the trail.";
 
 function measure(p: object): number {
   return JSON.stringify(p).length;

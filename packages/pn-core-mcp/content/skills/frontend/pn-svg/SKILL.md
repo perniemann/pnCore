@@ -67,4 +67,4 @@ See `assets/pn-logo.svg` for patterns used in this plugin:
 ## Integration
 
 - **Diagrams:** If type is architecture, flowchart, sequence, state, loop, quadrant, layers, process, data-flow, or org-chart, stop and use `pn-diagram-design`. Do not treat those as logos.
-- **Used by:** `pn-svg-creator` (logos/icons), `pn-assets` SVG route.
+- **Used by:** `pn-image-creator` (logos/icons), `pn-assets` SVG route.

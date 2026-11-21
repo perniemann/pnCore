@@ -31,7 +31,7 @@ scenarios:
 
   - id: without-skill-logo-path
     prompt: "Create an SVG diagram of our payment pipeline."
-    expectation: "Agent runs pn-svg-creator logo questionnaire or draws a decorative SVG instead of routing to diagram design."
+    expectation: "Agent runs pn-image-creator logo questionnaire or draws a decorative SVG instead of routing to diagram design."
     without_skill: true
     quadrant: inaccurate_inefficient
 
