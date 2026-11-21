@@ -67,7 +67,7 @@ Place stable content (system rules, always-on skills, tool schemas) at the **top
 ## MCP integration
 
 - **report_usage:** Client reports usage per step; include **`run_id`** from `workflow_step`. Server appends to file when path provided.
-- **workflow_usage_totals:** Sums tokens/cost for one **`run_id`** over `.pncore/usage.jsonl` (optional path).
+- **workflow_run_query** (`kinds: ["usage"]`): `usage` sums tokens/cost for one **`run_id`** over `.pncore/usage.jsonl`.
 - **workflow_state_save/load:** Can include `usageSummary` in state for resume.
 
 ## Rationalizations

@@ -19,7 +19,7 @@ Evidence-led business strategy: framing → evidence → strategic frame → gri
 |------|--------|
 | `--from-repo <path>` | Sets `state.mode = "codebase"` and `state.repoPath = <path>`. Activates step 1 (codebase-to-strategy) to derive N≤3 candidate angles from the repo before evidence gathering. |
 | `--mode idea\|codebase\|hybrid` | Explicit mode override. Default: `"codebase"` if `--from-repo` is set; `"idea"` otherwise. `"hybrid"` requires explicit flag — mixes repo intake with a user-supplied idea description. |
-| `--continue <run_id>` | Resume a prior run. Calls `workflow_state_load` + `workflow_handoff_read`, then jumps to the persisted `nextStep` with restored state. |
+| `--continue <run_id>` | Resume a prior run. Calls `workflow_state_load` + `workflow_run_query` (`kinds: ["handoff"]`), then jumps to the persisted `nextStep` with restored state. |
 
 ## When to use
 

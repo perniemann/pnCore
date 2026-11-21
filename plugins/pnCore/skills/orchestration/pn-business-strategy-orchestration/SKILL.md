@@ -85,7 +85,7 @@ Every factual claim becomes a JSONL entry appended via `workflow_handoff_append`
 ```
 
 **Evidence gate (enforced at step 5 before verdict lock):**
-- Call `workflow_handoff_read` and group entries by `scorecard_row`.
+- Call `workflow_run_query` (`kinds: ["handoff"]`) and group entries by `scorecard_row`.
 - Each of the 6 scorecard rows (pain, buyer, urgency, differentiation, speed, founder) must have ≥1 entry.
 - Any row with zero entries: return to grill (step 4) with `grillComplete: false` before running pressure-test.
 

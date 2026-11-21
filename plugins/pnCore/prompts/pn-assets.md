@@ -16,7 +16,7 @@ Single entry point for creating any visual asset. Asks what you need, then runs 
 2. **Route:**
 
    ### SVG
-   When MCP `workflow_step` is available: call `workflow_step("svg_create", 0, {})` and follow each returned instruction.
+   When MCP `workflow_step` is available: call `workflow_step("image_create", 0, {}) (format SVG)` and follow each returned instruction.
 
    Otherwise run the SVG flow:
    1. Load `get_skill("pn-image-creator")`. Present sections (Purpose, Identity, Style, Animation, Colors, Size, Constraints) using `ask_question` when available. Ask explicitly for each item not in the user prompt.
@@ -27,7 +27,7 @@ Single entry point for creating any visual asset. Asks what you need, then runs 
    6. Output: spec path, SVG path, skeptic verdict, brief confirmation.
 
    ### Diagram
-   Architecture, flowchart, sequence, state, loop, quadrant, layers, process, data-flow, or org-chart. Do **not** send this through `svg_create` or `image_create`.
+   Architecture, flowchart, sequence, state, loop, quadrant, layers, process, data-flow, or org-chart. Do **not** send this through `image_create`.
 
    Load `get_command("pn-diagram")` (or `get_skill("pn-diagram-design")`) and follow that command. Tokens from `.pncore-design.md`. Preview editorial HTML via `pn-html-preview`.
 

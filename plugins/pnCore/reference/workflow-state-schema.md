@@ -73,7 +73,7 @@ To enter step 5, state must contain either `specialistsComplete === true` or `ta
 - **taskResults:** Record<string, string> — when step 4 returns `parallel: true` (single-shot or Phase B), required for step 5 with one entry per id in `specialistList`; value = short summary of what that specialist did. During phased flow, populate Phase A ids first, then merge Phase B ids.
 - **planArtifactPath:** string — path to full plan file under `docs/plans/` (set at step 2 output). **planSummary:** executive summary for warm state. When feature **`strictPlanSummary`** is enabled (`pn-core://config/features.json` or `PNCORE_FEATURES`), step 3 requires both.
 - **mergeComplete:** boolean — set `true` after the merge sub-phase when step 5 returned `workflowPhase: "merge"`.
-- **rollingSummary:** optional short string the client may keep in saved state; MCP canonical handoff is **`workflow_handoff_append`** / **`workflow_handoff_read`**.
+- **rollingSummary:** optional short string the client may keep in saved state; MCP canonical handoff is **`workflow_handoff_append`** / **`workflow_run_query`** (`kinds: ["handoff"]`).
 
 ### Optional GitHub Issues phase (full_dev step 3)
 
@@ -121,7 +121,7 @@ When `workflow_step` returns `parallel: true` and `tasks`:
 | 3 | imageComplete, outputPath | skepticOutputPassed, skepticOutputVerdict |
 | 4 | skepticOutputPassed, skepticOutputVerdict | (summary; no new keys) |
 
-**State shape (image_create):** `{ imageSpec?, specConfirmed?, imageComplete?, outputPath?, skepticOutputPassed?, skepticOutputVerdict? }`
+**State shape (image_create):** `{ imageSpec?, specConfirmed?, imageComplete?, outputPath?, skepticOutputPassed?, skepticOutputVerdict? }`. `imageSpec.format` is `"png"` or `"svg"`; an SVG spec also carries `specPath` (Markdown spec under `docs/svg/`). `svg_create` was folded into this workflow in 0.22.0 (ADR-0024).
 
 ---
 
@@ -148,20 +148,6 @@ When `workflow_step` returns `parallel: true` and `tasks`:
 | 3 | plan, skepticPassed | gameFeatureComplete |
 
 **State shape (game_feature):** `{ gameSpec?, plan?, skepticPassed?, gameFeatureComplete? }`
-
----
-
-## SVG-create workflow (workflowType: "svg_create")
-
-| Step | requiredFromState (to enter step) | State keys produced |
-|------|----------------------------------|---------------------|
-| 0 | (none) | svgSpec |
-| 1 | svgSpec | specPath, svgSpec, specConfirmed |
-| 2 | specConfirmed, svgSpec | svgComplete, svgPath |
-| 3 | svgComplete, svgPath | skepticOutputPassed, skepticOutputVerdict |
-| 4 | skepticOutputPassed, skepticOutputVerdict | (summary; no new keys) |
-
-**State shape (svg_create):** `{ svgSpec?, specPath?, specConfirmed?, svgComplete?, svgPath?, skepticOutputPassed?, skepticOutputVerdict? }`
 
 ---
 
@@ -460,7 +446,7 @@ Jail: Linux `bwrap` when present. Production does **not** fall back to raw spawn
 2. **Restore:** Call `workflow_state_load` with the same path, or read the JSON object from disk.
 3. **Continue:** Call `workflow_step(workflowType, step, state)` with the **same** `step` you were about to execute (or the step you last completed, per your notes). If the tool errors on missing keys, merge in fields from the prior step before retrying.
 4. **Persist after each step:** After user confirmation or model completion of a step, checkpoint in one call: `workflow_state_save({ state, run_id, step, summary, expected_revision })` (commit mode, ADR-0022). It takes `<state>.lock`, checks `expected_revision` (`REVISION_CONFLICT` otherwise) and the bound run (`RUN_MISMATCH`; pass `overwrite_run: true` to replace another run's file), appends the handoff line with revision N+1, writes the state atomically (temp file, fsync, rename; transient Windows rename locks retried), and reads it back. `workflow_state_load` returns `{ state, meta }`; keep `meta.revision` for the next `expected_revision` (0 for a new file). An interrupted commit leaves the prior state authoritative, and `project_context` ignores the orphan handoff line (`handoff_revision_ahead`). Plain mode (state only) still works but writes no revision (`state_unversioned`); use `workflow_handoff_append` separately only when commit mode is unavailable.
-5. **Logs (optional):** `.pncore/workflow-runs.jsonl` records step transitions with **`runId`** (`PNCORE_RUN_LOG` to change path or disable with empty env where supported). Use **`workflow_usage_totals`** with `run_id` on `.pncore/usage.jsonl` for token sums. Use **`workflow_handoff_read`** / **`workflow_handoff_append`** on `.pncore/workflow-handoff.jsonl` for cross-session summaries.
+5. **Logs (optional):** `.pncore/workflow-runs.jsonl` records step transitions with **`runId`** (`PNCORE_RUN_LOG` to change path or disable with empty env where supported). Use **`workflow_run_query`** (`kinds: ["usage"]`) with `run_id` on `.pncore/usage.jsonl` for token sums. Use **`workflow_run_query` (`kinds: ["handoff"]`)** / **`workflow_handoff_append`** on `.pncore/workflow-handoff.jsonl` for cross-session summaries.
 
 ### TTL and rotation
 

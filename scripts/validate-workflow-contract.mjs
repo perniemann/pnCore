@@ -153,7 +153,9 @@ assert("error" in sc0, "svg_create is retired and must error");
 if ("error" in sc0) passed++;
 else failed++;
 assert(
-  !("error" in ic0) && ic0.instruction.includes("SVG") && ic0.instruction.includes("pn-image-creator"),
+  !("error" in ic0) &&
+    ic0.instruction.includes("SVG") &&
+    ic0.instruction.includes("pn-image-creator"),
   "image_create step 0 covers the SVG format via pn-image-creator"
 );
 

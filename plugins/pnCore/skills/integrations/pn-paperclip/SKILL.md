@@ -14,17 +14,17 @@ Use this when working on tasks that originated from [Paperclip](https://github.c
 
 ## Output
 
-- Correct sequencing of MCP tools (`paperclip_issue_checkout`, `paperclip_issue_comment`, `paperclip_issue_update`) and HTTP calls for other endpoints per docs.
+- Correct sequencing of MCP tools (`paperclip_issue` with `action` checkout, comment, update) and HTTP calls for other endpoints per docs.
 - Issue state and comments updated in Paperclip when env vars (`PAPERCLIP_API_URL`, `PAPERCLIP_API_KEY`, optional `PAPERCLIP_ISSUE_ID`) are set.
 
 ## pnCore Integration
 
 When running inside Cursor with pnCore MCP:
 
-- **Checkout (start work):** Call `paperclip_issue_checkout` before implementing. Pass `issueId` or rely on `PAPERCLIP_ISSUE_ID`. Do not use `paperclip_issue_update` with `in_progress` for that — checkout owns the transition.
-- **Comments:** Call `paperclip_issue_comment` with `body` (markdown; @mentions supported per Paperclip docs). `issueId` optional when `PAPERCLIP_ISSUE_ID` is set.
-- **Mark issue done:** Call `paperclip_issue_update` with `status: "done"` and optional `comment`. `issueId` optional when `PAPERCLIP_ISSUE_ID` is set.
-- **Workflow complete:** Terminal `workflow_step` instructions include a Paperclip reminder when `PAPERCLIP_API_URL` and `PAPERCLIP_API_KEY` are configured; call `paperclip_issue_update` (and checkout earlier if you had not already).
+- **Checkout (start work):** Call `paperclip_issue` (`action: "checkout"`) before implementing. Pass `issueId` or rely on `PAPERCLIP_ISSUE_ID`. Do not use `paperclip_issue` (`action: "update"`) with `in_progress` for that — checkout owns the transition.
+- **Comments:** Call `paperclip_issue` (`action: "comment"`) with `body` (markdown; @mentions supported per Paperclip docs). `issueId` optional when `PAPERCLIP_ISSUE_ID` is set.
+- **Mark issue done:** Call `paperclip_issue` (`action: "update"`) with `status: "done"` and optional `comment`. `issueId` optional when `PAPERCLIP_ISSUE_ID` is set.
+- **Workflow complete:** Terminal `workflow_step` instructions include a Paperclip reminder when `PAPERCLIP_API_URL` and `PAPERCLIP_API_KEY` are configured; call `paperclip_issue` (`action: "update"`) (and checkout earlier if you had not already).
 
 ## Authentication
 
@@ -45,7 +45,7 @@ Env vars: `PAPERCLIP_API_URL`, `PAPERCLIP_API_KEY`. Optional: `PAPERCLIP_ISSUE_I
 
 - **Always checkout** before working. Never PATCH to `in_progress` manually.
 - **Never retry a 409** — task belongs to someone else.
-- Use `paperclip_issue_checkout`, `paperclip_issue_comment`, and `paperclip_issue_update` (pnCore) for the rows above; use direct HTTP for other endpoints (assignments, subtasks, etc.).
+- Use `paperclip_issue` (pnCore; `action` checkout, comment, update) for the rows above; use direct HTTP for other endpoints (assignments, subtasks, etc.).
 - Budget: agents auto-pause at 100%. Above 80%, focus on critical tasks only.
 
 For the full heartbeat procedure, API reference, and governance rules, see the upstream [Paperclip paperclip skill](https://github.com/paperclipai/paperclip/blob/master/skills/paperclip/SKILL.md).

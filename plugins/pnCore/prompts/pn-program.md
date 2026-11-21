@@ -109,7 +109,7 @@ Run `get_command('pn-review')` on the merged program branch. Run `get_skill('pn-
 
 After an interrupted session:
 1. `workflow_state_load("feature_program", "<programSlug>")` — restore state.
-2. `workflow_handoff_read(<run_id>)` — read last handoff.
+2. `workflow_run_query({ run_id, kinds: ["handoff"] })` — read last handoff.
 3. `workflow_step("feature_program", <lastStep>, <restoredState>)` — continue.
 
 ## Routing guide

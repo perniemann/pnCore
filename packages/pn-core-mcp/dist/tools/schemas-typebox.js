@@ -9,7 +9,6 @@ const WORKFLOW_TYPES = [
     "image_create",
     "visual_tweak",
     "game_feature",
-    "svg_create",
     "engine_feature",
     "fsi_analyst_draft",
     "business_strategy",
@@ -109,20 +108,11 @@ export const typeboxSchemas = {
         workerId: Type.Optional(Type.String({ minLength: 1, maxLength: 200 })),
         observedBy: Type.Optional(Type.Union([Type.Literal("agent_claim"), Type.Literal("unavailable")])),
     }),
-    workflow_usage_totals: Type.Object({
-        run_id: Type.String({ minLength: 1 }),
-        path: Type.Optional(Type.String()),
-    }),
     workflow_handoff_append: Type.Object({
         run_id: Type.String({ minLength: 1 }),
         step: Type.Integer({ minimum: 0 }),
         summary: Type.String({ minLength: 1, maxLength: 4000 }),
         path: Type.Optional(Type.String()),
-    }),
-    workflow_handoff_read: Type.Object({
-        run_id: Type.String({ minLength: 1 }),
-        path: Type.Optional(Type.String()),
-        max_lines: Type.Optional(Type.Integer({ minimum: 1, maximum: 200 })),
     }),
     workflow_confirm: Type.Object({
         question: Type.String(),
@@ -168,12 +158,20 @@ export const typeboxSchemas = {
     workflow_state_load: Type.Object({
         path: Type.Optional(Type.String()),
     }),
-    paperclip_issue_checkout: Type.Object({
+    paperclip_issue: Type.Object({
+        action: Type.Union([Type.Literal("checkout"), Type.Literal("comment"), Type.Literal("update")]),
         issueId: Type.Optional(Type.String()),
-    }),
-    paperclip_issue_comment: Type.Object({
-        issueId: Type.Optional(Type.String()),
-        body: Type.String(),
+        body: Type.Optional(Type.String()),
+        status: Type.Optional(Type.Union([
+            Type.Literal("backlog"),
+            Type.Literal("todo"),
+            Type.Literal("in_progress"),
+            Type.Literal("in_review"),
+            Type.Literal("done"),
+            Type.Literal("blocked"),
+            Type.Literal("cancelled"),
+        ])),
+        comment: Type.Optional(Type.String()),
     }),
     workflow_verify: Type.Object({
         run_id: Type.String({ minLength: 1 }),
@@ -208,19 +206,6 @@ export const typeboxSchemas = {
         limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 200 })),
         path: Type.Optional(Type.String()),
         timeline: Type.Optional(Type.Boolean()),
-    }),
-    paperclip_issue_update: Type.Object({
-        issueId: Type.Optional(Type.String()),
-        status: Type.Union([
-            Type.Literal("backlog"),
-            Type.Literal("todo"),
-            Type.Literal("in_progress"),
-            Type.Literal("in_review"),
-            Type.Literal("done"),
-            Type.Literal("blocked"),
-            Type.Literal("cancelled"),
-        ]),
-        comment: Type.Optional(Type.String()),
     }),
 };
 export const PN_CORE_TOOL_NAMES = Object.keys(typeboxSchemas);

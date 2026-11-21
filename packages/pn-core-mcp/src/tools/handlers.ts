@@ -566,7 +566,6 @@ export async function handleReportUsage(args: ShapeArgs<typeof reportUsageSchema
   return textContent(JSON.stringify({ summary: entry }));
 }
 
-
 export async function handleWorkflowHandoffAppend(
   args: ShapeArgs<typeof workflowHandoffAppendSchema>
 ) {
@@ -581,7 +580,6 @@ export async function handleWorkflowHandoffAppend(
     return mcpError("IO_ERROR", String(err), { run_id, step });
   }
 }
-
 
 export async function handleWorkflowConfirm(args: ShapeArgs<typeof workflowConfirmSchema>) {
   const { question, options, context, gate_type, verdict, must_fix_summary, path: filePath } = args;
@@ -1078,9 +1076,7 @@ export async function handleWorkflowRunQuery(args: ShapeArgs<typeof workflowRunQ
   }
 
   const usage =
-    kinds.includes("usage") || args.timeline
-      ? summarizeUsage(trailRecords.usage ?? [])
-      : undefined;
+    kinds.includes("usage") || args.timeline ? summarizeUsage(trailRecords.usage ?? []) : undefined;
 
   merged.sort((a, b) => String(a.ts ?? "").localeCompare(String(b.ts ?? "")));
   const cap = args.limit && args.limit > 0 ? Math.min(args.limit, 200) : 80;

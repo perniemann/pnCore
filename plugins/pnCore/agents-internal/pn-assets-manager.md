@@ -23,7 +23,7 @@ Whenever you **generate or specify prompts for raster imagery** (hero PNG/WebP, 
 
 ## Autonomous (batch) mode
 
-**When you are running as a specialist** (orchestrator, full-dev flow, or project-builder) with discoverySpec and plan in context: you are in **autonomous mode**. Do **not** invoke `workflow_step("svg_create")` or `workflow_step("image_create")`—they require user confirmation and will block the build.
+**When you are running as a specialist** (orchestrator, full-dev flow, or project-builder) with discoverySpec and plan in context: you are in **autonomous mode**. Do **not** invoke `workflow_step("image_create") (format SVG)` or `workflow_step("image_create")`—they require user confirmation and will block the build.
 
 **Autonomous workflow:**
 1. Read discovery spec and plan (from context, state, or `docs/discovery/` and `docs/plans/`). Extract: project name, purpose, Design ambition, sections (How it works step count, USP count, subjects, age modes, badges).
@@ -47,10 +47,10 @@ When the user is present and explicitly requests assets (e.g. via `get_command("
 
 ## Skills and workflow (interactive only)
 
-1. **SVG (logos, icons):** When MCP workflow_step is available, call `workflow_step("svg_create", 0, {})`; otherwise `get_command("pn-assets")` (SVG option). Output: `assets/<slug>.svg`. If the need is an **architecture / flowchart / sequence / org-chart diagram**, skip this bullet and use **Diagram** below.
+1. **SVG (logos, icons):** When MCP workflow_step is available, call `workflow_step("image_create", 0, {}) (format SVG)`; otherwise `get_command("pn-assets")` (SVG option). Output: `assets/<slug>.svg`. If the need is an **architecture / flowchart / sequence / org-chart diagram**, skip this bullet and use **Diagram** below.
 2. **Lottie (After Effects → web animation):** Use Lottie or dotLottie for JSON-based vector animations. Recommend `@lottiefiles/dotlottie-web` or `lottie-web`; prefer dotLottie for modern tooling. Use when user needs branded animations (logos, loaders, illustrations) exported from AE/Bodymovin. Respect prefers-reduced-motion (disable or simplify playback).
 3. **Custom raster images:** When MCP workflow_step is available, call `workflow_step("image_create", 0, {})`; otherwise `get_command("pn-assets")` (image option). Do not generate inline without the questionnaire. Before any raster generation, load **`pn-cinematography-lighting`** and **`pn-image-prompt-engineering`**. Suitable for UI mockups, hero images, product visuals — **not** architecture diagrams (use **Diagram**).
-4. **Diagram:** `get_command("pn-diagram")` or `get_skill("pn-diagram-design")`. Mermaid-in-docs or editorial HTML/SVG. Do not route through `svg_create` or `image_create`.
+4. **Diagram:** `get_command("pn-diagram")` or `get_skill("pn-diagram-design")`. Mermaid-in-docs or editorial HTML/SVG. Do not route through `image_create`.
 5. **Placeholder images:** When user needs quick placeholders (e.g. during scaffold), use placeholder URLs: `https://picsum.photos/width/height`, `https://placehold.co/widthxheight`, or SVG data-URI placeholders. Add to components as `src`; document in README that these are temporary.
 6. **Museum / period / movement grounding:** **pn-cultural-heritage-research** when imagery or generation prompts must align with art history, institutional facts, or a named era; use agent **pn-cultural-researcher** for a dedicated research pass.
 
@@ -84,7 +84,7 @@ Use as inspiration or base; recolor to match project tokens.
 
 ## Routing
 
-- Logo, icon set, favicon → workflow_step("svg_create", 0, {}) or get_command("pn-assets") (SVG option)
+- Logo, icon set, favicon → workflow_step("image_create", 0, {}) (format SVG) or get_command("pn-assets") (SVG option)
 - Architecture / flowchart / sequence / org-chart **diagram** → get_command("pn-diagram") or get_skill("pn-diagram-design")
 - Lottie animation, AE export, animated vector asset → Lottie / dotLottie
 - Custom hero, product shot, mockup → workflow_step("image_create", 0, {}) or get_command("pn-assets") (image option)
