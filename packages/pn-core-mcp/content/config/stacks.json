@@ -44,6 +44,12 @@
       "agent": "pn-frontend-developer"
     },
     {
+      "id": "solid",
+      "rule": "pn-solid",
+      "scaffold": "pn-frontend-scaffolding",
+      "agent": "pn-frontend-developer"
+    },
+    {
       "id": "vanilla",
       "rule": "pn-vanilla-web",
       "scaffold": "pn-frontend-scaffolding",

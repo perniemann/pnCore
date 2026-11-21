@@ -40,7 +40,7 @@ Then implement working code (React, Astro, Next.js, vanilla HTML/CSS) that is pr
 
 ## Stack
 
-- Prefer the project's existing patterns. Use pn-frontend-scaffolding (React/Next/Astro/vanilla per stack) or pn-react, pn-astro, pn-nextjs, pn-vanilla-web rules for structure and a11y.
+- Prefer the project's existing patterns. Use pn-frontend-scaffolding (React/Next/Astro/Solid/vanilla per stack) or pn-react, pn-astro, pn-nextjs, pn-vanilla-web rules for structure and a11y.
 - **Component library (when specified):** Use library components for every UI element. Do not create custom Button, Input, Card, Dialog, etc. when the library provides them. See pn-ui-component-libraries for enforcement.
 - Match implementation complexity to the aesthetic: maximalist designs need more elaborate code and effects; minimal designs need restraint, precision, and subtle detail.
 

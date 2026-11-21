@@ -1,6 +1,6 @@
 ---
 name: pn-frontend-scaffolding
-description: "Scaffolds new pages and components by stack (React, Next.js, Astro, or vanilla). Use when adding a new page or component; branch by stack per config; covers pages, components, layout, and a11y basics."
+description: "Scaffolds new pages and components by stack (React, Next.js, Astro, Solid 2.0, or vanilla). Use when adding a new page or component; branch by stack per config; covers pages, components, layout, and a11y basics."
 ---
 
 # Frontend scaffolding
@@ -30,6 +30,14 @@ Use the subsection below that matches the project stack (from discovery or confi
 - **New component:** One component per file; PascalCase for React islands, or .astro for Astro components. Add a short comment if the purpose isn't obvious.
 - **Scaffold content:** Minimal heading and placeholder content; a11y basics (e.g. one `<h1>` per page).
 - **One at a time:** Prefer one page or one component per change.
+
+## Solid 2.0
+
+- **Stack check:** `solid-js` 2.x in `package.json`. Follow `pn-solid`; never React hooks or Solid 1.x APIs.
+- **New project:** Vite with `@solidjs/vite-plugin`; `tsconfig` `"jsxImportSource": "@solidjs/web"`. `solid({ start: true })` when the app needs server functions or file routing.
+- **New component:** One component per file, PascalCase, props read as `props.x` (no destructuring), control flow with `<Show>` / `<For>`.
+- **Async route or view:** async `createMemo` wrapped in `<Loading fallback={...}>`; errors in `<Errored>`.
+- **A11y:** One `<h1>` per page, labels for form controls, logical heading order.
 
 ## Vanilla HTML/CSS/JS
 

@@ -1,0 +1,80 @@
+---
+description: Solid 2.0 conventions (solid-js 2.x, stable 2026-11-16): fine-grained signals, split effects, async memos with Loading, draft store setters, @solidjs/web imports. Use when editing .tsx or .jsx in a project whose package.json depends on solid-js; it replaces pn-react there.
+alwaysApply: false
+globs: ["**/*.tsx", "**/*.jsx"]
+---
+
+# Solid 2.0 rules
+
+**Scope check first.** Read `package.json`. If it depends on `solid-js` (2.x), this rule applies and **pn-react does not**: no hooks, no virtual DOM habits. If it pins `solid-js` 1.x (`v1-latest`), keep 1.x APIs and do not migrate unasked. If there is no `solid-js`, ignore this rule.
+
+Most training data is React or Solid 1.x. Solid 2.0 removed or renamed much of the 1.x API. Before writing an import, check it against the map below; never reintroduce a removed API.
+
+## Reactivity model
+
+- Components run **once**. Reactivity lives in signal reads inside JSX, memos and effects, not in re-renders.
+- Read signals as calls: `count()`. Pass accessors, not values, when the child must track.
+- **Never destructure props.** `props.title` tracks; `const { title } = props` does not. Use `merge` / `omit` to combine or split props.
+- Derive with `createMemo(fn, options)` or a plain function. No `useMemo` / `useCallback` equivalents; they are unnecessary.
+- Writes are batched on a microtask. A read right after a write sees the old value until the batch flushes; call `flush()` only when synchronous application is required.
+- Writes inside reactive scopes (memos, effect compute) throw in dev. Write in event handlers or `action`s.
+
+## Effects and lifecycle
+
+- `createEffect(compute, apply)`: `compute` tracks and returns a value, `apply` runs the side effect with it and returns cleanup. No single-function form, no `initialValue`.
+- `onSettled` replaces `onMount` and can return cleanup.
+- Errors: `Errored` component, or the `error` option on `createEffect`.
+
+```tsx
+createEffect(
+  () => name(),
+  (value) => {
+    const id = setInterval(() => console.log(value), 1000);
+    return () => clearInterval(id);
+  }
+);
+```
+
+## Async data and mutations
+
+- A memo may return a Promise or async iterable: `const user = createMemo(() => fetchUser(id()))`.
+- `Loading` gates initial readiness (replaces `Suspense`); `isPending(() => expr)` reports in-flight updates; `latest(fn)` peeks at an in-flight value. `Reveal` replaces `SuspenseList`.
+- Refetch with `refresh(source)`. Mutate through `action(function* (...) { ... })` with `createOptimistic` / `createOptimisticStore` for optimistic state.
+
+## Control flow and DOM
+
+- Use `<Show>`, `<Switch>/<Match>`, `<For>`; not ternaries over large trees or `.map()` in JSX.
+- `Index` is gone: `<For each={items()} keyed={false}>{(item, i) => ...}</For>` (item is an accessor).
+- `class` takes a string, object or array (`classList` is gone). Event handlers are `onClick`-style; for native listener options use a ref callback with `addEventListener`.
+- `use:` directives are gone: use `ref` directive factories. `/*@once*/`, `attr:`, `bool:`, `on:`, `oncapture:` are gone.
+- Context: render the context itself as the provider, `<Theme value="dark">`; `Context.Provider` is gone.
+
+## Stores
+
+- `createStore` setters are draft-first: `setStore((s) => { s.user.name = "Alice"; })`. `produce`, `createMutable`, `modifyMutable` are gone.
+- `snapshot(store)` replaces `unwrap`. `createProjection` (or `createStore(fn)`) replaces `createSelector`. `storePath(...)` is the opt-in path-style helper.
+
+## Packages and config
+
+- Store APIs import from `solid-js`. DOM APIs (`render`, `hydrate`, `Portal`, `Dynamic`) import from `@solidjs/web`. Other renderers: `@solidjs/h`, `@solidjs/html`, `@solidjs/universal`.
+- `tsconfig.json`: `"jsx": "preserve"`, `"jsxImportSource": "@solidjs/web"`.
+- Vite: `@solidjs/vite-plugin` (Oxc compiler by default); `solid({ start: true })` enables Start mode (server functions, routing).
+
+## 1.x → 2.0 map (never emit the left side)
+
+| 1.x | 2.0 |
+|-----|-----|
+| `solid-js/web`, `solid-js/store` | `@solidjs/web`, `solid-js` |
+| `createResource` | async `createMemo` + `Loading` |
+| `Suspense`, `ErrorBoundary`, `SuspenseList` | `Loading`, `Errored`, `Reveal` |
+| `onMount` | `onSettled` |
+| `createEffect(fn)`, `on`, `createComputed` | `createEffect(compute, apply)` (`defer` option), `createMemo` |
+| `batch`, `startTransition`, `useTransition` | automatic batching, `flush()`, `isPending`, `Loading` |
+| `refetch()`, `mutate()` | `refresh(source)`, `action` + `createOptimisticStore` |
+| `Index`, `indexArray` | `<For keyed={false}>`, `mapArray` with `keyed: false` |
+| `produce`, `createMutable`, `unwrap`, `createSelector` | draft setter, `createStore`, `snapshot`, `createProjection` |
+| `mergeProps`, `splitProps` | `merge`, `omit` |
+| `classList`, `use:`, `Context.Provider` | `class` object, `ref` factory, context as provider |
+| `onError`, `catchError` | `Errored`, effect `error` option |
+
+Source of truth when unsure: the Solid 2.0 migration guide (`documentation/solid-2.0/MIGRATION.md` in `solidjs/solid`) and docs.solidjs.com. Fetch it rather than guess.
