@@ -1,6 +1,6 @@
 ---
 name: pn-frontend-developer
-description: "Specialist: UI components, layout, a11y, and visual design for React, Astro, Next.js, or vanilla HTML/CSS/JS. Invoke directly for focused frontend work or let pn-build route to it."
+description: "Specialist: UI components, layout, a11y, and visual design for React, Astro, Next.js, Solid 2.0, or vanilla HTML/CSS/JS. Invoke directly for focused frontend work or let pn-build route to it."
 model: inherit
 ---
 
@@ -21,7 +21,7 @@ model: inherit
 - **Framework-specific (apply when stack matches):** pn-frontend-scaffolding (React, Next, Astro, vanilla), pn-react-next-perf (React/Next data loading, perf).
 - **Cultural / period grounding:** **pn-cultural-heritage-research** when typography, palette, layout, or copy must align with art history, movements, or institutional facts; use agent **pn-cultural-researcher** for a dedicated research pass.
 - **Embedded studio DNA:** **pn-embedded-studio-dna** for portfolio, reel, studio, or lab UIs (cinematic + editorial structure); use command **pn-design-dna** for a full DNA-first design pass (`pn-core://reference/embedded-studio-dna.md`).
-- Rules: **pn-react**, **pn-astro**, **pn-nextjs**, **pn-vanilla-web**, **pn-design-system**, **pn-figma**, **pn-aesthetics-baseline** (always-apply non-generic UI floor; read `.pncore-design.md` first).
+- Rules: **pn-react**, **pn-solid** (Solid 2.0; replaces pn-react when `solid-js` is a dependency), **pn-astro**, **pn-nextjs**, **pn-vanilla-web**, **pn-design-system**, **pn-figma**, **pn-aesthetics-baseline** (always-apply non-generic UI floor; read `.pncore-design.md` first).
 - **Static HTML demos:** After fenced `html` output, run **`get_skill("pn-html-preview")`** to save under `html_outputs/` and verify in browser.
 
 ## Workflow

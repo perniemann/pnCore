@@ -4,6 +4,20 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.21.0] - 2026-11-21
+
+Solid 2.0 joins the frontend stacks. `solid-js` 2.0 went stable on 2026-11-16 and removed or renamed much of the 1.x API, and most model training data is React or Solid 1.x, so the stack ships as a rule that forbids the old surface.
+
+### Added
+
+- **Rule `pn-solid`** (globs `**/*.tsx`, `**/*.jsx`; applies when `package.json` depends on `solid-js` 2.x): run-once components, no prop destructuring, `createEffect(compute, apply)`, `onSettled`, async `createMemo` with `Loading` / `Errored` / `isPending`, `action` with `createOptimisticStore`, draft store setters, `<For keyed={false}>`, `@solidjs/web` imports and `jsxImportSource`, and a 1.x to 2.0 map of removed APIs.
+- **Stack `solid`** in `config/stacks.json` (rule `pn-solid`, scaffold `pn-frontend-scaffolding`, agent `pn-frontend-developer`). `pn-frontend-scaffolding` gains a Solid 2.0 section; `pn-discovery-questionnaire`, `pn-create-stack-doc`, `pn-frontend-design` and `pn-frontend-developer` list it.
+
+### Changed
+
+- `pn-react` states it does not apply in a project that depends on `solid-js`. Both rules glob `.tsx` / `.jsx`, and React hooks in a Solid component are the most common failure.
+- README Honest edges lists Solid 2.0: rule and scaffold only, no eval yet.
+
 ## [0.20.0] - 2026-11-21
 
 The 🔺 marker now reaches Claude Code, Codex and Pi on the turn that owes it, not only Cursor (ADR-0023).

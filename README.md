@@ -2,7 +2,7 @@
   <img src="plugins/pnCore/assets/pn-logo.svg" width="176" alt="pnCore" />
 </p>
 
-# pnCore — v0.20.0
+# pnCore — v0.21.0
 
 pnCore is an MCP engine with harness adapters for Cursor, Claude Code, Codex, and Pi. It runs software delivery as a sequence of named, gated steps instead of one long chat.
 
@@ -208,6 +208,7 @@ Load before a build session: `pn-core://reference/best-practices.md`, `pn-core:/
 | Plugin without MCP | Slash templates only — no `workflow_step` engine | Install MCP for Cursor, or both |
 | First npx on a git+https package URL | Cursor MCP can time out on a cold clone | Pre-warm once, then reload. Matrix: [MCP README](packages/pn-core-mcp/README.md#troubleshooting-mcp-wont-connect-in-cursor) |
 | `feature_program` / `bestOfN` | Preview flags; off by default | Set `featureProgram: true` or `bestOfN.enabled: true` |
+| Solid 2.0 | Rule `pn-solid` and the frontend scaffold; no eval yet. Models default to React or Solid 1.x APIs | Keep `pn-solid` in context and check imports against its 1.x to 2.0 map |
 | Vue, Svelte, Angular, Unity | Limited support | Prefer React, Astro, Next, vanilla web, Node, Three.js / Babylon, n8n, web3 |
 
 **Best fit:** teams building with Cursor, Claude Code, Codex, or Pi on React, Astro, Next.js, vanilla web, Node backends, Three.js / Babylon / gamedev, n8n, and web3. Inventory: [docs/plugin-reference.md](docs/plugin-reference.md).

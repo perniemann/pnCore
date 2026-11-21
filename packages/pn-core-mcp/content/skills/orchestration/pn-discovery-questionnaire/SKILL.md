@@ -34,7 +34,7 @@ Before presenting any questionnaire section, call `workflow_state_load("discover
 
 ### 1. Technical
 
-- **Stack:** See `config/stacks.json` for supported stacks. Options: plugin, React, Astro, Next.js, vanilla HTML/CSS/JS, Node API, Python API, Go API, Rust API, Ruby API, PHP API, Babylon.js (3D), or combination. If plugin: single-plugin or multi-plugin (marketplace) repo?
+- **Stack:** See `config/stacks.json` for supported stacks. Options: plugin, React, Astro, Next.js, Solid 2.0, vanilla HTML/CSS/JS, Node API, Python API, Go API, Rust API, Ruby API, PHP API, Babylon.js (3D), or combination. If plugin: single-plugin or multi-plugin (marketplace) repo?
 - **Scope:** Single page, multi-page, or full app?
 - **Platform:** Web, PWA, mobile (responsive vs native)?
 - **Persistence:** LocalStorage, API, DB, or none?

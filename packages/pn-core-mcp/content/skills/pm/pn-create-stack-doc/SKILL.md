@@ -23,7 +23,7 @@ Create `docs/STACK.md` that documents the project's tech stack, layers, key depe
 
 ## Instructions
 
-1. **Load discovery spec:** Extract stack choices from Technical section. Include: frontend (React, Next, Astro, vanilla), backend (Node, Supabase), database (Supabase, SQL, NoSQL), API style (REST, tRPC, GraphQL), auth model.
+1. **Load discovery spec:** Extract stack choices from Technical section. Include: frontend (React, Next, Astro, Solid 2.0, vanilla), backend (Node, Supabase), database (Supabase, SQL, NoSQL), API style (REST, tRPC, GraphQL), auth model.
 
 2. **Apply template:**
 

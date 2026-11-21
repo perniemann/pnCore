@@ -6,6 +6,8 @@ globs: ["**/*.tsx", "**/*.jsx"]
 
 # React rules
 
+**Not for Solid.** If `package.json` depends on `solid-js`, this rule does not apply; follow `pn-solid`.
+
 ## Component Architecture
 
 - Prefer function components and hooks. Use `const` for component names.
