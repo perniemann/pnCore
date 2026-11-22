@@ -1,5 +1,7 @@
 /**
- * Per-tool integration tests via StdioClientTransport.
+ * Per-tool integration tests, in process: a Client talks to createPnCoreServer() over
+ * InMemoryTransport, so coverage sees the adapter, registry, handlers and tool runtime.
+ * index.smoke.test.ts still spawns dist/index.js over stdio and checks it serves the same tools.
  * Covers all 25 tools: one happy-path + one negative case each.
  * Negatives assert the unified error envelope: { isError: true, content: [{ type: "text", text: JSON({ code, error }) }] }
  * Depends on: F1.1 (error envelope shape), F1.4 (list_agents cardinality)
@@ -10,10 +12,11 @@ import { rmSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
+import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { createPnCoreServer } from "./adapters/mcp-server.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const serverPath = join(__dirname, "..", "dist", "index.js");
 
 /** Parse the text content of a tool result and return the first text item's JSON. */
 function parseFirst(result: Awaited<ReturnType<Client["callTool"]>>) {
@@ -35,19 +38,19 @@ function assertErrorEnvelope(result: Awaited<ReturnType<Client["callTool"]>>) {
 
 describe("MCP per-tool integration", () => {
   let client: Client;
-  let transport: StdioClientTransport;
+  let server: McpServer;
 
   beforeAll(async () => {
-    transport = new StdioClientTransport({
-      command: "node",
-      args: [serverPath],
-    });
+    const [clientSide, serverSide] = InMemoryTransport.createLinkedPair();
+    server = createPnCoreServer();
+    await server.connect(serverSide);
     client = new Client({ name: "pn-core-tools-test", version: "1.0.0" }, { capabilities: {} });
-    await client.connect(transport);
+    await client.connect(clientSide);
   }, 20000);
 
   afterAll(async () => {
-    await transport.close();
+    await client.close();
+    await server.close();
     for (const rel of [
       ".pncore/state-roundtrip.json",
       ".pncore/state-saves.jsonl",

@@ -1,0 +1,31 @@
+# One-shot coverage measurement. Removed before the PR merges.
+name: tmp coverage
+on:
+  push:
+    branches: [test/in-process-tool-coverage]
+permissions:
+  contents: write
+jobs:
+  cov:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22"
+          cache: "npm"
+      - run: npm ci
+      - run: npm run sync:content && npm run build:mcp
+      - name: coverage
+        working-directory: packages/pn-core-mcp
+        continue-on-error: true
+        run: npx vitest run --coverage --coverage.reporter=text --coverage.reporter=json-summary 2>&1 | tail -150
+      - name: summary
+        working-directory: packages/pn-core-mcp
+        run: |
+          node -e '
+          const s=require("./coverage/coverage-summary.json");
+          const pick=(k)=>{const v=s[k];return ["statements","branches","functions","lines"].map(m=>m+"="+v[m].pct+"("+v[m].covered+"/"+v[m].total+")").join(" ")};
+          console.log("TOTAL", pick("total"));
+          for (const k of Object.keys(s)) if (/adapters|tools\/(handlers|registry|tool-runtime)/.test(k)) console.log(k.replace(/.*src\//,""), pick(k));
+          '
