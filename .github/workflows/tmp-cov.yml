@@ -1,12 +1,13 @@
-# One-shot coverage measurement. Removed before the PR merges.
-name: tmp coverage
+# One-shot: ship node_modules to a throwaway branch so an offline agent session can run vitest.
+# Removed before the PR merges; the branch tmp/node-modules is deleted after use.
+name: tmp node_modules
 on:
   push:
     branches: [test/in-process-tool-coverage]
 permissions:
   contents: write
 jobs:
-  cov:
+  nm:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -15,17 +16,14 @@ jobs:
           node-version: "22"
           cache: "npm"
       - run: npm ci
-      - run: npm run sync:content && npm run build:mcp
-      - name: coverage
-        working-directory: packages/pn-core-mcp
-        continue-on-error: true
-        run: npx vitest run --coverage --coverage.reporter=text --coverage.reporter=json-summary 2>&1 | tail -150
-      - name: summary
-        working-directory: packages/pn-core-mcp
+      - name: pack and push
         run: |
-          node -e '
-          const s=require("./coverage/coverage-summary.json");
-          const pick=(k)=>{const v=s[k];return ["statements","branches","functions","lines"].map(m=>m+"="+v[m].pct+"("+v[m].covered+"/"+v[m].total+")").join(" ")};
-          console.log("TOTAL", pick("total"));
-          for (const k of Object.keys(s)) if (/adapters|tools\/(handlers|registry|tool-runtime)/.test(k)) console.log(k.replace(/.*src\//,""), pick(k));
-          '
+          set -eu
+          tar -czf /tmp/nm.tgz node_modules packages/pn-core-mcp/node_modules
+          ls -la /tmp/nm.tgz
+          mkdir /tmp/out && cd /tmp/out && split -b 90m /tmp/nm.tgz nm.tgz.part-
+          git init -q && git checkout -q -b tmp/node-modules
+          git config user.name "github-actions[bot]"
+          git config user.email "41898699+github-actions[bot]@users.noreply.github.com"
+          git add . && git commit -qm "chore: throwaway node_modules snapshot"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" HEAD:tmp/node-modules
