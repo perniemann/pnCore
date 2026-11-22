@@ -170,12 +170,14 @@ export function computeActiveRun(opts) {
         const committedRevision = stateMeta.revision;
         // Above the state's revision: an interrupted save. At the same revision with another hash:
         // an orphan from a crashed save whose retry wrote different state (ADR-0022).
-        // Commit-mode handoff lines always carry a stateHash next to their revision.
+        // A line without a stateHash (hand-written or pre-hash) is judged by revision alone.
         const committedHash = stateMeta.stateHash;
         const uncommitted = handoffPoints.filter((p) => p.run_id === target &&
             p.revision != null &&
             (p.revision > committedRevision ||
-                (p.revision === committedRevision && p.stateHash !== committedHash)));
+                (p.revision === committedRevision &&
+                    p.stateHash != null &&
+                    p.stateHash !== committedHash)));
         if (uncommitted.length > 0) {
             mismatches.push({
                 code: "handoff_revision_ahead",

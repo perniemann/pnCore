@@ -271,7 +271,9 @@ export function computeActiveRun(opts: {
         p.run_id === target &&
         p.revision != null &&
         (p.revision > committedRevision ||
-          (p.revision === committedRevision && p.stateHash != null && p.stateHash !== committedHash))
+          (p.revision === committedRevision &&
+            p.stateHash != null &&
+            p.stateHash !== committedHash))
     );
     if (uncommitted.length > 0) {
       mismatches.push({
