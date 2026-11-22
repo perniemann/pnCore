@@ -16,6 +16,7 @@ jobs:
           node-version: "22"
           cache: "npm"
       - run: npm ci
+      - run: npm ci --prefix packages/pn-core-mcp --include=dev
       - name: pack and push
         run: |
           set -eu
