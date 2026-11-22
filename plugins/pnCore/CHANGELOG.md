@@ -15,10 +15,7 @@ All notable changes to pnCore are documented in this file.
 - **Strict gate records need provenance.** Under `intent: "involved"` or `PNCORE_STRICT_SKEPTIC_GATES`, each gate record must name a `gate_id` from the gate log that `workflow_confirm` writes, with a matching verdict (`INVALID_GATE` otherwise).
 - **`feature_program` merge phase** returns `nextStep: 5`, where its instruction sends the caller.
 - **README** says what the gates prove in each mode, instead of claiming every step passes on an external decision. "The engine loads gates and skills automatically" becomes "each step names the skills it needs".
-
-### Notes
-
-- With `PNCORE_RUN_LOG=""` (no run log) sequencing is skipped; that is an operator setting.
+- With `PNCORE_RUN_LOG=""` (no run log) sequencing is skipped; that is an operator setting, not a tool argument.
 
 ## [0.23.0] - 2026-11-22
 
