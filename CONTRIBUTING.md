@@ -9,7 +9,7 @@
 ## Setup
 
 - **Node:** `engines.node >= 22` (see `.nvmrc`). Use `nvm use` or align your toolchain.
-- **First-time setup:** run `npm run setup` once after clone — installs deps, builds the MCP package, and configures git hooks (strips IDE co-author trailers on commit, see `docs/commits.md`).
+- **First-time setup:** run `npm run setup` once after clone: installs deps, builds the MCP package, and configures git hooks (strips IDE co-author trailers on commit, see `docs/commits.md`).
 - **`prepare` lifecycle note:** `package.json` runs `node scripts/prepare-root.mjs` on `npm install`. That script always syncs the version (`scripts/sync-version.mjs`) and runs `npm run build:mcp` **only when** `packages/pn-core-mcp/dist/index.js` is missing (source checkout without a shipped dist). Git/npx consumers that already have `dist/` skip the build. Run `npm install --ignore-scripts` to skip both.
 
 ## Before you PR
@@ -21,12 +21,12 @@
 
 Canonical skills, rules, agents, commands, and reference live under **`packages/pn-core-mcp/content/`**. Treat changes like versioned product artifacts:
 
-1. **Edit** only the canonical tree; **do not** hand-edit `plugins/pnCore/` to change shipped content—update `packages/pn-core-mcp/content/` and run `npm run sync:content`.
+1. **Edit** only the canonical tree; **do not** hand-edit `plugins/pnCore/` to change shipped content, update `packages/pn-core-mcp/content/` and run `npm run sync:content`.
 2. **Assess** locally: `npm run format` as needed, then `npm run validate`. For MCP package, root scripts, or broad content changes, prefer `npm run test:full` before push (matches CI depth). Merge gates include `npm run check:evals` and `npm run check:links` (escapes: `PNCORE_STRICT_EVALS=0` / `PNCORE_STRICT_LINKS=0` for local WIP only).
 3. **Publish** by merging through normal review; **lineage** is git history; **rollback** is `git revert` or restoring from a tag.
-4. **Workflows** (orchestrated runs) use **skeptic gates** on plans and outputs; optional **hard HITL** uses `approval_checkpoint` when MCP env requires it—see MCP README and RUNBOOK.
-5. **New skills:** a sibling `EVAL.yaml` is **required** in CI (`npm run scaffold:eval -- <id>`; schema in `pn-core://reference/eval-convention.md`). Optional frontmatter `owner:` names a maintainer. We do **not** use GitHub `CODEOWNERS` here — without real teams it blocks PRs; ADR-0001 also rejected fragile ownership-glob validators (see [ADR-0010](docs/adr/0010-skill-evals-and-link-checking.md)).
-6. **Backfill existing skills (local agents):** ranked batches via `npm run list:eval-backfill` and `/pn-backfill-evals` — contract in `pn-core://reference/eval-backfill.md`. Do not mass-stub.
+4. **Workflows** (orchestrated runs) use **skeptic gates** on plans and outputs; optional **hard HITL** uses `approval_checkpoint` when MCP env requires it, see MCP README and RUNBOOK.
+5. **New skills:** a sibling `EVAL.yaml` is **required** in CI (`npm run scaffold:eval -- <id>`; schema in `pn-core://reference/eval-convention.md`). Optional frontmatter `owner:` names a maintainer. We do **not** use GitHub `CODEOWNERS` here: without real teams it blocks PRs; [ADR-0026](docs/adr/0026-feature-program-workflow.md) also rejected fragile ownership-glob validators (see [ADR-0010](docs/adr/0010-skill-evals-and-link-checking.md)).
+6. **Backfill existing skills (local agents):** ranked batches via `npm run list:eval-backfill` and `/pn-backfill-evals`, contract in `pn-core://reference/eval-backfill.md`. Do not mass-stub.
 
 Product stance: we borrow **lifecycle and governance discipline** from agent-protocol research **without** adopting a second in-repo protocol (see [ADR-0003](docs/adr/0003-governance-without-agp-protocol.md)).
 
@@ -80,7 +80,7 @@ npm run setup              # install deps + build MCP
 npm run mcp-config:dev     # DEV ONLY: local absolute node path (this machine)
 ```
 
-For portable install on any machine, use the **one-click deeplink** or MCP JSON in the [root README](README.md#install) — not `mcp-config:dev`.
+For portable install on any machine, use the **one-click deeplink** or MCP JSON in the [root README](README.md#install), not `mcp-config:dev`.
 
 Reload Cursor after changing MCP config. After upgrades on a dev checkout, re-run `npm run build:mcp` and reload. The server uses stdio only (no protocol sessions; [ADR-0018](docs/adr/0018-stdio-no-protocol-sessions.md)).
 

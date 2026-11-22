@@ -1,9 +1,9 @@
 ---
-title: "Quarterly audit — 2026 Q3"
+title: "Quarterly audit: 2026 Q3"
 updated: 2026-09-17
 ---
 
-# Quarterly audit — 2026 Q3
+# Quarterly audit: 2026 Q3
 
 First audit pass per [ADR-0002](../adr/0002-skill-rule-audit-cadence.md). Scope: inventory counts, workflow/command coverage, Tier-1 guides, reference schemas, ADR accuracy. Not a per-skill body rewrite.
 
@@ -99,7 +99,7 @@ Second pass in the same quarter, after catalog growth through **v0.19.4**. Scope
 | MCP tools | 29 |
 | Skills with `EVAL.yaml` | 12 / 171 |
 
-### High-leverage body pass
+### High-impact body pass
 
 | Id | Type | Result |
 |----|------|--------|

@@ -17,19 +17,19 @@ pnCore ships a large content surface: many skills, rules, and reference document
 
 ## Decision
 
-- Run a **quarterly audit pass** on high-leverage content: philosophy skills, always-apply rules, and the main reference set (e.g. `best-practices.md`, workflow norms).
+- Run a **quarterly audit pass** on high-impact content: philosophy skills, always-apply rules, and the main reference set (e.g. `best-practices.md`, workflow norms).
 - Record findings in `docs/refs/audit-YYYY-Qn.md` (one note per quarter, or a dated section within it). Stale, incorrect, or misleading items become issues or follow-up PRs, not drive-by edits in unrelated work.
 - **First audit** is scheduled for the next calendar quarter boundary after this ADR lands; the note may be minimal ("no drift found" + spot-check list) or list concrete updates.
 
 ## Consequences
 
 - **Positive:** Predictable maintenance cost; fewer surprises when a skill fire during a run but describes last year's stack; clear paper trail of when content was last reviewed; complements transcript-side learning.
-- **Negative:** Process overhead. Mitigation: one pass per quarter, scope limited to high-leverage files; the audit is not a full rewrite of all skills.
+- **Negative:** Process overhead. Mitigation: one pass per quarter, scope limited to high-impact files; the audit is not a full rewrite of all skills.
 - This ADR is **policy**, not automation: no new tooling is required; optional scripts or checklists can be added later.
 
 ## References
 
-- [ADR-0001: Record architecture and product decisions](0001-record-architecture-decisions.md) — Nygard template and `docs/adr/` conventions
-- `pn-discipline-philosophy` — *Maintain or rot (Lehman)*
-- `pn-continual-learning` — transcript-based updates to `AGENTS.md` and user preferences
+- [ADR-0001: Record architecture and product decisions](0001-record-architecture-decisions.md): Nygard template and `docs/adr/` conventions
+- `pn-discipline-philosophy`: *Maintain or rot (Lehman)*
+- `pn-continual-learning`: transcript-based updates to `AGENTS.md` and user preferences
 - [CONTRIBUTING.md](../../CONTRIBUTING.md) for repo layout and knowledge distribution

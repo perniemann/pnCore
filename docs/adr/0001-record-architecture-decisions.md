@@ -26,5 +26,5 @@ pnCore ships orchestration, skills, and MCP content. As the system grows, ration
 
 ## References
 
-- Michael Nygard, "Documenting Architecture Decisions" (2011) — Nygard ADR template
+- Michael Nygard, "Documenting Architecture Decisions" (2011), Nygard ADR template
 - [CONTRIBUTING.md](../../CONTRIBUTING.md) for repo layout and where decisions live

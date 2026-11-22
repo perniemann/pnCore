@@ -17,7 +17,7 @@ pnCore already layers **git**, **`sync:content`**, **validators**, **workflows**
 
 ## Decision
 
-1. **Default stance:** Use AGP-style ideas **descriptively** only—checklists and docs that clarify lifecycle, versioning, rollback, and gates—**without** implementing Autogenesis or branding user-facing copy as “AGP-compliant.”
+1. **Default stance:** Use AGP-style ideas **descriptively** only, checklists and docs that clarify lifecycle, versioning, rollback, and gates, **without** implementing Autogenesis or branding user-facing copy as “AGP-compliant.”
 2. **Primitive mapping:** Before any roadmap or external narrative references Autogenesis by name, maintain an explicit **mapping** from AGP-style primitives to pnCore mechanisms (see appendix). **N/A** rows mark host or product limits, not hidden features.
 3. **No second protocol:** Do not add a runtime AGP/RSPL/SEPL layer inside pnCore. Governance stays **repo + CI + MCP** as today.
 4. **Human gates:** Any “commit” of improvements remains **human-reviewed** git history and existing HITL tools (`approval_checkpoint`, user-confirmed skeptic passes). No autonomous merge of governance content.
@@ -50,5 +50,5 @@ pnCore already layers **git**, **`sync:content`**, **validators**, **workflows**
 - [ADR-0001: Record architecture and product decisions](0001-record-architecture-decisions.md)
 - [ADR-0002: Quarterly skill and rule audit cadence](0002-skill-rule-audit-cadence.md)
 - [CONTRIBUTING.md](../../CONTRIBUTING.md)
-- [RUNBOOK](../../packages/pn-core-mcp/content/reference/RUNBOOK.md) — resource lifecycle quick checklist
-- arXiv:2604.15034 — Autogenesis (research context only)
+- [RUNBOOK](../../packages/pn-core-mcp/content/reference/RUNBOOK.md): resource lifecycle quick checklist
+- arXiv:2604.15034: Autogenesis (research context only)

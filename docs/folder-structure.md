@@ -21,7 +21,7 @@ config/
 docs/                    # Repo docs; agents-md-guide.md synced from content/docs/ via npm run sync:content
 packages/pn-core-mcp/
   content/               # Canonical source for skills, agents, rules, config, docs, reference, hooks
-plugins/pnCore/        # Plugin — synced from packages/pn-core-mcp/content/ via npm run sync:content
+plugins/pnCore/        # Plugin, synced from packages/pn-core-mcp/content/ via npm run sync:content
 scripts/
 ```
 
@@ -85,7 +85,7 @@ npm run validate
 
 ### Slash commands (`content/commands/*.md`)
 
-- Long audit-style commands use `## Flow` and may include explicit progress lines (for example "Step N of M — …"). Reference: [pn-audit-api.md](../packages/pn-core-mcp/content/commands/pn-audit-api.md).
+- Long audit-style commands use `## Flow` and may include explicit progress lines (for example "Step N of M, …"). Reference: [pn-audit-api.md](../packages/pn-core-mcp/content/commands/pn-audit-api.md).
 - Short commands may omit `## Flow` when a single section is enough.
 
 ### Content vs plugin sync

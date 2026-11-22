@@ -13,9 +13,9 @@ Cursor can append lines such as `Made-with: Cursor` or `Co-authored-by: … curs
 
 The check scans **every commit** in the pull request range (`base..head`) or in the pushed batch (`before..after`). It fails if the **message body** contains a matching trailer **or** if Author or Committer is `Cursor Agent` / `cursoragent` / `cursoragent@cursor.com` / `cursor@cursor.com`. Common cases:
 
-1. **Agent-created commits** — Cursor injected the trailer after your hook ran, `core.hooksPath` was never set, or the process committed as `Cursor Agent <cursoragent@cursor.com>` (Cloud Agent default).
-2. **Squash merge to `main`** — GitHub’s default squash text repeats bodies from squashed commits and appends `Co-authored-by: Cursor Agent <cursoragent@cursor.com>` when any component commit was authored by the agent. That **squash commit** then fails the push check. An empty `commit_message` on the GitHub merge API is not enough — GitHub still fills the default body. Use `gh pr merge --squash --delete-branch --subject "$title" --body ""`, or rely on [pr-automerge.yml](../.github/workflows/pr-automerge.yml) (same flags). The squash commit’s Author is the merger (human); do not merge-commit agent branches — that lands the agent-authored commits on `main`.
-3. **Cloud Agent PRs** — branch commits stay authored by `cursoragent`, so `no-ide-trailers` stays red on the PR. Automerge will not land them. Squash-merge as the human with an empty body.
+1. **Agent-created commits**: Cursor injected the trailer after your hook ran, `core.hooksPath` was never set, or the process committed as `Cursor Agent <cursoragent@cursor.com>` (Cloud Agent default).
+2. **Squash merge to `main`**: GitHub’s default squash text repeats bodies from squashed commits and appends `Co-authored-by: Cursor Agent <cursoragent@cursor.com>` when any component commit was authored by the agent. That **squash commit** then fails the push check. An empty `commit_message` on the GitHub merge API is not enough, GitHub still fills the default body. Use `gh pr merge --squash --delete-branch --subject "$title" --body ""`, or rely on [pr-automerge.yml](../.github/workflows/pr-automerge.yml) (same flags). The squash commit’s Author is the merger (human); do not merge-commit agent branches, that lands the agent-authored commits on `main`.
+3. **Cloud Agent PRs**: branch commits stay authored by `cursoragent`, so `no-ide-trailers` stays red on the PR. Automerge will not land them. Squash-merge as the human with an empty body.
 
 **Defense in depth:** repo hook (strip trailers) + **Cursor project rule** `.cursor/rules/pn-no-cursor-commit-trailers.mdc` (`alwaysApply: true`) + this CI job. The rule stops the model from proposing those lines or that identity; the hook catches trailer lines; CI catches whatever still lands, including Author/Committer.
 
@@ -35,7 +35,7 @@ The `prepare-commit-msg` hook runs `scripts/strip-commit-trailers.mjs` and remov
 
 ## Version bumps
 
-After `npm version patch|minor|major`, run `npm run sync:version` (or rely on the `postversion` hook) and commit the synced files — especially `plugins/pnCore/.cursor-plugin/plugin.json` and `plugins/pnCore/README.md`. CI runs `prepare` → `sync:version` on `npm ci`, then fails if `git diff plugins/pnCore` is non-empty.
+After `npm version patch|minor|major`, run `npm run sync:version` (or rely on the `postversion` hook) and commit the synced files, especially `plugins/pnCore/.cursor-plugin/plugin.json` and `plugins/pnCore/README.md`. CI runs `prepare` → `sync:version` on `npm ci`, then fails if `git diff plugins/pnCore` is non-empty.
 
 ### Strict release-path policy (`pn-gates`)
 
@@ -47,8 +47,8 @@ When a PR changes any file under:
 
 CI requires:
 
-1. **Version bump** — root `package.json` version must differ from the PR base branch.
-2. **CHANGELOG entry** — `plugins/pnCore/CHANGELOG.md` must include `## [version] - YYYY-MM-DD` for the new version (pn-documentation format).
+1. **Version bump**: root `package.json` version must differ from the PR base branch.
+2. **CHANGELOG entry**: `plugins/pnCore/CHANGELOG.md` must include `## [version] - YYYY-MM-DD` for the new version (pn-documentation format).
 
 Local checks: `npm run check:changelog` and `npm run check:doc-structure`.
 

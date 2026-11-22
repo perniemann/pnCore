@@ -2,37 +2,37 @@
 
 ## Status
 
-Accepted — 2026-07-04 (Pi extension menu amended 2026-07-06, v0.17.1+)
+Accepted: 2026-07-04 (Pi extension menu amended 2026-07-06, v0.17.1+)
 
 Supersedes ADR-0007 (`command-palette-pm-router`; never merged; number retired). Do not reuse `0007`.
 
 ## Context
 
-pnCore ships 25+ slash commands as flat `.cursor/commands/pn-*.md` files. The intended UX is a single **`pn`** entry in the Cursor `/` picker with commands grouped underneath — not a top-level **PM** (product management) menu.
+pnCore ships 25+ slash commands as flat `.cursor/commands/pn-*.md` files. The intended UX is a single **`pn`** entry in the Cursor `/` picker with commands grouped underneath, not a top-level **PM** (product management) menu.
 
 Cursor IDE 2.6+ recursively scans `.cursor/commands/` subfolders; Cursor CLI reads top-level files only.
 
-[pi.dev](https://pi.dev) prompt templates use **non-recursive** directory discovery and a **flat** `/name` autocomplete list — no submenu grouping ([Prompt Templates](https://pi.dev/docs/latest/prompt-templates) § Loading Rules). Subdirectories require explicit `prompts` settings or `pi.prompts` manifest entries ([Pi Packages](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/packages.md)).
+[pi.dev](https://pi.dev) prompt templates use **non-recursive** directory discovery and a **flat** `/name` autocomplete list: no submenu grouping ([Prompt Templates](https://pi.dev/docs/latest/prompt-templates) § Loading Rules). Subdirectories require explicit `prompts` settings or `pi.prompts` manifest entries ([Pi Packages](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/packages.md)).
 
 ## Decision
 
 ### Cursor (primary)
 
 1. Visible commands live under `content/commands/pn/{category}/pn-*.md`.
-2. Top-level **`content/commands/pn.md`** stub (CLI + orientation router) syncs to `.cursor/commands/pn.md` — only top-level palette entry besides the `pn/` tree.
+2. Top-level **`content/commands/pn.md`** stub (CLI + orientation router) syncs to `.cursor/commands/pn.md`, only top-level palette entry besides the `pn/` tree.
 3. Hidden commands (`slash: false`) stay at `content/commands/` root; not synced to plugin.
 4. MCP `get_command(id)` resolves by frontmatter **`name:`** then filename stem across the full tree.
 5. `list_commands` includes `menuPath` (e.g. `pn/build/pn-build`).
 
 ### Pi (secondary)
 
-**Amended v0.17.1:** Pi has no native prompt submenu. Equivalent UX uses an **extension command** ([Pi tui.md Pattern 1](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/tui.md)) — not flat `pi.prompts` registration.
+**Amended v0.17.1:** Pi has no native prompt submenu. Equivalent UX uses an **extension command** ([Pi tui.md Pattern 1](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/tui.md)), not flat `pi.prompts` registration.
 
-1. Sync visible command bodies to **flat** `plugins/pnCore/prompts/pn-*.md` (basename only) — **storage for the extension**, not `pi.prompts` discovery.
+1. Sync visible command bodies to **flat** `plugins/pnCore/prompts/pn-*.md` (basename only): **storage for the extension**, not `pi.prompts` discovery.
 2. Sync generates **`plugins/pnCore/pi-command-index.json`** (`id`, `category`, `description`, `file`) via `scripts/pi-command-index.mjs`.
 3. **`packages/pn-core-mcp/extensions/pn-command-menu.ts`** registers `pi.registerCommand("pn", …)` with `SelectList` UI and `getArgumentCompletions` for `/pn pn-build` direct invoke.
-4. **Root** `package.json` `pi`: `{ skills, extensions }` only — **no** `pi.prompts` (validator rejects flat prompt registration). Git install: `pi install git:github.com/perniemann/pnCore@main`.
-5. **`plugins/pnCore/package.json`** (plugin-only install): `pi.skills` only; no extension — use git/root install for `/pn` menu + native tools.
+4. **Root** `package.json` `pi`: `{ skills, extensions }` only: **no** `pi.prompts` (validator rejects flat prompt registration). Git install: `pi install git:github.com/perniemann/pnCore@main`.
+5. **`plugins/pnCore/package.json`** (plugin-only install): `pi.skills` only; no extension: use git/root install for `/pn` menu + native tools.
 6. Document: Pi users type **`/pn`** for the selector (like `/model`); category appears in list descriptions. See `docs/PN-COMMAND-GROUPING-RESEARCH.md`.
 ### Categories (v1)
 

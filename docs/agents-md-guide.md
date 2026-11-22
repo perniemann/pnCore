@@ -8,13 +8,13 @@ Learned preferences and durable workspace facts live in **AGENTS.md**, updated b
 |----------|---------|----------|
 | **Cursor User Rules** (Settings → Rules) | Non-negotiable rules that apply to all your projects | "Never add Co-authored-by trailer"; "Always terminate running servers before starting a new one" |
 | **.cursor/rules/** (project rules) | Project-specific non-negotiable rules | "Use TypeScript for all new files"; "This repo uses pnpm only" |
-| **Project context** — `.cursor/rules/project-context.mdc` (Cursor), `.claude/rules/project-context.md` (Claude Code), or the `<!-- pncore:start -->` block in `AGENTS.md` (Codex, Pi) | Project scope + [pn-default] 🔺 + MCP bootstrap; pn-new, pn-setup, or full_dev creates this via `harness_scaffold` | Context tag + triangle + what we're building + load pn-build-gate/pn-mcp-proactive when MCP available; every new chat gets it |
-| **Project skill** — `<skillsDir>/project/SKILL.md` (`.cursor/skills`, `.claude/skills`, or `.agents/skills`) | Project-specific domain guidance; pn-new or pn-setup creates this | Domain, constraints, patterns from discovery or codebase analysis; specialists reference when executing |
+| **Project context**: `.cursor/rules/project-context.mdc` (Cursor), `.claude/rules/project-context.md` (Claude Code), or the `<!-- pncore:start -->` block in `AGENTS.md` (Codex, Pi) | Project scope + [pn-default] 🔺 + MCP bootstrap; pn-new, pn-setup, or full_dev creates this via `harness_scaffold` | Context tag + triangle + what we're building + load pn-build-gate/pn-mcp-proactive when MCP available; every new chat gets it |
+| **Project skill**: `<skillsDir>/project/SKILL.md` (`.cursor/skills`, `.claude/skills`, or `.agents/skills`) | Project-specific domain guidance; pn-new or pn-setup creates this | Domain, constraints, patterns from discovery or codebase analysis; specialists reference when executing |
 | **AGENTS.md** | Learned preferences inferred from behavior; can evolve | "Prefer plans before implementation"; "Use ; not && in PowerShell" |
 
 **Rule of thumb:** If it must never be violated, put it in User Rules or a project rule. If it improves behavior but can be overridden, AGENTS.md is fine.
 
-**Communication tone:** Soft prefs (e.g. “avoid hedging”, “prefer plans first”) belong in **AGENTS.md**. Stronger session steering for concise chat — lead with the answer, ban filler, response aliases (`scr`/`eli`/`foc`/`ref`/`scp`) — uses the **agent-requested** rule `pn-communication-contract` (`alwaysApply: false`) plus skill `pn-response-aliases`. Do not make that rule always-on; it would inflate every turn. Prefer AGENTS bullets for durable taste; load the rule/skill when verbosity bites or aliases appear. See `pn-core://reference/communication-contract.md`. Discovery of the five aliases: compact `responseAliases` on `project_context`, `/pn-guide` Chat shortcodes, `docs/how-to-use-guide.md`, and one `pn-mcp-proactive` map row (ADR-0017).
+**Communication tone:** Soft prefs (e.g. “avoid hedging”, “prefer plans first”) belong in **AGENTS.md**. Stronger session steering for concise chat, lead with the answer, ban filler, response aliases (`scr`/`eli`/`foc`/`ref`/`scp`): uses the **agent-requested** rule `pn-communication-contract` (`alwaysApply: false`) plus skill `pn-response-aliases`. Do not make that rule always-on; it would inflate every turn. Prefer AGENTS bullets for durable taste; load the rule/skill when verbosity bites or aliases appear. See `pn-core://reference/communication-contract.md`. Discovery of the five aliases: compact `responseAliases` on `project_context`, `/pn-guide` Chat shortcodes, `docs/how-to-use-guide.md`, and one `pn-mcp-proactive` map row (ADR-0017).
 
 **Read what the task needs:** Point at docs by task. Do not require a stack of files before every edit.
 
@@ -59,7 +59,7 @@ The pn-agents-md rule enforces:
 3. User may say "skip confirmation" to write all without prompting
 4. Optional metadata: `.cursor/hooks/state/agents-metadata.json` for source/confidence when traceability is needed
 
-## Active profile — tuning the stop hook
+## Active profile: tuning the stop hook
 
 The default thresholds (10 turns / 120 minutes) suit low-activity or shared repos. For high-activity workspaces where you want learning to trigger more often, set environment variables in the project or shell profile:
 
@@ -76,13 +76,13 @@ The default thresholds (10 turns / 120 minutes) suit low-activity or shared repo
 CONTINUAL_LEARNING_TRIAL_MODE=1
 ```
 
-After 2 weeks lower the sensitivity by unsetting `TRIAL_MODE` or setting explicit values. `install-to-project` prints this recommendation on Windows where the stop hook may not fire automatically — follow it if AGENTS.md is not updating between sessions.
+After 2 weeks lower the sensitivity by unsetting `TRIAL_MODE` or setting explicit values. `install-to-project` prints this recommendation on Windows where the stop hook may not fire automatically, follow it if AGENTS.md is not updating between sessions.
 
 ### Windows / hook reliability note
 
 Cursor stop hooks do not fire reliably on all Windows versions or Cursor builds. If AGENTS.md is not updating automatically:
 
-1. Check `.cursor/hooks/hooks.json` — `stop[0].command` should be `node ./.cursor/scripts/pn-continual-learning-stop.mjs`
+1. Check `.cursor/hooks/hooks.json`, `stop[0].command` should be `node ./.cursor/scripts/pn-continual-learning-stop.mjs`
 2. Run `pn-continual-learning` manually after rough sessions, or accept the offer at the end of `/pn-retro`
 3. Set `CONTINUAL_LEARNING_TRIAL_MODE=1` so the threshold is met when the hook does fire
 
@@ -91,13 +91,13 @@ Cursor stop hooks do not fire reliably on all Windows versions or Cursor builds.
 When creating or updating pn-agent files (`content/agents/*.md`), follow this structure:
 
 - **Frontmatter:** `name`, `description`, `model: inherit`
-- **When to use** — When to invoke this agent
-- **Tone** (optional) — 1–2 sentences for agents where behavioral stance matters (e.g. pn-skeptic, pn-reviewer, pn-project-builder). Challenge assumptions; evidence-first; gate on confirmation.
-- **Skills and rules to use** — Skills and rules the agent applies
-- **Workflow** — Step-by-step process
-- **Guardrails** — Constraints, limits, gates
-- **Output** — What the agent produces or reports
-- **Success Metrics** — Measurable outcomes that indicate success (optional but recommended)
+- **When to use**: When to invoke this agent
+- **Tone** (optional): 1–2 sentences for agents where behavioral stance matters (e.g. pn-skeptic, pn-reviewer, pn-project-builder). Challenge assumptions; evidence-first; gate on confirmation.
+- **Skills and rules to use**: Skills and rules the agent applies
+- **Workflow**: Step-by-step process
+- **Guardrails**: Constraints, limits, gates
+- **Output**: What the agent produces or reports
+- **Success Metrics**: Measurable outcomes that indicate success (optional but recommended)
 
 ### Success Metrics
 
