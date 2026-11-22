@@ -48,7 +48,7 @@ export function applyTournamentDisposeVerify(state) {
             error: "Step 2 requires verifyAttestationIds (or objectiveGateResults[].attestationId) from workflow_verify when disposeVerify is enabled. Agent-supplied passed flags are ignored.",
         };
     }
-    const runId = typeof state.run_id === "string" && state.run_id !== "" ? state.run_id : undefined;
+    const runId = typeof state.run_id === "string" ? state.run_id : undefined;
     const reports = [];
     for (const id of ids) {
         const report = loadGateReport(id);

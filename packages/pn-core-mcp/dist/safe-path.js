@@ -5,12 +5,12 @@ export const safeBase = process.cwd();
  * Resolve symlinks on the deepest existing ancestor of `p` and re-append the missing tail.
  * A path whose parent is a symlink out of the workspace resolves to its real location.
  */
-export function realpathDeepest(p) {
+export function realpathDeepest(p, realpath = realpathSync) {
     const tail = [];
     let cur = p;
     for (;;) {
         try {
-            return tail.length ? join(realpathSync(cur), ...tail) : realpathSync(cur);
+            return join(realpath(cur), ...tail);
         }
         catch {
             const parent = dirname(cur);

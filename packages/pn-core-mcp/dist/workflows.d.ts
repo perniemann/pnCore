@@ -68,7 +68,7 @@ export declare const PUBLIC_WORKFLOW_TYPES: WorkflowType[];
  * Used by the suggest_model_tier MCP tool and by withTierHint() below.
  */
 export declare function resolveStepTier(workflowType: WorkflowType, step: number): SuggestedModelTier | null;
-export declare function failedGateKey(workflowType: string, step: number, state: Record<string, unknown>, requiredFromState: string[]): string | undefined;
+export declare function failedGateKey(workflowType: string, step: number, state: Record<string, unknown>, requiredFromState: readonly string[]): string | undefined;
 export declare function getWorkflowStep(workflowType: WorkflowType, step: number, state: Record<string, unknown>): WorkflowStepResult | {
     error: string;
 };

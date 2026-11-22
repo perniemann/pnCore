@@ -977,30 +977,21 @@ function partitionSpecialistsForParallel(list, groups) {
 }
 const GATE_RESULT_KEYS = ["skepticPassed", "skepticOutputPassed", "reviewComplete"];
 /**
- * Steps whose definition handles a failed gate by looping back (iteration cap, approval). Every
- * other required gate key that is `false` blocks: a failed gate never advances.
+ * Steps whose definition handles a failed `skepticOutputPassed` by looping back (iteration cap,
+ * approval). Every other required gate key that is `false` blocks: a failed gate never advances.
  */
-function failedGateHasLoopBack(workflowType, step, key, state) {
-    if (key === "skepticOutputPassed") {
-        if (workflowType === "design" && step === 4)
-            return true;
-        if ((workflowType === "unreal_feature" || workflowType === "godot_feature") && step === 3) {
-            return true;
-        }
-    }
-    // Standalone tournament handoff: no parent skeptic; step 5 runs its own post-build skeptic.
-    if (workflowType === "full_dev" && step === 5 && key === "skepticPassed") {
-        return state.tournamentHandoff === true;
-    }
-    return false;
-}
+const FAILED_GATE_LOOP_BACKS = new Set([
+    "design:4:skepticOutputPassed",
+    "unreal_feature:3:skepticOutputPassed",
+    "godot_feature:3:skepticOutputPassed",
+]);
 export function failedGateKey(workflowType, step, state, requiredFromState) {
     for (const key of GATE_RESULT_KEYS) {
         if (!requiredFromState.includes(key))
             continue;
         if (state[key] !== false)
             continue;
-        if (failedGateHasLoopBack(workflowType, step, key, state))
+        if (FAILED_GATE_LOOP_BACKS.has(`${workflowType}:${step}:${key}`))
             continue;
         return key;
     }
