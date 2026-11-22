@@ -49,6 +49,10 @@ The project-context body is identical on every harness: triangle tag, goal / sta
 
 Codex truncates the `AGENTS.md` chain at `project_doc_max_bytes` (32 KiB default). pnCore measures against that cap in two places: `harness_scaffold` (Codex selected) returns `instructionsBudget` — `{ path, bytes, capBytes, estimatedTokens, fits, warning? }` for the resulting file, also in `dryRun` — and `plugin-install --harness codex` prints `AGENTS.md` size against the cap and, with `--inline-rules`, drops inlined rules lowest-priority first until the file fits. `PNCORE_AGENTS_MD_CAP_BYTES` overrides the cap (for a raised `project_doc_max_bytes`). Content outside the `<!-- pncore:start -->` … `<!-- pncore:end -->` block is never changed; a file that is over the cap with nothing inlined gets `fits: false` and a warning to shorten the surrounding content.
 
+## Skill list budget (Codex)
+
+Codex lists every skill's name, description and path in at most 2% of the context window, or 8,000 characters when the window is unknown, then shortens and drops entries. The installer copies only the router set in `config/router-skills.json` into `.agents/skills/` (Codex and Pi); the other skills load with `list_skills` and `get_skill`. `check-router-skills` keeps the set's names and descriptions under 7,000 characters. `--all-skills` copies the full catalog. See ADR-0027.
+
 ## Quality parity
 
 Every harness has the same engine (`workflow_step`, gates, `project_context`, skills, agents, rules via `get_*`). The differences are surface affordances only:

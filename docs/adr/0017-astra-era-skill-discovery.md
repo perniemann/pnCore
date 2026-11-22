@@ -36,7 +36,7 @@ Response aliases (`scr` / `eli` / `foc` / `ref` / `scp`) already exist as skill 
 
 - **Positive:** Cold sessions see the five aliases without a new alwaysApply rule; new skills cannot ship a novel-length description; premium+ workflow steps get an explicit router/test sentence; WHEN clauses over-trigger less.
 - **Negative:** Cursor/Codex plugin installs still index ~170 skill descriptions until a packaging ADR splits router-vs-MCP skills. The 220-character gate does not by itself fit the catalog under 8000 characters.
-- **Follow-up:** MCP-first plugin packaging. Open a new ADR.
+- **Follow-up:** MCP-first plugin packaging. Done for Codex and Pi in [ADR-0027](0027-router-skills-for-codex-and-pi.md).
 
 ## References
 

@@ -35,8 +35,8 @@ scripts/
 |---------|------------------------|--------|------------------|------------|
 | Cursor | `AGENTS.md`, `.cursor/rules/*.mdc` | `.cursor/skills` | `.cursor/commands` | `.cursor/mcp.json` |
 | Claude Code | `CLAUDE.md`, `.claude/rules/*.md` | `.claude/skills` | `.claude/commands` | `.mcp.json` |
-| Codex | managed pnCore block in `AGENTS.md` | `.agents/skills` | MCP prompts | `.codex/config.toml` |
-| Pi | managed pnCore block in `AGENTS.md` | `.agents/skills` / `.pi/skills` | `.pi/prompts`, `/pn` extension menu | `.pi/settings.json` |
+| Codex | managed pnCore block in `AGENTS.md` | `.agents/skills` (router set, ADR-0027) | MCP prompts | `.codex/config.toml` |
+| Pi | managed pnCore block in `AGENTS.md` | `.agents/skills` (router set) / `.pi/skills` | `.pi/prompts`, `/pn` extension menu | `.pi/settings.json` |
 
 The canonical matrix is `pn-core://reference/harness-matrix.md`; layout code lives in `packages/pn-core-mcp/src/harness.ts`.
 

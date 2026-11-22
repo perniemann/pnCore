@@ -1,0 +1,33 @@
+{
+  "$comment": "Skills the installer copies into .agents/skills (Codex, Pi). Codex lists name and description of every skill there inside about 8,000 characters, then shortens and drops entries. budgetChars caps the sum of id + description lengths and keeps the rest of the 8,000 for paths. Every other skill loads with list_skills and get_skill. ADR-0027; check-router-skills enforces the budget.",
+  "budgetChars": 7000,
+  "skills": [
+    "pn-orchestration-philosophy",
+    "pn-discipline-philosophy",
+    "pn-discovery-questionnaire",
+    "pn-prior-art-research",
+    "pn-writing-plans",
+    "pn-skeptic-challenge",
+    "pn-context-engineering",
+    "pn-source-driven-implementation",
+    "pn-tdd",
+    "pn-systematic-debugging",
+    "pn-verification-before-completion",
+    "pn-reality-check",
+    "pn-evidence-qa",
+    "pn-security-audit",
+    "pn-dependency-audit",
+    "pn-a11y-audit",
+    "pn-deslop",
+    "pn-ci-fix",
+    "pn-merge-conflict-fix",
+    "pn-ship-checklist",
+    "pn-documentation",
+    "pn-create-prd",
+    "pn-session-handoff",
+    "pn-response-aliases",
+    "pn-frontend-design-philosophy",
+    "pn-backend-philosophy",
+    "pn-gamedev-philosophy"
+  ]
+}
