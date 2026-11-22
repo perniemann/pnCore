@@ -66,7 +66,7 @@ export function applyTournamentDisposeVerify(
     };
   }
 
-  const runId = typeof state.run_id === "string" && state.run_id !== "" ? state.run_id : undefined;
+  const runId = typeof state.run_id === "string" ? state.run_id : undefined;
   const reports: GateReport[] = [];
   for (const id of ids) {
     const report = loadGateReport(id);

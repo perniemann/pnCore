@@ -48,6 +48,18 @@ describe("safe-path", () => {
     expect("resolved" in resolveInside(base, "alias/state.json")).toBe(true);
   });
 
+  it("accepts the base itself", () => {
+    const base = tmp();
+    expect(resolveInside(base, ".")).toEqual({ resolved: base });
+  });
+
+  it("realpathDeepest returns the input when no ancestor resolves", () => {
+    const never = () => {
+      throw new Error("ENOENT");
+    };
+    expect(realpathDeepest("/nowhere/at/all.json", never)).toBe("/nowhere/at/all.json");
+  });
+
   it("realpathDeepest resolves the deepest existing ancestor and keeps the missing tail", () => {
     const base = tmp();
     expect(realpathDeepest(join(base, "a", "b.json"))).toBe(

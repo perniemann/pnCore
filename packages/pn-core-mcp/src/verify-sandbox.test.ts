@@ -39,7 +39,9 @@ describe("verify-sandbox policy", () => {
     expect(() => assertSafeArgv(["curl", "https://example.com"], { freeform: true })).toThrow(
       /allowlist/
     );
-    expect(() => assertSafeArgv(["npm", "test"], { freeform: true })).not.toThrow();
+    for (const ok of [["npm", "test"], ["npm"], ["pnpm", "install"], ["node", "x"], ["vitest"]]) {
+      expect(() => assertSafeArgv(ok, { freeform: true })).not.toThrow();
+    }
   });
 
   it("clamps timeout", () => {
@@ -185,7 +187,9 @@ describe("spawnVerify", () => {
     ]) {
       expect(() => assertSafeArgv(argv, { freeform: true })).toThrow(/package runner not allowed/);
     }
-    expect(() => assertSafeArgv(["npm", "test"], { freeform: true })).not.toThrow();
+    for (const ok of [["npm", "test"], ["npm"], ["pnpm", "install"], ["node", "x"], ["vitest"]]) {
+      expect(() => assertSafeArgv(ok, { freeform: true })).not.toThrow();
+    }
   });
 
   it("builds a bwrap argv with no env values and tails long buffers", () => {
