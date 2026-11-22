@@ -50,18 +50,18 @@ for (const { path: relPath, get } of checks) {
   }
 }
 
-// README # pnCore — vX.Y.Z
+// README # pnCore vX.Y.Z
 const readmePath = join(repoRoot, "README.md");
 if (existsSync(readmePath)) {
   const readme = readFileSync(readmePath, "utf8");
-  const m = readme.match(/^# pnCore\s*[—-]+\s*v(\d+\.\d+\.\d+)/m);
+  const m = readme.match(/^# pnCore\s*(?:[—:-]+\s*)?v(\d+\.\d+\.\d+)/m);
   if (m) {
     if (m[1] !== rootVersion) {
       console.error(`Version mismatch: README.md has "v${m[1]}", expected "v${rootVersion}"`);
       failed++;
     }
   } else {
-    console.error(`Version not found in README.md (expected "# pnCore — v${rootVersion}")`);
+    console.error(`Version not found in README.md (expected "# pnCore v${rootVersion}")`);
     failed++;
   }
 }

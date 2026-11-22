@@ -7,7 +7,7 @@ updated: 2026-09-17
 
 ## What pn-core MCP is
 
-pn-core is the **MCP engine** for pnCore. It exposes skills, agents, commands, rules, and a deterministic **`workflow_step`** engine as tools, plus **`pn-core://` resources** and **MCP prompts** (see below). Four harness adapters (Cursor, Claude Code, Codex, Pi) consume the same engine. Stacks and scope limits: [plugin reference](plugin-reference.md). **Orientation** (engine vs harness files, slash commands, when to use which workflow): [How to use pnCore](how-to-use-guide.md). Tool inventory: [MCP README — Tools](../packages/pn-core-mcp/README.md#tools). Counts: root README **Catalog:** line.
+pn-core is the **MCP engine** for pnCore. It exposes skills, agents, commands, rules, and a deterministic **`workflow_step`** engine as tools, plus **`pn-core://` resources** and **MCP prompts** (see below). Four harness adapters (Cursor, Claude Code, Codex, Pi) consume the same engine. Stacks and scope limits: [plugin reference](plugin-reference.md). **Orientation** (engine vs harness files, slash commands, when to use which workflow): [How to use pnCore](how-to-use-guide.md). Tool inventory: [MCP README, Tools](../packages/pn-core-mcp/README.md#tools). Counts: root README **Catalog:** line.
 
 **Reference:** Env vars, tool risk labels, and structured error codes are documented in [packages/pn-core-mcp/README.md](../packages/pn-core-mcp/README.md). This guide focuses on usage patterns.
 
@@ -18,8 +18,8 @@ pn-core is the **MCP engine** for pnCore. It exposes skills, agents, commands, r
 | Tool | Purpose | Who uses it |
 |------|---------|-------------|
 | `health` | Status, version, **`calendarDateUtc`** / **`timestampUtc`** (server clock, UTC), capability summary | Gateways, probes, **dating changelogs or "as of" lines** |
-| `project_context` | Cold-session packet from `docs/refs/context-index.json` + `.pncore` trails; `mode=operator` (counts/drift) or `agent` (artifacts + handoff/run-events trail); derived status is attested, not checkbox truth; `max_tokens` packs the packet to a budget and lists the cuts in `budget.steps` | AI — **call at session start** |
-| `harness_detect` | Which harness this session runs in (`cursor` / `claude_code` / `codex` / `pi`) with evidence, plus every harness's file layout (instructions, rules, skills, commands, agents, MCP config). Precedence `PNCORE_HARNESS` > env signals > workspace folders | AI — **call before writing project files** |
+| `project_context` | Cold-session packet from `docs/refs/context-index.json` + `.pncore` trails; `mode=operator` (counts/drift) or `agent` (artifacts + handoff/run-events trail); derived status is attested, not checkbox truth; `max_tokens` packs the packet to a budget and lists the cuts in `budget.steps` | AI: **call at session start** |
+| `harness_detect` | Which harness this session runs in (`cursor` / `claude_code` / `codex` / `pi`) with evidence, plus every harness's file layout (instructions, rules, skills, commands, agents, MCP config). Precedence `PNCORE_HARNESS` > env signals > workspace folders | AI: **call before writing project files** |
 | `harness_scaffold` | Write project-context, project skill, trailer rule, optional MCP config **only** into the selected harness's folders (`.cursor/`, `.claude/`, `.agents/skills` + `AGENTS.md` block, `.pi/`); `dryRun` returns the plan with contents | AI (`/pn-setup`, `/pn-new`, `project_kickoff`) |
 | `list_workflow_types` | List workflow types and step counts: `project_kickoff`, `design`, `full_dev`, `prompt_optimize`, `frontend_audit`, `backend_audit`, `image_create` (PNG or SVG), `visual_tweak`, `game_feature`, `engine_feature`, `fsi_analyst_draft`, `business_strategy`, `media_director`, `feature_program`, `implementation_tournament` | AI (discoverability) |
 | `suggest_model_tier` | Suggested LLM model tier for a workflow step or subagent role (`fast` / `standard` / `premium` / `premium_thinking` / `long_horizon`); pass `role` for subagent routing (`orchestrator` → long_horizon); omit `step` for the full per-step table | AI |
@@ -49,7 +49,7 @@ pn-core is the **MCP engine** for pnCore. It exposes skills, agents, commands, r
 
 **ask_question (Cursor-specific):** Skills and commands instruct the AI to use Cursor's `ask_question` tool when available for questionnaires and confirmation gates (structured options, proceed/yes/no). When using pn-core MCP from a client that does not expose `ask_question` (e.g. MCP-only, non-Cursor IDE), the AI uses `workflow_confirm` for gates (returns formatted prompt + options) or outputs questions in chat. For gates: call `workflow_confirm`, output the prompt, then stop until you reply. You may get plain-text questions instead of structured prompts.
 
-**Hard approval and mandatory human gates:** Configure `PNCORE_APPROVAL_TOKEN`, optional `PNCORE_REQUIRE_APPROVAL_FOR_WORKFLOWS`, and ticket path `PNCORE_HUMAN_GATE_TICKETS_PATH` as documented in [packages/pn-core-mcp/README.md](../packages/pn-core-mcp/README.md). `approval_checkpoint` verifies the token; prompt-only gates do not prove the server secret. These locks apply to `workflow_step` only — not `git commit` or the GitHub Merge button. Downstream git/CI trailer defense: `pn-core://reference/consumer-gating.md`.
+**Hard approval and mandatory human gates:** Configure `PNCORE_APPROVAL_TOKEN`, optional `PNCORE_REQUIRE_APPROVAL_FOR_WORKFLOWS`, and ticket path `PNCORE_HUMAN_GATE_TICKETS_PATH` as documented in [packages/pn-core-mcp/README.md](../packages/pn-core-mcp/README.md). `approval_checkpoint` verifies the token; prompt-only gates do not prove the server secret. These locks apply to `workflow_step` only: not `git commit` or the GitHub Merge button. Downstream git/CI trailer defense: `pn-core://reference/consumer-gating.md`.
 
 **Gate audit log:** Use `gate_log_append` to record outcomes (`outcome`, `gate_type`, etc.) append-only for review.
 
@@ -68,7 +68,7 @@ When `workflow_step` is available, use it for build/design flows instead of load
 | `image_create` | 0–4 | Questionnaire → Spec confirmation → Generate → Skeptic on output → Summary |
 | `visual_tweak` | 0–3 | Target → Plan → Implement → Summary |
 | `game_feature` | 0–4 | Questionnaire → Plan+Skeptic → Implement → Skeptic on output → Summary |
-| `engine_feature` | 0–4 | Unified UE / Godot entry — set `state.engine` to `"unreal"` or `"godot"`; MCP server pick → api-probe + plan + skeptic → build → render-verify + skeptic on output (iteration cap) → Summary |
+| `engine_feature` | 0–4 | Unified UE / Godot entry, set `state.engine` to `"unreal"` or `"godot"`; MCP server pick → api-probe + plan + skeptic → build → render-verify + skeptic on output (iteration cap) → Summary |
 | `fsi_analyst_draft` | 0–5 | Scope → sources + assumptions → draft (deliverable-typed FSI skill) → QC + skeptic → mandatory analyst sign-off (human gate) → delivery summary |
 | `business_strategy` | 0–8 | Framing → codebase intake (conditional) → evidence → strategic frame → grill → pressure-test (Strong / Weak / Pivot, iteration cap=2) → conditional skeptic → verdict lock → HTML + markdown brief |
 | `media_director` | 0–6 | Intent → adaptive grill (blank / <10-char / contradictory triggers) → creative brief (`docs/media/<slug>-brief.md`) → plan + pipeline + skeptic → produce → human review → delivery summary |
@@ -77,9 +77,9 @@ When `workflow_step` is available, use it for build/design flows instead of load
 
 `list_workflow_types` reports a **steps** count per workflow; **`step`** passed to `workflow_step` is **0-based** through **`steps − 1`** (inclusive), matching the indices in this table.
 
-**`design` workflow — failed skeptic-on-output:** At step **4** (skeptic on output), if the client calls `workflow_step("design", 4, state)` with **`skepticOutputPassed: false`**, the tool returns **`nextStep: 3`** and an instruction to increment **`iterationCount`** in state and rebuild. When **`iterationCount >= 2`** and skeptic still fails without **`iterationCapApproved: true`**, the tool returns an **`error`** directing the client to **`approval_checkpoint`** (then pass **`pncoreHumanGateTicket`** and **`iterationCapApproved: true`** on the next attempt). See **`pn-core://reference/workflow-state-schema.md`**. Command **`pn-design`** references skills **`pn-api-probe`** (optional, before plan) and **`pn-render-verify`** (before skeptic for visual artifacts).
+**`design` workflow: failed skeptic-on-output:** At step **4** (skeptic on output), if the client calls `workflow_step("design", 4, state)` with **`skepticOutputPassed: false`**, the tool returns **`nextStep: 3`** and an instruction to increment **`iterationCount`** in state and rebuild. When **`iterationCount >= 2`** and skeptic still fails without **`iterationCapApproved: true`**, the tool returns an **`error`** directing the client to **`approval_checkpoint`** (then pass **`pncoreHumanGateTicket`** and **`iterationCapApproved: true`** on the next attempt). See **`pn-core://reference/workflow-state-schema.md`**. Command **`pn-design`** references skills **`pn-api-probe`** (optional, before plan) and **`pn-render-verify`** (before skeptic for visual artifacts).
 
-**`engine_feature` workflow — failed skeptic-on-output:** Same iteration-cap pattern as `design`, applied at step **3** (render-verify + skeptic on output). When `skepticOutputPassed: false`, the tool returns **`nextStep: 2`** with an instruction to increment `iterationCount` and rebuild via the chosen engine MCP server. When `iterationCount >= 2` without `iterationCapApproved: true`, the tool returns an error requiring `approval_checkpoint` with `workflow_type: "engine_feature", workflow_step: 3`, and matching **`run_id`**. Step 0 loads **`pn-engine-mcp`** or **`pn-engine-mcp`** depending on `state.engine`; step 1 runs **`pn-api-probe`**; step 3 runs **`pn-render-verify`** with the engine-specific appendix.
+**`engine_feature` workflow: failed skeptic-on-output:** Same iteration-cap pattern as `design`, applied at step **3** (render-verify + skeptic on output). When `skepticOutputPassed: false`, the tool returns **`nextStep: 2`** with an instruction to increment `iterationCount` and rebuild via the chosen engine MCP server. When `iterationCount >= 2` without `iterationCapApproved: true`, the tool returns an error requiring `approval_checkpoint` with `workflow_type: "engine_feature", workflow_step: 3`, and matching **`run_id`**. Step 0 loads **`pn-engine-mcp`** or **`pn-engine-mcp`** depending on `state.engine`; step 1 runs **`pn-api-probe`**; step 3 runs **`pn-render-verify`** with the engine-specific appendix.
 
 **Usage:** Call `workflow_step(workflowType, step, state)` at start and after each step. The tool returns `instruction`, `nextStep`, `requiredInputs`, and `gate` (`human` = wait for user reply before next call). If state is missing required fields, the tool returns an error: "Complete step N first." Users say natural-language prompts like "Build X. Use the design workflow." or "Audit this frontend with the frontend audit workflow."; the model translates to tool calls.
 
@@ -127,7 +127,7 @@ pn-core uses **stdio** only (local, per-user). It does not expose Streamable HTT
 
 ## What's inside the content
 
-Skills, agents, commands, and rules ship as markdown under `packages/pn-core-mcp/content/`. **Counts change every release**—use **`list_skills`**, **`list_agents`**, **`list_commands`**, and **`list_rules`** for the live inventory, then **`get_*`** to load by id. Examples: `pn-discovery-questionnaire`, `pn-new`, `pn-build-gate`, `pn-pressure-test` (startup idea critique—distinct from plan-oriented `pn-grill` / `pn-skeptic`).
+Skills, agents, commands, and rules ship as markdown under `packages/pn-core-mcp/content/`. **Counts change every release**, use **`list_skills`**, **`list_agents`**, **`list_commands`**, and **`list_rules`** for the live inventory, then **`get_*`** to load by id. Examples: `pn-discovery-questionnaire`, `pn-new`, `pn-build-gate`, `pn-pressure-test` (startup idea critique, distinct from plan-oriented `pn-grill` / `pn-skeptic`).
 
 ---
 
@@ -148,7 +148,7 @@ The AI will call `get_skill`, `get_agent`, or `get_command` and follow that guid
 
 ### 2. Use harness commands
 
-If harness files are installed (`plugin-install --harness`), slash commands / prompts (`/pn-new`, `/pn-build`, `/pn-design`, etc.) load structured flows; the AI uses `workflow_step` when the engine is connected for deterministic control flow and state persistence. Full command → workflow mapping: [How to use pnCore — Example prompts by command](how-to-use-guide.md#example-prompts-by-command).
+If harness files are installed (`plugin-install --harness`), slash commands / prompts (`/pn-new`, `/pn-build`, `/pn-design`, etc.) load structured flows; the AI uses `workflow_step` when the engine is connected for deterministic control flow and state persistence. Full command → workflow mapping: [How to use pnCore, Example prompts by command](how-to-use-guide.md#example-prompts-by-command).
 
 ### 3. Component libraries (shadcn MCP)
 
@@ -222,9 +222,9 @@ flowchart LR
 
 ### Starting a new project
 
-When you have a **new project with no refs** (no **`docs/refs/PRD.md`**, no `.ref/`): run **`workflow_step("project_kickoff", 0, {})`** or **`get_command("pn-new")`**. Produces **`docs/refs/`** (PRD, DESIGN-DOC, optional DOMAIN-DOC, optional stack/MCP/UI, **`README.md`** index), **`docs/discovery/`**, **`docs/research/`**, and project context—not **`docs/plans/`** or **`docs/WORKFLOW.md`** (those come with **`full_dev`** / **`pn-writing-plans`**). Then run **`full_dev`** or **`design`**. Details: [starting-new-project.md](../packages/pn-core-mcp/content/docs/starting-new-project.md).
+When you have a **new project with no refs** (no **`docs/refs/PRD.md`**, no `.ref/`): run **`workflow_step("project_kickoff", 0, {})`** or **`get_command("pn-new")`**. Produces **`docs/refs/`** (PRD, DESIGN-DOC, optional DOMAIN-DOC, optional stack/MCP/UI, **`README.md`** index), **`docs/discovery/`**, **`docs/research/`**, and project context, not **`docs/plans/`** or **`docs/WORKFLOW.md`** (those come with **`full_dev`** / **`pn-writing-plans`**). Then run **`full_dev`** or **`design`**. Details: [starting-new-project.md](../packages/pn-core-mcp/content/docs/starting-new-project.md).
 
-**Pattern 1: New project** — Use `/pn-new` or ask to run pn-new; choose intent (full auto / design focused / involved). For Involved + doc set, the MCP path is **`project_kickoff`** (8 steps). Copy-paste prompts and gating tips: [how-to-use-guide.md](how-to-use-guide.md#mcp-only-flows-no-plugin).
+**Pattern 1: New project**: Use `/pn-new` or ask to run pn-new; choose intent (full auto / design focused / involved). For Involved + doc set, the MCP path is **`project_kickoff`** (8 steps). Copy-paste prompts and gating tips: [how-to-use-guide.md](how-to-use-guide.md#mcp-only-flows-no-plugin).
 
 **Pattern 2: Fix CI**
 
@@ -239,11 +239,11 @@ When you have a **new project with no refs** (no **`docs/refs/PRD.md`**, no `.re
 **Pattern 4: SVG and assets**
 
 - Ask "create an SVG logo" or use `/pn-assets`. AI loads `get_command("pn-assets")` and runs the questionnaire (SVG, raster image, or placeholder branch).
-- **When UI is in scope:** Full dev and orchestrator flows automatically include `pn-assets-manager`—logos, icons, hero images, or placeholders are created even if you don't mention them.
+- **When UI is in scope:** Full dev and orchestrator flows automatically include `pn-assets-manager`logos, icons, hero images, or placeholders are created even if you don't mention them.
 
 **Pattern 5: Design loop (prefer workflow_step)**
 
-- **What to say:** "Build [X]. Use the design workflow." or "Build [X]—I want discovery and skeptic."
+- **What to say:** "Build [X]. Use the design workflow." or "Build [X], I want discovery and skeptic."
 - **What happens:** The model calls the workflow tool when available; it returns one instruction per step and enforces discovery and skeptic. When frontend/UI is in scope, Discovery includes expanded Design (3a–3g: structure, layout, sections, colors, typography, components, ambition). Answer all subsections for award-winning design. Otherwise use `/pn-design` or ask "run pn-design". The `pn-build-gate` rule prefers the workflow; it falls back to `get_command` when the tool is unavailable.
 
 **Pattern 6: Frontend audit**
@@ -256,7 +256,7 @@ When you have a **new project with no refs** (no **`docs/refs/PRD.md`**, no `.re
 - **What to say:** "Format this README per pn-documentation." or `get_skill("pn-documentation")`.
 - **What happens:** AI loads `get_skill("pn-documentation")` and applies format.
 
-**Full list:** For example prompts for every main command and workflow mapping, see [How to use pnCore — Example prompts by command](how-to-use-guide.md#example-prompts-by-command).
+**Full list:** For example prompts for every main command and workflow mapping, see [How to use pnCore, Example prompts by command](how-to-use-guide.md#example-prompts-by-command).
 
 ---
 
@@ -268,7 +268,7 @@ Prefer **`workflow_step`** for build, design, audits, and kickoff when MCP is co
 
 ## MCP-only (no plugin in repo)
 
-If you use **only** the pn-core MCP server (no plugin installed in the project), you get all skills, agents, commands, workflow_step, and resources—but Cursor will not auto-apply pn rules (build gate, proactive skill use) or run hooks, because those come from the plugin's files.
+If you use **only** the pn-core MCP server (no plugin installed in the project), you get all skills, agents, commands, workflow_step, and resources, but Cursor will not auto-apply pn rules (build gate, proactive skill use) or run hooks, because those come from the plugin's files.
 
 **Bootstrap guidance (one-time setup):** On Cursor, copy [mcp-only-bootstrap.mdc](mcp-only-bootstrap.mdc) into your project's `.cursor/rules/`. On Claude Code, Codex, or Pi, run `harness_scaffold` or `plugin-install --harness <id>` to write the equivalent native rule or managed instructions block. The guidance loads `pn-build-gate` and `pn-mcp-proactive` through MCP so build/design flows and proactive skill use behave like the full harness install.
 
@@ -280,4 +280,4 @@ If you use **only** the pn-core MCP server (no plugin installed in the project),
 
 ## See also
 
-- [How to use pnCore](how-to-use-guide.md) — Example prompts by command, workflows, and [best practices](how-to-use-guide.md#best-practices)
+- [How to use pnCore](how-to-use-guide.md): Example prompts by command, workflows, and [best practices](how-to-use-guide.md#best-practices)

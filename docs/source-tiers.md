@@ -9,7 +9,7 @@ pnCore skills and recommendations that assert "best practice" or "industry stand
 
 ---
 
-## Tier 1 — Proven
+## Tier 1: Proven
 
 | Source type | Examples |
 |-------------|----------|
@@ -21,7 +21,7 @@ pnCore skills and recommendations that assert "best practice" or "industry stand
 
 ---
 
-## Tier 2 — Established
+## Tier 2: Established
 
 | Source type | Examples |
 |-------------|----------|
@@ -33,7 +33,7 @@ pnCore skills and recommendations that assert "best practice" or "industry stand
 
 ---
 
-## Tier 3 — Unverified
+## Tier 3: Unverified
 
 | Source type | Examples |
 |-------------|----------|
@@ -50,10 +50,10 @@ pnCore skills and recommendations that assert "best practice" or "industry stand
 
 Before adding a skill that claims best-practice or industry-standard behavior:
 
-1. **Identify core claims** — What assertions does the skill make?
-2. **Find Tier 1 support** — Search NNG, W3C, or academic databases for each claim.
-3. **Document citations** — Add a "Sources" or "Evidence" section to the skill with URLs and short excerpts.
-4. **If no Tier 1 support** — Rephrase as "common practice" or "often recommended"; or defer until evidence is found.
+1. **Identify core claims**: What assertions does the skill make?
+2. **Find Tier 1 support**: Search NNG, W3C, or academic databases for each claim.
+3. **Document citations**: Add a "Sources" or "Evidence" section to the skill with URLs and short excerpts.
+4. **If no Tier 1 support**: Rephrase as "common practice" or "often recommended"; or defer until evidence is found.
 
 ---
 

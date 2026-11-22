@@ -1024,7 +1024,7 @@ const implementationTournamentSteps: StepDef[] = [
   },
   {
     instruction:
-      "TOURNAMENT HANDOFF — continue delivery on main via full_dev review phase (specialists skipped; implementation came from tournament). Call workflow_step('full_dev', 5, { tournamentHandoff: true, specSummary, specialistList: ['implementation_tournament'], taskResults: { implementation_tournament: <same merge summary> }, mergeComplete: true, selectedCandidate, auditPath, plan, skepticPassed, discoverySpec }). When no parent full_dev plan exists (standalone tournament), omit plan/skepticPassed — full_dev accepts specSummary-only handoff. Follow returned full_dev instructions through step 6. Implementation tournament workflow complete after full_dev step 6." +
+      "TOURNAMENT HANDOFF — continue delivery on main via full_dev review phase (specialists skipped; implementation came from tournament). Call workflow_step('full_dev', 5, { run_id, tournamentHandoff: true, specSummary, specialistList: ['implementation_tournament'], taskResults: { implementation_tournament: <same merge summary> }, mergeComplete: true, selectedCandidate, auditPath, plan, skepticPassed, discoverySpec }). When no parent full_dev plan exists (standalone tournament), omit plan/skepticPassed — full_dev accepts specSummary-only handoff. Follow returned full_dev instructions through step 6. Implementation tournament workflow complete after full_dev step 6." +
       paperclipWorkflowHint(),
     gate: "model",
     nextStep: 5,
@@ -1867,7 +1867,7 @@ export function getWorkflowStep(
       return withTierHint(
         {
           ...baseResult,
-          instruction: `${baseResult.instruction}\n\nHandoff state template: workflow_step('full_dev', 5, { tournamentHandoff: true, specSummary: <from state>, plan: <from state when parent full_dev>, skepticPassed: <from state when available>, specialistList: ['implementation_tournament'], taskResults: { implementation_tournament: ${JSON.stringify(String(summary))} }, mergeComplete: true, selectedCandidate: '${selected}', auditPath: <from state> })`,
+          instruction: `${baseResult.instruction}\n\nHandoff state template: workflow_step('full_dev', 5, { run_id: <same run_id>, tournamentHandoff: true, specSummary: <from state>, plan: <from state when parent full_dev>, skepticPassed: <from state when available>, specialistList: ['implementation_tournament'], taskResults: { implementation_tournament: ${JSON.stringify(String(summary))} }, mergeComplete: true, selectedCandidate: '${selected}', auditPath: <from state> })`,
           workflowPhase: "tournament_handoff",
           done: true,
         },
@@ -1955,7 +1955,7 @@ export function getWorkflowStep(
         {
           ...baseResult,
           instruction: `All slices verified. MERGE PHASE — sequential. Merge each slice branch into the program branch in this order: ${mergeOrder.join(" → ")}. After each merge: (1) run build and tests, (2) use get_skill('pn-merge-conflict-fix') if conflicts arise, (3) commit to program branch. When all slices are merged, call workflow_step('feature_program', step=5) with state: { mergeComplete: true, mergedSlices: ${JSON.stringify(mergeOrder)} }.`,
-          nextStep: 4,
+          nextStep: 5,
           workflowPhase: "merge",
           done: false,
         },

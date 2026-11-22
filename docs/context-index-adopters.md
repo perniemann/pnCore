@@ -30,9 +30,9 @@ The context index is a small handoff manifest: semver, review date, pointers to 
 
 From pnCore repo root, validation is:
 
-- `npm run check:context-index` — schema + non-null pointer paths exist.
-- `npm run check:artifact-status` — artifact paths + no unattested complete claims.
-- `npm run check:ac-traceability` — every `AC-*` in the index appears elsewhere in text files.
+- `npm run check:context-index`: schema + non-null pointer paths exist.
+- `npm run check:artifact-status`: artifact paths + no unattested complete claims.
+- `npm run check:ac-traceability`: every `AC-*` in the index appears elsewhere in text files.
 
 Include both in `npm run validate` or your own pipeline. Non-null pointers already imply "file must exist" (for example if `prd` is a string path, that path is checked).
 
@@ -94,5 +94,5 @@ When the schema semver bumps, run `node scripts/migrate-context-index.mjs [--dry
 
 ## Further reading
 
-- [docs/refs/README.md](refs/README.md) — file roles in this repo.
+- [docs/refs/README.md](refs/README.md): file roles in this repo.
 - [Acceptance criteria convention](acceptance-criteria-convention.md).

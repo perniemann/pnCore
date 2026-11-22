@@ -7,7 +7,7 @@ updated: 2026-09-17
 
 ## Status
 
-Accepted — **P2 delivered** (2026-06). `implementation_tournament` workflow ships behind `bestOfN.enabled` (default `false`). Skill-only path remains valid when the flag is off.
+Accepted: **P2 delivered** (2026-06). `implementation_tournament` workflow ships behind `bestOfN.enabled` (default `false`). Skill-only path remains valid when the flag is off.
 
 ## Context
 
@@ -29,8 +29,8 @@ P1 shipped `pn-best-of-n` skill, `best-of-n.contract.json`, and parallel review 
 
 **Tooling:**
 
-- `scripts/validate-best-of-n-contract.mjs` — schema + selection coherence
-- `scripts/best-of-n-select.mjs` — `resolveBestOfNSelection()`, `DEFAULT_AUTO_SELECT_MIN_DELTA = 0.15`
+- `scripts/validate-best-of-n-contract.mjs`: schema + selection coherence
+- `scripts/best-of-n-select.mjs`: `resolveBestOfNSelection()`, `DEFAULT_AUTO_SELECT_MIN_DELTA = 0.15`
 - Audit JSON under `docs/audits/best-of-n-*.json`
 
 **Human-gate policy (validated in pilot):**
@@ -41,7 +41,7 @@ P1 shipped `pn-best-of-n` skill, `best-of-n.contract.json`, and parallel review 
 
 **Explicit non-goals (unchanged):**
 
-- No best-of-N on auth, RLS, payments, secrets — use parallel review panel (`pn-build-gate`)
+- No best-of-N on auth, RLS, payments, secrets, use parallel review panel (`pn-build-gate`)
 - No LLM judge before objective gates
 
 ## Pilot metrics (June 2026)

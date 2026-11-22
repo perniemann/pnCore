@@ -448,6 +448,56 @@ describe("MCP per-tool integration", () => {
     expect(typeof parsed.run_id).toBe("string");
   });
 
+  // ── ADR-0025 step sequencing ───────────────────────────────────────────
+  it("workflow_step: a step after 0 without run_id is refused", async () => {
+    const result = await client.callTool({
+      name: "workflow_step",
+      arguments: { workflowType: "design", step: 1, state: { discoverySpec: "spec" } },
+    });
+    const err = assertErrorEnvelope(result);
+    expect(err.code).toBe("INVALID_STATE");
+    expect(err.error).toMatch(/needs state\.run_id/);
+  });
+
+  it("workflow_step: skipping ahead within a run is refused; the served next step passes", async () => {
+    const s0 = parseFirst(
+      await client.callTool({
+        name: "workflow_step",
+        arguments: { workflowType: "design", step: 0, state: {} },
+      })
+    );
+    const run_id = s0.run_id as string;
+    expect(s0.nextStep).toBe(1);
+    const skip = await client.callTool({
+      name: "workflow_step",
+      arguments: { workflowType: "design", step: 4, state: { run_id, buildComplete: true } },
+    });
+    expect(assertErrorEnvelope(skip).error).toMatch(/not reachable/);
+    const next = await client.callTool({
+      name: "workflow_step",
+      arguments: { workflowType: "design", step: 1, state: { run_id, discoverySpec: "spec" } },
+    });
+    expect(next.isError).toBeFalsy();
+    expect(parseFirst(next).nextStep).toBe(2);
+  });
+
+  it("workflow_step: a strict gate record with an unissued gate_id is refused", async () => {
+    const result = await client.callTool({
+      name: "workflow_step",
+      arguments: {
+        workflowType: "design",
+        step: 0,
+        state: {
+          intent: "involved",
+          skepticPassed: { verdict: "pass", go_no_go: "go", gate_id: "forged", confirmed_at: "t" },
+        },
+      },
+    });
+    const err = assertErrorEnvelope(result);
+    expect(err.code).toBe("INVALID_GATE");
+    expect(err.error).toMatch(/not issued by workflow_confirm/);
+  });
+
   it("workflow_step: out-of-range step returns INVALID_STATE error", async () => {
     const result = await client.callTool({
       name: "workflow_step",

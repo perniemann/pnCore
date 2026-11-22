@@ -4,7 +4,7 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
-## [0.23.1] - 2026-11-22
+## [0.26.1] - 2026-11-22
 
 CI and supply-chain hardening. Each item closes a gap from the 2026-11-21 review.
 
@@ -34,6 +34,64 @@ CI and supply-chain hardening. Each item closes a gap from the 2026-11-21 review
 - `pn-pr-review` installs `gh` only when missing (the `||` / `&&` precedence ran `apt-get install` every time).
 - `commit-message-policy`, `link-check` and `sync-mcp-content` declare `permissions: contents: read`.
 - `validate-skill-security.mjs` is labelled local and optional; CI never ran it. The CI gate for skill installs is `check-unpinned-installs`.
+
+## [0.26.0] - 2026-11-22
+
+The 🔺 contract gets a miss count on Claude Code (ADR-0028).
+
+### Added
+
+- **Indicator Stop hook for Claude Code.** `plugin-install --harness claude_code` installs `.claude/hooks/pn-indicator-stop.mjs` and merges one `Stop` entry into `.claude/settings.json`, keeping existing keys and hooks. After each turn that called a pn-core tool, ran a `pn-*` skill or got a `pn-indicator:` result, the hook checks that a reply opened with `[pn-<tag>] 🔺` and appends misses to `.pncore/indicator-misses.jsonl`. It prints nothing and never fails the session.
+- `PNCORE_INDICATOR_STOP=block` turns the log into enforcement: the hook blocks the stop once per turn and the model restates its reply with the tag. Off by default.
+
+## [0.25.0] - 2026-11-22
+
+Codex sees every pnCore skill it is given in full (ADR-0027).
+
+### Changed
+
+- **Router skills for `.agents/skills/`.** `plugin-install --harness codex` (and `pi`) copies the 27 skills in `config/router-skills.json` instead of all 142. Codex lists name, description and path of every skill in 8,000 characters by default and shortened or dropped the rest; the 142 descriptions alone were 30,868 characters. The other skills load with `list_skills` and `get_skill`, which the managed `AGENTS.md` block now says.
+- `--all-skills` copies the full catalog and prints the cost. A router-mode re-install names pnCore skills left over from an earlier full install and deletes nothing.
+
+### Added
+
+- **`check-router-skills`** (in `validate`): router ids exist, appear once, and their ids plus descriptions stay within 7,000 characters, leaving 1,000 for paths.
+
+## [0.24.1] - 2026-11-22
+
+Docs, ADRs and design held to gates instead of review comments.
+
+### Added
+
+- **`check-adr-index`** (in `validate`): every ADR is `NNNN-slug.md`, numbers run from 0001 with no duplicate and no gap, and `docs/adr/README.md` lists every file and only real files.
+- **`check-public-voice`** (in `validate`): no em dash, no spaced hyphen used as one and none of the banned words on README, CONTRIBUTING, SECURITY, the package and plugin READMEs, this CHANGELOG and `docs/`. Code spans and fences are exempt.
+- **Design tokens** in `.pncore-design.md`: color and type tokens with WCAG ratios computed on both grounds. `accent-text` (`#f87171`) carries red at text sizes; `accent` (`#dc2626`) and `text-muted` stay on borders, fills and large text.
+- `node scripts/dashboard-server.mjs --json` prints the snapshot the live dashboard serves, so the static page refreshes from code.
+
+### Changed
+
+- **ADR numbering.** The feature-program ADR moves from a duplicate 0001 to 0026; `0007` gets a retired stub; the index lists 0001 to 0026.
+- **`check-doc-inventory`** also checks public agents, internal agents and MCP tools against the README Catalog line.
+- **Dashboard** on the pnCore identity: Press Start 2P over DM Mono, red accent, computed contrast, display sizes on the 8px grid, a two-column inventory on narrow screens. Static snapshot refreshed to v0.24.1 (142 skills, 47 commands, 36 rules).
+- **README SVGs**: red labels at 11px and 13px use `#f87171` (6.98:1) instead of `#dc2626` (4.00:1).
+- **Voice sweep** on public surfaces: em dashes replaced. The README title is `# pnCore vX.Y.Z`; `sync-version` and `validate-version` match it.
+
+### Fixed
+
+- The dashboard server's static handler rejects sibling-prefix paths (`docs/dashboard-x/`), not only `..` outside the root.
+
+## [0.24.0] - 2026-11-22
+
+`workflow_step` decides the next step, not only the next instruction (ADR-0025).
+
+### Changed
+
+- **Steps after 0 need the run.** `workflow_step` with `step > 0` requires `state.run_id`. The requested step must be one the run log shows as served for that run and workflow type, or one the engine returned as `nextStep`. Skips are refused with the reachable list. Repeats, loop-backs and resumes in a new chat keep working.
+- **Tournament handoff.** `full_dev` step 5 with `tournamentHandoff: true` is reachable after the same run finished `implementation_tournament`. Both handoff templates now carry `run_id`.
+- **Strict gate records need provenance.** Under `intent: "involved"` or `PNCORE_STRICT_SKEPTIC_GATES`, each gate record must name a `gate_id` from the gate log that `workflow_confirm` writes, with a matching verdict (`INVALID_GATE` otherwise).
+- **`feature_program` merge phase** returns `nextStep: 5`, where its instruction sends the caller.
+- **README** says what the gates prove in each mode, instead of claiming every step passes on an external decision. "The engine loads gates and skills automatically" becomes "each step names the skills it needs".
+- With `PNCORE_RUN_LOG=""` (no run log) sequencing is skipped; that is an operator setting, not a tool argument.
 
 ## [0.23.0] - 2026-11-22
 
@@ -246,7 +304,7 @@ Fixes from an independent review of 0.19.10–0.19.12.
 
 ### Added
 
-- **Q3 closeout audit** (ADR-0002): `docs/refs/audit-2026-Q3.md` dated section (2026-09-17) with current inventory, high-leverage body pass, and follow-ups (EVAL backfill, unused `/pn-retro`).
+- **Q3 closeout audit** (ADR-0002): `docs/refs/audit-2026-Q3.md` dated section (2026-09-17) with current inventory, high-impact body pass, and follow-ups (EVAL backfill, unused `/pn-retro`).
 - `check-doc-inventory` asserts **live** `pn-guide.md` slash-palette headlines against disk (submenu = visible minus `/pn` stub), not a denylist of last quarter's counts.
 
 ### Fixed
@@ -259,7 +317,7 @@ Fixes from an independent review of 0.19.10–0.19.12.
 
 ### Added
 
-- **Context budget packing, narrow** (ADR-0021): `project_context` gains `max_tokens` (chars ÷ 4). The packet is packed deterministically in a fixed order — trail oldest-first, settled artifacts' notes, settled artifacts, pointers, trail, artifacts, drift notes — and every packet (budgeted or not) now carries `budget: { maxTokens, estimatedTokens, chars, fits, steps[], hint? }` plus `artifacts_omitted` counts when artifacts were dropped. Drift, `next_incomplete`, `resume`, `counts`, `context_index` are never removed; `fits: false` is reported when the core alone is over.
+- **Context budget packing, narrow** (ADR-0021): `project_context` gains `max_tokens` (chars ÷ 4). The packet is packed deterministically in a fixed order (trail oldest-first, settled artifacts' notes, settled artifacts, pointers, trail, artifacts, drift notes) and every packet (budgeted or not) now carries `budget: { maxTokens, estimatedTokens, chars, fits, steps[], hint? }` plus `artifacts_omitted` counts when artifacts were dropped. Drift, `next_incomplete`, `resume`, `counts`, `context_index` are never removed; `fits: false` is reported when the core alone is over.
 - **Codex `AGENTS.md` cap honoured**: `plugin-install --harness codex --inline-rules` keeps the whole `AGENTS.md` under the 32 KiB chain cap (`PNCORE_AGENTS_MD_CAP_BYTES` overrides) by inlining always-on rules in priority order (`ALWAYS_ON_RULE_PRIORITY`) and listing the ones that do not fit as `get_rule` pointers; content outside the pnCore block is untouched; the installer prints bytes against the cap and warns when the file is over it on its own. `harness_scaffold` returns `instructionsBudget` for Codex (also in `dryRun`). `HarnessLayout.instructionsCapBytes` records the cap per harness.
 
 ## [0.19.3] - 2026-09-17
@@ -267,13 +325,13 @@ Fixes from an independent review of 0.19.10–0.19.12.
 ### Added
 
 - **Step spans on the run log** (ADR-0020): every `workflow-runs.jsonl` entry now carries `stepIndex` (0-based, monotonic per `runId`, recovered from the log tail after a server restart), `sinceLastStepMs` (agent wall time since the previous step of the run; `null` on the first), and `engineMs` (time inside the engine). `get_skill` / `get_agent` / `get_command` / `get_rule` calls with `run_id` are tagged with the current `stepIndex` in `skill-load-log.jsonl`. No new files, no change to the `workflow_step` response.
-- **`workflow_run_query` reads every trail**: `kinds` `step`, `usage`, `handoff`, `gate` (accepted before, never served) now return their `.pncore` records merged with verify/acceptance in time order; new kind `load` returns `get_*` loads. New `timeline: true` joins them per step — loads, tokens, handoff, gates, verify — with `totals`, `wallMs`, `slowest` step, `done`, `accepted`. Default `kinds` (verify + acceptance) are unchanged. Response gains `paths` (one per trail).
+- **`workflow_run_query` reads every trail**: `kinds` `step`, `usage`, `handoff`, `gate` (accepted before, never served) now return their `.pncore` records merged with verify/acceptance in time order; new kind `load` returns `get_*` loads. New `timeline: true` joins them per step (loads, tokens, handoff, gates, verify) with `totals`, `wallMs`, `slowest` step, `done`, `accepted`. Default `kinds` (verify + acceptance) are unchanged. Response gains `paths` (one per trail).
 
 ## [0.19.2] - 2026-09-17
 
 ### Added
 
-- **Deterministic trajectory replay in CI** (ADR-0019): a recorded `workflow_step` run — the ordered calls one agent makes through a workflow, including same-step phases, parallel fan-outs, loop-backs, and iteration-cap errors — becomes a fixture under `packages/pn-core-mcp/src/fixtures/trajectories/` and is replayed through `getWorkflowStep` by `src/trajectory.test.ts` in `npm run test:full`. Any routing drift (`nextStep`, `gate`, `done`, `workflowPhase`, `parallel`, task ids, expected errors) fails CI with expected-vs-actual per step. Six fixtures ship (full_dev parallel + merge, full_dev phased specialists, design skeptic loop-back, project_kickoff, business_strategy Weak loop, authored design iteration-cap → approval). No LLM in the loop.
+- **Deterministic trajectory replay in CI** (ADR-0019): a recorded `workflow_step` run (the ordered calls one agent makes through a workflow, including same-step phases, parallel fan-outs, loop-backs, and iteration-cap errors) becomes a fixture under `packages/pn-core-mcp/src/fixtures/trajectories/` and is replayed through `getWorkflowStep` by `src/trajectory.test.ts` in `npm run test:full`. Any routing drift (`nextStep`, `gate`, `done`, `workflowPhase`, `parallel`, task ids, expected errors) fails CI with expected-vs-actual per step. Six fixtures ship (full_dev parallel + merge, full_dev phased specialists, design skeptic loop-back, project_kickoff, business_strategy Weak loop, authored design iteration-cap → approval). No LLM in the loop.
 - **`npm run trajectory:record`** (`scripts/record-trajectory.mjs`): `--list` recorded runs; `--run-id <id> --name <kebab>` (or `--latest`) exports a fixture and replays it immediately. Refuses runs without state snapshots, non-continuous runs, and mixed workflow types.
 - **`PNCORE_RUN_LOG_STATE=1`**: `workflow_step` adds a `state` snapshot to `.pncore/workflow-runs.jsonl` (strings capped at 240 chars, `pncoreHumanGateTicket` / approval tokens redacted, depth ≤ 6). Off by default.
 
@@ -284,7 +342,7 @@ Fixes from an independent review of 0.19.10–0.19.12.
 
 ### Added
 
-- **ADR-0017 (Astra-era skill discovery):** MCP `list_skills` / `get_skill` is the progressive-disclosure path. Cursor plugin skill-index catalog size is a known gap (emptying `skills/` deferred). Response aliases stay agent-requested (ADR-0013): compact `responseAliases` on `project_context`, plus `/pn-guide`, `docs/how-to-use-guide.md`, and one `pn-mcp-proactive` row — not `alwaysApply`. New skills error if `description` exceeds 220 characters. Premium+ `renderTierHint` appends a router/local-tests sentence.
+- **ADR-0017 (Astra-era skill discovery):** MCP `list_skills` / `get_skill` is the progressive-disclosure path. Cursor plugin skill-index catalog size is a known gap (emptying `skills/` deferred). Response aliases stay agent-requested (ADR-0013): compact `responseAliases` on `project_context`, plus `/pn-guide`, `docs/how-to-use-guide.md`, and one `pn-mcp-proactive` row: not `alwaysApply`. New skills error if `description` exceeds 220 characters. Premium+ `renderTierHint` appends a router/local-tests sentence.
 - **Chat shortcodes** in `/pn-guide`: whole-token `scr` / `eli` / `foc` / `ref` / `scp` expand via `get_skill("pn-response-aliases")`.
 - `scripts/measure-tokens.mjs` reports skill-description catalog size against Codex’s ~8000-character initial-list budget.
 
@@ -301,8 +359,8 @@ Fixes from an independent review of 0.19.10–0.19.12.
 
 ### Added
 
-- **Harness adapters** (ADR-0016): pnCore is one MCP engine with four surfaces — Cursor, Claude Code, Codex, Pi. `packages/pn-core-mcp/src/harness.ts` holds the single layout table (instructions file, rules dir + format, skills dir, commands dir, agents dir, MCP config, hooks) and detection (`PNCORE_HARNESS` > process env signals > workspace folders). Reference: `pn-core://reference/harness-matrix.md`.
-- **MCP tools `harness_detect` and `harness_scaffold`** (29 tools): detect the active harness and write project-context / project skill / trailer rule / optional MCP config **only** into the folders that harness reads — `.cursor/rules/*.mdc`, `.claude/rules/*.md`, or a managed `<!-- pncore:start -->` block in `AGENTS.md` (Codex, Pi); `.cursor/skills`, `.claude/skills`, or shared `.agents/skills`. `dryRun` returns the plan with contents; existing files are skipped unless `overwrite`; managed blocks are replaced in place.
+- **Harness adapters** (ADR-0016): pnCore is one MCP engine with four surfaces, Cursor, Claude Code, Codex, Pi. `packages/pn-core-mcp/src/harness.ts` holds the single layout table (instructions file, rules dir + format, skills dir, commands dir, agents dir, MCP config, hooks) and detection (`PNCORE_HARNESS` > process env signals > workspace folders). Reference: `pn-core://reference/harness-matrix.md`.
+- **MCP tools `harness_detect` and `harness_scaffold`** (29 tools): detect the active harness and write project-context / project skill / trailer rule / optional MCP config **only** into the folders that harness reads, `.cursor/rules/*.mdc`, `.claude/rules/*.md`, or a managed `<!-- pncore:start -->` block in `AGENTS.md` (Codex, Pi); `.cursor/skills`, `.claude/skills`, or shared `.agents/skills`. `dryRun` returns the plan with contents; existing files are skipped unless `overwrite`; managed blocks are replaced in place.
 - **Installer `--harness <cursor|claude_code|codex|pi|auto|all>`** for `scripts/install-to-project.mjs` (`npx github:perniemann/pnCore plugin-install`): Claude Code gets `.claude/{skills,agents,rules,commands}` with `.mdc` → `.md` rule conversion (`globs` → `paths`, agent-requested rules stay MCP-only); Codex gets `.agents/skills` + an `AGENTS.md` pnCore block; Pi gets `.agents/skills` + `.pi/prompts` + the block. `--with-mcp-config` writes the harness-native server entry; `--inline-rules` inlines always-apply rules for Codex / Pi. `auto` falls back to Cursor and says so.
 - Pi native extension sets `PNCORE_HARNESS=pi` on load so detection is authoritative on Pi.
 
@@ -329,7 +387,7 @@ Fixes from an independent review of 0.19.10–0.19.12.
 
 - **MCP `project_context`:** dual-mode cold-session packet (operator counts / agent artifacts + handoff and run-events trail). Bootstrap via `pn-mcp-proactive` and `/pn-setup` project-context.mdc.
 - **context-index 1.3.0:** optional typed `artifacts` array; `npm run check:artifact-status` for attested derived status (no checkbox truth).
-- **sessionStart canary** (fail-open): `plugins/pnCore/scripts/pn-session-start-canary.mjs` — telemetry only; primary path remains `project_context`.
+- **sessionStart canary** (fail-open): `plugins/pnCore/scripts/pn-session-start-canary.mjs`, telemetry only; primary path remains `project_context`.
 - **`/pn-setup` Section E:** scaffold `docs/refs/context-index.json` + artifacts for adopters.
 
 ### Changed
@@ -340,7 +398,7 @@ Fixes from an independent review of 0.19.10–0.19.12.
 
 ### Added
 
-- **`pn-scroll-narrative` skill:** journey-first procedure for scroll-told marketing pages (Narrative Map, one peak, CSS scroll-driven or GSAP pin/scrub, timeline evidence). Trigger is narrative intent only — high `MOTION_INTENSITY` is not a load condition.
+- **`pn-scroll-narrative` skill:** journey-first procedure for scroll-told marketing pages (Narrative Map, one peak, CSS scroll-driven or GSAP pin/scrub, timeline evidence). Trigger is narrative intent only, high `MOTION_INTENSITY` is not a load condition.
 - Marketing ship-gate **N-01–N-04** (map present, one peak, timeline samples, reduced-motion readable).
 - **ADR-0014:** original scroll-narrative procedure, prior-art attribution, and an explicit non-clone list.
 
@@ -494,15 +552,15 @@ Fixes from an independent review of 0.19.10–0.19.12.
 ### Changed
 
 - Removed pnCursor-era local state: `.pncursor/` gitignore entries; use `.pncore/` only.
-- **`run_id` only** — `pncoreRunId` state field no longer accepted.
-- **`pn-core://reference/best-practices.md`** only — dated `best-practice-2026-03` URI no longer resolves.
-- **`engine_feature` only** for UE/Godot — public `unreal_feature` / `godot_feature` workflow types removed from MCP enum.
+- **`run_id` only**: `pncoreRunId` state field no longer accepted.
+- **`pn-core://reference/best-practices.md`** only: dated `best-practice-2026-03` URI no longer resolves.
+- **`engine_feature` only** for UE/Godot: public `unreal_feature` / `godot_feature` workflow types removed from MCP enum.
 - Human-gate tickets require **`run_id`** on issue (`approval_checkpoint`) and matching state on consume.
 - Project doc discovery uses **`docs/refs/`** only (no flat `docs/PRD.md` fallbacks in rules/commands).
 
 ### Added
 
-- **`scripts/check-no-legacy-names.mjs`** — CI guard against reintroducing pnCursor names and removed compat shims.
+- **`scripts/check-no-legacy-names.mjs`**: CI guard against reintroducing pnCursor names and removed compat shims.
 
 ### Fixed
 
@@ -527,7 +585,7 @@ Fixes from an independent review of 0.19.10–0.19.12.
 ### Added
 
 - First quarterly documentation audit: [docs/refs/audit-2026-Q3.md](../../docs/refs/audit-2026-Q3.md) per ADR-0002.
-- `scripts/check-doc-inventory.mjs` — README catalog counts validated against filesystem in `npm run validate`.
+- `scripts/check-doc-inventory.mjs`: README catalog counts validated against filesystem in `npm run validate`.
 - `workflow-state-schema.md` sections for `prompt_optimize`, `engine_feature`, `godot_feature`, `feature_program`, and `implementation_tournament`.
 
 ### Changed
@@ -553,7 +611,7 @@ Fixes from an independent review of 0.19.10–0.19.12.
 ### Changed
 
 - README rewritten as standalone product documentation: architecture (MCP + plugin), quick start, workflows, maintainer scripts.
-- Repository scoped to the functional core — historical audit/eval artifacts removed; `bench`, `measure-tokens`, and `dashboard` scripts retained.
+- Repository scoped to the functional core, historical audit/eval artifacts removed; `bench`, `measure-tokens`, and `dashboard` scripts retained.
 
 ### Fixed
 

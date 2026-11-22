@@ -38,6 +38,9 @@ const PARALLEL_SCRIPTS = [
   "scripts/validate-slice-verify.mjs",
   "scripts/validate-eval-yaml.mjs",
   "scripts/check-doc-links.mjs",
+  "scripts/check-public-voice.mjs",
+  "scripts/check-adr-index.mjs",
+  "scripts/check-router-skills.mjs",
   "scripts/check-unpinned-installs.mjs",
 ];
 

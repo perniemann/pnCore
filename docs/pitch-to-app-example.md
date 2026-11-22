@@ -12,7 +12,7 @@ End-to-end example: discovery (ask_question per section), prior art, phased plan
 ```text
 Build [YOUR PITCH]. Use the full dev workflow.
 
-I want maximum involvement via questionnaire: use ask_question for every discovery section (Technical, Security, Design, Requirements, Scope). Do not infer—ask me explicitly. I answer each before you proceed. Gate on my confirmation after discovery, prior art, plan, and skeptic before specialists.
+I want maximum involvement via questionnaire: use ask_question for every discovery section (Technical, Security, Design, Requirements, Scope). Do not infer; ask me explicitly. I answer each before you proceed. Gate on my confirmation after discovery, prior art, plan, and skeptic before specialists.
 
 Skeptic in line: Run pn-skeptic-challenge on the plan. Present alternatives and tradeoffs. Do not run specialists until I accept the skeptic verdict.
 

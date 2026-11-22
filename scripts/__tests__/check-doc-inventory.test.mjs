@@ -13,6 +13,8 @@ import {
   checkPnGuideLiveCounts,
   checkMaintainedDocs,
   parseReadmeCatalog,
+  collectInventory,
+  countTools,
   runCheck,
 } from "../check-doc-inventory.mjs";
 
@@ -43,11 +45,20 @@ test("parseReadmeCatalog reads the Catalog line", () => {
   );
   assert.deepEqual(parsed, {
     skills: 171,
+    agents: 9,
+    internalAgents: 6,
     visible: 31,
     hidden: 18,
     commands: 49,
+    tools: 29,
     workflows: 16,
   });
+});
+
+test("countTools and the agent counts match the live repo", () => {
+  const inv = collectInventory(repoRoot);
+  assert.ok(inv.tools > 0 && inv.agents > 0 && inv.internalAgents > 0);
+  assert.equal(countTools(repoRoot), inv.tools);
 });
 
 test("runCheck passes on this repo", () => {

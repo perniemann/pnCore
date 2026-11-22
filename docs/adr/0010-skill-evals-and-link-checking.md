@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted — 2026-08-05 (amended 2026-08-05: promote offline link gate + new-skill EVAL requirement)
+Accepted: 2026-08-05 (amended 2026-08-05: promote offline link gate + new-skill EVAL requirement)
 
 ## Context
 
@@ -13,7 +13,7 @@ pnCore already has strong static validators (`validate-skill-schema`, SkillSpect
 - No per-skill EVAL suite convention or scaffolder
 - No offline checker for `pn-core://` and relative markdown links
 - No documented MCP-over-CLI authoring rule
-- No lightweight ownership field (and [ADR-0001 feature-program](0001-feature-program-workflow.md) rejected fragile ownership-glob enforcement)
+- No lightweight ownership field (and [ADR-0026 feature-program](0026-feature-program-workflow.md) rejected fragile ownership-glob enforcement)
 
 A full continuous LLM eval harness (on-submit scoring + weekly regression jobs across frameworks) is valuable but invasive; it must not block this incremental governance step.
 
@@ -36,6 +36,6 @@ A full continuous LLM eval harness (on-submit scoring + weekly regression jobs a
 ## References
 
 - Remigiusz Samborski, [Behind the scenes: How we build, test, and scale Google Agent Skills](https://cloud.google.com/blog/topics/developers-practitioners/behind-the-scenes-how-we-build-test-and-scale-google-agent-skills) (2026-08-03); X: https://x.com/RemikSamborski/article/2084285529651093530
-- [ADR-0002](0002-skill-rule-audit-cadence.md) — quarterly audit cadence (policy, not automation)
-- [ADR-0001 feature-program](0001-feature-program-workflow.md) — ownership glob validator rejected
+- [ADR-0002](0002-skill-rule-audit-cadence.md): quarterly audit cadence (policy, not automation)
+- [ADR-0026 feature-program](0026-feature-program-workflow.md): ownership glob validator rejected
 - `packages/pn-core-mcp/content/reference/eval-convention.md`

@@ -2,11 +2,11 @@
 
 ## Status
 
-Accepted — 2026-07-05 (slash menu note amended 2026-07-06)
+Accepted: 2026-07-05 (slash menu note amended 2026-07-06)
 
 ## Context
 
-pnCore ships a stdio MCP server (`packages/pn-core-mcp/`) with 24 tools, plus a Pi package manifest for skills and extensions ([ADR-0008](0008-command-palette-pn-submenu.md)). Pi users previously had to configure a separate MCP subprocess (`npx … pn-core`) for orchestration — cold-start pain on Windows and extra setup.
+pnCore ships a stdio MCP server (`packages/pn-core-mcp/`) with 24 tools, plus a Pi package manifest for skills and extensions ([ADR-0008](0008-command-palette-pn-submenu.md)). Pi users previously had to configure a separate MCP subprocess (`npx … pn-core`) for orchestration: cold-start pain on Windows and extra setup.
 
 [Pi Packages](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/packages.md) and [Pi Extensions](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/extensions.md) support bundling TypeScript extensions that register LLM-callable tools via `pi.registerTool()` with TypeBox parameter schemas.
 

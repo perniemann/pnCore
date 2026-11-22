@@ -13,17 +13,17 @@ Accepted
 
 pnCore's existing workflows cover technical execution (design, full_dev, backend_audit) and domain-specific work (fsi_analyst_draft, engine_feature). No workflow addressed early-stage product and business strategy: problem validation, competitive framing, market sizing, and the question "should we build this at all?"
 
-Users had two standalone commands — `/pn-pressure-test` (one-pass verdict) and `/pn-grill` (interactive interrogation) — but no structured multi-session workflow that combined evidence gathering, Socratic stress-testing, codebase-derived angle discovery, and a human-auditable lock gate before delivering a stakeholder-ready artifact.
+Users had two standalone commands, `/pn-pressure-test` (one-pass verdict) and `/pn-grill` (interactive interrogation): but no structured multi-session workflow that combined evidence gathering, Socratic stress-testing, codebase-derived angle discovery, and a human-auditable lock gate before delivering a stakeholder-ready artifact.
 
 A discovery + skeptic + grill session produced the following confirmed decisions:
 
-1. **Discipline-first data sourcing with optional companion-MCP upgrade** — the workflow must run end-to-end using only host tools (WebSearch, WebFetch, localSearchCode). Companion MCPs (Tavily, FRED, Octocode) are auto-detected at runtime and upgrade evidence quality without being required.
+1. **Discipline-first data sourcing with optional companion-MCP upgrade**: the workflow must run end-to-end using only host tools (WebSearch, WebFetch, localSearchCode). Companion MCPs (Tavily, FRED, Octocode) are auto-detected at runtime and upgrade evidence quality without being required.
 
-2. **One `business_strategy` workflow with a conditional codebase-intake step** — `codebase_strategy` is not a separate workflow type. The repo-analysis path is step 1, skipped when `mode === "idea"`.
+2. **One `business_strategy` workflow with a conditional codebase-intake step**: `codebase_strategy` is not a separate workflow type. The repo-analysis path is step 1, skipped when `mode === "idea"`.
 
-3. **`pn-pressure-test`'s 6-row scorecard as the single source of truth for verdict** — no competing rubric is introduced. Pain intensity, buyer clarity, urgency, differentiation, speed to validate, founder advantage.
+3. **`pn-pressure-test`'s 6-row scorecard as the single source of truth for verdict**: no competing rubric is introduced. Pain intensity, buyer clarity, urgency, differentiation, speed to validate, founder advantage.
 
-4. **HTML primary + markdown machine-facing digest as deliverables** — the markdown digest is the canonical data source; the HTML brief is rendered from it. This aligns with `content/reference/human-facing-artifacts.md` (line 25: emit a companion digest for the next step).
+4. **HTML primary + markdown machine-facing digest as deliverables**: the markdown digest is the canonical data source; the HTML brief is rendered from it. This aligns with `content/reference/human-facing-artifacts.md` (line 25: emit a companion digest for the next step).
 
 ## Decision
 
@@ -93,11 +93,11 @@ The evidence gate at step 5 reads the log via `workflow_handoff_read` and blocks
 
 ### Honesty contract (mechanical vs. human)
 
-1. **Mechanical — log existence**: verdict lock refuses to proceed without entries.
-2. **Mechanical — scorecard-row coverage gate**: all 6 rows must have ≥1 entry.
-3. **Mechanical — iteration cap**: Weak loops capped at 2; over-cap requires `approval_checkpoint`.
-4. **Mechanical — Pivot terminates**: Pivot cannot be refined in-run; forces fresh start.
-5. **Human-guaranteed — citation truthfulness**: audit gate at step 7 (`workflow_confirm` with confirm/revise/audit options). The workflow states this explicitly at every lock gate.
+1. **Mechanical: log existence**: verdict lock refuses to proceed without entries.
+2. **Mechanical: scorecard-row coverage gate**: all 6 rows must have ≥1 entry.
+3. **Mechanical: iteration cap**: Weak loops capped at 2; over-cap requires `approval_checkpoint`.
+4. **Mechanical: Pivot terminates**: Pivot cannot be refined in-run; forces fresh start.
+5. **Human-guaranteed: citation truthfulness**: audit gate at step 7 (`workflow_confirm` with confirm/revise/audit options). The workflow states this explicitly at every lock gate.
 6. **Provenance transparency**: provenance breakdown (entries per companion) shown before lock.
 
 ## Non-goals
@@ -141,7 +141,7 @@ The evidence gate at step 5 reads the log via `workflow_handoff_read` and blocks
 - [ADR-0001: Record architecture decisions](0001-record-architecture-decisions.md)
 - [ADR-0002: Quarterly skill and rule audit cadence](0002-skill-rule-audit-cadence.md)
 - [ADR-0003: Governance without AGP protocol](0003-governance-without-agp-protocol.md)
-- `packages/pn-core-mcp/content/reference/workflow-state-schema.md` — full state schema with field docs
-- `packages/pn-core-mcp/content/reference/human-facing-artifacts.md` — dual deliverable rationale
-- `docs/companion-mcp-catalog.md` — companion MCP install hints and roles
+- `packages/pn-core-mcp/content/reference/workflow-state-schema.md`: full state schema with field docs
+- `packages/pn-core-mcp/content/reference/human-facing-artifacts.md`: dual deliverable rationale
+- `docs/companion-mcp-catalog.md`: companion MCP install hints and roles
 - Plan: `c:\Users\tool\.cursor\plans\business_strategy_workflow_63caa24a.plan.md`

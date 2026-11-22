@@ -7,7 +7,7 @@ updated: 2026-08-20
 
 ## Status
 
-Accepted — 2026-08-20
+Accepted: 2026-08-20
 
 ## Context
 
@@ -28,10 +28,10 @@ An earlier honor-system `workflow_verify` (agent-supplied exit codes) was revert
 
 - **Positive:** False greens cannot advance tournament step 2 when the flag is on; traces are queryable by `run_id`; plugin/Pi stay adapters.
 - **Negative:** Hosts without `bwrap` must opt into `restricted` or leave the flag off. Coverage of OS jails depends on CI having `bwrap`.
-- **Not taken:** SSSF Python stamp, Vue visualizer, write-boundary rollback (ADR-0001 worktrees), rewriting all 17 workflows in one change.
+- **Not taken:** SSSF Python stamp, Vue visualizer, write-boundary rollback (ADR-0026 worktrees), rewriting all 17 workflows in one change.
 
 ## References
 
 - [SSSF](https://github.com/disler/super-simple-software-factory)
-- [ADR-0001 feature program / worktrees](0001-feature-program-workflow.md)
+- [ADR-0026 feature program / worktrees](0026-feature-program-workflow.md)
 - [ADR-0009 Pi native tools](0009-pi-native-tools.md)

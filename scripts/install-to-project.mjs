@@ -17,14 +17,17 @@
  *                       the whole AGENTS.md is kept under the 32 KiB chain cap (PNCORE_AGENTS_MD_CAP_BYTES
  *                       overrides): lowest-priority rules are left out and listed as get_rule pointers.
  *   --with-shadcn       Cursor only: run `npx shadcn@latest mcp init --client cursor` in target.
+ *   --all-skills        Codex / Pi: copy every skill into .agents/skills instead of the router set
+ *                       (config/router-skills.json, ADR-0027). The full set overflows Codex's skill list.
  *   --overwrite         Skip backups and overwrite existing harness folders.
  *   --force             Allow a target outside process.cwd() (path-containment bypass).
  *
  * Per harness (only the selected folders are created — nothing else is touched):
  *   cursor       .cursor/{commands,rules,skills,agents,hooks,scripts,docs/templates}, config/, .cursor-plugin/plugin.json
- *   claude_code  .claude/{skills/<id>,agents,rules (converted .md),commands (flat pn-*.md)}
- *   codex        .agents/skills/<id>, AGENTS.md managed pnCore block
- *   pi           .agents/skills/<id>, .pi/prompts/pn-*.md, AGENTS.md managed pnCore block
+ *   claude_code  .claude/{skills/<id>,agents,rules (converted .md),commands (flat pn-*.md)},
+ *                .claude/hooks/pn-indicator-stop.mjs + a Stop entry merged into .claude/settings.json
+ *   codex        .agents/skills/<id> (router set), AGENTS.md managed pnCore block
+ *   pi           .agents/skills/<id> (router set), .pi/prompts/pn-*.md, AGENTS.md managed pnCore block
  */
 import {
   cpSync,
@@ -72,6 +75,7 @@ const FLAGS = new Set([
   "--force",
   "--with-mcp-config",
   "--inline-rules",
+  "--all-skills",
 ]);
 const argv = process.argv.slice(2);
 const withShadcn = argv.includes("--with-shadcn");
@@ -79,6 +83,7 @@ const allowOverwrite = argv.includes("--overwrite");
 const forcePath = argv.includes("--force");
 const withMcpConfig = argv.includes("--with-mcp-config");
 const inlineRules = argv.includes("--inline-rules");
+const allSkills = argv.includes("--all-skills");
 
 let harnessArg = "auto";
 const positional = [];
@@ -204,8 +209,11 @@ function writeText(dest, content) {
   writeFileSync(dest, content);
 }
 
-/** plugins/pnCore/skills/<category>/<id>/ → <skillsDir>/<id>/ (flat ids; harness skill loaders are not category-aware). */
-function copySkillsFlat(skillsDir) {
+/**
+ * plugins/pnCore/skills/<category>/<id>/ → <skillsDir>/<id>/ (flat ids; harness skill loaders are not category-aware).
+ * @param {string} skillsDir @param {Set<string> | null} [only] copy only these ids
+ */
+function copySkillsFlat(skillsDir, only = null) {
   const src = join(pluginRoot, "skills");
   if (!existsSync(src)) return 0;
   const destRoot = join(targetRoot, skillsDir);
@@ -216,13 +224,17 @@ function copySkillsFlat(skillsDir) {
       if (!skill.isDirectory()) continue;
       const from = join(src, cat.name, skill.name);
       if (!existsSync(join(from, "SKILL.md"))) continue;
+      if (only && !only.has(skill.name)) continue;
       const to = join(destRoot, skill.name);
       mkdirSync(dirname(to), { recursive: true });
       cpSync(from, to, { recursive: true, errorOnExist: !allowOverwrite, force: allowOverwrite });
       n++;
     }
   }
-  console.log(`Copied -> ./${skillsDir}/ (${n} skills, flat ids)`);
+  const label = only
+    ? `${n} router skills, flat ids; the rest load with get_skill`
+    : `${n} skills, flat ids`;
+  console.log(`Copied -> ./${skillsDir}/ (${label})`);
   return n;
 }
 
@@ -422,6 +434,43 @@ function installCursor() {
 
 // ─── Claude Code ────────────────────────────────────────────────────────────
 
+const INDICATOR_HOOK_COMMAND = 'node "$CLAUDE_PROJECT_DIR/.claude/hooks/pn-indicator-stop.mjs"';
+
+/** Add the pnCore indicator Stop hook to Claude Code settings once; keeps every other key. */
+function mergeIndicatorStopHook(settings) {
+  const out = { ...settings, hooks: { ...(settings.hooks ?? {}) } };
+  const stop = Array.isArray(out.hooks.Stop) ? [...out.hooks.Stop] : [];
+  const present = stop.some((g) =>
+    (g?.hooks ?? []).some((h) => String(h?.command ?? "").includes("pn-indicator-stop.mjs"))
+  );
+  if (!present) stop.push({ hooks: [{ type: "command", command: INDICATOR_HOOK_COMMAND }] });
+  out.hooks.Stop = stop;
+  return out;
+}
+
+/** ADR-0028: log pnCore-touched turns whose reply lacks the context tag. */
+function installIndicatorStopHook(layout) {
+  const dest = join(targetRoot, ".claude", "hooks", "pn-indicator-stop.mjs");
+  mkdirSync(dirname(dest), { recursive: true });
+  copyFileSync(join(pluginRoot, "scripts", "pn-indicator-stop.mjs"), dest);
+  const settingsPath = join(targetRoot, layout.hooks.path);
+  let settings = {};
+  if (existsSync(settingsPath)) {
+    try {
+      settings = JSON.parse(readFileSync(settingsPath, "utf8"));
+    } catch {
+      console.warn(
+        `Note: ${layout.hooks.path} is not valid JSON; the indicator Stop hook was not added.`
+      );
+      return;
+    }
+  }
+  writeText(settingsPath, `${JSON.stringify(mergeIndicatorStopHook(settings), null, 2)}\n`);
+  console.log(
+    `Hook -> ./${layout.hooks.path} Stop: pn-indicator-stop (misses go to .pncore/indicator-misses.jsonl)`
+  );
+}
+
 function installClaudeCode() {
   const layout = HARNESS_LAYOUTS.claude_code;
   backupDir(".claude");
@@ -429,6 +478,7 @@ function installClaudeCode() {
   copyTree(join(pluginRoot, "agents"), join(targetRoot, layout.agentsDir));
   writeConvertedRules(layout);
   copyPromptsFlat(layout.commandsDir);
+  installIndicatorStopHook(layout);
   console.log(
     "Note: the Cursor stop hook (continual learning) is not ported to .claude/settings.json; run /pn-retro or the pn-continual-learning skill manually."
   );
@@ -436,11 +486,45 @@ function installClaudeCode() {
 
 // ─── Codex / Pi (shared .agents/skills + AGENTS.md block) ───────────────────
 
+/** Router skill ids for .agents/skills (ADR-0027). */
+function routerSkillIds() {
+  const cfg = JSON.parse(readFileSync(join(pluginRoot, "config", "router-skills.json"), "utf8"));
+  return new Set(cfg.skills);
+}
+
+/** pnCore catalog ids (flat), to spot skills an earlier full install left behind. */
+function catalogSkillIds() {
+  const src = join(pluginRoot, "skills");
+  const ids = new Set();
+  for (const cat of readdirSync(src, { withFileTypes: true })) {
+    if (!cat.isDirectory()) continue;
+    for (const s of readdirSync(join(src, cat.name), { withFileTypes: true }))
+      if (s.isDirectory()) ids.add(s.name);
+  }
+  return ids;
+}
+
 function installAgentsSkillsOnce(done) {
   const dir = HARNESS_LAYOUTS.codex.skillsDir;
   if (done.has(dir)) return;
   done.add(dir);
-  copySkillsFlat(dir);
+  if (allSkills) {
+    copySkillsFlat(dir);
+    console.warn(
+      "Note: --all-skills puts every pnCore skill in .agents/skills; Codex shortens or drops entries past about 8,000 characters of skill list."
+    );
+    return;
+  }
+  const router = routerSkillIds();
+  copySkillsFlat(dir, router);
+  const destRoot = join(targetRoot, dir);
+  const catalog = catalogSkillIds();
+  const stale = readdirSync(destRoot).filter((id) => catalog.has(id) && !router.has(id));
+  if (stale.length > 0) {
+    console.warn(
+      `Note: ${stale.length} pnCore skills outside the router set are still in ./${dir}/ from an earlier install. Delete them to keep the skill list inside Codex's budget; MCP get_skill serves them.`
+    );
+  }
 }
 
 function installCodex(done) {

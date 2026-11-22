@@ -1,16 +1,16 @@
 # pn-core-mcp
 
-MCP engine for [pnCore](https://github.com/perniemann/pnCore) **0.23.1**: `workflow_step` plus the other tools, `pn-core://` resources, and canonical content under `content/`. Four harness adapters (Cursor, Claude Code, Codex, Pi) consume that same engine. Use from any MCP client without installing a harness plugin.
+MCP engine for [pnCore](https://github.com/perniemann/pnCore) **0.26.1**: `workflow_step` plus the other tools, `pn-core://` resources, and canonical content under `content/`. Four harness adapters (Cursor, Claude Code, Codex, Pi) consume that same engine. Use from any MCP client without installing a harness plugin.
 
 ## Installation
 
-**Install (Cursor)** — one-click deeplink (same badge as [repo README](../../README.md#mcp-any-mcp-client)):
+**Install (Cursor)**: one-click deeplink (same badge as [repo README](../../README.md#mcp-any-mcp-client)):
 
 [![Install MCP](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=pn-core&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIi0tcGFja2FnZT1naXQraHR0cHM6Ly9naXRodWIuY29tL3Blcm5pZW1hbm4vcG5Db3JlLmdpdCNtYWluIiwiLS0iLCJwbi1jb3JlIl0sImVudiI6eyJHSVRfVEVSTUlOQUxfUFJPTVBUIjoiMCIsIkdJVF9BU0tQQVNTIjoiZWNobyJ9fQ==)
 
 Or use `cursor://` in-app: `cursor://anysphere.cursor-deeplink/mcp/install?name=pn-core&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIi0tcGFja2FnZT1naXQraHR0cHM6Ly9naXRodWIuY29tL3Blcm5pZW1hbm4vcG5Db3JlLmdpdCNtYWluIiwiLS0iLCJwbi1jb3JlIl0sImVudiI6eyJHSVRfVEVSTUlOQUxfUFJPTVBUIjoiMCIsIkdJVF9BU0tQQVNTIjoiZWNobyJ9fQ==`
 
-Default uses `npx --package` + the **`pn-core` bin** (via `-- pn-core`) so npx resolves the entry inside the install tree. Do **not** use `node packages/pn-core-mcp/dist/index.js` in npx configs — that path is relative to the MCP host’s working directory, not the package. Run `npm run mcp-deeplink` from repo root to regenerate links if the config changes.
+Default uses `npx --package` + the **`pn-core` bin** (via `-- pn-core`) so npx resolves the entry inside the install tree. Do **not** use `node packages/pn-core-mcp/dist/index.js` in npx configs: that path is relative to the MCP host’s working directory, not the package. Run `npm run mcp-deeplink` from repo root to regenerate links if the config changes.
 
 **Manual MCP configuration**
 
@@ -30,7 +30,7 @@ Add to your MCP config (e.g. `~/.cursor/mcp.json` or Cursor Settings → MCP):
 
 `GIT_TERMINAL_PROMPT=0` and `GIT_ASKPASS=echo` stop git from blocking on a credential prompt (Cursor then shows an error instead of spinning forever). Override a TTY pre-warm exit with `PNCORE_MCP_ALLOW_TTY=1`.
 
-**This pnCore checkout (Cursor Desktop):** use the committed [`.cursor/mcp.json`](../../.cursor/mcp.json) — `"command": "node"`, `"args": ["packages/pn-core-mcp/dist/index.js"]` — with cwd = repo root. That skips `npx` git clone. Do **not** append `node packages/…` after `npx`.
+**This pnCore checkout (Cursor Desktop):** use the committed [`.cursor/mcp.json`](../../.cursor/mcp.json): `"command": "node"`, `"args": ["packages/pn-core-mcp/dist/index.js"]`, with cwd = repo root. That skips `npx` git clone. Do **not** append `node packages/…` after `npx`.
 
 **Cloud Agents:** dashboard MCP JSON is injected at boot and does not read project `.cursor/mcp.json`. Paste the same `node` + `packages/pn-core-mcp/dist/index.js` entry there. Existing runs keep the injected config until you start a new agent.
 
@@ -38,26 +38,26 @@ Add to your MCP config (e.g. `~/.cursor/mcp.json` or Cursor Settings → MCP):
 
 ### Windows: if you still see `'pn-core' is not recognized`
 
-Use the **`--package=git+…`** form with **`-- pn-core`** (as above). Older configs that ran `npx -y git+...` **without** `--package` tried to execute the bin name without putting the install’s `.bin` on PATH — that fails on Windows. Do **not** switch to `node packages/pn-core-mcp/dist/index.js`; that breaks on all platforms for the same CWD reason.
+Use the **`--package=git+…`** form with **`-- pn-core`** (as above). Older configs that ran `npx -y git+...` **without** `--package` tried to execute the bin name without putting the install’s `.bin` on PATH: that fails on Windows. Do **not** switch to `node packages/pn-core-mcp/dist/index.js`; that breaks on all platforms for the same CWD reason.
 
-**Do not** use `node packages/pn-core-mcp/dist/index.js` after `--` — that path is resolved from **Cursor's cwd** (often your home directory), not the npx install, and fails with `Cannot find module '…\\Users\\you\\packages\\pn-core-mcp\\dist\\index.js'`.
+**Do not** use `node packages/pn-core-mcp/dist/index.js` after `--`, that path is resolved from **Cursor's cwd** (often your home directory), not the npx install, and fails with `Cannot find module '…\\Users\\you\\packages\\pn-core-mcp\\dist\\index.js'`.
 
-**Reliable fix (clone + node path — developers only):** From this repo root run:
+**Reliable fix (clone + node path, developers only):** From this repo root run:
 
 ```bash
 npm run build:mcp
 npm run mcp-config:dev
 ```
 
-Then reload Cursor. `mcp-config:dev` writes your global `~/.cursor/mcp.json` (or `%USERPROFILE%\.cursor\mcp.json`) with `"command": "node"` and the absolute path to `packages/pn-core-mcp/dist/index.js`. **This path is machine-specific** — do not copy to other PCs. For portable install use the **one-click deeplink** or README MCP JSON.
+Then reload Cursor. `mcp-config:dev` writes your global `~/.cursor/mcp.json` (or `%USERPROFILE%\.cursor\mcp.json`) with `"command": "node"` and the absolute path to `packages/pn-core-mcp/dist/index.js`. **This path is machine-specific**, do not copy to other PCs. For portable install use the **one-click deeplink** or README MCP JSON.
 
-**Stable Node binary:** Cursor uses whatever `node` is first on PATH. To pin Node 22, set **`PNCORE_MCP_NODE`** to the full path to `node.exe`, then run `npm run mcp-config:dev` — the written `command` will be that path.
+**Stable Node binary:** Cursor uses whatever `node` is first on PATH. To pin Node 22, set **`PNCORE_MCP_NODE`** to the full path to `node.exe`, then run `npm run mcp-config:dev`, the written `command` will be that path.
 
 **If MCP logs `ERR_UNSUPPORTED_DIR_IMPORT` / `ERR_MODULE_NOT_FOUND` … `zod/v3` or `zod/v4`:** Use **Node 22** (`PNCORE_MCP_NODE` or `npm run mcp-pin`). From repo root run **`npm run build:mcp`** (`npm dedupe` + **`scripts/prune-sdk-nested-zod.mjs`** on **`prebuild`/`prestart`**). **`src/fix-sdk-zod-runtime.ts`** runs again at MCP startup so **`node dist/index.js`** rewires **`sdk/node_modules/zod`** to the hoisted package (junction/symlink or copy) when npm leaves a broken nested tree.
 
 **Vitest:** `vitest-zod-setup.ts` runs first so MCP client imports in tests hit the same fix before the SDK loads.
 
-**Manual alternative (dev only):** Clone the repo, run `npm run build:mcp`, then set MCP config to `"command": "node"`, `"args": ["X:\\path\\to\\pnCore\\packages\\pn-core-mcp\\dist\\index.js"]` (use your actual path). For portable install use the **one-click deeplink** or README MCP JSON — no clone required.
+**Manual alternative (dev only):** Clone the repo, run `npm run build:mcp`, then set MCP config to `"command": "node"`, `"args": ["X:\\path\\to\\pnCore\\packages\\pn-core-mcp\\dist\\index.js"]` (use your actual path). For portable install use the **one-click deeplink** or README MCP JSON, no clone required.
 
 ### Troubleshooting: MCP won't connect in Cursor
 
@@ -100,7 +100,7 @@ From this package or repo root:
 | `npm run build` | Compile TypeScript to `dist/`. |
 | `npm run start` | Run the MCP server (`node dist/index.js`). |
 
-From repo root only: `npm run build:mcp`, `npm run sync:content`, `npm run mcp-config:dev` (local clone) — see [CONTRIBUTING.md — Scripts](../../CONTRIBUTING.md#scripts).
+From repo root only: `npm run build:mcp`, `npm run sync:content`, `npm run mcp-config:dev` (local clone): see [CONTRIBUTING.md, Scripts](../../CONTRIBUTING.md#scripts).
 
 ## Content (canonical)
 
@@ -112,9 +112,9 @@ Skills, agents, rules, config, docs, reference, and hooks in this package live i
 |------|------|-------------|
 | **health** | read | Health check: status, version, **`calendarDateUtc`** / **`timestampUtc`** (UTC), capabilities. |
 | **list_workflow_types** | read | Workflow types and step counts. |
-| **project_context** | read | Cold-session packet from `docs/refs/context-index.json` + `.pncore` trails (`mode` operator / agent). Every packet carries `budget` (chars, tokens ≈ chars ÷ 4). **`max_tokens`** packs it deterministically — trail oldest-first, settled artifacts' notes, settled artifacts, pointers, trail, artifacts, drift notes — and lists the cuts in `budget.steps` (ADR-0021). Drift, `next_incomplete`, `resume`, `counts`, `active_run`, `consistency` are never dropped. **`active_run`** reports the resolved state path and its source (`state_path` arg > `PNCORE_STATE_PATH` > default), the selected `run_id`, last served vs completed step, and `step_status`; **`consistency`** lists mismatches between state file, run log, handoff log, and last save. With an error-severity mismatch no run is selected silently (`run_id: null`). `drift_scope: "indexed_files"` marks that drift covers context-index files only. Artifacts with `lifecycle` `historical` / `superseded` are evidence only: excluded from drift and `next_incomplete`. **`active_run.declared_current`** compares the run of the artifact named by `pointers.current_checkpoint` with the state run. |
+| **project_context** | read | Cold-session packet from `docs/refs/context-index.json` + `.pncore` trails (`mode` operator / agent). Every packet carries `budget` (chars, tokens ≈ chars ÷ 4). **`max_tokens`** packs it deterministically (trail oldest-first, settled artifacts' notes, settled artifacts, pointers, trail, artifacts, drift notes) and lists the cuts in `budget.steps` (ADR-0021). Drift, `next_incomplete`, `resume`, `counts`, `active_run`, `consistency` are never dropped. **`active_run`** reports the resolved state path and its source (`state_path` arg > `PNCORE_STATE_PATH` > default), the selected `run_id`, last served vs completed step, and `step_status`; **`consistency`** lists mismatches between state file, run log, handoff log, and last save. With an error-severity mismatch no run is selected silently (`run_id: null`). `drift_scope: "indexed_files"` marks that drift covers context-index files only. Artifacts with `lifecycle` `historical` / `superseded` are evidence only: excluded from drift and `next_incomplete`. **`active_run.declared_current`** compares the run of the artifact named by `pointers.current_checkpoint` with the state run. |
 | **harness_detect** | read | Active harness (`cursor` / `claude_code` / `codex` / `pi`) with evidence, plus the per-harness layout table (instructions file, rules dir + format, skills dir, commands dir, agents dir, MCP config, hooks). Precedence: **`PNCORE_HARNESS`** > process env signals > workspace folders. |
-| **harness_scaffold** | write | Onboarding files for the selected harnesses only: project context (`.cursor/rules/*.mdc`, `.claude/rules/*.md`, or managed `AGENTS.md` block), project skill in the harness skills dir, trailer rule, opt-in `mcp_config`. `dryRun` returns the plan with contents; existing files skipped unless `overwrite`; workspace-contained. For Codex the response adds `instructionsBudget` — `AGENTS.md` bytes against the 32 KiB chain cap (`PNCORE_AGENTS_MD_CAP_BYTES` overrides). Reference: `pn-core://reference/harness-matrix.md`. |
+| **harness_scaffold** | write | Onboarding files for the selected harnesses only: project context (`.cursor/rules/*.mdc`, `.claude/rules/*.md`, or managed `AGENTS.md` block), project skill in the harness skills dir, trailer rule, opt-in `mcp_config`. `dryRun` returns the plan with contents; existing files skipped unless `overwrite`; workspace-contained. For Codex the response adds `instructionsBudget`, `AGENTS.md` bytes against the 32 KiB chain cap (`PNCORE_AGENTS_MD_CAP_BYTES` overrides). Reference: `pn-core://reference/harness-matrix.md`. |
 | **suggest_model_tier** | read | Suggested LLM model tier for a workflow step or subagent role (`fast` / `standard` / `premium` / `premium_thinking` / `long_horizon`). Pass `role` (`explorer` | `builder` | `judge` | `checker` | `orchestrator`) for subagent routing; omit `step` for the full per-step table. Resolves `PNCORE_FEATURES.modelTierOverrides` and `tierAliases`. |
 | **list_skills** | read | Skill ids and descriptions. |
 | **get_skill** | read | Full skill markdown (truncated per **`PNCORE_MAX_RESOURCE_CHARS`** / features). |
@@ -124,7 +124,7 @@ Skills, agents, rules, config, docs, reference, and hooks in this package live i
 | **get_command** | read | Full command markdown (same truncation rules). |
 | **list_rules** | read | Rule ids and descriptions. |
 | **get_rule** | read | Full rule markdown (same truncation rules). |
-| **workflow_step** | write | Deterministic workflow engine; response includes **`run_id`**. Echo **`run_id`** in `state` on every call. Human gates may require **`pncoreHumanGateTicket`**. Appends to run log and may consume single-use gate tickets — retries are not benign when approval is required. |
+| **workflow_step** | write | Deterministic workflow engine; response includes **`run_id`**. Echo **`run_id`** in `state` on every call. Human gates may require **`pncoreHumanGateTicket`**. Appends to run log and may consume single-use gate tickets, retries are not benign when approval is required. |
 | **workflow_handoff_append** | append | Append bounded step summary line for a **`run_id`**. |
 | **workflow_verify** | write | No-shell catalog verify; returns a GateReport with **`failureClass`** (`none` / `missing_input` / `infrastructure` / `behavioral`; diagnostic only, never changes a gate). **`inputs`** (`path`, `sha256`, `access`) and **`env_required`** are checked in the same call right before spawn; a failed check records a `preflight` run event and launches nothing. An `env_required` name reaches the command only when the operator lists it in **`PNCORE_VERIFY_PASS_ENV`** (comma-separated; `PNCORE_*` never qualifies), and its value is redacted from the output tails. **`preflight_only`** runs just the checks and works without `disposeVerify`. Spawning requires **`disposeVerify`**; fail-closed without a jail unless **`PNCORE_VERIFY_SANDBOX=restricted`** or the Vitest test backend (ADR-0022). |
 | **workflow_run_query** | read | Query one **`run_id`** across the `.pncore` trails: verify/acceptance (default), `kinds` `preflight`, `step` (spans: `stepIndex`, `sinceLastStepMs`, `engineMs`, routing), `load`, `usage`, `handoff`, `gate`; `timeline: true` joins them per step with totals and the slowest step (ADR-0020). |
@@ -142,7 +142,7 @@ See rule **`pn-tool-risk-policy`** for the full matrix.
 
 Path parameters for **report_usage**, **gate_log_append**, **workflow_state_save**, **workflow_state_load**, and **workflow_handoff_append** should be under the workspace (e.g. `.pncore/...`). When `process.cwd()` is not the workspace root, pass explicit paths. Env: **`PNCORE_STATE_PATH`**, **`PNCORE_HANDOFF_LOG`**, **`PNCORE_FEATURES`** (JSON overrides `pn-core://config/features.json`), **`PNCORE_USAGE_SCAN_BYTES`**, **`PNCORE_USAGE_WARN_INPUT_TOKENS`**, **`PNCORE_MAX_RESOURCE_CHARS`**, **`PNCORE_SKILL_LOG_SAMPLE_RATE`** (integer N; writes 1-in-N entries to skill-load log; default 1 = log every call), **`PNCORE_HARNESS`** (comma list `cursor` / `claude_code` / `codex` / `pi`; authoritative for `harness_detect` / `harness_scaffold` when the host exposes no env signal), **`PNCORE_AGENTS_MD_CAP_BYTES`** (byte cap the installer and `harness_scaffold` measure `AGENTS.md` against for Codex; default 32768 = Codex `project_doc_max_bytes`).
 
-**Model-tier suggestions:** `workflow_step` responses include a `suggestedModelTier` field — `{ tier, exemplar, rationale }` — and prepend a short `**Suggested model tier:**` hint to the instruction when the tier is non-default. Pass **`leadModelTier`**, **`sessionModel`**, or **`orchestrationIntent`** in state to receive **`orchestrationMode`** (`lead` | `light_delegate` | `implementer`) and **`subagentTierHints`** on parallel fan-out (see rule **`pn-orchestrator-lead`**). Tiers: `fast` (e.g. composer-2.5-fast), `standard` (e.g. claude-4.6-sonnet-medium-thinking), `premium` (e.g. claude-opus-4-8-thinking-high), `premium_thinking` (e.g. claude-opus-4-8-thinking-high + MAX Mode), `long_horizon` (e.g. claude-fable-5-1 — loop orchestration / escalation; alternates in `TIER_META`). Subagent routing: `pn-core://reference/subagent-routing.md`; loops: `pn-core://reference/loop-orchestration-guide.md`. Disambiguation: pnCore uses *delivery tier* (MVP/Full), *context tier* (1–4), and *model tier* — see [model-tiers.ts](src/model-tiers.ts). Override per-step via `PNCORE_FEATURES.modelTierOverrides` keyed `<workflowType>.<step>`; remap globally via `PNCORE_FEATURES.tierAliases` (e.g. `{"premium_thinking":"premium"}` or `{"long_horizon":"premium"}` when Fable is unavailable). **Pi:** pass the same state keys when using pn-core MCP native tools; `/pn program` and `/pn build` templates document lead orchestration.
+**Model-tier suggestions:** `workflow_step` responses include a `suggestedModelTier` field: `{ tier, exemplar, rationale }`, and prepend a short `**Suggested model tier:**` hint to the instruction when the tier is non-default. Pass **`leadModelTier`**, **`sessionModel`**, or **`orchestrationIntent`** in state to receive **`orchestrationMode`** (`lead` | `light_delegate` | `implementer`) and **`subagentTierHints`** on parallel fan-out (see rule **`pn-orchestrator-lead`**). Tiers: `fast` (e.g. composer-2.5-fast), `standard` (e.g. claude-4.6-sonnet-medium-thinking), `premium` (e.g. claude-opus-4-8-thinking-high), `premium_thinking` (e.g. claude-opus-4-8-thinking-high + MAX Mode), `long_horizon` (e.g. claude-fable-5-1, loop orchestration / escalation; alternates in `TIER_META`). Subagent routing: `pn-core://reference/subagent-routing.md`; loops: `pn-core://reference/loop-orchestration-guide.md`. Disambiguation: pnCore uses *delivery tier* (MVP/Full), *context tier* (1–4), and *model tier*, see [model-tiers.ts](src/model-tiers.ts). Override per-step via `PNCORE_FEATURES.modelTierOverrides` keyed `<workflowType>.<step>`; remap globally via `PNCORE_FEATURES.tierAliases` (e.g. `{"premium_thinking":"premium"}` or `{"long_horizon":"premium"}` when Fable is unavailable). **Pi:** pass the same state keys when using pn-core MCP native tools; `/pn program` and `/pn build` templates document lead orchestration.
 
 **`PNCORE_CONTENT_PATH` trust boundary:** This env var overrides the content directory that the server reads skills, agents, commands, rules, config, and reference docs from. It must point to a trusted directory you control. A malicious value could cause the server to serve content from an untrusted location. Only set it to a path you own; never derive it from user input. The server resolves all resource paths relative to this root and rejects traversals (`../`) within resource lookups, but that guarantee only holds when `PNCORE_CONTENT_PATH` itself is trusted.
 
@@ -191,11 +191,11 @@ Append one JSON line per call for gate audits (complements `approval_checkpoint`
 
 ### Run log and trajectory replay (ADR-0019)
 
-Every successful `workflow_step` appends one line to `.pncore/workflow-runs.jsonl` (`PNCORE_RUN_LOG` overrides the path; empty disables): `ts`, `runId`, `workflowType`, `step`, `nextStep`, `gate`, `done`, and when present `workflowPhase`, `parallel`, `taskIds`, plus `stateKeys`. Set **`PNCORE_RUN_LOG_STATE=1`** in the server env to also record a `state` snapshot (strings capped at 240 chars, tickets redacted) — that makes a run replayable. `npm run trajectory:record -- --list` shows recorded runs; `npm run trajectory:record -- --run-id <id> --name <kebab-name>` writes `src/fixtures/trajectories/<name>.json`, which `src/trajectory.test.ts` replays through the engine in `npm run test:full` and fails on any routing drift. Schema: `pn-core://reference/workflow-runs-schema.md`.
+Every successful `workflow_step` appends one line to `.pncore/workflow-runs.jsonl` (`PNCORE_RUN_LOG` overrides the path; empty disables): `ts`, `runId`, `workflowType`, `step`, `nextStep`, `gate`, `done`, and when present `workflowPhase`, `parallel`, `taskIds`, plus `stateKeys`. Set **`PNCORE_RUN_LOG_STATE=1`** in the server env to also record a `state` snapshot (strings capped at 240 chars, tickets redacted), that makes a run replayable. `npm run trajectory:record -- --list` shows recorded runs; `npm run trajectory:record -- --run-id <id> --name <kebab-name>` writes `src/fixtures/trajectories/<name>.json`, which `src/trajectory.test.ts` replays through the engine in `npm run test:full` and fails on any routing drift. Schema: `pn-core://reference/workflow-runs-schema.md`.
 
 ### Step spans (ADR-0020)
 
-The same run-log line is a span: `stepIndex` (0-based, monotonic per `runId`), `sinceLastStepMs` (agent wall time since the previous step of that run; `null` on the first), and `engineMs` (time inside the engine). `get_skill` / `get_agent` / `get_command` / `get_rule` calls that pass `run_id` are tagged with the current `stepIndex` in `skill-load-log.jsonl`. `workflow_run_query` reads all of it: `kinds: ["step", "load", "usage", "handoff", "gate"]` returns the trails as one time-ordered event list, and `timeline: true` joins them per step — loads, tokens, handoff, gates, verify attestations per step; `totals`; `wallMs`; `slowest` (the step whose preceding agent work took longest); `accepted`; per-step `models` from usage lines that carry model fields, and `modelMismatches` (lines whose `responseModel` differs from `requestModel`, with their `observedBy`). Nothing is exported to an OTel backend; the trails stay local JSONL.
+The same run-log line is a span: `stepIndex` (0-based, monotonic per `runId`), `sinceLastStepMs` (agent wall time since the previous step of that run; `null` on the first), and `engineMs` (time inside the engine). `get_skill` / `get_agent` / `get_command` / `get_rule` calls that pass `run_id` are tagged with the current `stepIndex` in `skill-load-log.jsonl`. `workflow_run_query` reads all of it: `kinds: ["step", "load", "usage", "handoff", "gate"]` returns the trails as one time-ordered event list, and `timeline: true` joins them per step: loads, tokens, handoff, gates, verify attestations per step; `totals`; `wallMs`; `slowest` (the step whose preceding agent work took longest); `accepted`; per-step `models` from usage lines that carry model fields, and `modelMismatches` (lines whose `responseModel` differs from `requestModel`, with their `observedBy`). Nothing is exported to an OTel backend; the trails stay local JSONL.
 
 ### Context budget (ADR-0021)
 
@@ -205,7 +205,7 @@ Measurement is `chars ÷ 4` everywhere (`scripts/measure-tokens.mjs`, dashboard,
 
 MCP prompts expose agents and commands as reusable prompt templates. Clients (e.g. Cursor) can list them via `prompts/list` and fetch content via `prompts/get`. Each prompt accepts an optional `context` argument to append user-specific instructions.
 
-**Agents and commands are prompts, not MCP tools.** Load them with `get_agent`, `get_command`, or `prompts/get` — do not call `CallMcpTool` with names like `pn-skeptic` or `pn-build`.
+**Agents and commands are prompts, not MCP tools.** Load them with `get_agent`, `get_command`, or `prompts/get`, do not call `CallMcpTool` with names like `pn-skeptic` or `pn-build`.
 
 | Prompt | Type | Description |
 |--------|------|-------------|
@@ -217,11 +217,11 @@ MCP prompts expose agents and commands as reusable prompt templates. Clients (e.
 | **pn-new** | Command | Easiest entry: (1) references yes/no; (2) intent (full auto | design focused | involved). Context-dependent flow. |
 | *...and others* | | One prompt per public agent and command. Internal orchestrators (`pn-project-builder` and the other `agents-internal` ids) are loaded by `pn-build` / `full_dev`, not as a user-picked slash entry. |
 
-**pn-assets:** Single entry for image or SVG. Use `get_command("pn-assets")` to run it; it asks type (SVG/image/placeholder) then routes to workflow_step("image_create") (format SVG) or workflow_step("image_create") or placeholder URLs. When the build has UI (landing page, frontend, product page, components), full_dev and orchestrator flows **automatically include** pn-assets-manager—logos, icons, hero images, or placeholders without explicit request.
+**pn-assets:** Single entry for image or SVG. Use `get_command("pn-assets")` to run it; it asks type (SVG/image/placeholder) then routes to workflow_step("image_create") (format SVG) or workflow_step("image_create") or placeholder URLs. When the build has UI (landing page, frontend, product page, components), full_dev and orchestrator flows **automatically include** pn-assets-manager, logos, icons, hero images, or placeholders without explicit request.
 
 Use `list_*` to discover ids, then `get_*` to load the content. For build/design, say **"Build [X]. Use the design workflow."** or **"Build [X]. Use the full dev workflow."** The model uses the workflow tool when available; control flow is deterministic and discovery and skeptic cannot be skipped. The client can run any pnCore workflow (discovery, prior-art research, plans, skeptic challenge, full dev loop, assets, and others) by fetching the relevant skill, agent, or command and following it.
 
-**Startup ideas:** `get_command("pn-pressure-test")` loads the skill of the same id—verdict, scorecard, fatal flaws, and a minimal MVP test—before you invest in a PRD or build. Detailed mode checklists live in `content/skills/pm/pn-pressure-test/references/playbooks.md` (synced to the plugin under `skills/pm/pn-pressure-test/`).
+**Startup ideas:** `get_command("pn-pressure-test")` loads the skill of the same id, verdict, scorecard, fatal flaws, and a minimal MVP test, before you invest in a PRD or build. Detailed mode checklists live in `content/skills/pm/pn-pressure-test/references/playbooks.md` (synced to the plugin under `skills/pm/pn-pressure-test/`).
 
 ### Example: pitch-to-app (full pnCore flow)
 
@@ -282,30 +282,30 @@ Then `config/specialists.json` and `config/stacks.json` will be available when t
 For maximum user involvement (questionnaire at every step, confirmation before plan/specialists/review):
 
 1. **New project:** Run `get_command("pn-new")` first. pn-new asks about references and intent (full auto, design focused, **involved**). Choose **involved** for gates at discovery, prior-art, plan, specialist list, and review.
-2. **Do not bypass pn-new** for new projects—do not call `workflow_step("full_dev", ...)` directly until pn-new has run and intent is known.
+2. **Do not bypass pn-new** for new projects, do not call `workflow_step("full_dev", ...)` directly until pn-new has run and intent is known.
 3. **When using workflow_step for full_dev** and the user wants full involvement, pass `intent: "involved"` in state: `workflow_step("full_dev", 0, { intent: "involved" })`. The workflow enforces strict human gates when intent is involved.
 
-**Example first message (copy-paste):** `Run get_command("pn-new"). I want to build [project name]. Refs in .ref/. I want Involved — ask each discovery section, gate on prior-art, plan, specialist list, and review.` Replace `[project name]` with your app name. If no refs, omit "Refs in .ref/".
+**Example first message (copy-paste):** `Run get_command("pn-new"). I want to build [project name]. Refs in .ref/. I want Involved: ask each discovery section, gate on prior-art, plan, specialist list, and review.` Replace `[project name]` with your app name. If no refs, omit "Refs in .ref/".
 
 **Example: market-ready from blank project:**
 
 ```
 pn-new ▲
 
-Build [your-project-name] — [one-line description: e.g. landing page, auth, core features].
+Build [your-project-name]: [one-line description: e.g. landing page, auth, core features].
 References: [path or "in .ref/"] (pitch, requirements, design assets).
 Analyze both: prior art and design.
-Intent: Involved — full gates at discovery, prior-art, plan, specialist list, and review.
+Intent: Involved, full gates at discovery, prior-art, plan, specialist list, and review.
 Delivery tier: full. Design ambition: distinctive.
 ```
 
 Answer Step 0: Yes, Both. Step 1: (3) Involved. Use the pn-documentation skill (`get_skill("pn-documentation")`) to format/check `docs/discovery/`, `docs/plans/`, `docs/research/`.
 
-**Avoid:** Saying only "Build [X]" or "Create the [X] app" for new projects—that can route to `workflow_step` directly and behave like full auto. Start with pn-new when you want full involvement.
+**Avoid:** Saying only "Build [X]" or "Create the [X] app" for new projects, that can route to `workflow_step` directly and behave like full auto. Start with pn-new when you want full involvement.
 
 **"pn-new" only:** If you say only `run pn-new` or `/pn-new` with nothing else, it works. The agent will ask (1) references yes/no, (2) intent (full auto / design focused / involved). Answer both, then the flow runs. You get the same gates; you just provide project context in reply to the agent's questions rather than upfront.
 
-**Project rules:** pn-new and pn-setup call `harness_detect` → `harness_scaffold` so project-context (triangle, project context, MCP bootstrap) lands in the **active harness** only — `.cursor/rules/*.mdc`, `.claude/rules/*.md`, or the managed `AGENTS.md` block. When that file is absent, pn-build-gate routes to pn-new first.
+**Project rules:** pn-new and pn-setup call `harness_detect` → `harness_scaffold` so project-context (triangle, project context, MCP bootstrap) lands in the **active harness** only, `.cursor/rules/*.mdc`, `.claude/rules/*.md`, or the managed `AGENTS.md` block. When that file is absent, pn-build-gate routes to pn-new first.
 
 See `pn-core://reference/RUNBOOK.md` for the full reference.
 
@@ -318,9 +318,9 @@ Use `workflow_step("engine_feature", 0, { engine: "unreal" })` or `{ engine: "go
 
 One engine, four harness adapters. Canonical content (skills, agents, commands, rules) lives in `content/`. Tool inventory: [Tools](#tools). Counts: root README **Catalog:** line.
 
-- **MCP (stdio)** — The engine: deterministic `workflow_step` plus the other tools, resources, and prompts. Any MCP client (Cursor, Claude Code, Codex, …).
-- **Harness files** — Slash palette / prompts, file-glob rules, agents, stop hook on Cursor. `plugin-install --harness cursor|claude_code|codex|pi` writes **only** that harness's folders. Same commands via `get_command`; rules via `get_rule`.
-- **Pi native extension** — `pi install git:…/pnCore` loads `packages/pn-core-mcp/extensions/pn-core.ts` and registers the **same tools** via `pi.registerTool()` (no subprocess MCP on Pi). See [ADR-0009](../../docs/adr/0009-pi-native-tools.md).
+- **MCP (stdio)**: The engine: deterministic `workflow_step` plus the other tools, resources, and prompts. Any MCP client (Cursor, Claude Code, Codex, …).
+- **Harness files**: Slash palette / prompts, file-glob rules, agents, stop hook on Cursor. `plugin-install --harness cursor|claude_code|codex|pi` writes **only** that harness's folders. Same commands via `get_command`; rules via `get_rule`.
+- **Pi native extension**: `pi install git:…/pnCore` loads `packages/pn-core-mcp/extensions/pn-core.ts` and registers the **same tools** via `pi.registerTool()` (no subprocess MCP on Pi). See [ADR-0009](../../docs/adr/0009-pi-native-tools.md).
 
 The intended setup is engine plus the active harness's files. On [pi.dev](https://pi.dev), `pi install` from repo root gives prompts, skills, and native tools together.
 

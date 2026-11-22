@@ -21,7 +21,7 @@ config/
 docs/                    # Repo docs; agents-md-guide.md synced from content/docs/ via npm run sync:content
 packages/pn-core-mcp/
   content/               # Canonical source for skills, agents, rules, config, docs, reference, hooks
-plugins/pnCore/        # Plugin — synced from packages/pn-core-mcp/content/ via npm run sync:content
+plugins/pnCore/        # Plugin, synced from packages/pn-core-mcp/content/ via npm run sync:content
 scripts/
 ```
 
@@ -35,8 +35,8 @@ scripts/
 |---------|------------------------|--------|------------------|------------|
 | Cursor | `AGENTS.md`, `.cursor/rules/*.mdc` | `.cursor/skills` | `.cursor/commands` | `.cursor/mcp.json` |
 | Claude Code | `CLAUDE.md`, `.claude/rules/*.md` | `.claude/skills` | `.claude/commands` | `.mcp.json` |
-| Codex | managed pnCore block in `AGENTS.md` | `.agents/skills` | MCP prompts | `.codex/config.toml` |
-| Pi | managed pnCore block in `AGENTS.md` | `.agents/skills` / `.pi/skills` | `.pi/prompts`, `/pn` extension menu | `.pi/settings.json` |
+| Codex | managed pnCore block in `AGENTS.md` | `.agents/skills` (router set, ADR-0027) | MCP prompts | `.codex/config.toml` |
+| Pi | managed pnCore block in `AGENTS.md` | `.agents/skills` (router set) / `.pi/skills` | `.pi/prompts`, `/pn` extension menu | `.pi/settings.json` |
 
 The canonical matrix is `pn-core://reference/harness-matrix.md`; layout code lives in `packages/pn-core-mcp/src/harness.ts`.
 
@@ -85,7 +85,7 @@ npm run validate
 
 ### Slash commands (`content/commands/*.md`)
 
-- Long audit-style commands use `## Flow` and may include explicit progress lines (for example "Step N of M — …"). Reference: [pn-audit-api.md](../packages/pn-core-mcp/content/commands/pn-audit-api.md).
+- Long audit-style commands use `## Flow` and may include explicit progress lines (for example "Step N of M, …"). Reference: [pn-audit-api.md](../packages/pn-core-mcp/content/commands/pn-audit-api.md).
 - Short commands may omit `## Flow` when a single section is enough.
 
 ### Content vs plugin sync
