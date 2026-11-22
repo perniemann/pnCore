@@ -1,5 +1,7 @@
 import { appendFileSync, mkdirSync, existsSync } from "fs";
-import { dirname, resolve, sep } from "path";
+import { dirname } from "path";
+import { resolveInside } from "./safe-path.js";
+import { reservedTrailError } from "./trail-guard.js";
 import { randomUUID } from "crypto";
 export const defaultGateLogPath = ".pncore/gate-log.jsonl";
 export function validateWorkflowConfirmGate(input) {
@@ -19,18 +21,18 @@ export function validateWorkflowConfirmGate(input) {
 }
 /** Keep gate log paths within process.cwd() (same policy as gate_log_append). */
 export function resolveUnderCwd(filePath, cwd = process.cwd()) {
-    const normalizedBase = resolve(cwd);
-    const normalizedResolved = resolve(normalizedBase, filePath);
-    const isInside = normalizedResolved === normalizedBase || normalizedResolved.startsWith(normalizedBase + sep);
-    if (!isInside) {
-        return { error: `Path escapes workspace: ${filePath}` };
-    }
-    return { resolved: normalizedResolved };
+    const inside = resolveInside(cwd, filePath);
+    if ("error" in inside)
+        return { error: `Path escapes workspace: ${filePath} (${inside.error})` };
+    return inside;
 }
 export function appendWorkflowGateLog(entry, filePath = defaultGateLogPath, cwd = process.cwd()) {
     const safe = resolveUnderCwd(filePath, cwd);
     if ("error" in safe)
         return safe;
+    const reserved = reservedTrailError(safe.resolved, "gate", { base: cwd });
+    if (reserved)
+        return { error: reserved };
     try {
         const resolved = safe.resolved;
         const dir = dirname(resolved);

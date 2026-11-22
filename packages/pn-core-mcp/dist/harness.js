@@ -7,8 +7,9 @@
  * each harness reads instructions, rules, skills, commands, agents, and MCP config.
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
-import { dirname, join, resolve, sep } from "path";
+import { dirname, join } from "path";
 import { CODEX_AGENTS_MD_CAP_BYTES, estimateTokens, utf8Bytes } from "./context-budget.js";
+import { resolveInside } from "./safe-path.js";
 export const HARNESS_IDS = ["cursor", "claude_code", "codex", "pi"];
 export function isHarnessId(v) {
     return typeof v === "string" && HARNESS_IDS.includes(v);
@@ -584,12 +585,10 @@ export function buildScaffoldPlan(opts) {
     }
     return [...byPath.values()];
 }
+/** Contained after resolving symlinks: a symlinked harness folder cannot carry writes outside. */
 function containedIn(root, rel) {
-    const base = resolve(root);
-    const abs = resolve(base, rel);
-    if (abs !== base && !abs.startsWith(base + sep))
-        return null;
-    return abs;
+    const inside = resolveInside(root, rel);
+    return "error" in inside ? null : inside.resolved;
 }
 function mergeJsonFile(abs, addition) {
     let existing = {};
