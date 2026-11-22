@@ -6,7 +6,7 @@
  * pnCore's own install line is exempt: consumers install pnCore from this repository.
  */
 import { readFileSync, readdirSync, statSync } from "fs";
-import { join, relative } from "path";
+import { dirname, join, relative } from "path";
 import { fileURLToPath } from "url";
 
 const SELF = /github:perniemann\/pnCore\b/i;
@@ -37,7 +37,7 @@ function* walk(dir) {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const root = join(fileURLToPath(new URL(".", import.meta.url)), "..");
+  const root = join(dirname(fileURLToPath(import.meta.url)), "..");
   const content = join(root, "packages", "pn-core-mcp", "content");
   const errors = [];
   for (const file of walk(content)) {
