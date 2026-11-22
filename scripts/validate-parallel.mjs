@@ -38,6 +38,7 @@ const PARALLEL_SCRIPTS = [
   "scripts/validate-slice-verify.mjs",
   "scripts/validate-eval-yaml.mjs",
   "scripts/check-doc-links.mjs",
+  "scripts/check-unpinned-installs.mjs",
 ];
 
 /** Runs a single script and resolves with its result (buffered output). */

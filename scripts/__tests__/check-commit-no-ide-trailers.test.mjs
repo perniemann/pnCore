@@ -113,8 +113,30 @@ test("fails when Co-authored-by cursoragent trailer is present", () => {
       AFTER: after,
     });
     assert.equal(r.status, 1);
-    assert.match(`${r.stdout}\n${r.stderr}`, /Co-authored-by cursoragent/);
+    assert.match(`${r.stdout}\n${r.stderr}`, /Co-authored-by trailer.*cursoragent/);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+for (const [label, trailer, expected] of [
+  ["any Co-authored-by", "Co-authored-by: Some Human <h@example.com>", /Co-authored-by trailer/],
+  ["Claude Co-Authored-By", "Co-Authored-By: Claude <noreply@anthropic.com>", /Co-authored-by trailer/],
+  ["Claude-Session", "Claude-Session: https://claude.ai/code/session_x", /Claude-Session trailer/],
+  ["Made-with", "Made-with: Cursor", /Made-with trailer/],
+]) {
+  test(`fails on ${label}`, () => {
+    const { dir, base } = initRepo();
+    try {
+      writeFileSync(join(dir, "t.txt"), label);
+      git(dir, ["add", "t.txt"]);
+      git(dir, ["commit", "-m", `feat: x\n\n${trailer}\n`]);
+      const after = git(dir, ["rev-parse", "HEAD"]);
+      const r = runChecker(dir, { GITHUB_EVENT_NAME: "push", BEFORE: base, AFTER: after });
+      assert.equal(r.status, 1);
+      assert.match(`${r.stdout}\n${r.stderr}`, expected);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+}

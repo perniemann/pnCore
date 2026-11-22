@@ -102,9 +102,10 @@ export function resolveDiffRange() {
   }
 }
 
-/** @param {string} range */
-export function listChangedFiles(range) {
-  const out = git(["diff", "--name-only", "--diff-filter=ACMR", range]);
+/** @param {string} range @param {{ includeDeleted?: boolean }} [opts] */
+export function listChangedFiles(range, opts = {}) {
+  const filter = opts.includeDeleted ? "ACMRD" : "ACMR";
+  const out = git(["diff", "--name-only", `--diff-filter=${filter}`, range]);
   return out ? out.split(/\r?\n/).filter(Boolean) : [];
 }
 

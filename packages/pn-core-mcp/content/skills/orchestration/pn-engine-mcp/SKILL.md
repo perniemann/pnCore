@@ -7,6 +7,10 @@ description: "Compare and install a game-engine MCP server (Unreal Engine 5.x or
 
 One skill for both engines: pick the section that matches the project's engine. `engine_feature` step 0 loads this skill for either engine.
 
+## Pinning third-party servers
+
+Every install below runs third-party code. Replace `<commit-sha>` with a commit or tag you have reviewed (`git ls-remote <repo> HEAD` gives the current head); never install a moving branch. `check-unpinned-installs` fails any unpinned `github:` or `git+` install in pnCore content.
+
 ## When to use
 
 - Discovery for an Unreal Engine 5.x or Godot 4.x project that will drive the editor through MCP (`engine_feature` step 0).
@@ -135,7 +139,7 @@ Confirm the exact tool names by probing the connected server's tool list before 
 
 #### SallahBoussettah/UnrealMCP (Blueprint-heavy)
 
-1. `pip install unrealmcp` (or `pip install git+https://github.com/SallahBoussettah/UnrealMCP`)
+1. `pip install unrealmcp` (or `pip install git+https://github.com/SallahBoussettah/UnrealMCP@<commit-sha>`)
 2. Install the companion C++ plugin into your UE project (see repo README).
 3. Add to `mcp.json`:
    ```json
@@ -151,12 +155,12 @@ Confirm the exact tool names by probing the connected server's tool list before 
 
 #### kangnam7654/unreal-mcp
 
-1. `pip install git+https://github.com/kangnam7654/unreal-mcp`
+1. `pip install git+https://github.com/kangnam7654/unreal-mcp@<commit-sha>`
 2. Add to `mcp.json` similarly to Sallah above, using the package's entry-point (`python -m unreal_mcp`).
 
 #### jimhuangbwy/unreal-mcp-tools
 
-1. `npx -y github:jimhuangbwy/unreal-mcp-tools`
+1. `npx -y github:jimhuangbwy/unreal-mcp-tools#<commit-sha>`
 2. Add the resulting `mcpServers` entry to `mcp.json`.
 
 #### StraySpark Unreal MCP Server (commercial)
@@ -320,7 +324,7 @@ Confirm exact tool names by probing the connected server's tool list before writ
   "mcpServers": {
     "godot": {
       "command": "npx",
-      "args": ["-y", "github:ee0pdt/Godot-MCP"],
+      "args": ["-y", "github:ee0pdt/Godot-MCP#<commit-sha>"],
       "env": { "GODOT_PATH": "/path/to/godot4" }
     }
   }
@@ -334,7 +338,7 @@ Confirm exact tool names by probing the connected server's tool list before writ
   "mcpServers": {
     "godot": {
       "command": "npx",
-      "args": ["-y", "github:tugcantopaloglu/godot-mcp"],
+      "args": ["-y", "github:tugcantopaloglu/godot-mcp#<commit-sha>"],
       "env": { "GODOT_PATH": "/path/to/godot4" }
     }
   }

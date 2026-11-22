@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 /**
- * Fails if commits in a git range use Cursor IDE trailers or Cursor Agent authorship.
+ * Fails if commits in a git range carry an IDE or agent trailer (commit-trailer-policy.mjs) or
+ * Cursor Agent authorship.
  * CI: driven by GITHUB_EVENT_NAME + env. Local: origin/main..HEAD or @{upstream}..HEAD.
  */
 import { execFileSync } from "child_process";
+import { forbiddenTrailer } from "./commit-trailer-policy.mjs";
 
 function git(argv) {
   return execFileSync("git", argv, {
@@ -12,14 +14,6 @@ function git(argv) {
   }).trim();
 }
 
-function forbiddenLine(line) {
-  if (/^Made-with:/i.test(line)) return `Made-with: (${line})`;
-  if (/^Co-authored-by:.*cursoragent@cursor\.com/i.test(line))
-    return `Co-authored-by cursoragent (${line})`;
-  if (/^Co-authored-by:.*Cursor\s*<cursor@cursor\.com>/i.test(line))
-    return `Co-authored-by Cursor (${line})`;
-  return null;
-}
 
 function forbiddenIdentity(role, name, email) {
   const n = String(name ?? "").trim();
@@ -154,13 +148,13 @@ for (const sha of shas) {
     if (reason) bad.push({ sha, subject, reason });
   }
   for (const line of body.split(/\r?\n/)) {
-    const reason = forbiddenLine(line);
+    const reason = forbiddenTrailer(line);
     if (reason) bad.push({ sha, subject, reason });
   }
 }
 
 if (bad.length) {
-  console.error("Commits must not use Cursor IDE authorship or trailers:");
+  console.error("Commits must not carry IDE or agent trailers or Cursor Agent authorship:");
   for (const { sha, subject, reason } of bad) {
     console.error(` - ${sha.slice(0, 7)} ${subject}`);
     console.error(`   ${reason}`);
