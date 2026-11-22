@@ -37,7 +37,7 @@ export declare const ErrorCode: {
     readonly LOCKED: "LOCKED";
 };
 export type ErrorCodeKey = keyof typeof ErrorCode;
-export declare function getMcpVersion(): string;
+export declare function getMcpVersion(pkgPath?: string): string;
 export declare const MCP_VERSION: string;
 export { safeBase, resolveSafePath };
 export declare const requiredHumanGateWorkflows: Set<import("../workflows.js").WorkflowType> | null;

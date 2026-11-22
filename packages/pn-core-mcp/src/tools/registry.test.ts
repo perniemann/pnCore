@@ -104,3 +104,17 @@ describe("PN_CORE tool registry", () => {
     }
   });
 });
+
+describe("registry load-time checks", () => {
+  it("requireTypeboxSchema returns a known schema and throws for a missing one", async () => {
+    const { requireTypeboxSchema } = await import("./registry.js");
+    expect(requireTypeboxSchema(typeboxSchemas, "health")).toBe(typeboxSchemas.health);
+    expect(() => requireTypeboxSchema(typeboxSchemas, "nope")).toThrow(/missing TypeBox schema/);
+  });
+
+  it("assertToolCount throws when the registry and the schema table disagree", async () => {
+    const { assertToolCount } = await import("./registry.js");
+    expect(() => assertToolCount(PN_CORE_TOOLS.length, PN_CORE_TOOL_NAMES.length)).not.toThrow();
+    expect(() => assertToolCount(2, 3)).toThrow(/count mismatch \(2 vs 3\)/);
+  });
+});

@@ -67,6 +67,20 @@ export interface ToolDefinition {
   handler: (args: Record<string, unknown>) => Promise<ToolContentResult>;
 }
 
+/** Pi needs a TypeBox schema for every MCP tool; a tool without one fails at load, not at call. */
+export function requireTypeboxSchema(schemas: Record<string, TSchema>, name: string): TSchema {
+  const schema = schemas[name];
+  if (!schema) throw new Error(`pn-core-mcp: missing TypeBox schema for tool ${name}`);
+  return schema;
+}
+
+/** The registry and the TypeBox schema table must name the same number of tools. */
+export function assertToolCount(tools: number, names: number): void {
+  if (tools !== names) {
+    throw new Error(`pn-core-mcp: tool registry count mismatch (${tools} vs ${names})`);
+  }
+}
+
 function def(
   name: string,
   label: string,
@@ -76,10 +90,7 @@ function def(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handler: (args: any) => Promise<ToolContentResult>
 ): ToolDefinition {
-  const typeboxParameters = typeboxSchemas[name];
-  if (!typeboxParameters) {
-    throw new Error(`pn-core-mcp: missing TypeBox schema for tool ${name}`);
-  }
+  const typeboxParameters = requireTypeboxSchema(typeboxSchemas, name);
   return {
     name,
     label,
@@ -298,10 +309,6 @@ export const PN_CORE_TOOLS: ToolDefinition[] = [
   ),
 ];
 
-if (PN_CORE_TOOLS.length !== PN_CORE_TOOL_NAMES.length) {
-  throw new Error(
-    `pn-core-mcp: tool registry count mismatch (${PN_CORE_TOOLS.length} vs ${PN_CORE_TOOL_NAMES.length})`
-  );
-}
+assertToolCount(PN_CORE_TOOLS.length, PN_CORE_TOOL_NAMES.length);
 
 export { PN_CORE_TOOL_NAMES };

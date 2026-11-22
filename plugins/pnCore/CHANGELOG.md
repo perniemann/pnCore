@@ -4,6 +4,17 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.26.2] - 2026-11-22
+
+Coverage now measures the MCP surface it used to skip.
+
+### Changed
+
+- **The tool suite runs in process.** `index.tools.test.ts` connects a client to `createPnCoreServer()` over `InMemoryTransport`, so coverage sees the adapter, registry, handlers and tool runtime (about 1,800 lines that were excluded). `index.smoke.test.ts` still spawns `dist/index.js` over stdio and now checks that it serves the same tool list as the source registry.
+- **Coverage floors go up**, not down: statements 98.09 → 98.5, branches 94.73 → 95.0, lines 98.97 → 99.3, functions stay at 100, with every file but the two-line bin entry included. New branch tests cover the handlers' error envelopes, Paperclip responses, scaffold failures, verify preflight and the run query.
+- `src/adapters/mcp-server.ts` exports `createPnCoreServer()` and `startStdioServer()`; the bin entry calls the second.
+- `PNCORE_SKILL_LOAD_LOG` moves the skill-load trail, like `PNCORE_RUN_LOG` and `PNCORE_HANDOFF_LOG` already do for theirs.
+
 ## [0.26.1] - 2026-11-22
 
 CI and supply-chain hardening. Each item closes a gap from the 2026-11-21 review.

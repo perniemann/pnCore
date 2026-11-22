@@ -32,36 +32,6 @@ const ERROR_CODE_TO_JSON_RPC = {
 
 type ErrorCodeKey = keyof typeof ERROR_CODE_TO_JSON_RPC;
 
-const server = new McpServer(
-  { name: "pn-core-mcp", version: MCP_VERSION },
-  { capabilities: { prompts: {}, resources: {} }, instructions: PN_INDICATOR_INSTRUCTIONS }
-);
-
-function regTool<S extends RawShape>(
-  name: string,
-  description: string,
-  schema: S,
-  annotations: {
-    readOnlyHint?: boolean;
-    destructiveHint?: boolean;
-    idempotentHint?: boolean;
-  },
-  handler: (args: ShapeArgs<S>) => unknown | Promise<unknown>
-): void {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (server.tool as any)(name, description, schema, annotations, handler);
-}
-
-function regPrompt<S extends RawShape>(
-  name: string,
-  description: string,
-  schema: S,
-  handler: (args: ShapeArgs<S>) => unknown | Promise<unknown>
-): void {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (server.prompt as any)(name, description, schema, handler);
-}
-
 function throwMcpError(code: ErrorCodeKey, message: string, data?: Record<string, unknown>): never {
   throw new McpError(ERROR_CODE_TO_JSON_RPC[code], message, data);
 }
@@ -73,53 +43,95 @@ function promptMessages(content: string, context?: string) {
   };
 }
 
-for (const tool of PN_CORE_TOOLS) {
-  regTool(tool.name, tool.description, tool.zodSchema, tool.annotations, tool.handler);
-}
-
-for (const def of resourceDefs) {
-  server.registerResource(
-    def.name,
-    def.uri,
-    {
-      title: def.name,
-      description: def.description,
-      mimeType: def.mimeType,
-    },
-    () => {
-      const result = getResource(def.uri);
-      if (result == null) {
-        throwMcpError("NOT_FOUND", "Resource not found", { uri: def.uri });
-      }
-      return {
-        contents: [{ uri: def.uri, mimeType: result.mimeType, text: result.text }],
-      };
-    }
+/**
+ * Build the pn-core MCP server with every tool, resource and prompt registered, unconnected.
+ * stdio (`startStdioServer`) and in-process tests (InMemoryTransport) share this one surface.
+ */
+export function createPnCoreServer(): McpServer {
+  const server = new McpServer(
+    { name: "pn-core-mcp", version: MCP_VERSION },
+    { capabilities: { prompts: {}, resources: {} }, instructions: PN_INDICATOR_INSTRUCTIONS }
   );
+
+  function regTool<S extends RawShape>(
+    name: string,
+    description: string,
+    schema: S,
+    annotations: {
+      readOnlyHint?: boolean;
+      destructiveHint?: boolean;
+      idempotentHint?: boolean;
+    },
+    handler: (args: ShapeArgs<S>) => unknown | Promise<unknown>
+  ): void {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (server.tool as any)(name, description, schema, annotations, handler);
+  }
+
+  function regPrompt<S extends RawShape>(
+    name: string,
+    description: string,
+    schema: S,
+    handler: (args: ShapeArgs<S>) => unknown | Promise<unknown>
+  ): void {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (server.prompt as any)(name, description, schema, handler);
+  }
+
+  for (const tool of PN_CORE_TOOLS) {
+    regTool(tool.name, tool.description, tool.zodSchema, tool.annotations, tool.handler);
+  }
+
+  for (const def of resourceDefs) {
+    server.registerResource(
+      def.name,
+      def.uri,
+      {
+        title: def.name,
+        description: def.description,
+        mimeType: def.mimeType,
+      },
+      () => {
+        const result = getResource(def.uri);
+        if (result == null) {
+          throwMcpError("NOT_FOUND", "Resource not found", { uri: def.uri });
+        }
+        return {
+          contents: [{ uri: def.uri, mimeType: result.mimeType, text: result.text }],
+        };
+      }
+    );
+  }
+
+  const agentIds = new Set(listAgents().map((a) => a.id));
+  for (const { id, name, description } of listAgents()) {
+    regPrompt(id, description || `Run the ${name} agent`, contextArgSchema, ({ context }) => {
+      const content = getAgent(id);
+      if (content == null) throwMcpError("NOT_FOUND", `Agent not found: ${id}`, { id });
+      return promptMessages(content, context);
+    });
+  }
+
+  for (const { id, name, description } of listCommands()) {
+    if (agentIds.has(id)) continue;
+    regPrompt(id, description || `Run the ${name} command`, contextArgSchema, ({ context }) => {
+      const content = getCommand(id);
+      if (content == null) throwMcpError("NOT_FOUND", `Command not found: ${id}`, { id });
+      return promptMessages(content, context);
+    });
+  }
+  return server;
 }
 
-const agentIds = new Set(listAgents().map((a) => a.id));
-for (const { id, name, description } of listAgents()) {
-  regPrompt(id, description || `Run the ${name} agent`, contextArgSchema, ({ context }) => {
-    const content = getAgent(id);
-    if (content == null) throwMcpError("NOT_FOUND", `Agent not found: ${id}`, { id });
-    return promptMessages(content, context);
+/** Connect a fresh server to stdio; the `pn-core` bin entry. */
+export async function startStdioServer(): Promise<McpServer> {
+  const server = createPnCoreServer();
+  const transport = new StdioServerTransport();
+  await server.connect(transport);
+  const feats = loadFeatures();
+  debug("trace", `pn-core-mcp v${MCP_VERSION} ready`, {
+    content: process.env.PNCORE_CONTENT_PATH ?? "(default)",
+    features: feats,
   });
+  return server;
 }
-
-for (const { id, name, description } of listCommands()) {
-  if (agentIds.has(id)) continue;
-  regPrompt(id, description || `Run the ${name} command`, contextArgSchema, ({ context }) => {
-    const content = getCommand(id);
-    if (content == null) throwMcpError("NOT_FOUND", `Command not found: ${id}`, { id });
-    return promptMessages(content, context);
-  });
-}
-
-const transport = new StdioServerTransport();
-await server.connect(transport);
-const feats = loadFeatures();
-debug("trace", `pn-core-mcp v${MCP_VERSION} ready`, {
-  content: process.env.PNCORE_CONTENT_PATH ?? "(default)",
-  features: feats,
-});

@@ -14,23 +14,18 @@ export default defineConfig({
       include: ["src/**/*.ts"],
       exclude: [
         "src/**/*.test.ts",
+        // Two-line bin entry; index.smoke.test.ts spawns it from dist over stdio.
         "src/index.ts",
-        // MCP stdio server + tool handlers run in a Vitest-spawned subprocess (index.tools.test.ts);
-        // same exclusion policy as the former monolithic index.ts surface.
-        "src/adapters/**",
-        "src/tools/handlers.ts",
-        "src/tools/tool-runtime.ts",
-        "src/tools/registry.ts",
       ],
       // Global floor only. autoUpdate ratchets thresholds up on local runs
       // when coverage exceeds them; disabled in CI so config is never
       // mutated mid-run on the build server.
       thresholds: {
         autoUpdate: !process.env.CI,
-        statements: 98.09,
-        branches: 94.73,
+        statements: 98.5,
+        branches: 95.0,
         functions: 100,
-        lines: 98.97,
+        lines: 99.3,
       },
     },
   },

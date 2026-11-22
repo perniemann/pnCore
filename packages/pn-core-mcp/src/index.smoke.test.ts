@@ -29,6 +29,12 @@ describe("MCP server smoke", () => {
     await transport.close();
   });
 
+  it("dist serves the same tool list as the source registry", async () => {
+    const { PN_CORE_TOOLS } = await import("./tools/registry.js");
+    const listed = (await client.listTools()).tools.map((t) => t.name).sort();
+    expect(listed).toEqual(PN_CORE_TOOLS.map((t) => t.name).sort());
+  });
+
   it("health tool returns status ok and version", async () => {
     const result = await client.callTool({
       name: "health",
