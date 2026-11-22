@@ -19,7 +19,7 @@ jobs:
       - name: pack and push
         run: |
           set -eu
-          tar -czf /tmp/nm.tgz node_modules packages/pn-core-mcp/node_modules
+          tar -czf /tmp/nm.tgz node_modules $(ls -d packages/*/node_modules 2>/dev/null)
           ls -la /tmp/nm.tgz
           mkdir /tmp/out && cd /tmp/out && split -b 90m /tmp/nm.tgz nm.tgz.part-
           git init -q && git checkout -q -b tmp/node-modules
