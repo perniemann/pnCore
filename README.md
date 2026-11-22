@@ -2,7 +2,7 @@
   <img src="plugins/pnCore/assets/pn-logo.svg" width="176" alt="pnCore" />
 </p>
 
-# pnCore v0.25.0
+# pnCore v0.26.0
 
 pnCore is an MCP engine with harness adapters for Cursor, Claude Code, Codex, and Pi. It runs software delivery as a sequence of named, gated steps instead of one long chat.
 
@@ -87,7 +87,7 @@ Only the selected harness's folders are created:
 | Harness | What lands | Engine config (`--with-mcp-config`) |
 |---------|------------|-------------------------------------|
 | `cursor` | `.cursor/{commands,rules,skills,agents,hooks,scripts}`, `config/`, `.cursor-plugin/plugin.json` | `.cursor/mcp.json` |
-| `claude_code` | `.claude/{skills,agents,commands}` + `.claude/rules/*.md` (`.mdc` converted; `globs` → `paths:`) | `.mcp.json` (repo root) |
+| `claude_code` | `.claude/{skills,agents,commands}` + `.claude/rules/*.md` (`.mdc` converted; `globs` → `paths:`) + a `Stop` hook that logs replies missing 🔺 ([ADR-0028](docs/adr/0028-indicator-stop-hook.md)) | `.mcp.json` (repo root) |
 | `codex` | `.agents/skills/<id>` router set (`$pn-<name>`, [ADR-0027](docs/adr/0027-router-skills-for-codex-and-pi.md)), pnCore block in `AGENTS.md` | `.codex/config.toml` `[mcp_servers.pn-core]` |
 | `pi` | `.agents/skills/<id>` router set, `.pi/prompts/pn-*.md`, pnCore block in `AGENTS.md` | `.pi/settings.json` `packages` |
 

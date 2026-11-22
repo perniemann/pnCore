@@ -24,7 +24,8 @@
  *
  * Per harness (only the selected folders are created — nothing else is touched):
  *   cursor       .cursor/{commands,rules,skills,agents,hooks,scripts,docs/templates}, config/, .cursor-plugin/plugin.json
- *   claude_code  .claude/{skills/<id>,agents,rules (converted .md),commands (flat pn-*.md)}
+ *   claude_code  .claude/{skills/<id>,agents,rules (converted .md),commands (flat pn-*.md)},
+ *                .claude/hooks/pn-indicator-stop.mjs + a Stop entry merged into .claude/settings.json
  *   codex        .agents/skills/<id> (router set), AGENTS.md managed pnCore block
  *   pi           .agents/skills/<id> (router set), .pi/prompts/pn-*.md, AGENTS.md managed pnCore block
  */
@@ -208,8 +209,10 @@ function writeText(dest, content) {
   writeFileSync(dest, content);
 }
 
-/** plugins/pnCore/skills/<category>/<id>/ → <skillsDir>/<id>/ (flat ids; harness skill loaders are not category-aware). */
-/** @param {string} skillsDir @param {Set<string> | null} [only] copy only these ids */
+/**
+ * plugins/pnCore/skills/<category>/<id>/ → <skillsDir>/<id>/ (flat ids; harness skill loaders are not category-aware).
+ * @param {string} skillsDir @param {Set<string> | null} [only] copy only these ids
+ */
 function copySkillsFlat(skillsDir, only = null) {
   const src = join(pluginRoot, "skills");
   if (!existsSync(src)) return 0;
@@ -431,6 +434,41 @@ function installCursor() {
 
 // ─── Claude Code ────────────────────────────────────────────────────────────
 
+const INDICATOR_HOOK_COMMAND = 'node "$CLAUDE_PROJECT_DIR/.claude/hooks/pn-indicator-stop.mjs"';
+
+/** Add the pnCore indicator Stop hook to Claude Code settings once; keeps every other key. */
+function mergeIndicatorStopHook(settings) {
+  const out = { ...settings, hooks: { ...(settings.hooks ?? {}) } };
+  const stop = Array.isArray(out.hooks.Stop) ? [...out.hooks.Stop] : [];
+  const present = stop.some((g) =>
+    (g?.hooks ?? []).some((h) => String(h?.command ?? "").includes("pn-indicator-stop.mjs"))
+  );
+  if (!present) stop.push({ hooks: [{ type: "command", command: INDICATOR_HOOK_COMMAND }] });
+  out.hooks.Stop = stop;
+  return out;
+}
+
+/** ADR-0028: log pnCore-touched turns whose reply lacks the context tag. */
+function installIndicatorStopHook(layout) {
+  const dest = join(targetRoot, ".claude", "hooks", "pn-indicator-stop.mjs");
+  mkdirSync(dirname(dest), { recursive: true });
+  copyFileSync(join(pluginRoot, "scripts", "pn-indicator-stop.mjs"), dest);
+  const settingsPath = join(targetRoot, layout.hooks.path);
+  let settings = {};
+  if (existsSync(settingsPath)) {
+    try {
+      settings = JSON.parse(readFileSync(settingsPath, "utf8"));
+    } catch {
+      console.warn(`Note: ${layout.hooks.path} is not valid JSON; the indicator Stop hook was not added.`);
+      return;
+    }
+  }
+  writeText(settingsPath, `${JSON.stringify(mergeIndicatorStopHook(settings), null, 2)}\n`);
+  console.log(
+    `Hook -> ./${layout.hooks.path} Stop: pn-indicator-stop (misses go to .pncore/indicator-misses.jsonl)`
+  );
+}
+
 function installClaudeCode() {
   const layout = HARNESS_LAYOUTS.claude_code;
   backupDir(".claude");
@@ -438,6 +476,7 @@ function installClaudeCode() {
   copyTree(join(pluginRoot, "agents"), join(targetRoot, layout.agentsDir));
   writeConvertedRules(layout);
   copyPromptsFlat(layout.commandsDir);
+  installIndicatorStopHook(layout);
   console.log(
     "Note: the Cursor stop hook (continual learning) is not ported to .claude/settings.json; run /pn-retro or the pn-continual-learning skill manually."
   );

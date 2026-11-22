@@ -4,6 +4,15 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.26.0] - 2026-11-22
+
+The 🔺 contract gets a miss count on Claude Code (ADR-0028).
+
+### Added
+
+- **Indicator Stop hook for Claude Code.** `plugin-install --harness claude_code` installs `.claude/hooks/pn-indicator-stop.mjs` and merges one `Stop` entry into `.claude/settings.json`, keeping existing keys and hooks. After each turn that called a pn-core tool, ran a `pn-*` skill or got a `pn-indicator:` result, the hook checks that a reply opened with `[pn-<tag>] 🔺` and appends misses to `.pncore/indicator-misses.jsonl`. It prints nothing and never fails the session.
+- `PNCORE_INDICATOR_STOP=block` turns the log into enforcement: the hook blocks the stop once per turn and the model restates its reply with the tag. Off by default.
+
 ## [0.25.0] - 2026-11-22
 
 Codex sees every pnCore skill it is given in full (ADR-0027).

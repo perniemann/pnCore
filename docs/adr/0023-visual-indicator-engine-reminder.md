@@ -33,7 +33,7 @@ The observed result: the marker appears in Cursor, sometimes in Codex, rarely in
 
 - The marker signal reaches all four harnesses on the turn that needs it, without per-harness hooks.
 - Tool output and harness output change, so this ships as a minor release (0.20.0).
-- The server still cannot see the reply. Compliance is not proven by this change. A follow-up measures it: a Claude Code `Stop` hook (Cursor and Claude Code have hook slots; Codex and Pi do not) that logs turns with a pn-core tool call and no marker to `.pncore/`, which turns "the marker shows up" into a miss rate.
+- The server still cannot see the reply. Compliance is not proven by this change. A follow-up measures it: a Claude Code `Stop` hook (Cursor and Claude Code have hook slots; Codex and Pi do not) that logs turns with a pn-core tool call and no marker to `.pncore/`, which turns "the marker shows up" into a miss rate. Shipped as [ADR-0028](0028-indicator-stop-hook.md).
 - A skill loaded natively from `.claude/skills` or `.agents/skills`, without any pn-core call, gets no reminder. The always-on rule and `TRIANGLE_LINE` cover that path.
 
 ## Alternatives rejected
