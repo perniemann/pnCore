@@ -15,6 +15,7 @@ import { join } from "path";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { classifyPnCoreEntry, warmCacheShellCommand } from "./mcp-install-config.mjs";
+import { withBudget } from "./with-budget.mjs";
 
 const argv = process.argv.slice(2);
 const smoke = argv.includes("--smoke");
@@ -119,7 +120,7 @@ if (smoke && entry && entryPath) {
 
   const t0 = Date.now();
   try {
-    await Promise.race([
+    await withBudget(
       (async () => {
         await client.connect(transport);
         const result = await client.callTool({ name: "health", arguments: {} });
@@ -128,10 +129,9 @@ if (smoke && entry && entryPath) {
         const parsed = JSON.parse(first.text);
         if (parsed.status !== "ok") throw new Error(`health status: ${parsed.status}`);
       })(),
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error(`smoke exceeded ${budgetMs}ms`)), budgetMs)
-      ),
-    ]);
+      budgetMs,
+      "smoke"
+    );
     console.log(`  Smoke OK in ${Date.now() - t0}ms`);
   } catch (e) {
     console.error(`  Smoke FAILED: ${e.message}`);
