@@ -46,13 +46,15 @@ describe("stepSequenceError", () => {
     const s = [served("design", 0, 1), served("design", 1, 2)];
     expect(stepSequenceError({ ...base, step: 2, served: s })).toBeUndefined();
     expect(stepSequenceError({ ...base, step: 1, served: s })).toBeUndefined();
-    expect(stepSequenceError({ ...base, step: 4, served: s })).toMatch(/not reachable.*\[0, 1, 2\]/);
+    expect(stepSequenceError({ ...base, step: 4, served: s })).toMatch(
+      /not reachable.*\[0, 1, 2\]/
+    );
   });
 
   it("refuses a run with nothing served for this workflow type", () => {
-    expect(
-      stepSequenceError({ ...base, step: 3, served: [served("full_dev", 0, 1)] })
-    ).toMatch(/has no served design step/);
+    expect(stepSequenceError({ ...base, step: 3, served: [served("full_dev", 0, 1)] })).toMatch(
+      /has no served design step/
+    );
   });
 
   it("allows the tournament handoff into full_dev step 5 only after the tournament finished", () => {
@@ -111,7 +113,9 @@ describe("gate record provenance", () => {
 
   it("refuses a verdict that differs from the logged one, accepts a match", () => {
     const strict = { intent: "involved", skepticPassed: record, reviewComplete: true };
-    expect(gateRecordProvenanceError(strict, new Map([["g-1", "revise"]]))).toMatch(/does not match/);
+    expect(gateRecordProvenanceError(strict, new Map([["g-1", "revise"]]))).toMatch(
+      /does not match/
+    );
     expect(gateRecordProvenanceError(strict, new Map([["g-1", "pass"]]))).toBeUndefined();
     expect(gateRecordProvenanceError(strict, new Map([["g-1", undefined]]))).toBeUndefined();
   });
