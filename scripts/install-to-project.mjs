@@ -459,7 +459,9 @@ function installIndicatorStopHook(layout) {
     try {
       settings = JSON.parse(readFileSync(settingsPath, "utf8"));
     } catch {
-      console.warn(`Note: ${layout.hooks.path} is not valid JSON; the indicator Stop hook was not added.`);
+      console.warn(
+        `Note: ${layout.hooks.path} is not valid JSON; the indicator Stop hook was not added.`
+      );
       return;
     }
   }

@@ -5,9 +5,16 @@ import { mkdtempSync, writeFileSync, readFileSync, existsSync, rmSync } from "no
 import { tmpdir } from "node:os";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { checkLastTurn, evaluateHook, parseTranscript } from "../../plugins/pnCore/scripts/pn-indicator-stop.mjs";
+import {
+  checkLastTurn,
+  evaluateHook,
+  parseTranscript,
+} from "../../plugins/pnCore/scripts/pn-indicator-stop.mjs";
 
-const script = resolve(dirname(fileURLToPath(import.meta.url)), "../../plugins/pnCore/scripts/pn-indicator-stop.mjs");
+const script = resolve(
+  dirname(fileURLToPath(import.meta.url)),
+  "../../plugins/pnCore/scripts/pn-indicator-stop.mjs"
+);
 const user = (text) => ({ type: "user", message: { role: "user", content: text } });
 const said = (text) => ({ type: "assistant", message: { content: [{ type: "text", text }] } });
 const call = (name, input = {}) => ({
@@ -16,7 +23,9 @@ const call = (name, input = {}) => ({
 });
 const result = (text) => ({
   type: "user",
-  message: { content: [{ type: "tool_result", tool_use_id: "t1", content: [{ type: "text", text }] }] },
+  message: {
+    content: [{ type: "tool_result", tool_use_id: "t1", content: [{ type: "text", text }] }],
+  },
 });
 const jsonl = (...e) => e.map((x) => JSON.stringify(x)).join("\n") + "\n";
 
@@ -45,7 +54,13 @@ test("any reply opening with a context tag complies; only the last turn counts",
     said("[pn-skill] 🔺 Loaded."),
   ]);
   assert.equal(ok.compliant, true);
-  const earlier = checkLastTurn([user("a"), call("mcp__pn-core__health"), said("x"), user("b"), said("y")]);
+  const earlier = checkLastTurn([
+    user("a"),
+    call("mcp__pn-core__health"),
+    said("x"),
+    user("b"),
+    said("y"),
+  ]);
   assert.equal(earlier.touched, false);
 });
 

@@ -165,7 +165,10 @@ test("claude_code merges the indicator Stop hook once and keeps existing setting
   const target = mkdtempSync(join(repoRoot, "tmp-pn-install-claude-hook-"));
   try {
     mkdirSync(join(target, ".claude"));
-    const mine = { permissions: { allow: ["Bash(ls)"] }, hooks: { Stop: [{ hooks: [{ type: "command", command: "echo mine" }] }] } };
+    const mine = {
+      permissions: { allow: ["Bash(ls)"] },
+      hooks: { Stop: [{ hooks: [{ type: "command", command: "echo mine" }] }] },
+    };
     writeFileSync(join(target, ".claude", "settings.json"), JSON.stringify(mine));
     for (const extra of [[], ["--overwrite"]]) {
       const r = runInstaller([target, "--harness", "claude_code", ...extra], { env: cleanEnv() });
