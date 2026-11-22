@@ -2,7 +2,7 @@
   <img src="plugins/pnCore/assets/pn-logo.svg" width="176" alt="pnCore" />
 </p>
 
-# pnCore v0.24.1
+# pnCore v0.25.0
 
 pnCore is an MCP engine with harness adapters for Cursor, Claude Code, Codex, and Pi. It runs software delivery as a sequence of named, gated steps instead of one long chat.
 
@@ -88,8 +88,8 @@ Only the selected harness's folders are created:
 |---------|------------|-------------------------------------|
 | `cursor` | `.cursor/{commands,rules,skills,agents,hooks,scripts}`, `config/`, `.cursor-plugin/plugin.json` | `.cursor/mcp.json` |
 | `claude_code` | `.claude/{skills,agents,commands}` + `.claude/rules/*.md` (`.mdc` converted; `globs` → `paths:`) | `.mcp.json` (repo root) |
-| `codex` | `.agents/skills/<id>` (`$pn-<name>`), pnCore block in `AGENTS.md` | `.codex/config.toml` `[mcp_servers.pn-core]` |
-| `pi` | `.agents/skills/<id>`, `.pi/prompts/pn-*.md`, pnCore block in `AGENTS.md` | `.pi/settings.json` `packages` |
+| `codex` | `.agents/skills/<id>` router set (`$pn-<name>`, [ADR-0027](docs/adr/0027-router-skills-for-codex-and-pi.md)), pnCore block in `AGENTS.md` | `.codex/config.toml` `[mcp_servers.pn-core]` |
+| `pi` | `.agents/skills/<id>` router set, `.pi/prompts/pn-*.md`, pnCore block in `AGENTS.md` | `.pi/settings.json` `packages` |
 
 Onboarding inside a session (`/pn-setup`, `/pn-new`, `project_kickoff`) uses the same table through `harness_detect` → `harness_scaffold`. Full matrix and rule-conversion notes: [harness-matrix.md](packages/pn-core-mcp/content/reference/harness-matrix.md).
 
@@ -101,7 +101,7 @@ Add the same MCP JSON to `.mcp.json` at the repo root (or `claude mcp add --scop
 
 ### Codex
 
-Add `[mcp_servers.pn-core]` to `.codex/config.toml` or `~/.codex/config.toml` (`plugin-install --harness codex --with-mcp-config` writes it), then restart Codex. Skills are `$pn-<name>` from `.agents/skills`; slash commands are MCP prompts (`get_command("pn-build")`); the `AGENTS.md` pnCore block carries the bootstrap.
+Add `[mcp_servers.pn-core]` to `.codex/config.toml` or `~/.codex/config.toml` (`plugin-install --harness codex --with-mcp-config` writes it), then restart Codex. Skills are `$pn-<name>` from `.agents/skills`, which holds a router set of 27 so Codex's 8,000-character skill list shows each in full; the other skills load with `get_skill` (`--all-skills` copies everything); slash commands are MCP prompts (`get_command("pn-build")`); the `AGENTS.md` pnCore block carries the bootstrap.
 
 ### pi.dev (Pi coding agent)
 

@@ -508,6 +508,14 @@ describe("applyScaffoldPlan", () => {
 });
 
 describe("bootstrapBlock", () => {
+  it("names the router skill set once for Codex and Pi (ADR-0027)", () => {
+    const line = "pnCore router skills";
+    for (const h of [["codex"], ["pi"], ["codex", "pi"]] as const) {
+      expect(bootstrapBlock([...h]).split(line).length - 1).toBe(1);
+    }
+    expect(bootstrapBlock(["codex"])).toContain("`list_skills`");
+  });
+
   it("inlines always-apply rule bodies when requested", () => {
     const plain = bootstrapBlock(["codex"]);
     expect(plain).toContain("## pnCore (Codex)");

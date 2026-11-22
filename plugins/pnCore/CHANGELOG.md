@@ -4,6 +4,19 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.25.0] - 2026-11-22
+
+Codex sees every pnCore skill it is given in full (ADR-0027).
+
+### Changed
+
+- **Router skills for `.agents/skills/`.** `plugin-install --harness codex` (and `pi`) copies the 27 skills in `config/router-skills.json` instead of all 142. Codex lists name, description and path of every skill in 8,000 characters by default and shortened or dropped the rest; the 142 descriptions alone were 30,868 characters. The other skills load with `list_skills` and `get_skill`, which the managed `AGENTS.md` block now says.
+- `--all-skills` copies the full catalog and prints the cost. A router-mode re-install names pnCore skills left over from an earlier full install and deletes nothing.
+
+### Added
+
+- **`check-router-skills`** (in `validate`): router ids exist, appear once, and their ids plus descriptions stay within 7,000 characters, leaving 1,000 for paths.
+
 ## [0.24.1] - 2026-11-22
 
 Docs, ADRs and design held to gates instead of review comments.

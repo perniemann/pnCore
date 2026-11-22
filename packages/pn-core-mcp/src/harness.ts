@@ -115,7 +115,7 @@ export const HARNESS_LAYOUTS: Record<HarnessId, HarnessLayout> = {
     hooks: null,
     notes: [
       "AGENTS.md is the only always-on instructions slot; Codex truncates the chain at project_doc_max_bytes (32 KiB default; override the pnCore check with PNCORE_AGENTS_MD_CAP_BYTES). harness_scaffold and the installer report the file's bytes against the cap and drop inlined rules lowest-priority first to fit.",
-      "Skills are discovered from .agents/skills (cwd up to repo root) and invoked as $skill-name; no project-level commands or agents directory.",
+      "Skills are discovered from .agents/skills (cwd up to repo root) and invoked as $skill-name; no project-level commands or agents directory. Codex fits every skill's name and description into about 8,000 characters, so the installer copies only the router set (config/router-skills.json, ADR-0027); `--all-skills` copies everything.",
       "MCP servers: [mcp_servers.pn-core] in .codex/config.toml or ~/.codex/config.toml.",
     ],
   },
@@ -470,6 +470,11 @@ export function instructionsBlock(p: ScaffoldProject, harnesses: HarnessId[]): s
       "- Pi: `/pn` opens the pnCore command menu when the package is installed; prompt templates in `.pi/prompts/` expand as `/pn-<name>`."
     );
   }
+  if (harnesses.includes("codex") || harnesses.includes("pi")) {
+    out.push(
+      "- `.agents/skills/` holds the pnCore router skills, sized to fit Codex's skill list (ADR-0027). Find any other pnCore skill with `list_skills` and load it with `get_skill`."
+    );
+  }
   return out.join("\n") + "\n";
 }
 
@@ -502,6 +507,11 @@ export function bootstrapBlock(
   if (harnesses.includes("pi")) {
     out.push(
       "- Pi: `/pn` opens the pnCore command menu when the package is installed; prompt templates in `.pi/prompts/` expand as `/pn-<name>`."
+    );
+  }
+  if (harnesses.includes("codex") || harnesses.includes("pi")) {
+    out.push(
+      "- `.agents/skills/` holds the pnCore router skills, sized to fit Codex's skill list (ADR-0027). Find any other pnCore skill with `list_skills` and load it with `get_skill`."
     );
   }
   const omitted = opts.omittedRules ?? [];

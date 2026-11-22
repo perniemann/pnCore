@@ -198,8 +198,42 @@ test("--harness codex,pi shares .agents/skills and writes .pi/prompts once", () 
     assert.deepEqual(settings.packages, ["git:github.com/perniemann/pnCore@main"]);
     const agents = readFileSync(join(target, "AGENTS.md"), "utf8");
     assert.match(agents, /## pnCore \(Codex \+ Pi\)/);
-    assert.match(r.stdout, /142 skills, flat ids/);
+    assert.match(r.stdout, /27 router skills, flat ids/);
     assert.equal((r.stdout.match(/flat ids/g) ?? []).length, 1, "skills copied once for both");
+  } finally {
+    rmSync(target, { recursive: true, force: true });
+  }
+});
+
+test("codex gets the router set by default; --all-skills copies every skill (ADR-0027)", () => {
+  const target = mkdtempSync(join(repoRoot, "tmp-pn-install-router-"));
+  try {
+    const router = JSON.parse(
+      readFileSync(join(repoRoot, "plugins/pnCore/config/router-skills.json"), "utf8")
+    ).skills;
+    const skillsSrc = join(repoRoot, "plugins/pnCore/skills");
+    const total = readdirSync(skillsSrc, { withFileTypes: true })
+      .filter((c) => c.isDirectory())
+      .flatMap((c) => readdirSync(join(skillsSrc, c.name)).map((s) => join(skillsSrc, c.name, s)))
+      .filter((d) => existsSync(join(d, "SKILL.md"))).length;
+    const r = runInstaller([target, "--harness", "codex"], { env: cleanEnv() });
+    assert.equal(r.status, 0, r.stderr);
+    const skillsDir = join(target, ".agents", "skills");
+    assert.deepEqual(listTop(skillsDir), [...router].sort());
+    assert.doesNotMatch(r.stderr, /outside the router set/);
+    assert.match(readFileSync(join(target, "AGENTS.md"), "utf8"), /pnCore router skills/);
+
+    const all = runInstaller([target, "--harness", "codex", "--all-skills", "--overwrite"], {
+      env: cleanEnv(),
+    });
+    assert.equal(all.status, 0, all.stderr);
+    assert.ok(existsSync(join(skillsDir, "pn-gsap", "SKILL.md")));
+    assert.match(all.stdout, new RegExp(`${total} skills, flat ids`));
+    assert.match(all.stderr, /--all-skills/);
+
+    const back = runInstaller([target, "--harness", "codex", "--overwrite"], { env: cleanEnv() });
+    assert.equal(back.status, 0, back.stderr);
+    assert.match(back.stderr, new RegExp(`${total - router.length} pnCore skills outside`));
   } finally {
     rmSync(target, { recursive: true, force: true });
   }

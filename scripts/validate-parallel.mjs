@@ -40,6 +40,7 @@ const PARALLEL_SCRIPTS = [
   "scripts/check-doc-links.mjs",
   "scripts/check-public-voice.mjs",
   "scripts/check-adr-index.mjs",
+  "scripts/check-router-skills.mjs",
 ];
 
 /** Runs a single script and resolves with its result (buffered output). */

@@ -1,353 +1,151 @@
-import { z } from "zod";
 /** Public workflow types exposed to workflow_step and related tools. */
-export declare const workflowTypeEnum: z.ZodEnum<{
-    design: "design";
-    full_dev: "full_dev";
-    project_kickoff: "project_kickoff";
-    prompt_optimize: "prompt_optimize";
-    frontend_audit: "frontend_audit";
-    backend_audit: "backend_audit";
-    image_create: "image_create";
-    visual_tweak: "visual_tweak";
-    game_feature: "game_feature";
-    engine_feature: "engine_feature";
-    fsi_analyst_draft: "fsi_analyst_draft";
-    business_strategy: "business_strategy";
-    media_director: "media_director";
-    feature_program: "feature_program";
-    implementation_tournament: "implementation_tournament";
-}>;
-export declare const workflowGateTypeEnum: z.ZodOptional<z.ZodEnum<{
-    discovery: "discovery";
-    plan: "plan";
-    design: "design";
-    skeptic: "skeptic";
-}>>;
-export declare const workflowGateVerdictEnum: z.ZodOptional<z.ZodEnum<{
-    proceed: "proceed";
-    revise: "revise";
-    conditional_go: "conditional_go";
-}>>;
+export declare const workflowTypeEnum: any;
+export declare const workflowGateTypeEnum: any;
+export declare const workflowGateVerdictEnum: any;
 export declare const healthSchema: {};
 export declare const projectContextSchema: {
-    readonly mode: z.ZodOptional<z.ZodEnum<{
-        operator: "operator";
-        agent: "agent";
-    }>>;
-    readonly run_id: z.ZodOptional<z.ZodString>;
-    readonly state_path: z.ZodOptional<z.ZodString>;
-    readonly max_trail: z.ZodOptional<z.ZodNumber>;
-    readonly max_tokens: z.ZodOptional<z.ZodNumber>;
+    readonly mode: any;
+    readonly run_id: any;
+    readonly state_path: any;
+    readonly max_trail: any;
+    readonly max_tokens: any;
 };
 export declare const listWorkflowTypesSchema: {};
-export declare const harnessIdEnum: z.ZodEnum<{
-    cursor: "cursor";
-    claude_code: "claude_code";
-    codex: "codex";
-    pi: "pi";
-}>;
+export declare const harnessIdEnum: any;
 export declare const harnessDetectSchema: {
-    readonly harness: z.ZodOptional<z.ZodEnum<{
-        cursor: "cursor";
-        claude_code: "claude_code";
-        codex: "codex";
-        pi: "pi";
-    }>>;
+    readonly harness: any;
 };
 export declare const harnessScaffoldSchema: {
-    readonly harnesses: z.ZodOptional<z.ZodArray<z.ZodEnum<{
-        cursor: "cursor";
-        claude_code: "claude_code";
-        codex: "codex";
-        pi: "pi";
-    }>>>;
-    readonly project: z.ZodObject<{
-        name: z.ZodString;
-        goal: z.ZodOptional<z.ZodString>;
-        stack: z.ZodOptional<z.ZodString>;
-        scope: z.ZodOptional<z.ZodString>;
-        constraints: z.ZodOptional<z.ZodArray<z.ZodString>>;
-    }, z.core.$strip>;
-    readonly include: z.ZodOptional<z.ZodArray<z.ZodEnum<{
-        project_context: "project_context";
-        project_skill: "project_skill";
-        no_trailers_rule: "no_trailers_rule";
-        mcp_config: "mcp_config";
-    }>>>;
-    readonly dryRun: z.ZodOptional<z.ZodBoolean>;
-    readonly overwrite: z.ZodOptional<z.ZodBoolean>;
+    readonly harnesses: any;
+    readonly project: any;
+    readonly include: any;
+    readonly dryRun: any;
+    readonly overwrite: any;
 };
 export declare const suggestModelTierSchema: {
-    readonly workflowType: z.ZodOptional<z.ZodEnum<{
-        design: "design";
-        full_dev: "full_dev";
-        project_kickoff: "project_kickoff";
-        prompt_optimize: "prompt_optimize";
-        frontend_audit: "frontend_audit";
-        backend_audit: "backend_audit";
-        image_create: "image_create";
-        visual_tweak: "visual_tweak";
-        game_feature: "game_feature";
-        engine_feature: "engine_feature";
-        fsi_analyst_draft: "fsi_analyst_draft";
-        business_strategy: "business_strategy";
-        media_director: "media_director";
-        feature_program: "feature_program";
-        implementation_tournament: "implementation_tournament";
-    }>>;
-    readonly step: z.ZodOptional<z.ZodNumber>;
-    readonly role: z.ZodOptional<z.ZodEnum<{
-        explorer: "explorer";
-        builder: "builder";
-        judge: "judge";
-        checker: "checker";
-        orchestrator: "orchestrator";
-    }>>;
+    readonly workflowType: any;
+    readonly step: any;
+    readonly role: any;
 };
 export declare const listSkillsSchema: {
-    readonly category: z.ZodOptional<z.ZodString>;
-    readonly filter: z.ZodOptional<z.ZodString>;
-    readonly limit: z.ZodOptional<z.ZodNumber>;
+    readonly category: any;
+    readonly filter: any;
+    readonly limit: any;
 };
 export declare const getSkillSchema: {
-    readonly id: z.ZodString;
-    readonly run_id: z.ZodOptional<z.ZodString>;
+    readonly id: any;
+    readonly run_id: any;
 };
 export declare const listAgentsSchema: {
-    readonly include: z.ZodOptional<z.ZodEnum<{
-        external: "external";
-        internal: "internal";
-        all: "all";
-    }>>;
+    readonly include: any;
 };
 export declare const getAgentSchema: {
-    readonly id: z.ZodString;
-    readonly run_id: z.ZodOptional<z.ZodString>;
+    readonly id: any;
+    readonly run_id: any;
 };
 export declare const listCommandsSchema: {};
 export declare const getCommandSchema: {
-    readonly id: z.ZodString;
-    readonly run_id: z.ZodOptional<z.ZodString>;
+    readonly id: any;
+    readonly run_id: any;
 };
 export declare const listRulesSchema: {};
 export declare const getRuleSchema: {
-    readonly id: z.ZodString;
-    readonly run_id: z.ZodOptional<z.ZodString>;
+    readonly id: any;
+    readonly run_id: any;
 };
 export declare const workflowStepSchema: {
-    readonly workflowType: z.ZodEnum<{
-        design: "design";
-        full_dev: "full_dev";
-        project_kickoff: "project_kickoff";
-        prompt_optimize: "prompt_optimize";
-        frontend_audit: "frontend_audit";
-        backend_audit: "backend_audit";
-        image_create: "image_create";
-        visual_tweak: "visual_tweak";
-        game_feature: "game_feature";
-        engine_feature: "engine_feature";
-        fsi_analyst_draft: "fsi_analyst_draft";
-        business_strategy: "business_strategy";
-        media_director: "media_director";
-        feature_program: "feature_program";
-        implementation_tournament: "implementation_tournament";
-    }>;
-    readonly step: z.ZodNumber;
-    readonly state: z.ZodDefault<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    readonly workflowType: any;
+    readonly step: any;
+    readonly state: any;
 };
 export declare const reportUsageSchema: {
-    readonly workflowType: z.ZodEnum<{
-        design: "design";
-        full_dev: "full_dev";
-        project_kickoff: "project_kickoff";
-        prompt_optimize: "prompt_optimize";
-        frontend_audit: "frontend_audit";
-        backend_audit: "backend_audit";
-        image_create: "image_create";
-        visual_tweak: "visual_tweak";
-        game_feature: "game_feature";
-        engine_feature: "engine_feature";
-        fsi_analyst_draft: "fsi_analyst_draft";
-        business_strategy: "business_strategy";
-        media_director: "media_director";
-        feature_program: "feature_program";
-        implementation_tournament: "implementation_tournament";
-    }>;
-    readonly step: z.ZodNumber;
-    readonly inputTokens: z.ZodNumber;
-    readonly outputTokens: z.ZodNumber;
-    readonly costUsd: z.ZodOptional<z.ZodNumber>;
-    readonly latencyMs: z.ZodOptional<z.ZodNumber>;
-    readonly run_id: z.ZodOptional<z.ZodString>;
-    readonly path: z.ZodOptional<z.ZodString>;
-    readonly requestModel: z.ZodOptional<z.ZodString>;
-    readonly responseModel: z.ZodOptional<z.ZodString>;
-    readonly reasoningEffort: z.ZodOptional<z.ZodString>;
-    readonly workerId: z.ZodOptional<z.ZodString>;
-    readonly observedBy: z.ZodOptional<z.ZodEnum<{
-        unavailable: "unavailable";
-        agent_claim: "agent_claim";
-    }>>;
+    readonly workflowType: any;
+    readonly step: any;
+    readonly inputTokens: any;
+    readonly outputTokens: any;
+    readonly costUsd: any;
+    readonly latencyMs: any;
+    readonly run_id: any;
+    readonly path: any;
+    readonly requestModel: any;
+    readonly responseModel: any;
+    readonly reasoningEffort: any;
+    readonly workerId: any;
+    readonly observedBy: any;
 };
 export declare const workflowHandoffAppendSchema: {
-    readonly run_id: z.ZodString;
-    readonly step: z.ZodNumber;
-    readonly summary: z.ZodString;
-    readonly path: z.ZodOptional<z.ZodString>;
+    readonly run_id: any;
+    readonly step: any;
+    readonly summary: any;
+    readonly path: any;
 };
 export declare const workflowConfirmSchema: {
-    readonly question: z.ZodString;
-    readonly options: z.ZodArray<z.ZodString>;
-    readonly context: z.ZodOptional<z.ZodString>;
-    readonly gate_type: z.ZodOptional<z.ZodEnum<{
-        discovery: "discovery";
-        plan: "plan";
-        design: "design";
-        skeptic: "skeptic";
-    }>>;
-    readonly verdict: z.ZodOptional<z.ZodEnum<{
-        proceed: "proceed";
-        revise: "revise";
-        conditional_go: "conditional_go";
-    }>>;
-    readonly must_fix_summary: z.ZodOptional<z.ZodString>;
-    readonly path: z.ZodOptional<z.ZodString>;
+    readonly question: any;
+    readonly options: any;
+    readonly context: any;
+    readonly gate_type: any;
+    readonly verdict: any;
+    readonly must_fix_summary: any;
+    readonly path: any;
 };
 export declare const approvalCheckpointSchema: {
-    readonly approval_token: z.ZodString;
-    readonly action_label: z.ZodString;
-    readonly workflow_type: z.ZodOptional<z.ZodEnum<{
-        design: "design";
-        full_dev: "full_dev";
-        project_kickoff: "project_kickoff";
-        prompt_optimize: "prompt_optimize";
-        frontend_audit: "frontend_audit";
-        backend_audit: "backend_audit";
-        image_create: "image_create";
-        visual_tweak: "visual_tweak";
-        game_feature: "game_feature";
-        engine_feature: "engine_feature";
-        fsi_analyst_draft: "fsi_analyst_draft";
-        business_strategy: "business_strategy";
-        media_director: "media_director";
-        feature_program: "feature_program";
-        implementation_tournament: "implementation_tournament";
-    }>>;
-    readonly workflow_step: z.ZodOptional<z.ZodNumber>;
-    readonly run_id: z.ZodOptional<z.ZodString>;
+    readonly approval_token: any;
+    readonly action_label: any;
+    readonly workflow_type: any;
+    readonly workflow_step: any;
+    readonly run_id: any;
 };
 export declare const gateLogAppendSchema: {
-    readonly gate_type: z.ZodString;
-    readonly workflowType: z.ZodEnum<{
-        design: "design";
-        full_dev: "full_dev";
-        project_kickoff: "project_kickoff";
-        prompt_optimize: "prompt_optimize";
-        frontend_audit: "frontend_audit";
-        backend_audit: "backend_audit";
-        image_create: "image_create";
-        visual_tweak: "visual_tweak";
-        game_feature: "game_feature";
-        engine_feature: "engine_feature";
-        fsi_analyst_draft: "fsi_analyst_draft";
-        business_strategy: "business_strategy";
-        media_director: "media_director";
-        feature_program: "feature_program";
-        implementation_tournament: "implementation_tournament";
-    }>;
-    readonly step: z.ZodNumber;
-    readonly outcome: z.ZodString;
-    readonly action_label: z.ZodOptional<z.ZodString>;
-    readonly run_id: z.ZodOptional<z.ZodString>;
-    readonly path: z.ZodOptional<z.ZodString>;
+    readonly gate_type: any;
+    readonly workflowType: any;
+    readonly step: any;
+    readonly outcome: any;
+    readonly action_label: any;
+    readonly run_id: any;
+    readonly path: any;
 };
 export declare const workflowStateSaveSchema: {
-    readonly state: z.ZodRecord<z.ZodString, z.ZodUnknown>;
-    readonly path: z.ZodOptional<z.ZodString>;
-    readonly run_id: z.ZodOptional<z.ZodString>;
-    readonly step: z.ZodOptional<z.ZodNumber>;
-    readonly summary: z.ZodOptional<z.ZodString>;
-    readonly expected_revision: z.ZodOptional<z.ZodNumber>;
-    readonly handoff_path: z.ZodOptional<z.ZodString>;
-    readonly history: z.ZodOptional<z.ZodBoolean>;
-    readonly overwrite_run: z.ZodOptional<z.ZodBoolean>;
+    readonly state: any;
+    readonly path: any;
+    readonly run_id: any;
+    readonly step: any;
+    readonly summary: any;
+    readonly expected_revision: any;
+    readonly handoff_path: any;
+    readonly history: any;
+    readonly overwrite_run: any;
 };
 export declare const workflowStateLoadSchema: {
-    readonly path: z.ZodOptional<z.ZodString>;
+    readonly path: any;
 };
 export declare const paperclipIssueSchema: {
-    readonly action: z.ZodEnum<{
-        checkout: "checkout";
-        comment: "comment";
-        update: "update";
-    }>;
-    readonly issueId: z.ZodOptional<z.ZodString>;
-    readonly body: z.ZodOptional<z.ZodString>;
-    readonly status: z.ZodOptional<z.ZodEnum<{
-        done: "done";
-        in_progress: "in_progress";
-        backlog: "backlog";
-        todo: "todo";
-        in_review: "in_review";
-        blocked: "blocked";
-        cancelled: "cancelled";
-    }>>;
-    readonly comment: z.ZodOptional<z.ZodString>;
+    readonly action: any;
+    readonly issueId: any;
+    readonly body: any;
+    readonly status: any;
+    readonly comment: any;
 };
 export declare const workflowVerifySchema: {
-    readonly run_id: z.ZodString;
-    readonly commandId: z.ZodOptional<z.ZodString>;
-    readonly argv: z.ZodOptional<z.ZodArray<z.ZodString>>;
-    readonly cwd: z.ZodOptional<z.ZodString>;
-    readonly timeoutMs: z.ZodOptional<z.ZodNumber>;
-    readonly candidate_id: z.ZodOptional<z.ZodString>;
-    readonly workflowType: z.ZodOptional<z.ZodEnum<{
-        design: "design";
-        full_dev: "full_dev";
-        project_kickoff: "project_kickoff";
-        prompt_optimize: "prompt_optimize";
-        frontend_audit: "frontend_audit";
-        backend_audit: "backend_audit";
-        image_create: "image_create";
-        visual_tweak: "visual_tweak";
-        game_feature: "game_feature";
-        engine_feature: "engine_feature";
-        fsi_analyst_draft: "fsi_analyst_draft";
-        business_strategy: "business_strategy";
-        media_director: "media_director";
-        feature_program: "feature_program";
-        implementation_tournament: "implementation_tournament";
-    }>>;
-    readonly step: z.ZodOptional<z.ZodNumber>;
-    readonly inputs: z.ZodOptional<z.ZodArray<z.ZodObject<{
-        path: z.ZodString;
-        sha256: z.ZodOptional<z.ZodString>;
-        access: z.ZodOptional<z.ZodEnum<{
-            write: "write";
-            read: "read";
-            execute: "execute";
-        }>>;
-    }, z.core.$strip>>>;
-    readonly env_required: z.ZodOptional<z.ZodArray<z.ZodString>>;
-    readonly preflight_only: z.ZodOptional<z.ZodBoolean>;
-    readonly owner: z.ZodOptional<z.ZodString>;
+    readonly run_id: any;
+    readonly commandId: any;
+    readonly argv: any;
+    readonly cwd: any;
+    readonly timeoutMs: any;
+    readonly candidate_id: any;
+    readonly workflowType: any;
+    readonly step: any;
+    readonly inputs: any;
+    readonly env_required: any;
+    readonly preflight_only: any;
+    readonly owner: any;
 };
 export declare const workflowRunQuerySchema: {
-    readonly run_id: z.ZodString;
-    readonly kinds: z.ZodOptional<z.ZodArray<z.ZodEnum<{
-        step: "step";
-        preflight: "preflight";
-        verify: "verify";
-        acceptance: "acceptance";
-        gate: "gate";
-        usage: "usage";
-        handoff: "handoff";
-        load: "load";
-    }>>>;
-    readonly limit: z.ZodOptional<z.ZodNumber>;
-    readonly path: z.ZodOptional<z.ZodString>;
-    readonly timeline: z.ZodOptional<z.ZodBoolean>;
+    readonly run_id: any;
+    readonly kinds: any;
+    readonly limit: any;
+    readonly path: any;
+    readonly timeline: any;
 };
 export declare const contextArgSchema: {
-    readonly context: z.ZodOptional<z.ZodString>;
+    readonly context: any;
 };
