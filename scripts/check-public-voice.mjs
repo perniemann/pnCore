@@ -11,7 +11,7 @@ import { fileURLToPath } from "url";
 
 const BANNED =
   /\b(leverag\w*|seamless\w*|cutting-edge|empower\w*|elevat(?:e|es|ed|ing)|robust\w*)\b/i;
-const SPACED_HYPHEN = /(?<=[A-Za-z0-9)\]*_]) - (?=[A-Za-z0-9(\[*_])/;
+const SPACED_HYPHEN = /(?<=[A-Za-z0-9)\]*_]) - (?=[A-Za-z0-9([*_])/;
 const CHANGELOG_HEADING = /^## \[\d+\.\d+\.\d+\] - \d{4}-\d{2}-\d{2}\s*$/;
 
 /** Findings for one text. @param {string} text @param {{ html?: boolean }} [opts] */
