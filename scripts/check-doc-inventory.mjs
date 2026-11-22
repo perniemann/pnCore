@@ -28,6 +28,16 @@ export function countWorkflowTypes(repoRoot) {
   return (block[1].match(/"[^"]+"/g) ?? []).length;
 }
 
+/** Tool names registered in tools/registry.ts (each `def(` call opens with the name). */
+export function countTools(repoRoot) {
+  const src = readFileSync(join(repoRoot, "packages/pn-core-mcp/src/tools/registry.ts"), "utf8");
+  return new Set([...src.matchAll(/\bdef\(\s*"([a-z_]+)"/g)].map((m) => m[1])).size;
+}
+
+function countMd(dir) {
+  return readdirSync(dir).filter((f) => f.endsWith(".md")).length;
+}
+
 export function collectInventory(repoRoot) {
   const skillsDir = join(repoRoot, "packages/pn-core-mcp/content/skills");
   const commandsDir = join(repoRoot, "packages/pn-core-mcp/content/commands");
@@ -38,20 +48,26 @@ export function collectInventory(repoRoot) {
     hidden: partition.hidden.length,
     commands: partition.visible.length + partition.hidden.length,
     workflows: countWorkflowTypes(repoRoot),
+    agents: countMd(join(repoRoot, "packages/pn-core-mcp/content/agents")),
+    internalAgents: countMd(join(repoRoot, "packages/pn-core-mcp/content/agents-internal")),
+    tools: countTools(repoRoot),
   };
 }
 
 export function parseReadmeCatalog(readme) {
   const catalogLine = readme.match(
-    /\*\*Catalog:\*\* (\d+) skills.*?(\d+) visible slash palette files.*?(\d+) palette-hidden.*?(\d+) command files total\).*?(\d+) workflow types/
+    /\*\*Catalog:\*\* (\d+) skills, (\d+) public agents \+ (\d+) internal orchestration agents, (\d+) visible slash palette files.*?(\d+) palette-hidden.*?(\d+) command files total\), (\d+) MCP tools, (\d+) workflow types/
   );
   if (!catalogLine) return null;
   return {
     skills: Number(catalogLine[1]),
-    visible: Number(catalogLine[2]),
-    hidden: Number(catalogLine[3]),
-    commands: Number(catalogLine[4]),
-    workflows: Number(catalogLine[5]),
+    agents: Number(catalogLine[2]),
+    internalAgents: Number(catalogLine[3]),
+    visible: Number(catalogLine[4]),
+    hidden: Number(catalogLine[5]),
+    commands: Number(catalogLine[6]),
+    tools: Number(catalogLine[7]),
+    workflows: Number(catalogLine[8]),
   };
 }
 
@@ -131,16 +147,10 @@ export function runCheck(repoRoot = defaultRepoRoot) {
     };
   }
 
-  if (expected.skills !== actual.skills)
-    mismatches.push(`skills README=${expected.skills} disk=${actual.skills}`);
-  if (expected.visible !== actual.visible)
-    mismatches.push(`visible commands README=${expected.visible} disk=${actual.visible}`);
-  if (expected.hidden !== actual.hidden)
-    mismatches.push(`hidden commands README=${expected.hidden} disk=${actual.hidden}`);
-  if (expected.commands !== actual.commands)
-    mismatches.push(`commands README=${expected.commands} disk=${actual.commands}`);
-  if (expected.workflows !== actual.workflows)
-    mismatches.push(`workflows README=${expected.workflows} disk=${actual.workflows}`);
+  for (const key of Object.keys(expected)) {
+    if (expected[key] !== actual[key])
+      mismatches.push(`${key} README=${expected[key]} disk=${actual[key]}`);
+  }
 
   const pnGuidePath = join(repoRoot, "packages/pn-core-mcp/content/commands/pn/start/pn-guide.md");
   const pnGuide = readFileSync(pnGuidePath, "utf8");
@@ -162,7 +172,7 @@ export function runCheck(repoRoot = defaultRepoRoot) {
     ok: true,
     actual,
     mismatches: [],
-    message: `check-doc-inventory: OK — ${actual.skills} skills, ${actual.commands} commands (${actual.visible}+${actual.hidden}), ${actual.workflows} workflows; pn-guide and maintained docs match`,
+    message: `check-doc-inventory: OK: ${actual.skills} skills, ${actual.agents}+${actual.internalAgents} agents, ${actual.commands} commands (${actual.visible}+${actual.hidden}), ${actual.tools} tools, ${actual.workflows} workflows; pn-guide and maintained docs match`,
   };
 }
 

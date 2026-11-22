@@ -5,7 +5,7 @@ updated: 2026-09-17
 
 # pnCore plugin reference
 
-Orientation for **pnCore**: stacks, agents, commands, hooks, and contribution paths. **Authoritative ids** for rules, skills, agents, and commands come from MCP **`list_rules`**, **`list_skills`**, **`list_agents`**, and **`list_commands`** (then **`get_*`** by id)—not from static lists in this file, which drift. For install and quick start see the [repo README](../README.md) and [plugin README](../plugins/pnCore/README.md). For MCP tools, resources, prompts, and workflows, see [MCP usage guide](mcp-usage-guide.md) and [packages/pn-core-mcp/README.md](../packages/pn-core-mcp/README.md).
+Orientation for **pnCore**: stacks, agents, commands, hooks, and contribution paths. **Authoritative ids** for rules, skills, agents, and commands come from MCP **`list_rules`**, **`list_skills`**, **`list_agents`**, and **`list_commands`** (then **`get_*`** by id), not from static lists in this file, which drift. For install and quick start see the [repo README](../README.md) and [plugin README](../plugins/pnCore/README.md). For MCP tools, resources, prompts, and workflows, see [MCP usage guide](mcp-usage-guide.md) and [packages/pn-core-mcp/README.md](../packages/pn-core-mcp/README.md).
 
 ---
 
@@ -25,9 +25,9 @@ When integrating with Paperclip, pnCore workflows run in the **active harness**;
 | Domain | Supported | Not supported |
 |--------|-----------|---------------|
 | **Frontend** | React, Astro, Next.js, vanilla HTML/CSS/JS | Vue, Svelte, Angular, Qwik |
-| **Backend** | Node.js, Python, Go, Rust, Ruby, PHP | — |
-| **3D/Gaming** | Three.js, shaders, Blender (Python), Unreal, Godot, Babylon.js | Unity (gamedev skills and agents only; no dedicated stack rule—same “limited first-class” band as README) |
-| **Other** | n8n, web3, Figma, CI | — |
+| **Backend** | Node.js, Python, Go, Rust, Ruby, PHP | n/a |
+| **3D/Gaming** | Three.js, shaders, Blender (Python), Unreal, Godot, Babylon.js | Unity (gamedev skills and agents only; no dedicated stack rule, same “limited first-class” band as README) |
+| **Other** | n8n, web3, Figma, CI | n/a |
 
 The orchestrator and full dev loop route work to specialists. n8n and web3 have rules and skills but no dedicated agents.
 
@@ -43,7 +43,7 @@ Orchestration includes **pn-cultural-heritage-research** for tiered museum and a
 
 **Embedded studio DNA:** MCP resource **`pn-core://reference/embedded-studio-dna.md`**; skill **pn-embedded-studio-dna**; command **pn-design-dna** (DNA preamble then **`pn-design`** / `workflow_step("design")`). For cinematic portfolio, reel, studio, and lab surfaces.
 
-**Human-facing workflow artifacts:** MCP resource **`pn-core://reference/human-facing-artifacts.md`** — **SHOULD**-level guidance for HTML (shareable) vs Cursor canvas (IDE-bound) vs markdown on a **subset** of orchestration outputs (exploration, plans, PR explainers, reports); **dual digest** when automated handoffs follow. RUNBOOK summarizes and links here.
+**Human-facing workflow artifacts:** MCP resource **`pn-core://reference/human-facing-artifacts.md`**, **SHOULD**-level guidance for HTML (shareable) vs Cursor canvas (IDE-bound) vs markdown on a **subset** of orchestration outputs (exploration, plans, PR explainers, reports); **dual digest** when automated handoffs follow. RUNBOOK summarizes and links here.
 
 ---
 
@@ -53,106 +53,106 @@ Authoritative ids: **`list_agents`** / **`get_agent`**. Public agents live in `c
 
 ### Public
 
-- **pn-generative-media-director** — Text-to-image and text-to-video pipelines, ComfyUI workflow design and debugging, checkpoint and conditioning choices, cinematic shot design, lighting and camera grammar, delivery specs. In `config/specialists.json` (parallelGroup 1); `full_dev` requires this agent when discovery or plan treats generative media as first-class; omit for UI-only placeholder assets.
-- **pn-frontend-developer** — UI components, layout, a11y, user flows, visual design (React, Astro, Next, vanilla web); post-change review.
-- **pn-backend-developer** — Event handlers, API, state, backend (Node, Python, Go, Rust, Ruby, PHP); API/state/error review after changes.
-- **pn-testing-specialist** — TDD, smoke tests, CI, pn-verification-before-completion; run smoke/CI after tests and loop back if fail.
-- **pn-skeptic** — Questions the proposed approach; used after planning, before specialists run (orchestrator and full dev loop).
-- **pn-mobile-builder** — Native iOS/Android and cross-platform (React Native, Flutter); mobile-specific features. Manual routing only; not in config/specialists.json.
-- **pn-visionos-engineer** — visionOS spatial computing, SwiftUI volumetric interfaces, Liquid Glass. Manual routing only; not in config/specialists.json.
-- **pn-webxr-developer** — WebXR, browser AR/VR, Three.js/A-Frame. Manual routing only; not in config/specialists.json.
-- **pn-cultural-researcher** — Art history, movements, museum citations, period-accurate visual or copy grounding via **pn-cultural-heritage-research**. Manual routing only; listed in `onDemandAgents` in `config/specialists.json`.
+- **pn-generative-media-director**: Text-to-image and text-to-video pipelines, ComfyUI workflow design and debugging, checkpoint and conditioning choices, cinematic shot design, lighting and camera grammar, delivery specs. In `config/specialists.json` (parallelGroup 1); `full_dev` requires this agent when discovery or plan treats generative media as first-class; omit for UI-only placeholder assets.
+- **pn-frontend-developer**: UI components, layout, a11y, user flows, visual design (React, Astro, Next, vanilla web); post-change review.
+- **pn-backend-developer**: Event handlers, API, state, backend (Node, Python, Go, Rust, Ruby, PHP); API/state/error review after changes.
+- **pn-testing-specialist**: TDD, smoke tests, CI, pn-verification-before-completion; run smoke/CI after tests and loop back if fail.
+- **pn-skeptic**: Questions the proposed approach; used after planning, before specialists run (orchestrator and full dev loop).
+- **pn-mobile-builder**: Native iOS/Android and cross-platform (React Native, Flutter); mobile-specific features. Manual routing only; not in config/specialists.json.
+- **pn-visionos-engineer**: visionOS spatial computing, SwiftUI volumetric interfaces, Liquid Glass. Manual routing only; not in config/specialists.json.
+- **pn-webxr-developer**: WebXR, browser AR/VR, Three.js/A-Frame. Manual routing only; not in config/specialists.json.
+- **pn-cultural-researcher**: Art history, movements, museum citations, period-accurate visual or copy grounding via **pn-cultural-heritage-research**. Manual routing only; listed in `onDemandAgents` in `config/specialists.json`.
 
 ### Internal orchestration
 
 Invoked by `/pn-build` and `workflow_step("full_dev")`. Do not present these as public slash/agent-selector entries.
 
-- **pn-project-builder** — Discovery → user confirms → prior art → pn-writing-plans → **pn-skeptic-challenge** on plan → routes to specialists → pn-reviewer for final review+optimize loop.
-- **pn-scaffolder** — Discovery-driven plugin, web (React, Astro, Next, vanilla), backend (Node, Python, Go, Rust, Ruby, PHP), or 3D (Babylon.js) scaffold; pn-discovery-questionnaire; pn-writing-skills when creating skills; post-scaffold review.
-- **pn-assets-manager** — SVG, raster images, logos, diagrams, placeholders; routes to workflow_step("image_create") (format SVG)/inline SVG, workflow_step("image_create")/inline image, `pn-diagram` for architecture/flow visuals, or placeholder URLs.
-- **pn-game-developer** — Three.js, Babylon.js, Godot, Unity scenes; shaders; game logic; post-change review.
-- **pn-reviewer** — Quality review loop with deslop, pn-verification-before-completion, and performance optimization; repeat until pass.
-- **pn-security-auditor** — Security-focused review; OWASP, auth, dependencies, secrets, input validation.
+- **pn-project-builder**: Discovery → user confirms → prior art → pn-writing-plans → **pn-skeptic-challenge** on plan → routes to specialists → pn-reviewer for final review+optimize loop.
+- **pn-scaffolder**: Discovery-driven plugin, web (React, Astro, Next, vanilla), backend (Node, Python, Go, Rust, Ruby, PHP), or 3D (Babylon.js) scaffold; pn-discovery-questionnaire; pn-writing-skills when creating skills; post-scaffold review.
+- **pn-assets-manager**: SVG, raster images, logos, diagrams, placeholders; routes to workflow_step("image_create") (format SVG)/inline SVG, workflow_step("image_create")/inline image, `pn-diagram` for architecture/flow visuals, or placeholder URLs.
+- **pn-game-developer**: Three.js, Babylon.js, Godot, Unity scenes; shaders; game logic; post-change review.
+- **pn-reviewer**: Quality review loop with deslop, pn-verification-before-completion, and performance optimization; repeat until pass.
+- **pn-security-auditor**: Security-focused review; OWASP, auth, dependencies, secrets, input validation.
 
 ---
 
 ## Commands
 
-User-entry commands ship under **`plugins/pnCore/.cursor/commands/`** (the Cursor `/pn` slash palette). Surgical commands live canonical-only under **`packages/pn-core-mcp/content/commands/`** with frontmatter `slash: false` — reachable via **`get_command("<id>")`** but not shown in the `/` palette. Do not copy catalog numbers here; the README **Catalog:** line and **`list_commands`** are the live inventory (`npm run validate` / `check-doc-inventory`). Palette files: `Get-ChildItem plugins/pnCore/.cursor/commands -Recurse -Filter *.md`. The split is enforced by [`scripts/command-slash-filter.mjs`](../scripts/command-slash-filter.mjs) and capped by the soft limit in [`scripts/validate-plugin-lib.mjs`](../scripts/validate-plugin-lib.mjs).
+User-entry commands ship under **`plugins/pnCore/.cursor/commands/`** (the Cursor `/pn` slash palette). Surgical commands live canonical-only under **`packages/pn-core-mcp/content/commands/`** with frontmatter `slash: false`, reachable via **`get_command("<id>")`** but not shown in the `/` palette. Do not copy catalog numbers here; the README **Catalog:** line and **`list_commands`** are the live inventory (`npm run validate` / `check-doc-inventory`). Palette files: `Get-ChildItem plugins/pnCore/.cursor/commands -Recurse -Filter *.md`. The split is enforced by [`scripts/command-slash-filter.mjs`](../scripts/command-slash-filter.mjs) and capped by the soft limit in [`scripts/validate-plugin-lib.mjs`](../scripts/validate-plugin-lib.mjs).
 
 ### Core workflow
 
-- **pn-new** — Start a new project. Refs (yes/no), intent (full auto | design focused | involved). Involved mode optionally runs full doc set (PRD, DESIGN, prior art, workflow roadmap, refs index) then builds.
-- **pn-setup** — Configure pnCore for an existing project. Choose: (1) Everything, (2) Project integration only (codebase analysis, `harness_detect` → `harness_scaffold` project-context + project skill in the active harness's folders, file-glob rules), (3) Design context only (`.pncore-design.md`; optional house philosophy, primary reference URL, diagram tokens, CLAUDE.md aesthetics block), (4) Stack context only (.pncore-stack.md). Git trailer hooks: `pn-core://reference/consumer-gating.md`. Template: `.cursor/docs/templates/pncore-design.example.md` after Cursor install.
-- **pn-build** — Full dev cycle: discovery → prior art → plan → skeptic-on-plan → specialists → review+optimize → skeptic-on-output. For new features or large changes. Prefer `workflow_step("full_dev", …)` when MCP available.
-- **pn-design** — Design-first build: checks `.pncore-design.md` → discovery → optional **`pn-api-probe`** before plan when the runtime may have moved → plan → skeptic → assets → build (pn-typeset → pn-colorize → pn-arrange substeps) → **`pn-render-verify`** then skeptic-on-output for visual deliverables. Failed skeptic-on-output can loop to build with **`iterationCount`** / **`approval_checkpoint`** when using `workflow_step("design", …)`. Prefer `workflow_step("design", …)` when MCP available.
-- **pn-design-dna** — Same as design flow after loading **embedded studio DNA** (`pn-core://reference/embedded-studio-dna.md`) and **pn-embedded-studio-dna**; for portfolio / reel / lab editorial structure. Prefer chaining `workflow_step("design", …)` with DNA summary in context when MCP available.
-- **pn-review** — One review+optimize pass: quality gates, deslop, pn-reality-check, pn-react-next-perf / pn-systematic-debugging where relevant.
-- **pn-deliver** — Strict delivery gate. Phase 1: verify against acceptance criteria and quality gates. Phase 2 (only if Phase 1 passes): package results (summary, file list, how-to-test, checklist, residual risks, followups).
-- **pn-assets** — Single entry for any visual asset. Routes to SVG flow (`workflow_step("image_create") (format SVG)` or inline), image flow (`workflow_step("image_create")` or inline), **diagram** (`pn-diagram` / `pn-diagram-design`), or placeholder URLs. Content discussed before generation.
-- **pn-diagram** — Architecture, flowchart, sequence, state, loop, quadrant, layers, process, data-flow, or org-chart as Mermaid-in-docs or editorial HTML/SVG. Import-redraw with a fidelity ledger (no draw.io extractors). Skill `pn-diagram-design`; no `workflowType`.
-- **pn-strategy** — Business-strategy entry point: framing → grill → pressure-test → HTML + markdown brief. Prefer `workflow_step("business_strategy", …)` when MCP available.
-- **pn-guide** — Routing reference for the command and skill catalog (clusters, when-to-use guidance, surgical-audit map).
-- **pn-video-lint** — Lint and review generated video / motion deliverables for spec, pacing, and pipeline drift.
+- **pn-new**: Start a new project. Refs (yes/no), intent (full auto | design focused | involved). Involved mode optionally runs full doc set (PRD, DESIGN, prior art, workflow roadmap, refs index) then builds.
+- **pn-setup**: Configure pnCore for an existing project. Choose: (1) Everything, (2) Project integration only (codebase analysis, `harness_detect` → `harness_scaffold` project-context + project skill in the active harness's folders, file-glob rules), (3) Design context only (`.pncore-design.md`; optional house philosophy, primary reference URL, diagram tokens, CLAUDE.md aesthetics block), (4) Stack context only (.pncore-stack.md). Git trailer hooks: `pn-core://reference/consumer-gating.md`. Template: `.cursor/docs/templates/pncore-design.example.md` after Cursor install.
+- **pn-build**: Full dev cycle: discovery → prior art → plan → skeptic-on-plan → specialists → review+optimize → skeptic-on-output. For new features or large changes. Prefer `workflow_step("full_dev", …)` when MCP available.
+- **pn-design**: Design-first build: checks `.pncore-design.md` → discovery → optional **`pn-api-probe`** before plan when the runtime may have moved → plan → skeptic → assets → build (pn-typeset → pn-colorize → pn-arrange substeps) → **`pn-render-verify`** then skeptic-on-output for visual deliverables. Failed skeptic-on-output can loop to build with **`iterationCount`** / **`approval_checkpoint`** when using `workflow_step("design", …)`. Prefer `workflow_step("design", …)` when MCP available.
+- **pn-design-dna**: Same as design flow after loading **embedded studio DNA** (`pn-core://reference/embedded-studio-dna.md`) and **pn-embedded-studio-dna**; for portfolio / reel / lab editorial structure. Prefer chaining `workflow_step("design", …)` with DNA summary in context when MCP available.
+- **pn-review**: One review+optimize pass: quality gates, deslop, pn-reality-check, pn-react-next-perf / pn-systematic-debugging where relevant.
+- **pn-deliver**: Strict delivery gate. Phase 1: verify against acceptance criteria and quality gates. Phase 2 (only if Phase 1 passes): package results (summary, file list, how-to-test, checklist, residual risks, followups).
+- **pn-assets**: Single entry for any visual asset. Routes to SVG flow (`workflow_step("image_create") (format SVG)` or inline), image flow (`workflow_step("image_create")` or inline), **diagram** (`pn-diagram` / `pn-diagram-design`), or placeholder URLs. Content discussed before generation.
+- **pn-diagram**: Architecture, flowchart, sequence, state, loop, quadrant, layers, process, data-flow, or org-chart as Mermaid-in-docs or editorial HTML/SVG. Import-redraw with a fidelity ledger (no draw.io extractors). Skill `pn-diagram-design`; no `workflowType`.
+- **pn-strategy**: Business-strategy entry point: framing → grill → pressure-test → HTML + markdown brief. Prefer `workflow_step("business_strategy", …)` when MCP available.
+- **pn-guide**: Routing reference for the command and skill catalog (clusters, when-to-use guidance, surgical-audit map).
+- **pn-video-lint**: Lint and review generated video / motion deliverables for spec, pacing, and pipeline drift.
 
 ### Challenge, program, and session
 
-- **pn-skeptic** — Fast automated plan challenge (`/pn-skeptic`); structured `AskQuestion` / `workflow_confirm` gate. For interactive Socratic dialogue, use **pn-grill**.
-- **pn-grill** — Socratic plan stress-test: one question at a time, recommended answer per question, walks every branch of the decision tree until resolved. Use before building when you want dialogue, not a single-pass report.
-- **pn-design-variants** — Parallel sub-agents each constrained to a radically different design approach, then compare. Based on "Design It Twice." Use before committing to a UI layout, component API, module interface, or architecture choice.
-- **pn-pressure-test** — Startup idea pressure-test (verdict, scorecard, fatal flaws, competition-as-behavior, first-customer moves, ~2-week MVP test). Not for implementation plans; use pn-skeptic / pn-grill for those.
-- **pn-program** — Multi-slice hierarchical orchestration (`feature_program` workflow; preview behind `featureProgram: true`). Prefer `workflow_step("feature_program", …)` when MCP available.
-- **pn-best-of-n** — Competing implementations tournament (2–3 isolated worktrees, objective gates, premium judge). Skill-only when `bestOfN.enabled` is false; prefer `workflow_step("implementation_tournament", …)` when the flag is on.
-- **pn-handoff** — Session handoff at `.pncore/handoff.md` plus two reflection questions before close.
-- **pn-retro** — Manual session retrospective; blameless reports under `docs/refs/retros/`.
-- **pn-prompt-optimize** — Refine and stress-test a prompt or instruction. Prefer `workflow_step("prompt_optimize", …)` when MCP available.
-- **pn-backfill-evals** — Rank skills missing `EVAL.yaml` and emit paste-ready local-agent batch prompts. Does not auto-write suites.
+- **pn-skeptic**: Fast automated plan challenge (`/pn-skeptic`); structured `AskQuestion` / `workflow_confirm` gate. For interactive Socratic dialogue, use **pn-grill**.
+- **pn-grill**: Socratic plan stress-test: one question at a time, recommended answer per question, walks every branch of the decision tree until resolved. Use before building when you want dialogue, not a single-pass report.
+- **pn-design-variants**: Parallel sub-agents each constrained to a radically different design approach, then compare. Based on "Design It Twice." Use before committing to a UI layout, component API, module interface, or architecture choice.
+- **pn-pressure-test**: Startup idea pressure-test (verdict, scorecard, fatal flaws, competition-as-behavior, first-customer moves, ~2-week MVP test). Not for implementation plans; use pn-skeptic / pn-grill for those.
+- **pn-program**: Multi-slice hierarchical orchestration (`feature_program` workflow; preview behind `featureProgram: true`). Prefer `workflow_step("feature_program", …)` when MCP available.
+- **pn-best-of-n**: Competing implementations tournament (2–3 isolated worktrees, objective gates, premium judge). Skill-only when `bestOfN.enabled` is false; prefer `workflow_step("implementation_tournament", …)` when the flag is on.
+- **pn-handoff**: Session handoff at `.pncore/handoff.md` plus two reflection questions before close.
+- **pn-retro**: Manual session retrospective; blameless reports under `docs/refs/retros/`.
+- **pn-prompt-optimize**: Refine and stress-test a prompt or instruction. Prefer `workflow_step("prompt_optimize", …)` when MCP available.
+- **pn-backfill-evals**: Rank skills missing `EVAL.yaml` and emit paste-ready local-agent batch prompts. Does not auto-write suites.
 
 ### Product management
 
-- **pn-create-prd** — Product requirements document (8-section template or feature-matrix). Use before plans when stakeholders need a spec.
+- **pn-create-prd**: Product requirements document (8-section template or feature-matrix). Use before plans when stakeholders need a spec.
 
 ### Full audits
 
-- **pn-frontend-audit** — Scope → 5 surgical passes (typography → layout → design-tokens → a11y → performance-fe) → scorecard + fix roadmap. Prefer `workflow_step("frontend_audit", …)` when MCP available.
-- **pn-backend-audit** — Stack context, then five passes: `pn-audit-api` → `pn-audit-security` → `pn-audit-data` → `pn-audit-errors` → `pn-audit-performance`. Uses `.pncore-stack.md` when present (create via **`pn-setup`** option 4). Prefer `workflow_step("backend_audit", …)` when MCP available.
+- **pn-frontend-audit**: Scope → 5 surgical passes (typography → layout → design-tokens → a11y → performance-fe) → scorecard + fix roadmap. Prefer `workflow_step("frontend_audit", …)` when MCP available.
+- **pn-backend-audit**: Stack context, then five passes: `pn-audit-api` → `pn-audit-security` → `pn-audit-data` → `pn-audit-errors` → `pn-audit-performance`. Uses `.pncore-stack.md` when present (create via **`pn-setup`** option 4). Prefer `workflow_step("backend_audit", …)` when MCP available.
 
-### Backend surgical (5) — `pn-audit-*` — palette-hidden (`slash: false`); reach via `get_command("<id>")` or as substeps of `pn-backend-audit`
+### Backend surgical (5): `pn-audit-*`, palette-hidden (`slash: false`); reach via `get_command("<id>")` or as substeps of `pn-backend-audit`
 
-- **pn-audit-api** — REST convention review: resource naming, HTTP semantics, status codes, response shapes, input validation, schema leaks, pagination. Standalone or substep of `pn-backend-audit`.
-- **pn-audit-security** — OWASP-guided security review: injection, JWT config, password hashing, IDOR, secrets hygiene, CORS allowlist, security headers, rate limiting. Standalone or substep of `pn-backend-audit`.
-- **pn-audit-data** — Database schema design or review: normalization, FK constraints, indexing strategy, money as integer cents, soft delete partial indexes, migration immutability, expand-contract. Standalone or substep of `pn-backend-audit`.
-- **pn-audit-errors** — Standardize error handling: centralized middleware, consistent shapes, requestId propagation, structured logging, stack trace removal, graceful shutdown. Standalone or substep of `pn-backend-audit`.
-- **pn-audit-performance** — Backend performance pass: N+1 queries, missing indexes, caching opportunities, blocking I/O, connection pool configuration, unpaginated collections. Standalone or substep of `pn-backend-audit`.
+- **pn-audit-api**: REST convention review: resource naming, HTTP semantics, status codes, response shapes, input validation, schema leaks, pagination. Standalone or substep of `pn-backend-audit`.
+- **pn-audit-security**: OWASP-guided security review: injection, JWT config, password hashing, IDOR, secrets hygiene, CORS allowlist, security headers, rate limiting. Standalone or substep of `pn-backend-audit`.
+- **pn-audit-data**: Database schema design or review: normalization, FK constraints, indexing strategy, money as integer cents, soft delete partial indexes, migration immutability, expand-contract. Standalone or substep of `pn-backend-audit`.
+- **pn-audit-errors**: Standardize error handling: centralized middleware, consistent shapes, requestId propagation, structured logging, stack trace removal, graceful shutdown. Standalone or substep of `pn-backend-audit`.
+- **pn-audit-performance**: Backend performance pass: N+1 queries, missing indexes, caching opportunities, blocking I/O, connection pool configuration, unpaginated collections. Standalone or substep of `pn-backend-audit`.
 
-### Frontend surgical (5) — `pn-audit-*` — palette-hidden (`slash: false`); reach via `get_command("<id>")` or as substeps of `pn-frontend-audit`
+### Frontend surgical (5): `pn-audit-*`, palette-hidden (`slash: false`); reach via `get_command("<id>")` or as substeps of `pn-frontend-audit`
 
-- **pn-audit-typography** — Type system review: font stack choices, scale, hierarchy, line-height/measure, loading strategy.
-- **pn-audit-layout** — Layout review: spatial rhythm, grid anti-patterns, container queries, responsive breakpoints, overflow.
-- **pn-audit-design-tokens** — Design-token review: OKLCH/HSL palette, semantic naming, dark-mode coverage, contrast ratios.
-- **pn-audit-a11y** — Accessibility review: WCAG AA, keyboard navigation, focus management, ARIA usage, prefers-reduced-motion.
-- **pn-audit-performance-fe** — Frontend performance review: hydration cost, image optimization, bundle splitting, render-blocking assets, LCP/CLS/INP.
+- **pn-audit-typography**: Type system review: font stack choices, scale, hierarchy, line-height/measure, loading strategy.
+- **pn-audit-layout**: Layout review: spatial rhythm, grid anti-patterns, container queries, responsive breakpoints, overflow.
+- **pn-audit-design-tokens**: Design-token review: OKLCH/HSL palette, semantic naming, dark-mode coverage, contrast ratios.
+- **pn-audit-a11y**: Accessibility review: WCAG AA, keyboard navigation, focus management, ARIA usage, prefers-reduced-motion.
+- **pn-audit-performance-fe**: Frontend performance review: hydration cost, image optimization, bundle splitting, render-blocking assets, LCP/CLS/INP.
 
-### Design surgical — palette-hidden except the routers
+### Design surgical: palette-hidden except the routers
 
 **Visible (slash palette):**
 
-- **pn-visual-tweak** — Targeted visual change via `workflow_step("visual_tweak", …)`; bounded layout/color/type/motion pass. Routes to the surgical commands below.
-- **pn-polish** — Pre-ship quality pass across typography, color, spacing, copy, a11y, and interaction states.
-- **pn-preflight** — Marketing UI pre-ship gate (Design Read, tuning dials, AI Slop Test). Landing/portfolio/editorial; dashboards use standard tier unless the user requests strict.
+- **pn-visual-tweak**: Targeted visual change via `workflow_step("visual_tweak", …)`; bounded layout/color/type/motion pass. Routes to the surgical commands below.
+- **pn-polish**: Pre-ship quality pass across typography, color, spacing, copy, a11y, and interaction states.
+- **pn-preflight**: Marketing UI pre-ship gate (Design Read, tuning dials, AI Slop Test). Landing/portfolio/editorial; dashboards use standard tier unless the user requests strict.
 
 **Palette-hidden (`slash: false`); reach via `get_command("<id>")` or as substeps of `pn-visual-tweak` / `pn-polish` / `pn-design`:**
 
-- **pn-typeset** — Surgical typography pass: font choices, type scale, hierarchy, and font loading.
-- **pn-colorize** — Surgical color pass: OKLCH palette, tinted neutrals, WCAG contrast, dark mode token system.
-- **pn-arrange** — Surgical layout pass: spatial rhythm, asymmetric composition, grid anti-patterns.
-- **pn-bolder** — Amplify a timid or generic design; replaces safe defaults with visual character.
-- **pn-quieter** — Reduce visual noise; removes decorative excess, overused animations, competing elements.
-- **pn-delight** — Add purposeful motion and personality; justifies each delight point before implementing.
-- **pn-distill** — Strip design to its essence; removes everything that doesn't earn its place.
-- ~~pn-html-preview~~ — Demoted to skill `pn-html-preview` (invoke via `get_skill("pn-html-preview")`). Save fenced HTML, open in browser.
+- **pn-typeset**: Surgical typography pass: font choices, type scale, hierarchy, and font loading.
+- **pn-colorize**: Surgical color pass: OKLCH palette, tinted neutrals, WCAG contrast, dark mode token system.
+- **pn-arrange**: Surgical layout pass: spatial rhythm, asymmetric composition, grid anti-patterns.
+- **pn-bolder**: Amplify a timid or generic design; replaces safe defaults with visual character.
+- **pn-quieter**: Reduce visual noise; removes decorative excess, overused animations, competing elements.
+- **pn-delight**: Add purposeful motion and personality; justifies each delight point before implementing.
+- **pn-distill**: Strip design to its essence; removes everything that doesn't earn its place.
+- ~~pn-html-preview~~: Demoted to skill `pn-html-preview` (invoke via `get_skill("pn-html-preview")`). Save fenced HTML, open in browser.
 
-> Game-feature work uses the **`game_feature`** workflow type directly — there is no `/pn-game` slash command; say "Use the game feature workflow" or call `workflow_step("game_feature", 0, {})`.
+> Game-feature work uses the **`game_feature`** workflow type directly: there is no `/pn-game` slash command; say "Use the game feature workflow" or call `workflow_step("game_feature", 0, {})`.
 
 **Workflow engine:** When MCP is available, prefer the `workflow_step` tool for all types returned by `list_workflow_types` (including `project_kickoff`, `prompt_optimize`, `visual_tweak`, and asset flows). Control flow is deterministic; the model cannot skip steps. See [mcp-usage-guide](mcp-usage-guide.md) for workflow types and step flow.
 

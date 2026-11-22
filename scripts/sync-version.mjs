@@ -68,7 +68,7 @@ if (existsSync(marketplacePath)) {
 const readmePath = join(repoRoot, "README.md");
 if (existsSync(readmePath)) {
   let readme = readFileSync(readmePath, "utf8");
-  readme = readme.replace(/^(# pnCore\s*—\s*v)\d+\.\d+\.\d+/m, `$1${version}`);
+  readme = readme.replace(/^# pnCore\s*(?:[—:-]+\s*)?v\d+\.\d+\.\d+/m, `# pnCore v${version}`);
   writeFileSync(readmePath, readme, "utf8");
   console.log("Synced version to README.md");
 }

@@ -1,4 +1,4 @@
-# pn slash submenu spike — 2026-07-04
+# pn slash submenu spike: 2026-07-04
 
 Gate artifact for ADR-0008 / WP0 before recursive command sync.
 
@@ -8,21 +8,21 @@ Gate artifact for ADR-0008 / WP0 before recursive command sync.
 
 - `.cursor/commands/` subfolders are scanned recursively in Cursor IDE 2.6+ ([forum, Mar 2026](https://forum.cursor.com/t/subfolders-within-cursor-commands-folder-supported-in-ide-but-not-cli/154719)).
 - Expected UX: folder `pn/` appears as a **`pn`** submenu group; leaf filename determines slash name.
-- **Cursor CLI** reads top-level `.md` only — nested leaves are IDE-only. Mitigation: top-level `pn.md` router stub.
+- **Cursor CLI** reads top-level `.md` only: nested leaves are IDE-only. Mitigation: top-level `pn.md` router stub.
 
 ### pi.dev (Pi coding agent)
 
 Official docs (verified 2026-07-04):
 
-- [Prompt Templates](https://pi.dev/docs/latest/prompt-templates) — loading rules, filename → `/name`, frontmatter
-- [Pi Packages](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/packages.md) — `pi.prompts` manifest, `pi-package` keyword, convention `prompts/` dir
+- [Prompt Templates](https://pi.dev/docs/latest/prompt-templates): loading rules, filename → `/name`, frontmatter
+- [Pi Packages](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/packages.md): `pi.prompts` manifest, `pi-package` keyword, convention `prompts/` dir
 
 | Feature | Pi support | Doc source |
 |---------|------------|------------|
-| Nested **`pn` submenu** in `/` picker | **No** — flat autocomplete list | [prompt-templates](https://pi.dev/docs/latest/prompt-templates) § Usage |
-| Recursive prompt discovery | **No** — `prompts/` loads direct `.md` children only | [prompt-templates](https://pi.dev/docs/latest/prompt-templates) § Loading Rules |
-| Subdirectory templates | **Yes** — only when listed explicitly in `prompts` settings or `pi.prompts` manifest (each path still non-recursive) | [prompt-templates](https://pi.dev/docs/latest/prompt-templates) § Loading Rules |
-| Command name | Filename stem — `pn-build.md` → `/pn-build` | [prompt-templates](https://pi.dev/docs/latest/prompt-templates) § Format |
+| Nested **`pn` submenu** in `/` picker | **No**: flat autocomplete list | [prompt-templates](https://pi.dev/docs/latest/prompt-templates) § Usage |
+| Recursive prompt discovery | **No**: `prompts/` loads direct `.md` children only | [prompt-templates](https://pi.dev/docs/latest/prompt-templates) § Loading Rules |
+| Subdirectory templates | **Yes**: only when listed explicitly in `prompts` settings or `pi.prompts` manifest (each path still non-recursive) | [prompt-templates](https://pi.dev/docs/latest/prompt-templates) § Loading Rules |
+| Command name | Filename stem: `pn-build.md` → `/pn-build` | [prompt-templates](https://pi.dev/docs/latest/prompt-templates) § Format |
 | Frontmatter `description` | Supported; optional `argument-hint` for autocomplete | [prompt-templates](https://pi.dev/docs/latest/prompt-templates) § Format |
 | Package install | `pi install` + `package.json` `"pi": { "prompts": ["./prompts"] }` | [packages.md](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/packages.md) § Creating a Pi Package |
 
@@ -36,7 +36,7 @@ Official docs (verified 2026-07-04):
 - Root `package.json`: `pi.skills` + `pi.extensions` only; **`pi.prompts` omitted** (validator enforced).
 - Users: **`/pn`** opens selector; **`/pn pn-build`** direct invoke; `pi install git:github.com/perniemann/pnCore@main` + restart.
 
-**Superseded (pre–v0.17.1):** flat `pi.prompts: ["./prompts"]` — flooded main slash menu with ~27 entries.
+**Superseded (pre–v0.17.1):** flat `pi.prompts: ["./prompts"]`, flooded main slash menu with ~27 entries.
 
 ## Spike files (removed after verification)
 

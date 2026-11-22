@@ -21,7 +21,7 @@ Two docs named **Streamable HTTP** as the enterprise path for remote MCP ([packa
 
 1. **Keep stdio.** Do not add Streamable HTTP, `Mcp-Session-Id`, session affinity, or a protocol handshake of our own.
 2. **Keep application state explicit.** `run_id` plus caller-supplied `workflow_step` `state` (and file-backed `.pncore/` resume) remain the handle. Protocol sessions are not a substitute.
-3. **Docs tell the 2026-07-28 truth.** stdio stays the product transport. If a remote HTTP pn-core ever ships, it must be spec **2026-07-28** (stateless requests, MRTR, `Mcp-Method` / `Mcp-Name` headers) — not sessionful Streamable HTTP.
+3. **Docs tell the 2026-07-28 truth.** stdio stays the product transport. If a remote HTTP pn-core ever ships, it must be spec **2026-07-28** (stateless requests, MRTR, `Mcp-Method` / `Mcp-Name` headers): not sessionful Streamable HTTP.
 4. **SDK v1 until hosts catch up.** Stay on `@modelcontextprotocol/sdk` v1 while host clients require `initialize`. Migrate the **adapter** to SDK v2 / `2026-07-28` only after those hosts speak it. Do not rewrite `workflow_step` or HITL for that bump.
 5. **MRTR elicitation is optional later.** Native `input_required` does not replace `approval_checkpoint`, skeptic gates, or `PNCORE_APPROVAL_TOKEN` until hosts implement MRTR.
 6. **No IdP/CIMD until we are a remote server.** Local stdio inherits the desktop user. Central MCP authorization is out of scope.

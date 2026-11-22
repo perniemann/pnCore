@@ -6,8 +6,8 @@
 import { createServer } from "node:http";
 import { readFile, readdir, stat } from "node:fs/promises";
 import { existsSync } from "node:fs";
-import { join, dirname, resolve, extname } from "node:path";
-import { fileURLToPath, URL } from "node:url";
+import { join, dirname, resolve, extname, sep } from "node:path";
+import { fileURLToPath, pathToFileURL, URL } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
@@ -261,7 +261,7 @@ function t3DetailFromHotSkills(hotSkills) {
   return `M3 collecting (${n} get_skill events) — frequency split not shipped`;
 }
 
-async function buildSnapshot() {
+export async function buildSnapshot() {
   const [version, skills, agentsCount, commandsCount, rulesCount, bench, skillSizes, hotSkills] =
     await Promise.all([
       readPkgVersion(),
@@ -329,7 +329,7 @@ function send(res, status, body, headers = {}) {
 async function serveStatic(res, path) {
   try {
     const full = join(DASHBOARD_DIR, path);
-    if (!full.startsWith(DASHBOARD_DIR)) return send(res, 403, "forbidden");
+    if (!full.startsWith(DASHBOARD_DIR + sep)) return send(res, 403, "forbidden");
     const s = await stat(full);
     if (s.isDirectory()) return send(res, 404, "not found");
     const buf = await readFile(full);
@@ -340,42 +340,53 @@ async function serveStatic(res, path) {
   }
 }
 
-const server = createServer(async (req, res) => {
-  const url = new URL(req.url, `http://${req.headers.host}`);
-  const path = url.pathname;
+function startServer() {
+  const server = createServer(async (req, res) => {
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const path = url.pathname;
 
-  if (path === "/api/snapshot") {
-    try {
-      const snapshot = await buildSnapshot();
-      return send(res, 200, JSON.stringify(snapshot), {
-        "content-type": "application/json; charset=utf-8",
-      });
-    } catch (err) {
-      return send(res, 500, JSON.stringify({ error: String(err) }), {
-        "content-type": "application/json; charset=utf-8",
-      });
+    if (path === "/api/snapshot") {
+      try {
+        const snapshot = await buildSnapshot();
+        return send(res, 200, JSON.stringify(snapshot), {
+          "content-type": "application/json; charset=utf-8",
+        });
+      } catch (err) {
+        return send(res, 500, JSON.stringify({ error: String(err) }), {
+          "content-type": "application/json; charset=utf-8",
+        });
+      }
     }
-  }
 
-  if (path === "/plugins/pnCore/assets/pn-logo.svg") {
-    try {
-      if (!existsSync(PLUGIN_LOGO)) return send(res, 404, "not found");
-      const buf = await readFile(PLUGIN_LOGO);
-      return send(res, 200, buf, {
-        "content-type": "image/svg+xml; charset=utf-8",
-      });
-    } catch {
-      return send(res, 500, "error");
+    if (path === "/plugins/pnCore/assets/pn-logo.svg") {
+      try {
+        if (!existsSync(PLUGIN_LOGO)) return send(res, 404, "not found");
+        const buf = await readFile(PLUGIN_LOGO);
+        return send(res, 200, buf, {
+          "content-type": "image/svg+xml; charset=utf-8",
+        });
+      } catch {
+        return send(res, 500, "error");
+      }
     }
+
+    if (path === "/" || path === "/index.html") return serveStatic(res, "index.html");
+    return serveStatic(res, path.replace(/^\/+/, ""));
+  });
+
+  server.listen(PORT, () => {
+    const url = `http://localhost:${PORT}/`;
+    console.log(`pnCore dashboard → ${url}`);
+    console.log(`  api: ${url}api/snapshot`);
+    console.log(`  ctrl-c to stop`);
+  });
+}
+
+// `--json` prints one snapshot (used to refresh the static page); no flag serves the dashboard.
+if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) {
+  if (process.argv.includes("--json")) {
+    console.log(JSON.stringify(await buildSnapshot(), null, 2));
+  } else {
+    startServer();
   }
-
-  if (path === "/" || path === "/index.html") return serveStatic(res, "index.html");
-  return serveStatic(res, path.replace(/^\/+/, ""));
-});
-
-server.listen(PORT, () => {
-  const url = `http://localhost:${PORT}/`;
-  console.log(`pnCore dashboard → ${url}`);
-  console.log(`  api: ${url}api/snapshot`);
-  console.log(`  ctrl-c to stop`);
-});
+}

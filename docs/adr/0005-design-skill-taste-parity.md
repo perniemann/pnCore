@@ -13,18 +13,18 @@ Accepted
 
 External **Taste Skill** ([Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill), MIT) packages anti-slop frontend guidance as a large single `SKILL.md` with brief inference, numeric tuning dials, and mechanical pre-flight checks. pnCore already covers anti-slop via `pn-frontend-design`, `pn-aesthetics-baseline`, and `pn-frontend-design-philosophy`, plus orchestration in `pn-design` and studio-specific `embedded-studio-dna`.
 
-Gap: marketing and portfolio surfaces still drift generic because agents lack a **mandatory, lightweight intent declaration** (Design Read + dials) and a **pass/fail ship gate** integrated into the design workflow—not another 1,200-line monolith.
+Gap: marketing and portfolio surfaces still drift generic because agents lack a **mandatory, lightweight intent declaration** (Design Read + dials) and a **pass/fail ship gate** integrated into the design workflow, not another 1,200-line monolith.
 
 ## Decision
 
 **v1 (this ADR):**
 
 1. Add two MCP references (progressive disclosure, not mega-skills):
-   - `pn-core://reference/design-intent.md` — Design Read, `DESIGN_VARIANCE` / `MOTION_INTENSITY` / `VISUAL_DENSITY` dials, aesthetic presets.
-   - `pn-core://reference/marketing-ship-gate.md` — tiered pre-flight (`standard` | `strict` | `studio`), AI Slop Test integration, project-truth overrides.
-2. Extend `pn-frontend-design-philosophy/reference.md` with **Phase 0 — Design intent** (loads design-intent; maps dials to page mode).
+   - `pn-core://reference/design-intent.md`: Design Read, `DESIGN_VARIANCE` / `MOTION_INTENSITY` / `VISUAL_DENSITY` dials, aesthetic presets.
+   - `pn-core://reference/marketing-ship-gate.md`: tiered pre-flight (`standard` | `strict` | `studio`), AI Slop Test integration, project-truth overrides.
+2. Extend `pn-frontend-design-philosophy/reference.md` with **Phase 0: Design intent** (loads design-intent; maps dials to page mode).
 3. Wire **`pn-design`** plan step: mandatory Design Read + three dial values; build step: `pn-preflight` for marketing page modes.
-4. New command **`pn-preflight`** — emits PASS/FAIL table against marketing-ship-gate.
+4. New command **`pn-preflight`**, emits PASS/FAIL table against marketing-ship-gate.
 5. Optional `.pncore-design.md` field `Tuning dials` (variance / motion / density) when teams want persisted defaults.
 
 **Non-goals (v1):**

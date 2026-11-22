@@ -2,7 +2,7 @@
   <img src="plugins/pnCore/assets/pn-logo.svg" width="176" alt="pnCore" />
 </p>
 
-# pnCore — v0.24.0
+# pnCore v0.24.1
 
 pnCore is an MCP engine with harness adapters for Cursor, Claude Code, Codex, and Pi. It runs software delivery as a sequence of named, gated steps instead of one long chat.
 
@@ -10,7 +10,7 @@ pnCore is an MCP engine with harness adapters for Cursor, Claude Code, Codex, an
   <img src="docs/readme/01_control_rail.svg" width="850" alt="workflow_step is a named rail: discovery, plan, build, review. A skeptic gate latches plan to build. Same engine on Cursor, Claude Code, Codex, and Pi.">
 </p>
 
-It runs named workflows through a deterministic `workflow_step` engine — discovery, plan, build, review on `full_dev`; design, audits, assets, and deliver as other types — backed by skills, agents, rules, and `pn-core://` resources, not a folder of prompts.
+It runs named workflows through a deterministic `workflow_step` engine: discovery, plan, build, review on `full_dev`; design, audits, assets, and deliver as other types, backed by skills, agents, rules, and `pn-core://` resources, not a folder of prompts.
 
 **Catalog:** 142 skills, 9 public agents + 6 internal orchestration agents, 29 visible slash palette files (28 under **`pn`** submenu + **`/pn`** stub) + 18 palette-hidden surgical commands (47 command files total), 25 MCP tools, 15 workflow types, plus `pn-core://` resources and prompts.
 
@@ -22,9 +22,9 @@ It runs named workflows through a deterministic `workflow_step` engine — disco
   <img src="docs/readme/02_who_owns_the_loop.svg" width="850" alt="Left: a single chat plans, codes, and checks its own work with no checkpoint in between. Right: the engine runs one gated step at a time and decides which step comes next. Same models either way; state saves let a run resume between calls.">
 </p>
 
-A single chat can plan a feature, write the code, and tell you it's done — but there's no checkpoint in between. If it goes sideways on step three, you're rereading the whole transcript to find out where. Asking it to redo one part usually means starting the conversation over, and whatever context got it that far is gone.
+A single chat can plan a feature, write the code, and tell you it's done, but there's no checkpoint in between. If it goes sideways on step three, you're rereading the whole transcript to find out where. Asking it to redo one part usually means starting the conversation over, and whatever context got it that far is gone.
 
-pnCore moves that step list out of the chat. `workflow_step(type, index, state)` runs one step at a time — discovery, plan, build, review — and hands back the next instruction. The engine serves only the step it pointed to, so a run cannot skip ahead, and a failed gate never advances. How much the gates prove depends on the mode: with `involved` intent a gate record must come from `workflow_confirm`, with `disposeVerify` a verify result must come from `workflow_verify`, and in `full auto` a passed gate is a state key the model sets. If you get disconnected, `workflow_state_save` and `workflow_state_load` pick the run back up where it left off.
+pnCore moves that step list out of the chat. `workflow_step(type, index, state)` runs one step at a time (discovery, plan, build, review) and hands back the next instruction. The engine serves only the step it pointed to, so a run cannot skip ahead, and a failed gate never advances. How much the gates prove depends on the mode: with `involved` intent a gate record must come from `workflow_confirm`, with `disposeVerify` a verify result must come from `workflow_verify`, and in `full auto` a passed gate is a state key the model sets. If you get disconnected, `workflow_state_save` and `workflow_state_load` pick the run back up where it left off.
 
 ---
 
@@ -32,9 +32,9 @@ pnCore moves that step list out of the chat. `workflow_step(type, index, state)`
 
 **Deterministic.** `workflow_step(type, index, state)` decides the next instruction. A step after 0 needs the run's `run_id` and must be one the engine served or pointed to (ADR-0025); a skip is refused, not assumed.
 
-**Gated.** Skeptic, human, and `workflow_verify` gates are built into the engine. Intent is `full auto`, `design focused`, or `involved`. Involved gates discovery, prior-art, plan, specialist list, and review — you confirm to advance. Design focused is the `design` workflow, not a third gate flavor of `full_dev`.
+**Gated.** Skeptic, human, and `workflow_verify` gates are built into the engine. Intent is `full auto`, `design focused`, or `involved`. Involved gates discovery, prior-art, plan, specialist list, and review, you confirm to advance. Design focused is the `design` workflow, not a third gate flavor of `full_dev`.
 
-**Multi-harness.** One canonical tree in `packages/pn-core-mcp/content/`; one engine; four adapters. `harness_detect` finds the active surface and `harness_scaffold` / `plugin-install --harness` write only the folders that surface reads — `.cursor/` (Cursor), `.claude/` + `.mcp.json` (Claude Code), `.agents/skills` + `AGENTS.md` block (Codex), `.agents/skills` + `.pi/prompts` (Pi). Pi registers the same tools natively. Matrix: `pn-core://reference/harness-matrix.md`, [ADR-0016](docs/adr/0016-harness-adapters.md).
+**Multi-harness.** One canonical tree in `packages/pn-core-mcp/content/`; one engine; four adapters. `harness_detect` finds the active surface and `harness_scaffold` / `plugin-install --harness` write only the folders that surface reads, `.cursor/` (Cursor), `.claude/` + `.mcp.json` (Claude Code), `.agents/skills` + `AGENTS.md` block (Codex), `.agents/skills` + `.pi/prompts` (Pi). Pi registers the same tools natively. Matrix: `pn-core://reference/harness-matrix.md`, [ADR-0016](docs/adr/0016-harness-adapters.md).
 
 **Resumable.** Every run has a `run_id`. Handoff lines and usage land in JSONL. After a disconnect, load state and continue the same step list.
 
@@ -48,11 +48,11 @@ pnCore moves that step list out of the chat. `workflow_step(type, index, state)`
 
 **Prerequisite:** Node.js 22+.
 
-Call `health` first — it should return version, `calendarDateUtc`, and capabilities. If it doesn't, nothing downstream (skills, agents, `workflow_step`) will load either.
+Call `health` first: it should return version, `calendarDateUtc`, and capabilities. If it doesn't, nothing downstream (skills, agents, `workflow_step`) will load either.
 
 <a id="mcp-any-mcp-client"></a>
 
-### Cursor — MCP (one-click)
+### Cursor: MCP (one-click)
 
 [![Install MCP](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=pn-core&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIi0tcGFja2FnZT1naXQraHR0cHM6Ly9naXRodWIuY29tL3Blcm5pZW1hbm4vcG5Db3JlLmdpdCNtYWluIiwiLS0iLCJwbi1jb3JlIl0sImVudiI6eyJHSVRfVEVSTUlOQUxfUFJPTVBUIjoiMCIsIkdJVF9BU0tQQVNTIjoiZWNobyJ9fQ==)
 
@@ -72,7 +72,7 @@ Or add manually to `~/.cursor/mcp.json`:
 
 `GIT_TERMINAL_PROMPT=0` and `GIT_ASKPASS=echo` fail fast when git cannot authenticate (missing credentials, rate limit, or a bad URL). Without them, a credential prompt on piped stdin leaves Cursor in a forever loading state.
 
-### Project files per harness — `plugin-install --harness`
+### Project files per harness: `plugin-install --harness`
 
 From your **target project** directory:
 
@@ -118,9 +118,9 @@ Windows, Cloud Agents, this-checkout `node` paths, and first-npx timeouts: [pack
 ## Quick start
 
 1. Install MCP and/or plugin (above).
-2. Call `health` — version, UTC date, capabilities.
-3. **New repo or greenfield:** `/pn-new` or `workflow_step("project_kickoff", 0, {})` — discovery, refs, PRD, and design docs under `docs/refs/`.
-4. **Build or extend:** `/pn-build` or `workflow_step("full_dev", 0, {})` — skips kickoff when the project already has context.
+2. Call `health`, version, UTC date, capabilities.
+3. **New repo or greenfield:** `/pn-new` or `workflow_step("project_kickoff", 0, {})`, discovery, refs, PRD, and design docs under `docs/refs/`.
+4. **Build or extend:** `/pn-build` or `workflow_step("full_dev", 0, {})`, skips kickoff when the project already has context.
 5. Optional after the run: `/pn-deliver` for a handoff pack, or `/pn-frontend-audit`.
 
 Copy-paste first message:
@@ -128,14 +128,14 @@ Copy-paste first message:
 ```
 pn-new ▲
 
-Build [your-project-name] — [one-line description].
+Build [your-project-name]: [one-line description].
 References: [path or "in .ref/"] (pitch, requirements, design assets).
 Analyze both: prior art and design.
-Intent: Involved — full gates at discovery, prior-art, plan, specialist list, and review.
+Intent: Involved, full gates at discovery, prior-art, plan, specialist list, and review.
 Delivery tier: full. Design ambition: distinctive.
 ```
 
-pn-new questionnaire: Step 0 of 2 — Yes, Both. Step 1 of 2 — (3) Involved.
+pn-new questionnaire: Step 0 of 2 (Yes, Both. Step 1 of 2) (3) Involved.
 
 More prompts: [docs/how-to-use-guide.md](docs/how-to-use-guide.md).
 
@@ -178,7 +178,7 @@ Tool steps are 0-based. Resume after disconnect: `workflow_state_save` then `wor
 
 After the run, `/pn-deliver` is the next named workflow if you need a handoff pack (or `/pn-frontend-audit` for a scored quality gate).
 
-**Design-first:** `design focused` intent (or `/pn-design`) runs `workflow_step("design", 0)` — not `full_dev`. Load `.pncore-design.md` via `/pn-setup`.
+**Design-first:** `design focused` intent (or `/pn-design`) runs `workflow_step("design", 0)`, not `full_dev`. Load `.pncore-design.md` via `/pn-setup`.
 
 **Game / 3D:** `workflow_step("game_feature", 0)` for feature loops. For full builds, use `full_dev` and name the stack in discovery.
 
@@ -205,7 +205,7 @@ Load before a build session: `pn-core://reference/best-practices.md`, `pn-core:/
 | Situation | What happens | What to do |
 |-----------|--------------|------------|
 | A one-line typo fix | The workflow overhead isn't worth it | Ask directly, skip `workflow_step` |
-| Plugin without MCP | Slash templates only — no `workflow_step` engine | Install MCP for Cursor, or both |
+| Plugin without MCP | Slash templates only, no `workflow_step` engine | Install MCP for Cursor, or both |
 | First npx on a git+https package URL | Cursor MCP can time out on a cold clone | Pre-warm once, then reload. Matrix: [MCP README](packages/pn-core-mcp/README.md#troubleshooting-mcp-wont-connect-in-cursor) |
 | `feature_program` / `bestOfN` | Preview flags; off by default | Set `featureProgram: true` or `bestOfN.enabled: true` |
 | Solid 2.0 | Rule `pn-solid` and the frontend scaffold; no eval yet. Models default to React or Solid 1.x APIs | Keep `pn-solid` in context and check imports against its 1.x to 2.0 map |
@@ -243,4 +243,4 @@ Contributor scripts, local MCP config, and how to develop pnCore live in [CONTRI
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT: see [LICENSE](LICENSE).

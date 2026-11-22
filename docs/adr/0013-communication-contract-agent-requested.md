@@ -17,7 +17,7 @@ System-prompt engineering patterns (positive/negative chat patterns, reference-p
 
 1. Ship **`pn-communication-contract`** as `alwaysApply: false` (description-driven / agent-requested), with examples in `pn-core://reference/communication-contract.md`.
 2. Ship **`pn-response-aliases`** (`scr`, `eli`, `foc`, `ref`, `scp`) as an on-demand skill; document the reference-point protocol in **`pn-context-engineering`**.
-3. **pn-setup / pn-new** may optionally seed the contract rule into `.cursor/rules/` with **`alwaysApply: false` only** — never mirror the commit-trailer rule’s always-on pattern.
+3. **pn-setup / pn-new** may optionally seed the contract rule into `.cursor/rules/` with **`alwaysApply: false` only**: never mirror the commit-trailer rule’s always-on pattern.
 4. **Deferred:** (a) output-token A/B fixtures extending `measure-tokens.mjs`; (b) continual-learning / session-retro auto-distillation of do/don’t banks. Promote the contract to `alwaysApply: true` only after measured **net** token savings (input + output), not against a raw always-on size KPI.
 
 ## Consequences
@@ -28,6 +28,6 @@ System-prompt engineering patterns (positive/negative chat patterns, reference-p
 
 ## References
 
-- [ADR-0017: Astra-era skill discovery](0017-astra-era-skill-discovery.md) — compact `project_context.responseAliases` is the discovery path; `alwaysApply` stays false. That packet table is the original Astra plan and supersedes skeptic S-002 (omit aliases from the packet) from gate `83a37b73-06e0-4448-802b-c39457cee9c3`.
+- [ADR-0017: Astra-era skill discovery](0017-astra-era-skill-discovery.md): compact `project_context.responseAliases` is the discovery path; `alwaysApply` stays false. That packet table is the original Astra plan and supersedes skeptic S-002 (omit aliases from the packet) from gate `83a37b73-06e0-4448-802b-c39457cee9c3`.
 - IndyDevDan / disler `fixing-smartass-opus-5` system-prompt pattern (framework adapted, not vendored as always-on)
 - `pn-budget-cost-monitor`, `scripts/measure-tokens.mjs`, ADR-0002 audit cadence

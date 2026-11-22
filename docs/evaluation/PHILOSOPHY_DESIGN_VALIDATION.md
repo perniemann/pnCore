@@ -3,7 +3,7 @@ title: Philosophy design validation (evaluator-only)
 updated: 2026-04-22
 ---
 
-# Philosophy Design Validation (evaluator doc — do not expose to agent)
+# Philosophy Design Validation (evaluator doc, do not expose to agent)
 
 Reusable prompts to validate that frontend skills produce philosophy-aligned output instead of generic aesthetics. **Evaluators only:** pass criteria and this doc must not be in agent context. In an empty chat you paste only the prompt; the agent must not see this file or the criteria.
 
