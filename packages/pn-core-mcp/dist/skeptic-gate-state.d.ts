@@ -11,3 +11,9 @@ export declare function applySkepticGateStateChecks(step: number, state: Record<
     error?: string;
     warning?: string;
 } | undefined;
+/**
+ * True when a strict gate record says no_go and no iteration-cap approval covers it. The engine
+ * then advances only on a ticket that approval_checkpoint issued for this run and step; the
+ * workflow_step handler validates and consumes it (a non-empty string is not enough).
+ */
+export declare function noGoTicketRequired(state: Record<string, unknown>): boolean;

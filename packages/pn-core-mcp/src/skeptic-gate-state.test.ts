@@ -128,7 +128,8 @@ describe("isSkepticGateRecord", () => {
         confirmed_at: "2026-05-19T00:00:00.000Z",
       })
     ).toBe(true);
-  });});
+  });
+});
 
 describe("noGoTicketRequired", () => {
   const noGo = {

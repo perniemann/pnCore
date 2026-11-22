@@ -17,6 +17,7 @@ export declare function listSkills(opts?: {
     filter?: string;
 }): SkillEntry[];
 export declare function getSkill(id: string): string | null;
+export declare function isValidContentId(id: string): boolean;
 export declare function listCommands(): CommandEntry[];
 export declare function getCommand(id: string): string | null;
 export declare const listAgents: () => {

@@ -31,6 +31,11 @@ export function resolveStatePath(opts = {}) {
     if (safe.resolved === resolve(cwd) || isDirectory(safe.resolved)) {
         return reject("State path must be a file inside the workspace");
     }
+    // State is one JSON object. Trails (.jsonl) are server-owned: a state save must never be able to
+    // write a line that a trail reader would accept as a verify attestation or human-gate ticket.
+    if (!safe.resolved.toLowerCase().endsWith(".json")) {
+        return reject("State path must end in .json (trail .jsonl files are server-owned)");
+    }
     return { requested, source, resolved: safe.resolved };
 }
 function isDirectory(absPath) {
