@@ -69,6 +69,36 @@ describe("applyTournamentDisposeVerify", () => {
     }
   });
 
+  it("rejects an attestation from another run", () => {
+    vi.stubEnv("PNCORE_DISPOSE_VERIFY", "1");
+    vi.stubEnv("PNCORE_RUN_EVENTS_PATH", eventsPath);
+    const other = report({ candidate_id: "path-a", run_id: "run-other" });
+    appendRunEvent(other, eventsPath);
+    const r = applyTournamentDisposeVerify({
+      run_id: "run-t",
+      verifyAttestationIds: [other.attestationId],
+    });
+    expect(r).toMatchObject({ error: expect.stringMatching(/belongs to run run-other/) });
+  });
+
+  it("a red report for a candidate outranks a later green retry", () => {
+    vi.stubEnv("PNCORE_DISPOSE_VERIFY", "1");
+    vi.stubEnv("PNCORE_RUN_EVENTS_PATH", eventsPath);
+    const red = report({ candidate_id: "path-a", exitCode: 1 });
+    const green = report({ candidate_id: "path-a", exitCode: 0 });
+    appendRunEvent(red, eventsPath);
+    appendRunEvent(green, eventsPath);
+    const r = applyTournamentDisposeVerify({
+      run_id: "run-t",
+      verifyAttestationIds: [red.attestationId, green.attestationId],
+    });
+    expect(r).toMatchObject({ skipped: false, survivors: [] });
+    if ("survivors" in r) {
+      expect(r.acceptance.accepted).toBe(false);
+      expect(r.acceptance.humanEarned).toBe(false);
+    }
+  });
+
   it("errors on unknown attestation and missing candidate report", () => {
     vi.stubEnv("PNCORE_DISPOSE_VERIFY", "1");
     vi.stubEnv("PNCORE_RUN_EVENTS_PATH", eventsPath);

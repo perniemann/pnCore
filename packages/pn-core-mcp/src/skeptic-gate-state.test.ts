@@ -82,7 +82,7 @@ describe("applySkepticGateStateChecks", () => {
     expect(r).toBeUndefined();
   });
 
-  it("allows no_go when human gate ticket is present", async () => {
+  it("state check defers a no_go with a ticket string to handler ticket validation", async () => {
     vi.stubEnv("PNCORE_STRICT_SKEPTIC_GATES", "true");
     const { applySkepticGateStateChecks } = await import("./skeptic-gate-state.js");
     const r = applySkepticGateStateChecks(
@@ -128,5 +128,36 @@ describe("isSkepticGateRecord", () => {
         confirmed_at: "2026-05-19T00:00:00.000Z",
       })
     ).toBe(true);
+  });
+});
+
+describe("noGoTicketRequired", () => {
+  const noGo = {
+    verdict: "revise",
+    go_no_go: "no_go",
+    gate_id: "g-1",
+    confirmed_at: "2026-11-22T00:00:00.000Z",
+  };
+
+  it("is false outside strict mode", async () => {
+    const { noGoTicketRequired } = await import("./skeptic-gate-state.js");
+    expect(noGoTicketRequired({ skepticPassed: noGo })).toBe(false);
+  });
+
+  it("is true for a strict no_go record, even when a ticket string is present", async () => {
+    const { noGoTicketRequired } = await import("./skeptic-gate-state.js");
+    expect(
+      noGoTicketRequired({ intent: "involved", skepticPassed: noGo, pncoreHumanGateTicket: "x" })
+    ).toBe(true);
+  });
+
+  it("is false when the iteration cap was approved or the verdict is go", async () => {
+    const { noGoTicketRequired } = await import("./skeptic-gate-state.js");
+    expect(
+      noGoTicketRequired({ intent: "involved", skepticPassed: noGo, iterationCapApproved: true })
+    ).toBe(false);
+    expect(
+      noGoTicketRequired({ intent: "involved", skepticPassed: { ...noGo, go_no_go: "go" } })
+    ).toBe(false);
   });
 });

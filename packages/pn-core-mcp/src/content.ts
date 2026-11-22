@@ -243,8 +243,16 @@ function listMdIn(
   return out;
 }
 
+/** Content ids are flat slugs; anything else (`../`, separators, absolute paths) never reaches the filesystem. */
+const CONTENT_ID_RE = /^[A-Za-z0-9][A-Za-z0-9_-]*$/;
+
+export function isValidContentId(id: string): boolean {
+  return CONTENT_ID_RE.test(id);
+}
+
 function getMdIn(dir: string, id: string, byIdCache: Map<string, string>): string | null {
   invalidateIfStale();
+  if (!isValidContentId(id)) return null;
   const cached = byIdCache.get(id);
   if (cached !== undefined) return cached;
   for (const ext of [".md", ".mdc"]) {

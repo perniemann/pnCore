@@ -10,6 +10,7 @@ import {
   getCommand,
   listRules,
   getRule,
+  isValidContentId,
   getResource,
   listInternalAgents,
   resourceDefs,
@@ -112,6 +113,18 @@ describe("content contract", () => {
         expect(a).toHaveProperty("name");
         expect(a).toHaveProperty("description");
       }
+    });
+  });
+
+  describe("content id guard", () => {
+    it("never resolves ids that leave the content tree", () => {
+      for (const id of ["../../../../etc/passwd", "../rules/pn-react", "a/b", "/etc/hosts", ""]) {
+        expect(getRule(id)).toBeNull();
+        expect(getAgent(id)).toBeNull();
+      }
+      expect(isValidContentId("pn-react")).toBe(true);
+      expect(isValidContentId("pn_react2")).toBe(true);
+      expect(isValidContentId("..")).toBe(false);
     });
   });
 

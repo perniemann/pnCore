@@ -50,6 +50,20 @@ describe("state-path", () => {
     expect(outside.error).toContain("workspace root");
   });
 
+  it("rejects non-.json state paths so a save can never write a server trail", () => {
+    for (const arg of [
+      ".pncore/run-events.jsonl",
+      ".pncore/human-gate-tickets.jsonl",
+      ".pncore/gate-log.jsonl",
+      "notes.md",
+    ]) {
+      const r = resolveStatePath({ arg, cwd, env: {} });
+      expect(r.resolved).toBeNull();
+      expect(r.error).toMatch(/must end in \.json/);
+    }
+    expect(resolveStatePath({ arg: ".pncore/STATE.JSON", cwd, env: {} }).resolved).not.toBeNull();
+  });
+
   it("rejects the workspace root and existing directories as the state path", () => {
     mkdirSync(join(cwd, ".pncore"));
     for (const arg of [".", "./", cwd, ".pncore"]) {

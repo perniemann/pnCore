@@ -4,7 +4,7 @@
  */
 
 import { spawn, execFileSync } from "child_process";
-import { basename, dirname } from "path";
+import { basename, dirname, join } from "path";
 import { existsSync } from "fs";
 
 export type SandboxBackend = "bubblewrap" | "restricted" | "test" | "unavailable";
@@ -92,6 +92,15 @@ export function assertSafeArgv(argv: string[], opts?: { freeform?: boolean }): v
   if (opts?.freeform && !ALLOWED_FREEFORM_BIN.has(bin)) {
     throw new VerifyPolicyError("INVALID_ARGV", `free-form argv[0] not in allowlist: ${bin}`);
   }
+  // Package-runner subcommands fetch and execute arbitrary packages: npx under another name.
+  const sub = argv[1];
+  if (
+    sub !== undefined &&
+    ((bin === "npm" && (sub === "exec" || sub === "x")) ||
+      ((bin === "pnpm" || bin === "yarn" || bin === "bun") && (sub === "dlx" || sub === "x")))
+  ) {
+    throw new VerifyPolicyError("INVALID_ARGV", `package runner not allowed: ${bin} ${sub}`);
+  }
 }
 
 export function resolveSandboxBackend(): SandboxBackend {
@@ -128,6 +137,10 @@ export function buildBwrapArgv(cwd: string, argv: string[]): string[] {
   const binds: string[] = [
     "bwrap",
     "--unshare-net",
+    "--unshare-pid",
+    "--unshare-ipc",
+    "--unshare-uts",
+    "--new-session",
     "--die-with-parent",
     "--dev",
     "/dev",
@@ -145,7 +158,14 @@ export function buildBwrapArgv(cwd: string, argv: string[]): string[] {
       binds.push("--ro-bind-try", p, p);
     }
   }
-  binds.push("--bind", cwd, cwd, "--chdir", cwd, ...argv);
+  binds.push("--bind", cwd, cwd);
+  // The candidate may write its worktree, never its git hooks or the engine's trails: a hook
+  // written here would run outside the jail at the next commit, and a trail line would forge a
+  // verify attestation. Later binds shadow the read-write cwd bind.
+  for (const sub of [".git", ".pncore"]) {
+    binds.push("--ro-bind-try", join(cwd, sub), join(cwd, sub));
+  }
+  binds.push("--chdir", cwd, ...argv);
   return binds;
 }
 

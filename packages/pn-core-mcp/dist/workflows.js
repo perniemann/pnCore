@@ -975,6 +975,28 @@ function partitionSpecialistsForParallel(list, groups) {
     const canParallelizeParallelIds = parallelIds.length >= 2 && vals.length === parallelIds.length && new Set(vals).size === 1;
     return { sequentialIds, parallelIds, canParallelizeParallelIds };
 }
+const GATE_RESULT_KEYS = ["skepticPassed", "skepticOutputPassed", "reviewComplete"];
+/**
+ * Steps whose definition handles a failed `skepticOutputPassed` by looping back (iteration cap,
+ * approval). Every other required gate key that is `false` blocks: a failed gate never advances.
+ */
+const FAILED_GATE_LOOP_BACKS = new Set([
+    "design:4:skepticOutputPassed",
+    "unreal_feature:3:skepticOutputPassed",
+    "godot_feature:3:skepticOutputPassed",
+]);
+export function failedGateKey(workflowType, step, state, requiredFromState) {
+    for (const key of GATE_RESULT_KEYS) {
+        if (!requiredFromState.includes(key))
+            continue;
+        if (state[key] !== false)
+            continue;
+        if (FAILED_GATE_LOOP_BACKS.has(`${workflowType}:${step}:${key}`))
+            continue;
+        return key;
+    }
+    return undefined;
+}
 /** Workflow types removed from the public enum, with the replacement to name in the error. */
 const RETIRED_WORKFLOW_TYPES = {
     svg_create: "svg_create was retired in 0.22.0 (ADR-0024): use image_create with imageSpec.format 'svg'.",
@@ -1045,6 +1067,12 @@ export function getWorkflowStep(workflowType, step, state) {
                 error: `Step ${step} requires state: ${missing.join(", ")}. Complete step ${prevStep >= 0 ? prevStep : "0"} first and call workflow_step with the required state from that step.`,
             };
         }
+    }
+    const failedGate = failedGateKey(workflowType, step, state, def.requiredFromState);
+    if (failedGate) {
+        return {
+            error: `Step ${step} blocked: ${failedGate} is false (the gate failed). Address the must_fix items and re-run the skeptic, or loop back, before advancing.`,
+        };
     }
     if (typedEnvelopesEnabled() && state.taskResults && typeof state.taskResults === "object") {
         const envelopeCheck = validateTaskResults(state.taskResults);

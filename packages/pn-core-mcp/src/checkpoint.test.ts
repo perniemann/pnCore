@@ -145,6 +145,25 @@ describe("checkpoint commit protocol", () => {
     expect(packet.active_run.run_id).toBe("run-a");
   });
 
+  it("an orphan handoff line at the committed revision with another hash stays uncommitted", () => {
+    commitCheckpoint(input());
+    commitCheckpoint(input({ step: 2, summary: "crashed", state: { plan: "p-crash" } }), {
+      beforeCommit: () => {
+        throw new Error("simulated crash");
+      },
+    });
+    const retry = commitCheckpoint(input({ step: 2, summary: "retried", state: { plan: "p2" } }));
+    expect(retry).toMatchObject({ ok: true });
+    const lines = handoffLines();
+    expect(lines.map((l) => l.revision)).toEqual([1, 2, 2]);
+    expect(lines[1].stateHash).not.toBe(lines[2].stateHash);
+    expect(readCheckpointMeta(statePath)?.stateHash).toBe(lines[2].stateHash);
+
+    const packet = buildProjectContextPacket({ cwd, mode: "operator" });
+    expect(packet.active_run.state_revision).toBe(2);
+    expect(packet.consistency.mismatches.map((m) => m.code)).toContain("handoff_revision_ahead");
+  });
+
   it("a fresh lock blocks a second writer; a stale lock is taken over", () => {
     writeFileSync(`${statePath}.lock`, "{}", "utf-8");
     expect(commitCheckpoint(input())).toMatchObject({ ok: false, code: "LOCKED" });
@@ -308,9 +327,22 @@ describe("checkpoint commit protocol", () => {
     expect(commitCheckpoint(input({ expected_revision: 0 }))).toMatchObject({ ok: true });
   });
 
+  it("plain saves refuse to overwrite a commit-mode checkpoint", () => {
+    commitCheckpoint(input());
+    const before = stored();
+    expect(saveStatePlain(statePath, { plan: "edited" })).toMatchObject({
+      ok: false,
+      code: "RUN_MISMATCH",
+      current_revision: 1,
+    });
+    expect(stored()).toEqual(before);
+    expect(readCheckpointMeta(statePath)?.revision).toBe(1);
+  });
+
   it("plain saves drop a caller-supplied envelope and respect the lock", () => {
     commitCheckpoint(input());
     const raw = stored();
+    rmSync(statePath);
     expect(saveStatePlain(statePath, { ...raw, plan: "edited" })).toEqual({ ok: true });
     expect(stored()).toEqual({ plan: "edited", run_id: "run-a" });
     expect(readCheckpointMeta(statePath)).toBeNull();

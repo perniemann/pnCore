@@ -242,6 +242,18 @@ export function commitArgsError(args) {
  */
 export function saveStatePlain(statePath, state, deps = {}) {
     return withStateLock(statePath, deps, () => {
+        // A plain save would drop the revision envelope of a commit-mode file and reset it to 0,
+        // which defeats the run guard and the revision check (ADR-0022). Commit mode or a new path.
+        const prior = readPrior(statePath);
+        if (prior.meta) {
+            return {
+                ok: false,
+                code: "RUN_MISMATCH",
+                message: `${statePath} is a commit-mode checkpoint (run ${prior.meta.run_id}, revision ${prior.meta.revision}); save it with run_id, step and summary, or use a different path.`,
+                current_revision: prior.meta.revision,
+                current_run_id: prior.runId,
+            };
+        }
         writeFileAtomic(statePath, JSON.stringify(splitState(state).state));
         return { ok: true };
     });
