@@ -4,6 +4,22 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.24.0] - 2026-11-22
+
+`workflow_step` decides the next step, not only the next instruction (ADR-0025).
+
+### Changed
+
+- **Steps after 0 need the run.** `workflow_step` with `step > 0` requires `state.run_id`. The requested step must be one the run log shows as served for that run and workflow type, or one the engine returned as `nextStep`. Skips are refused with the reachable list. Repeats, loop-backs and resumes in a new chat keep working.
+- **Tournament handoff.** `full_dev` step 5 with `tournamentHandoff: true` is reachable after the same run finished `implementation_tournament`. Both handoff templates now carry `run_id`.
+- **Strict gate records need provenance.** Under `intent: "involved"` or `PNCORE_STRICT_SKEPTIC_GATES`, each gate record must name a `gate_id` from the gate log that `workflow_confirm` writes, with a matching verdict (`INVALID_GATE` otherwise).
+- **`feature_program` merge phase** returns `nextStep: 5`, where its instruction sends the caller.
+- **README** says what the gates prove in each mode, instead of claiming every step passes on an external decision. "The engine loads gates and skills automatically" becomes "each step names the skills it needs".
+
+### Notes
+
+- With `PNCORE_RUN_LOG=""` (no run log) sequencing is skipped; that is an operator setting.
+
 ## [0.23.0] - 2026-11-22
 
 Engine integrity. Each fix closes a path, found by an adversarial review on 2026-11-21, that let a model pass a gate through pn-core tools alone. `SECURITY.md` now states the trust boundary.

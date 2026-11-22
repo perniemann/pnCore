@@ -936,6 +936,8 @@ describe("workflows contract", () => {
         expect(w.instruction).toContain("slice-infra");
         expect(w.instruction).toContain("slice-api");
         expect(w.done).toBe(false);
+        // The instruction sends the caller to step 5; the engine must point there (ADR-0025).
+        expect(w.nextStep).toBe(5);
       });
 
       it("step 4: falls through to baseResult when mergeComplete is true", () => {

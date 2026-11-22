@@ -2,7 +2,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 600" width="1120" height="600"
      role="img" aria-labelledby="loop-title loop-desc">
   <title id="loop-title">Who owns the loop</title>
-  <desc id="loop-desc">Left: a single chat plans, codes, and checks its own work with no checkpoint in between. Right: the engine runs one gated step at a time, with skeptic, human, or workflow_verify deciding pass or fail. Same models either way — the MCP keeps the state between calls.</desc>
+  <desc id="loop-desc">Left: a single chat plans, codes, and checks its own work with no checkpoint in between. Right: the engine runs one gated step at a time and decides which step comes next. Same models either way; state saves let a run resume between calls.</desc>
   <defs>
     <style><![CDATA[
 
@@ -115,5 +115,5 @@
     <text class="mono" x="608" y="424" font-size="13" fill="#e8e8e8">+  reruns follow the same steps</text>
   </g>
 
-  <text class="mono vd" x="560" y="548" text-anchor="middle" font-size="14" fill="#e8e8e8">Same models either way. The MCP just keeps the state between calls.</text>
+  <text class="mono vd" x="560" y="548" text-anchor="middle" font-size="14" fill="#e8e8e8">Same models either way. The engine decides the next step.</text>
 </svg>
