@@ -1,6 +1,6 @@
 # pn-core-mcp
 
-MCP engine for [pnCore](https://github.com/perniemann/pnCore) **0.25.0**: `workflow_step` plus the other tools, `pn-core://` resources, and canonical content under `content/`. Four harness adapters (Cursor, Claude Code, Codex, Pi) consume that same engine. Use from any MCP client without installing a harness plugin.
+MCP engine for [pnCore](https://github.com/perniemann/pnCore) **0.26.0**: `workflow_step` plus the other tools, `pn-core://` resources, and canonical content under `content/`. Four harness adapters (Cursor, Claude Code, Codex, Pi) consume that same engine. Use from any MCP client without installing a harness plugin.
 
 ## Installation
 

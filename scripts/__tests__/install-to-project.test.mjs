@@ -137,7 +137,14 @@ test("--harness claude_code writes only .claude/ (no .cursor/, no .agents/)", ()
     const r = runInstaller([target, "--harness", "claude_code"], { env: cleanEnv() });
     assert.equal(r.status, 0, r.stderr);
     assert.deepEqual(listTop(target), [".claude"]);
-    assert.deepEqual(listTop(join(target, ".claude")), ["agents", "commands", "rules", "skills"]);
+    assert.deepEqual(listTop(join(target, ".claude")), [
+      "agents",
+      "commands",
+      "hooks",
+      "rules",
+      "settings.json",
+      "skills",
+    ]);
     assert.ok(existsSync(join(target, ".claude", "skills", "pn-writing-plans", "SKILL.md")));
     assert.ok(existsSync(join(target, ".claude", "commands", "pn-setup.md")));
     const react = readFileSync(join(target, ".claude", "rules", "pn-react.md"), "utf8");
@@ -149,6 +156,31 @@ test("--harness claude_code writes only .claude/ (no .cursor/, no .agents/)", ()
       false,
       "agent-requested rule stays MCP-only"
     );
+  } finally {
+    rmSync(target, { recursive: true, force: true });
+  }
+});
+
+test("claude_code merges the indicator Stop hook once and keeps existing settings (ADR-0028)", () => {
+  const target = mkdtempSync(join(repoRoot, "tmp-pn-install-claude-hook-"));
+  try {
+    mkdirSync(join(target, ".claude"));
+    const mine = {
+      permissions: { allow: ["Bash(ls)"] },
+      hooks: { Stop: [{ hooks: [{ type: "command", command: "echo mine" }] }] },
+    };
+    writeFileSync(join(target, ".claude", "settings.json"), JSON.stringify(mine));
+    for (const extra of [[], ["--overwrite"]]) {
+      const r = runInstaller([target, "--harness", "claude_code", ...extra], { env: cleanEnv() });
+      assert.equal(r.status, 0, r.stderr);
+    }
+    const s = JSON.parse(readFileSync(join(target, ".claude", "settings.json"), "utf8"));
+    assert.deepEqual(s.permissions, mine.permissions);
+    const commands = s.hooks.Stop.flatMap((g) => g.hooks.map((h) => h.command));
+    assert.equal(commands.length, 2);
+    assert.equal(commands[0], "echo mine");
+    assert.match(commands[1], /\.claude\/hooks\/pn-indicator-stop\.mjs/);
+    assert.ok(existsSync(join(target, ".claude", "hooks", "pn-indicator-stop.mjs")));
   } finally {
     rmSync(target, { recursive: true, force: true });
   }
