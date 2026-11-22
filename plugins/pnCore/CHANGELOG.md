@@ -4,6 +4,37 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.26.1] - 2026-11-22
+
+CI and supply-chain hardening. Each item closes a gap from the 2026-11-21 review.
+
+### Fixed
+
+- **Auto-merge.**
+  - Merges pin `--match-head-commit` to the commit whose checks passed.
+  - One poller per PR (`concurrency`), and the job has `timeout-minutes: 30`.
+  - The fallback check listing counts GitHub Actions check runs only.
+  - PRs that change `.github/workflows/` stay manual, like semver-major bumps; this holds for Dependabot PRs too.
+  - After each merge the job dispatches **Sync MCP content** on `main`, because merges by `GITHUB_TOKEN` start no push workflows.
+- **Committed `dist/` is checked.** CI fails when `packages/pn-core-mcp/dist/` differs from a fresh `build:mcp`. Consumers run that `dist/`.
+- **Full CI on every push to `main`.** The `paths:` filter on Sync MCP content is gone.
+- **Commit trailers.** The hook, the CI check and the consumer templates (`docs/templates/consumer-gating/`) now catch Claude agent trailers too (`Co-authored-by … @anthropic.com`, `Claude-Session`, "Generated with Claude Code"), not only Cursor ones. pnCore's own CI check also rejects any `Co-authored-by`; consumers keep human co-authors.
+- **Changelog gate.**
+  - The version must go up, not just change.
+  - The `## [version]` heading must be new at the base.
+  - Deleted files count.
+  - Release paths add `dist/`, `extensions/`, `.cursor-plugin/` and the two installer scripts.
+- **Prune keeps evidence.** `prune-actions-history` keeps runs younger than 30 days and runs on open-PR head commits. Deleting their check runs had left #36 unable to merge.
+- **Unpinned installs.** New gate `check-unpinned-installs` (in `validate`) fails content that runs `github:` or `git+` installs without a pinned ref, or pipes `curl` into a shell. `pn-engine-mcp` now pins its five third-party installs to `<commit-sha>` and says how to choose one.
+
+### Changed
+
+- `actions/setup-node` 7.0.0 → 7.1.0 in every workflow (supersedes Dependabot #36).
+- `pn-gates` no longer runs `npm ci`; its scripts use Node builtins only.
+- `pn-pr-review` installs `gh` only when missing (the `||` / `&&` precedence ran `apt-get install` every time).
+- `commit-message-policy`, `link-check` and `sync-mcp-content` declare `permissions: contents: read`.
+- `validate-skill-security.mjs` is labelled local and optional; CI never ran it. The CI gate for skill installs is `check-unpinned-installs`.
+
 ## [0.26.0] - 2026-11-22
 
 The 🔺 contract gets a miss count on Claude Code (ADR-0028).

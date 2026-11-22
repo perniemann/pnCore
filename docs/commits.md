@@ -7,14 +7,14 @@ updated: 2026-09-17
 
 ## Do not allow IDE trailers
 
-Cursor can append lines such as `Made-with: Cursor` or `Co-authored-by: … cursoragent@cursor.com` to commits, and Cloud Agent commits as `Cursor Agent <cursoragent@cursor.com>`. **Do not merge or push commits that include those lines or that Author/Committer identity.** They add noise and put `cursoragent` on the GitHub contributors graph.
+Cursor can append lines such as `Made-with: Cursor` or `Co-authored-by: … cursoragent@cursor.com` to commits, and Cloud Agent commits as `Cursor Agent <cursoragent@cursor.com>`. **Do not merge or push commits that include those lines or that Author/Committer identity.** The policy covers every IDE and agent, not only Cursor: no `Co-authored-by` trailer of any kind, no `Made-with`, no `Claude-Session`, no "Generated with Claude Code" line (`scripts/check-commit-no-ide-trailers.mjs`; the consumer template keeps human co-authors). They add noise and put `cursoragent` on the GitHub contributors graph.
 
 ### Why CI fails when you still see that line or identity
 
 The check scans **every commit** in the pull request range (`base..head`) or in the pushed batch (`before..after`). It fails if the **message body** contains a matching trailer **or** if Author or Committer is `Cursor Agent` / `cursoragent` / `cursoragent@cursor.com` / `cursor@cursor.com`. Common cases:
 
 1. **Agent-created commits**: Cursor injected the trailer after your hook ran, `core.hooksPath` was never set, or the process committed as `Cursor Agent <cursoragent@cursor.com>` (Cloud Agent default).
-2. **Squash merge to `main`**: GitHub’s default squash text repeats bodies from squashed commits and appends `Co-authored-by: Cursor Agent <cursoragent@cursor.com>` when any component commit was authored by the agent. That **squash commit** then fails the push check. An empty `commit_message` on the GitHub merge API is not enough, GitHub still fills the default body. Use `gh pr merge --squash --delete-branch --subject "$title" --body ""`, or rely on [pr-automerge.yml](../.github/workflows/pr-automerge.yml) (same flags). The squash commit’s Author is the merger (human); do not merge-commit agent branches, that lands the agent-authored commits on `main`.
+2. **Squash merge to `main`**: GitHub’s default squash text repeats bodies from squashed commits and appends `Co-authored-by: Cursor Agent <cursoragent@cursor.com>` when any component commit was authored by the agent. That **squash commit** then fails the push check. An empty `commit_message` on the GitHub merge API is not enough: GitHub still fills the default body. Use `gh pr merge --squash --delete-branch --subject "$title" --body ""`, or rely on [pr-automerge.yml](../.github/workflows/pr-automerge.yml) (same flags). The squash commit’s Author is the merger (human); do not merge-commit agent branches, because that lands the agent-authored commits on `main`.
 3. **Cloud Agent PRs**: branch commits stay authored by `cursoragent`, so `no-ide-trailers` stays red on the PR. Automerge will not land them. Squash-merge as the human with an empty body.
 
 **Defense in depth:** repo hook (strip trailers) + **Cursor project rule** `.cursor/rules/pn-no-cursor-commit-trailers.mdc` (`alwaysApply: true`) + this CI job. The rule stops the model from proposing those lines or that identity; the hook catches trailer lines; CI catches whatever still lands, including Author/Committer.
@@ -41,14 +41,14 @@ After `npm version patch|minor|major`, run `npm run sync:version` (or rely on th
 
 When a PR changes any file under:
 
-- `packages/pn-core-mcp/content/`
-- `packages/pn-core-mcp/src/`
-- `plugins/pnCore/`
+- `packages/pn-core-mcp/content/`, `src/`, `dist/`, `extensions/`
+- `plugins/pnCore/` and `.cursor-plugin/`
+- `scripts/install-to-project.mjs`, `scripts/install-consumer-gating.mjs`
 
-CI requires:
+(deletions count), CI requires:
 
-1. **Version bump**: root `package.json` version must differ from the PR base branch.
-2. **CHANGELOG entry**: `plugins/pnCore/CHANGELOG.md` must include `## [version] - YYYY-MM-DD` for the new version (pn-documentation format).
+1. **Version bump:** root `package.json` must be strictly greater than on the PR base branch. A downgrade or a sideways change fails.
+2. **New CHANGELOG entry:** `plugins/pnCore/CHANGELOG.md` must include `## [version] - YYYY-MM-DD` for the new version, and that heading must not already exist at the base (pn-documentation format).
 
 Local checks: `npm run check:changelog` and `npm run check:doc-structure`.
 
@@ -76,12 +76,14 @@ Three workflows gate merges to `main`:
 
 - **Opt-in:** only PRs labeled **`automerge`** are merged by [pr-automerge.yml](../.github/workflows/pr-automerge.yml).
 - **Required checks:** `no-ide-trailers`, `sync (22)`, `sync (24)`, `pn-gates`, `pn-review`.
-- **Semver-major skips:** version major bumps stay manual (same as Dependabot).
+- **Manual merges:** semver-major bumps and any PR that changes `.github/workflows/` stay manual (same for Dependabot). A PR that edits the gates runs its own edited gates, so it must not merge itself.
+- **Head pin and one poller:** the merge passes `--match-head-commit` for the commit whose checks passed, and a newer event cancels the waiting poller (`concurrency`). The fallback check listing counts only GitHub Actions check runs.
+- **CI on main:** merges by `GITHUB_TOKEN` start no push workflows, so the automerge job dispatches **Sync MCP content** on `main` after each merge.
 - **Labels:** `pn-ready` / `pn-blocked` are set by the review workflow from deterministic findings; Cloud Agent may update them after semantic review. Add **`automerge`** when you want squash-merge after all checks pass.
 - **Dependabot:** patch/minor/group PRs still use [dependabot-automerge.yml](../.github/workflows/dependabot-automerge.yml) (no `automerge` label required).
 
 ### Prune Actions history
 
-When the Actions tab accumulates hundreds of runs (especially during PR/automerge churn), run **Actions → Prune Actions history → Run workflow** (or locally: `GITHUB_TOKEN=... npm run prune:actions`). The job keeps the **latest run per workflow** and deletes the rest. Use workflow input **logs only** if you want to drop log archives but keep run rows in the UI.
+When the Actions tab accumulates hundreds of runs (especially during PR/automerge churn), run **Actions → Prune Actions history → Run workflow** (or locally: `GITHUB_TOKEN=... npm run prune:actions`). The job keeps the **latest run per workflow**, every run younger than 30 days, and every run on the head commit of an open PR, and deletes the rest. Deleting a run deletes its check runs, and an open PR whose checks vanish can never auto-merge. Use workflow input **logs only** if you want to drop log archives but keep run rows in the UI.
 
 **If a trailer or Cursor Agent author already landed:** amend or rebase to drop the body line and reset Author to the repository user, or rewrite with `git filter-repo` (mailmap + message callback) as appropriate. Force-push to `main` is blocked unless the `block-force-push-main` ruleset is temporarily disabled.

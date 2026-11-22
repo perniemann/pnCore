@@ -1,5 +1,6 @@
 # Squash-merge PRs labeled automerge after CI + pn-gates + pn-review pass.
-# Opt-in only; skips semver-major version bumps (manual review).
+# Opt-in only. Skips semver-major bumps and any PR that changes .github/workflows/: a PR that
+# edits the gates runs its own edited gates, so it never merges itself (manual review).
 name: PR auto-merge
 
 on:
@@ -13,11 +14,17 @@ permissions:
   # sees an empty list forever and times out ("No checks registered yet").
   checks: read
   statuses: read
-  actions: read
+  actions: write
+
+# One poller per PR: a newer event (push, label) replaces the waiting one.
+concurrency:
+  group: automerge-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   automerge:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     if: |
       github.event.pull_request.user.login != 'dependabot[bot]' &&
       contains(github.event.pull_request.labels.*.name, 'automerge')
@@ -37,7 +44,10 @@ jobs:
           base_major=${base_ver%%.*}
           head_major=${head_ver%%.*}
           if [ "$base_major" != "$head_major" ]; then
-            echo "Semver-major bump (${base_ver} → ${head_ver}) — manual review required."
+            echo "Semver-major bump (${base_ver} → ${head_ver}): manual review required."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          elif git diff --name-only "${base}...${head}" | grep -q '^\.github/workflows/'; then
+            echo "This PR changes .github/workflows/: manual review required."
             echo "skip=true" >> "$GITHUB_OUTPUT"
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
@@ -65,7 +75,7 @@ jobs:
               return 0
             fi
             gh api "repos/${GH_REPO}/commits/${HEAD_SHA}/check-runs" --paginate \
-              -q '.check_runs[] | [.name,
+              -q '.check_runs[] | select(.app.slug == "github-actions") | [.name,
                 (if .status != "completed" then "pending"
                  elif .conclusion == "success" or .conclusion == "neutral" or .conclusion == "skipped" then "pass"
                  elif .conclusion == "cancelled" then "cancel"
@@ -74,11 +84,7 @@ jobs:
           }
 
           for attempt in $(seq 1 40); do
-            if ! mapfile -t rows < <(list_checks); then
-              echo "listing checks failed; retrying... (${attempt}/40)"
-              sleep 30
-              continue
-            fi
+            mapfile -t rows < <(list_checks)
             if [[ ${#rows[@]} -eq 0 ]]; then
               echo "No checks registered yet... (${attempt}/40)"
               sleep 30
@@ -128,7 +134,18 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           PR: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
           title=$(gh pr view "$PR" --json title -q .title)
-          gh pr merge "$PR" --squash --delete-branch --subject "$title" --body ""
+          # Merge only the commit whose checks passed; a newer push makes this fail.
+          gh pr merge "$PR" --squash --delete-branch --match-head-commit "$HEAD_SHA" \
+            --subject "$title" --body ""
+
+      # Merges by GITHUB_TOKEN start no push workflows; run full CI on the new main explicitly.
+      - name: Run full CI on main
+        if: steps.major.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: gh workflow run sync-mcp-content.yml --ref main

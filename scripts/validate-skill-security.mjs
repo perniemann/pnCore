@@ -12,7 +12,8 @@
  *   SKILLSPECTOR_GATE=advisory     — never fail on score; print report only
  *
  * Run: node scripts/validate-skill-security.mjs
- * CI:  pip install skillspector && node scripts/validate-skill-security.mjs
+ * Local, optional: CI does not run it (it needs the SkillSpector CLI). The CI gate for skill
+ * installs is check-unpinned-installs.mjs.
  */
 
 import { spawnSync } from "child_process";

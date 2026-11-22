@@ -87,3 +87,39 @@ test("validateMarkdownStructure passes valid plan path", () => {
   const errors = validateMarkdownStructure("docs/plans/2026-07-03-feature.md", md);
   assert.deepEqual(errors, []);
 });
+
+test("semverGreater orders x.y.z and rejects equal or lower", async () => {
+  const { semverGreater } = await import("../validate-changelog-lib.mjs");
+  assert.equal(semverGreater("0.23.1", "0.23.0"), true);
+  assert.equal(semverGreater("0.24.0", "0.23.9"), true);
+  assert.equal(semverGreater("0.23.0", "0.23.0"), false);
+  assert.equal(semverGreater("0.22.9", "0.23.0"), false);
+  assert.equal(semverGreater("bad", "0.1.0"), false);
+});
+
+test("release paths include dist, extensions and installer scripts", () => {
+  assert.equal(isReleasePath("packages/pn-core-mcp/dist/index.js"), true);
+  assert.equal(isReleasePath("packages/pn-core-mcp/extensions/pn-core.ts"), true);
+  assert.equal(isReleasePath("scripts/install-to-project.mjs"), true);
+  assert.equal(isReleasePath("scripts/install-to-project.mjs.bak"), false);
+  assert.equal(isReleasePath("scripts/run-pn-gates.mjs"), false);
+});
+
+test("validateChangelogPolicy refuses a downgrade and a reused CHANGELOG heading", () => {
+  const headVersion = readRootVersion(repoRoot);
+  const [maj, min, pat] = headVersion.split(".").map(Number);
+  const higher = `${maj}.${min}.${pat + 1}`;
+  const down = validateChangelogPolicy({
+    repoRoot,
+    changedFiles: ["packages/pn-core-mcp/src/index.ts"],
+    baseVersion: higher,
+  });
+  assert.ok(down.errors.some((e) => e.includes("must go up")));
+  const reused = validateChangelogPolicy({
+    repoRoot,
+    changedFiles: ["packages/pn-core-mcp/src/index.ts"],
+    baseVersion: "0.0.1",
+    baseChangelog: `## [${headVersion}] - 2026-01-01\n`,
+  });
+  assert.ok(reused.errors.some((e) => e.includes("already had")));
+});
