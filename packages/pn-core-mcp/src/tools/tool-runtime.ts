@@ -43,8 +43,9 @@ export const ErrorCode = {
 
 export type ErrorCodeKey = keyof typeof ErrorCode;
 
-export function getMcpVersion(): string {
-  const pkgPath = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "package.json");
+export function getMcpVersion(
+  pkgPath: string = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "package.json")
+): string {
   let raw: string;
   try {
     raw = readFileSync(pkgPath, "utf-8");
@@ -108,7 +109,10 @@ export function appendSkillLoadLog(tool: string, id: string, run_id?: string): v
   if (!shouldLog) return;
   try {
     const stepIndex = currentStepIndex(run_id);
-    const logPath = resolve(safeBase, ".pncore", "skill-load-log.jsonl");
+    const logPath = resolve(
+      safeBase,
+      process.env.PNCORE_SKILL_LOAD_LOG || ".pncore/skill-load-log.jsonl"
+    );
     const logDir = dirname(logPath);
     if (!existsSync(logDir)) mkdirSync(logDir, { recursive: true });
     appendFileSync(

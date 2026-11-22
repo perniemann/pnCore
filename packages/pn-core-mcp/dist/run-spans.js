@@ -21,7 +21,7 @@ import { parseRunLog } from "./trajectory.js";
 export function trailPaths(env = process.env) {
     return {
         steps: env.PNCORE_RUN_LOG || ".pncore/workflow-runs.jsonl",
-        loads: ".pncore/skill-load-log.jsonl",
+        loads: env.PNCORE_SKILL_LOAD_LOG || ".pncore/skill-load-log.jsonl",
         usage: ".pncore/usage.jsonl",
         handoff: env.PNCORE_HANDOFF_LOG || ".pncore/workflow-handoff.jsonl",
         gate: ".pncore/gate-log.jsonl",

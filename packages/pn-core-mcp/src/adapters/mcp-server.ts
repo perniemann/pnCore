@@ -78,8 +78,6 @@ export function createPnCoreServer(): McpServer {
     (server.prompt as any)(name, description, schema, handler);
   }
 
-
-
   for (const tool of PN_CORE_TOOLS) {
     regTool(tool.name, tool.description, tool.zodSchema, tool.annotations, tool.handler);
   }

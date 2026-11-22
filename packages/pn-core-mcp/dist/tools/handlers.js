@@ -133,13 +133,13 @@ export async function handleHarnessScaffold(args) {
     const untouched = HARNESS_IDS.filter((h) => !harnesses.includes(h) && !usedFolders.has(topFolder(h)));
     // Instructions-file byte budget (ADR-0021): measured for harnesses that truncate the chain.
     const instructionsBudget = [];
+    const measured = new Set();
     for (const h of harnesses) {
         const layout = HARNESS_LAYOUTS[h];
-        if (layout.instructionsCapBytes == null)
+        if (layout.instructionsCapBytes == null || measured.has(layout.instructionsFile))
             continue;
         const rel = layout.instructionsFile;
-        if (instructionsBudget.some((b) => b.path === rel))
-            continue;
+        measured.add(rel);
         const abs = join(safeBase, rel);
         const existing = existsSync(abs) ? readFileSync(abs, "utf-8") : null;
         const planned = plan.find((f) => f.path === rel && f.strategy === "managed_block");

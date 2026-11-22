@@ -20,15 +20,6 @@ const ERROR_CODE_TO_JSON_RPC = {
     DISPOSE_UNAVAILABLE: -32005,
     INVALID_ARGV: -32602,
 };
-const server = new McpServer({ name: "pn-core-mcp", version: MCP_VERSION }, { capabilities: { prompts: {}, resources: {} }, instructions: PN_INDICATOR_INSTRUCTIONS });
-function regTool(name, description, schema, annotations, handler) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    server.tool(name, description, schema, annotations, handler);
-}
-function regPrompt(name, description, schema, handler) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    server.prompt(name, description, schema, handler);
-}
 function throwMcpError(code, message, data) {
     throw new McpError(ERROR_CODE_TO_JSON_RPC[code], message, data);
 }
@@ -38,47 +29,68 @@ function promptMessages(content, context) {
         messages: [{ role: "user", content: { type: "text", text } }],
     };
 }
-for (const tool of PN_CORE_TOOLS) {
-    regTool(tool.name, tool.description, tool.zodSchema, tool.annotations, tool.handler);
+/**
+ * Build the pn-core MCP server with every tool, resource and prompt registered, unconnected.
+ * stdio (`startStdioServer`) and in-process tests (InMemoryTransport) share this one surface.
+ */
+export function createPnCoreServer() {
+    const server = new McpServer({ name: "pn-core-mcp", version: MCP_VERSION }, { capabilities: { prompts: {}, resources: {} }, instructions: PN_INDICATOR_INSTRUCTIONS });
+    function regTool(name, description, schema, annotations, handler) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        server.tool(name, description, schema, annotations, handler);
+    }
+    function regPrompt(name, description, schema, handler) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        server.prompt(name, description, schema, handler);
+    }
+    for (const tool of PN_CORE_TOOLS) {
+        regTool(tool.name, tool.description, tool.zodSchema, tool.annotations, tool.handler);
+    }
+    for (const def of resourceDefs) {
+        server.registerResource(def.name, def.uri, {
+            title: def.name,
+            description: def.description,
+            mimeType: def.mimeType,
+        }, () => {
+            const result = getResource(def.uri);
+            if (result == null) {
+                throwMcpError("NOT_FOUND", "Resource not found", { uri: def.uri });
+            }
+            return {
+                contents: [{ uri: def.uri, mimeType: result.mimeType, text: result.text }],
+            };
+        });
+    }
+    const agentIds = new Set(listAgents().map((a) => a.id));
+    for (const { id, name, description } of listAgents()) {
+        regPrompt(id, description || `Run the ${name} agent`, contextArgSchema, ({ context }) => {
+            const content = getAgent(id);
+            if (content == null)
+                throwMcpError("NOT_FOUND", `Agent not found: ${id}`, { id });
+            return promptMessages(content, context);
+        });
+    }
+    for (const { id, name, description } of listCommands()) {
+        if (agentIds.has(id))
+            continue;
+        regPrompt(id, description || `Run the ${name} command`, contextArgSchema, ({ context }) => {
+            const content = getCommand(id);
+            if (content == null)
+                throwMcpError("NOT_FOUND", `Command not found: ${id}`, { id });
+            return promptMessages(content, context);
+        });
+    }
+    return server;
 }
-for (const def of resourceDefs) {
-    server.registerResource(def.name, def.uri, {
-        title: def.name,
-        description: def.description,
-        mimeType: def.mimeType,
-    }, () => {
-        const result = getResource(def.uri);
-        if (result == null) {
-            throwMcpError("NOT_FOUND", "Resource not found", { uri: def.uri });
-        }
-        return {
-            contents: [{ uri: def.uri, mimeType: result.mimeType, text: result.text }],
-        };
+/** Connect a fresh server to stdio; the `pn-core` bin entry. */
+export async function startStdioServer() {
+    const server = createPnCoreServer();
+    const transport = new StdioServerTransport();
+    await server.connect(transport);
+    const feats = loadFeatures();
+    debug("trace", `pn-core-mcp v${MCP_VERSION} ready`, {
+        content: process.env.PNCORE_CONTENT_PATH ?? "(default)",
+        features: feats,
     });
+    return server;
 }
-const agentIds = new Set(listAgents().map((a) => a.id));
-for (const { id, name, description } of listAgents()) {
-    regPrompt(id, description || `Run the ${name} agent`, contextArgSchema, ({ context }) => {
-        const content = getAgent(id);
-        if (content == null)
-            throwMcpError("NOT_FOUND", `Agent not found: ${id}`, { id });
-        return promptMessages(content, context);
-    });
-}
-for (const { id, name, description } of listCommands()) {
-    if (agentIds.has(id))
-        continue;
-    regPrompt(id, description || `Run the ${name} command`, contextArgSchema, ({ context }) => {
-        const content = getCommand(id);
-        if (content == null)
-            throwMcpError("NOT_FOUND", `Command not found: ${id}`, { id });
-        return promptMessages(content, context);
-    });
-}
-const transport = new StdioServerTransport();
-await server.connect(transport);
-const feats = loadFeatures();
-debug("trace", `pn-core-mcp v${MCP_VERSION} ready`, {
-    content: process.env.PNCORE_CONTENT_PATH ?? "(default)",
-    features: feats,
-});

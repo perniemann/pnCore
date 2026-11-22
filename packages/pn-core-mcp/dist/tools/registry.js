@@ -2,13 +2,23 @@ import { approvalCheckpointSchema, gateLogAppendSchema, getAgentSchema, getComma
 import { typeboxSchemas, PN_CORE_TOOL_NAMES } from "./schemas-typebox.js";
 import { withIndicator } from "../indicator.js";
 import { handleApprovalCheckpoint, handleGateLogAppend, handleGetAgent, handleGetCommand, handleGetRule, handleGetSkill, handleHarnessDetect, handleHarnessScaffold, handleHealth, handleProjectContext, handleListAgents, handleListCommands, handleListRules, handleListSkills, handleListWorkflowTypes, handlePaperclipIssue, handleReportUsage, handleSuggestModelTier, handleWorkflowConfirm, handleWorkflowHandoffAppend, handleWorkflowStateLoad, handleWorkflowStateSave, handleWorkflowRunQuery, handleWorkflowStep, handleWorkflowVerify, } from "./handlers.js";
+/** Pi needs a TypeBox schema for every MCP tool; a tool without one fails at load, not at call. */
+export function requireTypeboxSchema(schemas, name) {
+    const schema = schemas[name];
+    if (!schema)
+        throw new Error(`pn-core-mcp: missing TypeBox schema for tool ${name}`);
+    return schema;
+}
+/** The registry and the TypeBox schema table must name the same number of tools. */
+export function assertToolCount(tools, names) {
+    if (tools !== names) {
+        throw new Error(`pn-core-mcp: tool registry count mismatch (${tools} vs ${names})`);
+    }
+}
 function def(name, label, description, zodSchema, annotations, 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 handler) {
-    const typeboxParameters = typeboxSchemas[name];
-    if (!typeboxParameters) {
-        throw new Error(`pn-core-mcp: missing TypeBox schema for tool ${name}`);
-    }
+    const typeboxParameters = requireTypeboxSchema(typeboxSchemas, name);
     return {
         name,
         label,
@@ -49,7 +59,5 @@ export const PN_CORE_TOOLS = [
     def("workflow_run_query", "Workflow Run Query", "Query one run_id across the .pncore trails: verify attestations and acceptance (run-events.jsonl, default), plus kinds preflight (workflow_verify checks), step (workflow_step spans: stepIndex, sinceLastStepMs, engineMs, routing), load (get_* loads), usage, handoff, gate. kinds usage (or timeline) adds a usage summary: token and cost sums plus the PNCORE_USAGE_WARN_INPUT_TOKENS warning. kinds handoff returns the handoff lines (restore context in a new chat). timeline: true joins them into a per-step view with totals and the slowest step.", workflowRunQuerySchema, readOnly, handleWorkflowRunQuery),
     def("paperclip_issue", "Paperclip Issue", "Act on a Paperclip issue. action checkout (POST /api/issues/:id/checkout) before starting work per pn-paperclip governance; comment (POST /api/issues/:id/comments, needs body); update (PATCH /api/issues/:id, needs status; optional comment). Requires PAPERCLIP_API_URL, PAPERCLIP_API_KEY. issueId optional if PAPERCLIP_ISSUE_ID is set.", paperclipIssueSchema, destructive, handlePaperclipIssue),
 ];
-if (PN_CORE_TOOLS.length !== PN_CORE_TOOL_NAMES.length) {
-    throw new Error(`pn-core-mcp: tool registry count mismatch (${PN_CORE_TOOLS.length} vs ${PN_CORE_TOOL_NAMES.length})`);
-}
+assertToolCount(PN_CORE_TOOLS.length, PN_CORE_TOOL_NAMES.length);
 export { PN_CORE_TOOL_NAMES };

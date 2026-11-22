@@ -5,4 +5,5 @@ import { exitIfInteractiveStdin } from "./stdio-tty-guard.js";
 exitIfInteractiveStdin();
 /** Re-export workflowTypeEnum for repo validators that scan the MCP entry surface. */
 export { workflowTypeEnum } from "./tools/schemas-zod.js";
-await import("./adapters/mcp-server.js");
+const { startStdioServer } = await import("./adapters/mcp-server.js");
+await startStdioServer();
