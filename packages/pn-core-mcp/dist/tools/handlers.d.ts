@@ -30,11 +30,11 @@ export declare function handleWorkflowVerify(args: ShapeArgs<typeof workflowVeri
  * the usage trail, plus the PNCORE_USAGE_WARN_INPUT_TOKENS warning.
  */
 export declare function summarizeUsage(records: Record<string, unknown>[]): {
+    warnMessage?: string | undefined;
     lines: number;
     inputTokens: number;
     outputTokens: number;
     costUsd: number | null;
     warn: boolean;
-    warnMessage?: string | undefined;
 };
 export declare function handleWorkflowRunQuery(args: ShapeArgs<typeof workflowRunQuerySchema>): Promise<import("./tool-runtime.js").ToolContentResult>;

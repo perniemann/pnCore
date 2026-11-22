@@ -1,4 +1,4 @@
-export declare const safeBase: any;
+export declare const safeBase: string;
 /**
  * Resolve symlinks on the deepest existing ancestor of `p` and re-append the missing tail.
  * A path whose parent is a symlink out of the workspace resolves to its real location.

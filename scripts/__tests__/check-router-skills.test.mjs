@@ -13,12 +13,17 @@ test("counts id plus description and passes within budget", () => {
 });
 
 test("flags unknown, duplicate, empty and over-budget sets", () => {
-  assert.match(routerFindings({ budgetChars: 100, skills: ["pn-z"] }, catalog).errors[0], /no such/);
+  assert.match(
+    routerFindings({ budgetChars: 100, skills: ["pn-z"] }, catalog).errors[0],
+    /no such/
+  );
   assert.match(
     routerFindings({ budgetChars: 100, skills: ["pn-a", "pn-a"] }, catalog).errors[0],
     /twice/
   );
-  assert.ok(routerFindings({ budgetChars: 100, skills: [] }, catalog).errors.includes("skills is empty"));
+  assert.ok(
+    routerFindings({ budgetChars: 100, skills: [] }, catalog).errors.includes("skills is empty")
+  );
   assert.match(routerFindings({ budgetChars: 20, skills: ["pn-b"] }, catalog).errors[0], /over/);
   assert.match(routerFindings({ budgetChars: 0, skills: ["pn-a"] }, catalog).errors[0], /positive/);
 });

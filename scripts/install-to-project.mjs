@@ -228,7 +228,9 @@ function copySkillsFlat(skillsDir, only = null) {
       n++;
     }
   }
-  const label = only ? `${n} router skills, flat ids; the rest load with get_skill` : `${n} skills, flat ids`;
+  const label = only
+    ? `${n} router skills, flat ids; the rest load with get_skill`
+    : `${n} skills, flat ids`;
   console.log(`Copied -> ./${skillsDir}/ (${label})`);
   return n;
 }

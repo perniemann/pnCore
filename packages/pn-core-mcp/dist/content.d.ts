@@ -1,4 +1,4 @@
-export declare const contentRoot: any;
+export declare const contentRoot: string;
 export interface SkillEntry {
     id: string;
     name: string;

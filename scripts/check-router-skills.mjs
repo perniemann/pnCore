@@ -23,7 +23,8 @@ export function skillCatalog(skillsRoot) {
     if (!cat.isDirectory()) continue;
     for (const s of readdirSync(join(skillsRoot, cat.name), { withFileTypes: true })) {
       const p = join(skillsRoot, cat.name, s.name, "SKILL.md");
-      if (s.isDirectory() && existsSync(p)) out.set(s.name, skillDescription(readFileSync(p, "utf8")));
+      if (s.isDirectory() && existsSync(p))
+        out.set(s.name, skillDescription(readFileSync(p, "utf8")));
     }
   }
   return out;
@@ -48,12 +49,18 @@ export function routerFindings(config, catalog) {
     chars += id.length + catalog.get(id).length;
   }
   if (chars > config.budgetChars)
-    errors.push(`router set is ${chars} chars (id + description), over budgetChars ${config.budgetChars}`);
+    errors.push(
+      `router set is ${chars} chars (id + description), over budgetChars ${config.budgetChars}`
+    );
   return { errors, chars };
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const content = join(dirname(fileURLToPath(import.meta.url)), "..", "packages/pn-core-mcp/content");
+  const content = join(
+    dirname(fileURLToPath(import.meta.url)),
+    "..",
+    "packages/pn-core-mcp/content"
+  );
   const config = JSON.parse(readFileSync(join(content, "config/router-skills.json"), "utf8"));
   const { errors, chars } = routerFindings(config, skillCatalog(join(content, "skills")));
   if (errors.length) {
