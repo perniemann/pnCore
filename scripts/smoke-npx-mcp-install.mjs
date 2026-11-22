@@ -17,6 +17,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { PN_CORE_GIT_PACKAGE } from "./mcp-npx-config.mjs";
 import { portableMcpServerEntryForPackage } from "./mcp-install-config.mjs";
+import { withBudget } from "./with-budget.mjs";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const packageSpec =
@@ -45,7 +46,7 @@ async function connectAndHealth(launchEntry, budgetMs) {
 
   const t0 = Date.now();
   try {
-    await Promise.race([
+    await withBudget(
       (async () => {
         await client.connect(transport);
         const result = await client.callTool({ name: "health", arguments: {} });
@@ -54,10 +55,9 @@ async function connectAndHealth(launchEntry, budgetMs) {
         const parsed = JSON.parse(first.text);
         if (parsed.status !== "ok") throw new Error(`health status: ${parsed.status}`);
       })(),
-      new Promise((_, reject) =>
-        setTimeout(() => reject(new Error(`connect + health exceeded ${budgetMs}ms`)), budgetMs)
-      ),
-    ]);
+      budgetMs,
+      "connect + health"
+    );
     return Date.now() - t0;
   } finally {
     try {
