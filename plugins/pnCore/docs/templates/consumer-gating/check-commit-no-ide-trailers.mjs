@@ -22,7 +22,8 @@ function forbiddenLine(line) {
     return `Co-authored-by Cursor (${line})`;
   if (/^Co-authored-by:.*@anthropic\.com>/i.test(line)) return `Co-authored-by Claude (${line})`;
   if (/^Claude-Session:/i.test(line)) return `Claude-Session: (${line})`;
-  if (/^(🤖\s*)?Generated with \[?Claude Code/i.test(line)) return `Generated with Claude Code (${line})`;
+  if (/^(🤖\s*)?Generated with \[?Claude Code/i.test(line))
+    return `Generated with Claude Code (${line})`;
   return null;
 }
 
