@@ -9,7 +9,8 @@ import { readFileSync, readdirSync, statSync, existsSync } from "fs";
 import { dirname, join, relative } from "path";
 import { fileURLToPath } from "url";
 
-const BANNED = /\b(leverag\w*|seamless\w*|cutting-edge|empower\w*|elevat(?:e|es|ed|ing)|robust\w*)\b/i;
+const BANNED =
+  /\b(leverag\w*|seamless\w*|cutting-edge|empower\w*|elevat(?:e|es|ed|ing)|robust\w*)\b/i;
 const SPACED_HYPHEN = /(?<=[A-Za-z0-9)\]*_]) - (?=[A-Za-z0-9(\[*_])/;
 const CHANGELOG_HEADING = /^## \[\d+\.\d+\.\d+\] - \d{4}-\d{2}-\d{2}\s*$/;
 
@@ -62,7 +63,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     }
   }
   if (errors.length) {
-    console.error("check-public-voice: public surfaces follow voice-and-tone (technical register):");
+    console.error(
+      "check-public-voice: public surfaces follow voice-and-tone (technical register):"
+    );
     for (const e of errors.slice(0, 80)) console.error(`  ${e}`);
     if (errors.length > 80) console.error(`  … ${errors.length - 80} more`);
     process.exit(1);
