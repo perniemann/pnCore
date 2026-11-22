@@ -113,7 +113,7 @@ test("fails when Co-authored-by cursoragent trailer is present", () => {
       AFTER: after,
     });
     assert.equal(r.status, 1);
-    assert.match(`${r.stdout}\n${r.stderr}`, /Co-authored-by trailer.*cursoragent/);
+    assert.match(`${r.stdout}\n${r.stderr}`, /Co-authored-by cursoragent/);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
@@ -124,10 +124,10 @@ for (const [label, trailer, expected] of [
   [
     "Claude Co-Authored-By",
     "Co-Authored-By: Claude <noreply@anthropic.com>",
-    /Co-authored-by trailer/,
+    /Co-authored-by Claude/,
   ],
-  ["Claude-Session", "Claude-Session: https://claude.ai/code/session_x", /Claude-Session trailer/],
-  ["Made-with", "Made-with: Cursor", /Made-with trailer/],
+  ["Claude-Session", "Claude-Session: https://claude.ai/code/session_x", /Claude-Session:/],
+  ["Made-with", "Made-with: Cursor", /Made-with:/],
 ]) {
   test(`fails on ${label}`, () => {
     const { dir, base } = initRepo();

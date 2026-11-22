@@ -18,7 +18,7 @@ CI and supply-chain hardening. Each item closes a gap from the 2026-11-21 review
   - After each merge the job dispatches **Sync MCP content** on `main`, because merges by `GITHUB_TOKEN` start no push workflows.
 - **Committed `dist/` is checked.** CI fails when `packages/pn-core-mcp/dist/` differs from a fresh `build:mcp`. Consumers run that `dist/`.
 - **Full CI on every push to `main`.** The `paths:` filter on Sync MCP content is gone.
-- **Commit trailers.** One policy (`scripts/commit-trailer-policy.mjs`) for the CI check and the prepare-commit-msg hook: no `Co-authored-by` of any kind, no `Made-with`, no `Claude-Session`, no "Generated with Claude Code" line. It previously caught Cursor trailers only.
+- **Commit trailers.** The hook, the CI check and the consumer templates (`docs/templates/consumer-gating/`) now catch Claude agent trailers too (`Co-authored-by … @anthropic.com`, `Claude-Session`, "Generated with Claude Code"), not only Cursor ones. pnCore's own CI check also rejects any `Co-authored-by`; consumers keep human co-authors.
 - **Changelog gate.**
   - The version must go up, not just change.
   - The `## [version]` heading must be new at the base.

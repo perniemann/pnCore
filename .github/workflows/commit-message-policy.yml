@@ -1,4 +1,4 @@
-# Rejects commits that carry an IDE or agent trailer (scripts/commit-trailer-policy.mjs) or Cursor Agent authorship.
+# Rejects commits that carry an IDE or agent trailer, any Co-authored-by, or Cursor Agent authorship.
 name: Commit message policy
 
 on:

@@ -7,7 +7,7 @@ updated: 2026-09-17
 
 ## Do not allow IDE trailers
 
-Cursor can append lines such as `Made-with: Cursor` or `Co-authored-by: … cursoragent@cursor.com` to commits, and Cloud Agent commits as `Cursor Agent <cursoragent@cursor.com>`. **Do not merge or push commits that include those lines or that Author/Committer identity.** The policy covers every IDE and agent, not only Cursor: no `Co-authored-by` trailer of any kind, no `Made-with`, no `Claude-Session`, no "Generated with Claude Code" line (`scripts/commit-trailer-policy.mjs`). They add noise and put `cursoragent` on the GitHub contributors graph.
+Cursor can append lines such as `Made-with: Cursor` or `Co-authored-by: … cursoragent@cursor.com` to commits, and Cloud Agent commits as `Cursor Agent <cursoragent@cursor.com>`. **Do not merge or push commits that include those lines or that Author/Committer identity.** The policy covers every IDE and agent, not only Cursor: no `Co-authored-by` trailer of any kind, no `Made-with`, no `Claude-Session`, no "Generated with Claude Code" line (`scripts/check-commit-no-ide-trailers.mjs`; the consumer template keeps human co-authors). They add noise and put `cursoragent` on the GitHub contributors graph.
 
 ### Why CI fails when you still see that line or identity
 
