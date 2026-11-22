@@ -21,6 +21,8 @@ test("keeps the latest run per workflow, recent runs and open-PR heads", () => {
     run(4, "w", 4, old),
     run(5, "v", 1, old),
   ];
-  const pruned = selectPrunable(runs, { now, protectedShas: new Set(["pr-head"]) }).map((r) => r.id);
+  const pruned = selectPrunable(runs, { now, protectedShas: new Set(["pr-head"]) }).map(
+    (r) => r.id
+  );
   assert.deepEqual(pruned, [1]);
 });

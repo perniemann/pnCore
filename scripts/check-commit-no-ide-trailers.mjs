@@ -14,7 +14,6 @@ function git(argv) {
   }).trim();
 }
 
-
 function forbiddenIdentity(role, name, email) {
   const n = String(name ?? "").trim();
   const e = String(email ?? "").trim();

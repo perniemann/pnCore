@@ -30,7 +30,6 @@ const ownerRepo = positionals[0] || "perniemann/pnCore";
 const [owner, repo] = ownerRepo.split("/");
 const token = process.env.GITHUB_TOKEN;
 
-
 const base = "https://api.github.com";
 const headers = {
   Accept: "application/vnd.github+json",
@@ -132,9 +131,7 @@ export function selectPrunable(runs, { now = Date.now(), protectedShas = new Set
   const cutoff = now - KEEP_DAYS * 24 * 60 * 60 * 1000;
   return runs.filter(
     (r) =>
-      !latest.has(r.id) &&
-      !protectedShas.has(r.head_sha) &&
-      Date.parse(r.created_at ?? "") < cutoff
+      !latest.has(r.id) && !protectedShas.has(r.head_sha) && Date.parse(r.created_at ?? "") < cutoff
   );
 }
 

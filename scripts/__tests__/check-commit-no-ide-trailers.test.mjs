@@ -121,7 +121,11 @@ test("fails when Co-authored-by cursoragent trailer is present", () => {
 
 for (const [label, trailer, expected] of [
   ["any Co-authored-by", "Co-authored-by: Some Human <h@example.com>", /Co-authored-by trailer/],
-  ["Claude Co-Authored-By", "Co-Authored-By: Claude <noreply@anthropic.com>", /Co-authored-by trailer/],
+  [
+    "Claude Co-Authored-By",
+    "Co-Authored-By: Claude <noreply@anthropic.com>",
+    /Co-authored-by trailer/,
+  ],
   ["Claude-Session", "Claude-Session: https://claude.ai/code/session_x", /Claude-Session trailer/],
   ["Made-with", "Made-with: Cursor", /Made-with trailer/],
 ]) {

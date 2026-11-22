@@ -16,12 +16,18 @@ test("flags every IDE and agent trailer", () => {
 });
 
 test("leaves ordinary body lines alone", () => {
-  for (const line of ["feat: add x", "Refs #12", "Signed-off-by: dependabot[bot]", "co-authoring a doc"]) {
+  for (const line of [
+    "feat: add x",
+    "Refs #12",
+    "Signed-off-by: dependabot[bot]",
+    "co-authoring a doc",
+  ]) {
     assert.equal(forbiddenTrailer(line), null, line);
   }
 });
 
 test("stripTrailers removes trailers and collapses blank runs", () => {
-  const msg = "feat: x\n\nWhy.\n\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nClaude-Session: s\n";
+  const msg =
+    "feat: x\n\nWhy.\n\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nClaude-Session: s\n";
   assert.equal(stripTrailers(msg), "feat: x\n\nWhy.\n");
 });
