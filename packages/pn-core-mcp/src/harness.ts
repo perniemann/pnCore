@@ -8,8 +8,9 @@
  */
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
-import { dirname, join, resolve, sep } from "path";
+import { dirname, join } from "path";
 import { CODEX_AGENTS_MD_CAP_BYTES, estimateTokens, utf8Bytes } from "./context-budget.js";
+import { resolveInside } from "./safe-path.js";
 
 export const HARNESS_IDS = ["cursor", "claude_code", "codex", "pi"] as const;
 export type HarnessId = (typeof HARNESS_IDS)[number];
@@ -791,11 +792,10 @@ export type AppliedFile = {
   bytes: number;
 };
 
+/** Contained after resolving symlinks: a symlinked harness folder cannot carry writes outside. */
 function containedIn(root: string, rel: string): string | null {
-  const base = resolve(root);
-  const abs = resolve(base, rel);
-  if (abs !== base && !abs.startsWith(base + sep)) return null;
-  return abs;
+  const inside = resolveInside(root, rel);
+  return "error" in inside ? null : inside.resolved;
 }
 
 function mergeJsonFile(abs: string, addition: unknown): "merged" | "already_present" {

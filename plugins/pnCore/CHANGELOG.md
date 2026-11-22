@@ -4,6 +4,16 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.26.3] - 2026-11-22
+
+Each trail has one writer (ADR-0029).
+
+### Security
+
+- **Writers stay in their own trail.** `report_usage`, `workflow_handoff_append`, `workflow_confirm`, `gate_log_append` and `workflow_state_save` (`handoff_path`) refuse a path that resolves, after symlinks, to an engine trail they do not own: the run log, run events, human-gate tickets, gate log, handoff, usage, skill loads or state saves. A test enumerates every writing tool with a path argument, so a new one cannot skip the guard.
+- **Symlinks no longer carry writes out of the workspace** through `harness_scaffold` (a symlinked `.cursor`, `.claude` or `.agents`) or the gate log behind `workflow_confirm` (a symlinked `.pncore`). Both now contain paths after resolving symlinks, like every other writer.
+- No HMAC on trail lines: a key that survives restarts is readable by the model it would guard against. ADR-0029 records why; `SECURITY.md` keeps shell access to `.pncore/` outside the boundary.
+
 ## [0.26.2] - 2026-11-22
 
 Coverage now measures the MCP surface it used to skip.

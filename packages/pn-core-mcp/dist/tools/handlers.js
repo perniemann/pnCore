@@ -1,4 +1,5 @@
 import { appendFileSync, mkdirSync, existsSync, readFileSync } from "fs";
+import { reservedTrailError } from "../trail-guard.js";
 import { dirname, join } from "path";
 import { noGoTicketRequired } from "../skeptic-gate-state.js";
 import { gateRecordProvenanceError, readGateVerdicts, readServedSteps, stepSequenceError, } from "../step-sequence.js";
@@ -415,6 +416,9 @@ export async function handleReportUsage(args) {
         const safe = resolveSafePath(filePath);
         if ("error" in safe)
             return mcpError("PATH_TRAVERSAL", safe.error, { path: filePath });
+        const reserved = reservedTrailError(safe.resolved, "usage");
+        if (reserved)
+            return mcpError("PATH_TRAVERSAL", reserved, { path: filePath });
         try {
             const resolved = safe.resolved;
             const dir = dirname(resolved);
@@ -435,6 +439,9 @@ export async function handleWorkflowHandoffAppend(args) {
     const safe = resolveSafePath(rel);
     if ("error" in safe)
         return mcpError("PATH_TRAVERSAL", safe.error, { path: rel });
+    const reserved = reservedTrailError(safe.resolved, "handoff");
+    if (reserved)
+        return mcpError("PATH_TRAVERSAL", reserved, { path: rel });
     try {
         appendHandoffLine(safe.resolved, { ts: new Date().toISOString(), run_id, step, summary });
         return textContent(JSON.stringify({ ok: true, path: safe.resolved }));
@@ -529,6 +536,9 @@ export async function handleGateLogAppend(args) {
     const safe = resolveSafePath(rel);
     if ("error" in safe)
         return mcpError("PATH_TRAVERSAL", safe.error, { path: rel });
+    const reserved = reservedTrailError(safe.resolved, "gate");
+    if (reserved)
+        return mcpError("PATH_TRAVERSAL", reserved, { path: rel });
     try {
         const resolved = safe.resolved;
         const dir = dirname(resolved);
@@ -572,6 +582,9 @@ export async function handleWorkflowStateSave(args) {
         const handoffSafe = resolveSafePath(handoffRel);
         if ("error" in handoffSafe)
             return mcpError("PATH_TRAVERSAL", handoffSafe.error, { path: handoffRel });
+        const reserved = reservedTrailError(handoffSafe.resolved, "handoff");
+        if (reserved)
+            return mcpError("PATH_TRAVERSAL", reserved, { path: handoffRel });
         const result = commitCheckpoint({
             statePath: path,
             handoffPath: handoffSafe.resolved,
