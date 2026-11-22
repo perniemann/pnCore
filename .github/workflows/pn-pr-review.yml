@@ -24,7 +24,7 @@ jobs:
 
       - name: Install gh CLI
         run: |
-          type gh >/dev/null 2>&1 || sudo apt-get update && sudo apt-get install -y gh
+          type gh >/dev/null 2>&1 || { sudo apt-get update && sudo apt-get install -y gh; }
 
       - name: Run pn-review gate
         env:

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * Fails if commits in a git range use Cursor IDE trailers or Cursor Agent authorship.
+ * Fails if commits in a git range carry an IDE or agent trailer, any Co-authored-by (pnCore's
+ * own rule), or Cursor Agent authorship.
  * CI: driven by GITHUB_EVENT_NAME + env. Local: origin/main..HEAD or @{upstream}..HEAD.
  */
 import { execFileSync } from "child_process";
@@ -18,6 +19,19 @@ function forbiddenLine(line) {
     return `Co-authored-by cursoragent (${line})`;
   if (/^Co-authored-by:.*Cursor\s*<cursor@cursor\.com>/i.test(line))
     return `Co-authored-by Cursor (${line})`;
+  if (/^Co-authored-by:.*@anthropic\.com>/i.test(line)) return `Co-authored-by Claude (${line})`;
+  if (/^Claude-Session:/i.test(line)) return `Claude-Session: (${line})`;
+  if (/^(🤖\s*)?Generated with \[?Claude Code/i.test(line))
+    return `Generated with Claude Code (${line})`;
+  return null;
+}
+
+/**
+ * pnCore's own rule, stricter than the consumer template: no Co-authored-by of any kind,
+ * human or agent. Consumers keep human co-authors.
+ */
+function repoOnlyForbiddenLine(line) {
+  if (/^Co-authored-by:/i.test(line)) return `Co-authored-by trailer (${line})`;
   return null;
 }
 
@@ -154,13 +168,13 @@ for (const sha of shas) {
     if (reason) bad.push({ sha, subject, reason });
   }
   for (const line of body.split(/\r?\n/)) {
-    const reason = forbiddenLine(line);
+    const reason = forbiddenLine(line) ?? repoOnlyForbiddenLine(line);
     if (reason) bad.push({ sha, subject, reason });
   }
 }
 
 if (bad.length) {
-  console.error("Commits must not use Cursor IDE authorship or trailers:");
+  console.error("Commits must not carry IDE or agent trailers or Cursor Agent authorship:");
   for (const { sha, subject, reason } of bad) {
     console.error(` - ${sha.slice(0, 7)} ${subject}`);
     console.error(`   ${reason}`);

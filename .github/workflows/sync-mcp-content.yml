@@ -1,55 +1,20 @@
 # Ensure plugin (plugins/pnCore) is in sync with canonical MCP content (packages/pn-core-mcp/content/).
 # Canonical source: packages/pn-core-mcp/content/. Run npm run sync:content to update plugin.
 #
-# This job runs only when a push touches one of the paths below (not on every commit).
-# To run it anytime: GitHub → Actions → "Sync MCP content" → "Run workflow".
+# Runs on every PR, every push to main, and after each auto-merge (pr-automerge.yml dispatches
+# it, because merges by GITHUB_TOKEN do not trigger push workflows).
 name: Sync MCP content
 
 on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths:
-      - '.github/workflows/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'eslint.config.js'
-      - '.prettierrc'
-      - 'packages/pn-core-mcp/**'
-      - 'scripts/sync-content-to-plugin.mjs'
-      - 'scripts/validate-assets.mjs'
-      - 'scripts/validate-template.mjs'
-      - 'scripts/validate-plugin-lib.mjs'
-      - 'scripts/validate-helpers.mjs'
-      - 'scripts/validate-stacks.mjs'
-      - 'docs/refs/**'
-      - 'docs/acceptance-criteria-convention.md'
-      - 'scripts/check-context-index.mjs'
-      - 'scripts/check-ac-traceability.mjs'
-      - 'scripts/check-commit-no-ide-trailers.mjs'
-      - 'scripts/check-content-plugin-sync.mjs'
-      - 'scripts/mcp-deeplink.mjs'
-      - 'scripts/mcp-npx-config.mjs'
-      - 'scripts/mcp-install-config.mjs'
-      - 'scripts/smoke-npx-mcp-install.mjs'
-      - 'scripts/check-mcp-config.mjs'
-      - 'scripts/__tests__/mcp-deeplink.test.mjs'
-      - 'scripts/__tests__/mcp-install-config.test.mjs'
-      - 'scripts/validate-skill-security.mjs'
-      - 'scripts/strip-commit-trailers.mjs'
-      - 'docs/commits.md'
-      - 'scripts/validate-changelog.mjs'
-      - 'scripts/validate-doc-structure.mjs'
-      - 'scripts/run-pn-gates.mjs'
-      - 'scripts/git-diff-lib.mjs'
-      - 'scripts/pn-pr-review-gate.mjs'
-      - '.github/workflows/pn-gates.yml'
-      - '.github/workflows/pn-pr-review.yml'
-      - '.github/workflows/pr-automerge.yml'
-      - '.github/workflows/prune-actions-history.yml'
   # Every PR runs full CI so Dependabot auto-merge can gate on test:full (see dependabot-automerge.yml).
   pull_request:
     branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
   sync:
@@ -63,7 +28,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: ${{ matrix.node }}
           cache: "npm"
@@ -86,5 +51,13 @@ jobs:
         run: |
           git diff --exit-code plugins/pnCore || (
             echo "::error::plugins/pnCore/ is out of sync with packages/pn-core-mcp/content/. Run: npm run sync:content && commit the changes."
+            exit 1
+          )
+
+      # Consumers run the committed dist/ (npx git+…#main skips the build when dist exists).
+      - name: Fail if committed dist differs from a fresh build
+        run: |
+          git diff --exit-code packages/pn-core-mcp/dist || (
+            echo "::error::packages/pn-core-mcp/dist/ differs from npm run build:mcp. Rebuild and commit dist/."
             exit 1
           )

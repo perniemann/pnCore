@@ -25,7 +25,7 @@ if (skip) {
   process.exit(0);
 }
 
-changedFiles = listChangedFiles(range);
+changedFiles = listChangedFiles(range, { includeDeleted: true });
 const baseRef = baseRefFromRange(range);
 const basePkg = readFileAtRef(baseRef, "package.json");
 if (basePkg) {
@@ -36,7 +36,13 @@ if (basePkg) {
   }
 }
 
-const { errors, skipped } = validateChangelogPolicy({ repoRoot, changedFiles, baseVersion });
+const baseChangelog = readFileAtRef(baseRef, "plugins/pnCore/CHANGELOG.md");
+const { errors, skipped } = validateChangelogPolicy({
+  repoRoot,
+  changedFiles,
+  baseVersion,
+  baseChangelog: baseChangelog || null,
+});
 
 if (skipped) {
   console.log("validate-changelog: no release-path changes — OK");

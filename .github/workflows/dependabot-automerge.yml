@@ -12,11 +12,16 @@ permissions:
   pull-requests: write
   checks: read
   statuses: read
-  actions: read
+  actions: write
+
+concurrency:
+  group: dependabot-automerge-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   automerge:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     if: github.event.pull_request.user.login == 'dependabot[bot]'
     steps:
       - name: Dependabot metadata
@@ -25,12 +30,27 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Skip major semver bumps
-        if: steps.metadata.outputs.update-type == 'version-update:semver-major'
-        run: echo "Major update — manual review required."
+      - name: Skip major semver bumps and workflow changes
+        id: skip
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
+        run: |
+          set -euo pipefail
+          if [ "$UPDATE_TYPE" = "version-update:semver-major" ]; then
+            echo "Major update: manual review required."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          elif gh pr view "$PR" --json files -q '.files[].path' | grep -q '^\.github/workflows/'; then
+            echo "This PR changes .github/workflows/: manual review required."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Wait for CI (excluding this workflow)
-        if: steps.metadata.outputs.update-type != 'version-update:semver-major'
+        if: steps.skip.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
@@ -49,7 +69,7 @@ jobs:
               return 0
             fi
             gh api "repos/${GH_REPO}/commits/${HEAD_SHA}/check-runs" --paginate \
-              -q '.check_runs[] | [.name,
+              -q '.check_runs[] | select(.app.slug == "github-actions") | [.name,
                 (if .status != "completed" then "pending"
                  elif .conclusion == "success" or .conclusion == "neutral" or .conclusion == "skipped" then "pass"
                  elif .conclusion == "cancelled" then "cancel"
@@ -58,11 +78,7 @@ jobs:
           }
 
           for attempt in $(seq 1 40); do
-            if ! mapfile -t rows < <(list_checks); then
-              echo "listing checks failed; retrying... (${attempt}/40)"
-              sleep 30
-              continue
-            fi
+            mapfile -t rows < <(list_checks)
             if [[ ${#rows[@]} -eq 0 ]]; then
               echo "No checks registered yet... (${attempt}/40)"
               sleep 30
@@ -107,8 +123,18 @@ jobs:
           exit 1
 
       - name: Squash merge
-        if: steps.metadata.outputs.update-type != 'version-update:semver-major'
+        if: steps.skip.outputs.skip != 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
-        run: gh pr merge ${{ github.event.pull_request.number }} --squash --delete-branch
+          PR: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: gh pr merge "$PR" --squash --delete-branch --match-head-commit "$HEAD_SHA"
+
+      # Merges by GITHUB_TOKEN start no push workflows; run full CI on the new main explicitly.
+      - name: Run full CI on main
+        if: steps.skip.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: gh workflow run sync-mcp-content.yml --ref main

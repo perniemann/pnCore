@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 /**
  * Removes IDE-injected lines from commit message files (prepare-commit-msg hook).
- * Keeps legitimate Co-authored-by lines from humans; strips Cursor marketing trailers.
+ * Keeps Co-authored-by lines from humans; strips Cursor and Claude agent trailers.
+ * Same filter as the consumer template (docs/templates/consumer-gating); the repo CI check
+ * (check-commit-no-ide-trailers.mjs) additionally rejects any Co-authored-by.
  */
 import { readFileSync, writeFileSync } from "fs";
 
@@ -14,6 +16,9 @@ const out = lines.filter((line) => {
   if (/^Made-with:/i.test(line)) return false;
   if (/^Co-authored-by:.*cursoragent@cursor\.com/i.test(line)) return false;
   if (/^Co-authored-by:.*Cursor\s*<cursor@cursor\.com>/i.test(line)) return false;
+  if (/^Co-authored-by:.*@anthropic\.com>/i.test(line)) return false;
+  if (/^Claude-Session:/i.test(line)) return false;
+  if (/^(🤖\s*)?Generated with \[?Claude Code/i.test(line)) return false;
   return true;
 });
 

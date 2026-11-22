@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 /**
- * Prune GitHub Actions workflow history: keep only the latest run per workflow,
- * remove the rest (entire run by default, or log archives only with --logs-only).
+ * Prune GitHub Actions workflow history: keep the latest run per workflow, every run younger
+ * than KEEP_DAYS (30), and every run on the head commit of an open pull request; remove the
+ * rest (entire run by default, or log archives only with --logs-only). Deleting a run deletes
+ * its check runs, and an open PR whose checks vanished can never automerge.
  * Requires GITHUB_TOKEN with repo scope (Actions read/write for fine-grained PATs).
  *
  * Usage:
@@ -16,6 +18,8 @@
  * DELETE .../actions/runs/{run_id}/logs).
  */
 
+import { fileURLToPath } from "url";
+
 const argv = process.argv.slice(2);
 const flags = new Set(argv.filter((a) => a.startsWith("--")));
 const positionals = argv.filter((a) => !a.startsWith("--"));
@@ -25,11 +29,6 @@ const dryRun = flags.has("--dry-run");
 const ownerRepo = positionals[0] || "perniemann/pnCore";
 const [owner, repo] = ownerRepo.split("/");
 const token = process.env.GITHUB_TOKEN;
-
-if (!token) {
-  console.error("Set GITHUB_TOKEN (repo scope) and run again.");
-  process.exit(1);
-}
 
 const base = "https://api.github.com";
 const headers = {
@@ -105,7 +104,42 @@ async function deleteRunLogs(runId) {
   return false;
 }
 
+const KEEP_DAYS = 30;
+
+async function openPrHeadShas() {
+  const shas = new Set();
+  for (let page = 1; ; page++) {
+    const res = await fetch(
+      `${base}/repos/${owner}/${repo}/pulls?state=open&per_page=100&page=${page}`,
+      { headers }
+    );
+    if (!res.ok) throw new Error(`list open PRs failed: ${res.status}`);
+    const prs = await res.json();
+    for (const pr of prs) shas.add(pr.head.sha);
+    if (prs.length < 100) return shas;
+  }
+}
+
+/** Pure selection, exported for tests. */
+export function selectPrunable(runs, { now = Date.now(), protectedShas = new Set() } = {}) {
+  const byWorkflow = new Map();
+  for (const run of runs) {
+    const existing = byWorkflow.get(run.workflow_id);
+    if (!existing || run.run_number > existing.run_number) byWorkflow.set(run.workflow_id, run);
+  }
+  const latest = new Set([...byWorkflow.values()].map((r) => r.id));
+  const cutoff = now - KEEP_DAYS * 24 * 60 * 60 * 1000;
+  return runs.filter(
+    (r) =>
+      !latest.has(r.id) && !protectedShas.has(r.head_sha) && Date.parse(r.created_at ?? "") < cutoff
+  );
+}
+
 async function main() {
+  if (!token) {
+    console.error("Set GITHUB_TOKEN (repo scope) and run again.");
+    process.exit(1);
+  }
   await checkRepoAccess();
   const runs = await listAllRuns();
   if (runs.length === 0) {
@@ -113,22 +147,12 @@ async function main() {
     return;
   }
 
-  // Group by workflow_id; keep the run with the highest run_number per workflow.
-  const byWorkflow = new Map();
-  for (const run of runs) {
-    const wid = run.workflow_id;
-    const existing = byWorkflow.get(wid);
-    if (!existing || run.run_number > existing.run_number) {
-      byWorkflow.set(wid, run);
-    }
-  }
-
-  const toKeep = new Set([...byWorkflow.values()].map((r) => r.id));
-  const toPrune = runs.filter((r) => !toKeep.has(r.id));
+  const toPrune = selectPrunable(runs, { protectedShas: await openPrHeadShas() });
+  const keptCount = runs.length - toPrune.length;
 
   const mode = logsOnly ? "log archives (runs kept)" : "full run";
   console.log(`Total runs: ${runs.length}`);
-  console.log(`Keeping latest per workflow: ${toKeep.size}`);
+  console.log(`Keeping (latest per workflow, < ${KEEP_DAYS} days, open-PR heads): ${keptCount}`);
   console.log(`To prune (${mode}): ${toPrune.length}`);
   if (dryRun) {
     console.log("Dry run — no deletions.");
@@ -154,7 +178,7 @@ async function main() {
     }
   }
 
-  console.log(`Done: ${okCount} pruned, ${failCount} failed, ${toKeep.size} kept.`);
+  console.log(`Done: ${okCount} pruned, ${failCount} failed, ${keptCount} kept.`);
   if (failCount > 0) {
     console.error(
       "Some deletions failed (often missing actions:write on the token). " +
@@ -164,7 +188,9 @@ async function main() {
   }
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}
