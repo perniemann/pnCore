@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { rmSync } from "fs";
+import { mkdirSync, rmSync, writeFileSync } from "fs";
 import { getWorkflowStep } from "./workflows.js";
 import { fullDevAcceptance } from "./delivery-acceptance.js";
 import {
@@ -11,6 +11,16 @@ import {
 import { handleWorkflowStep } from "./tools/handlers.js";
 
 const events = ".pncore/test-delivery-events.jsonl";
+const runLog = ".pncore/test-delivery-runs.jsonl";
+
+/** ADR-0025: step 6 is reachable only after the engine pointed to it for this run. */
+function seedServedThroughStep5(runId: string): void {
+  mkdirSync(".pncore", { recursive: true });
+  writeFileSync(
+    runLog,
+    JSON.stringify({ runId, workflowType: "full_dev", step: 5, nextStep: 6, done: false }) + "\n"
+  );
+}
 const gate = (go: "go" | "no_go" = "go") => ({
   verdict: go === "go" ? "pass" : "revise",
   go_no_go: go,
@@ -42,6 +52,8 @@ describe("full_dev step 6 delivery ledger and acceptance", () => {
   beforeEach(() => {
     rmSync(events, { force: true });
     vi.stubEnv("PNCORE_RUN_EVENTS_PATH", events);
+    vi.stubEnv("PNCORE_RUN_LOG", runLog);
+    seedServedThroughStep5("run-ledger");
     vi.stubEnv("PNCORE_DISPOSE_VERIFY", "0");
     vi.stubEnv("PNCORE_STRICT_SKEPTIC_GATES", "0");
   });
@@ -49,6 +61,7 @@ describe("full_dev step 6 delivery ledger and acceptance", () => {
   afterEach(() => {
     vi.unstubAllEnvs();
     rmSync(events, { force: true });
+    rmSync(runLog, { force: true });
   });
 
   it("default features: acceptance is unearned and the instruction asks for a scoped ledger", () => {

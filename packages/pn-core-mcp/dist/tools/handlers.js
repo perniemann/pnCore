@@ -1,6 +1,7 @@
 import { appendFileSync, mkdirSync, existsSync, readFileSync } from "fs";
 import { dirname, join } from "path";
 import { noGoTicketRequired } from "../skeptic-gate-state.js";
+import { gateRecordProvenanceError, readGateVerdicts, readServedSteps, stepSequenceError, } from "../step-sequence.js";
 import { listSkills, getSkill, listAgents, listInternalAgents, getAgent, listCommands, getCommand, listRules, getRule, } from "../content.js";
 import { getWorkflowStep, PUBLIC_WORKFLOW_TYPES, resolveStepTier, workflowSteps, } from "../workflows.js";
 import { resolveRoleTier } from "../model-tiers.js";
@@ -290,6 +291,31 @@ export async function handleWorkflowStep(args) {
     const result = getWorkflowStep(workflowType, step, st);
     if ("error" in result)
         return mcpError("INVALID_STATE", result.error, { workflowType, step });
+    // ADR-0025: the engine decides the next step. Only steps served or pointed to for this run
+    // are reachable, and strict gate records must come from workflow_confirm.
+    const runLogRel = process.env.PNCORE_RUN_LOG ?? ".pncore/workflow-runs.jsonl";
+    if (runLogRel) {
+        const runLogSafe = resolveSafePath(runLogRel);
+        if (!("error" in runLogSafe)) {
+            const explicitRunId = typeof st.run_id === "string" && st.run_id.trim() !== "" ? st.run_id.trim() : undefined;
+            const sequenceError = stepSequenceError({
+                workflowType,
+                step,
+                state: st,
+                explicitRunId,
+                served: explicitRunId ? readServedSteps(runLogSafe.resolved, explicitRunId) : [],
+            });
+            if (sequenceError)
+                return mcpError("INVALID_STATE", sequenceError, { workflowType, step });
+        }
+    }
+    const gateLogSafe = resolveSafePath(defaultGateLogPath);
+    if (!("error" in gateLogSafe)) {
+        const provenanceError = gateRecordProvenanceError(st, readGateVerdicts(gateLogSafe.resolved));
+        if (provenanceError) {
+            return mcpError("INVALID_GATE", provenanceError, { workflowType, step });
+        }
+    }
     const humanGateEnforced = result.gate === "human" &&
         workflowRequiresHumanGateApproval(requiredHumanGateWorkflows, workflowType);
     if (humanGateEnforced || noGoTicketRequired(st)) {

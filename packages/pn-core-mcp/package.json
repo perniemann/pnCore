@@ -1,6 +1,6 @@
 {
   "name": "pn-core-mcp",
-  "version": "0.23.0",
+  "version": "0.24.0",
   "description": "MCP engine for pnCore: workflow_step, skills, agents, commands, and rules across Cursor, Claude Code, Codex, and Pi.",
   "author": {
     "name": "perniemann",

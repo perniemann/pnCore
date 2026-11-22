@@ -2,7 +2,7 @@
   <img src="plugins/pnCore/assets/pn-logo.svg" width="176" alt="pnCore" />
 </p>
 
-# pnCore — v0.23.0
+# pnCore — v0.24.0
 
 pnCore is an MCP engine with harness adapters for Cursor, Claude Code, Codex, and Pi. It runs software delivery as a sequence of named, gated steps instead of one long chat.
 
@@ -19,18 +19,18 @@ It runs named workflows through a deterministic `workflow_step` engine — disco
 ## Why this exists
 
 <p align="center">
-  <img src="docs/readme/02_who_owns_the_loop.svg" width="850" alt="Left: a single chat plans, codes, and checks its own work with no checkpoint in between. Right: the engine runs one gated step at a time, with skeptic, human, or workflow_verify deciding pass or fail. Same models either way — the MCP keeps the state between calls.">
+  <img src="docs/readme/02_who_owns_the_loop.svg" width="850" alt="Left: a single chat plans, codes, and checks its own work with no checkpoint in between. Right: the engine runs one gated step at a time and decides which step comes next. Same models either way; state saves let a run resume between calls.">
 </p>
 
 A single chat can plan a feature, write the code, and tell you it's done — but there's no checkpoint in between. If it goes sideways on step three, you're rereading the whole transcript to find out where. Asking it to redo one part usually means starting the conversation over, and whatever context got it that far is gone.
 
-pnCore moves that step list out of the chat. `workflow_step(type, index, state)` runs one step at a time — discovery, plan, build, review — and hands back the next instruction. A skeptic pass, a human gate, or `workflow_verify` decides whether a step actually passed, not the model's own say-so. If you get disconnected, `workflow_state_save` and `workflow_state_load` pick the run back up where it left off.
+pnCore moves that step list out of the chat. `workflow_step(type, index, state)` runs one step at a time — discovery, plan, build, review — and hands back the next instruction. The engine serves only the step it pointed to, so a run cannot skip ahead, and a failed gate never advances. How much the gates prove depends on the mode: with `involved` intent a gate record must come from `workflow_confirm`, with `disposeVerify` a verify result must come from `workflow_verify`, and in `full auto` a passed gate is a state key the model sets. If you get disconnected, `workflow_state_save` and `workflow_state_load` pick the run back up where it left off.
 
 ---
 
 ## What it is
 
-**Deterministic.** `workflow_step(type, index, state)` decides the next instruction. Steps aren't skipped by assumption — skipping one is a gate decision, logged in state.
+**Deterministic.** `workflow_step(type, index, state)` decides the next instruction. A step after 0 needs the run's `run_id` and must be one the engine served or pointed to (ADR-0025); a skip is refused, not assumed.
 
 **Gated.** Skeptic, human, and `workflow_verify` gates are built into the engine. Intent is `full auto`, `design focused`, or `involved`. Involved gates discovery, prior-art, plan, specialist list, and review — you confirm to advance. Design focused is the `design` workflow, not a third gate flavor of `full_dev`.
 
@@ -191,7 +191,7 @@ After the run, `/pn-deliver` is the next named workflow if you need a handoff pa
 | One long transcript | Named steps, each with a `run_id` |
 | "Done" means the model stopped talking | Skeptic, `workflow_verify`, or a delivery pack decide |
 | A retry starts a new chat | `workflow_state_load` picks up where it stopped |
-| Skills live in a folder you have to remember to load | The engine loads gates and skills automatically |
+| Skills live in a folder you have to remember to load | Each step names the skills it needs; `get_skill` serves them |
 | Works in Cursor chat, nowhere else | Same engine on Cursor, Claude Code, Codex, Pi; files land in each harness's own folders |
 
 **Three tier concepts** (do not conflate them): **delivery tier** (MVP/Full), **context tier** (1–4 reading depth), **model tier** (`fast` / `standard` / `premium` / `premium_thinking` / `long_horizon`). Loop orchestration: `suggest_model_tier` with `role: orchestrator` → `long_horizon`. See `pn-core://reference/delivery-tier-criteria.md` and [MCP tools](packages/pn-core-mcp/README.md#tools).
