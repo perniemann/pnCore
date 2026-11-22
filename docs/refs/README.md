@@ -57,7 +57,7 @@ Frameworks and talks that align with pnCore's layered rules, skills, MCP, and `c
 
 ### Hard approval in pn-core MCP
 
-The **`approval_checkpoint`** tool succeeds only if `approval_token` matches **`PNCORE_APPROVAL_TOKEN`** on the MCP server process (set in MCP config `env`, not in the model context). That is stronger than `workflow_confirm` (prompt-only): the model cannot pass the checkpoint without the user supplying the shared secret when calling the tool. It is not as strong as a separate human channel (email/Slack) but closes the "model skipped asking" gap for configured workflows.
+The **`approval_checkpoint`** tool succeeds only if `approval_token` matches **`PNCORE_APPROVAL_TOKEN`** on the MCP server process (set in MCP config `env`, not in the model context). That is stronger than `workflow_confirm` (prompt-only): the checkpoint passes only with the shared secret. It holds only while the model cannot read the secret. A model that can read the MCP config file or the server environment can pass it, so keep the token out of agent-readable config when the gate has to hold (see `SECURITY.md`, Trust boundary). It is weaker than a separate human channel (email, Slack).
 
 ### Related docs
 

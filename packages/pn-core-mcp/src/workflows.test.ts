@@ -1713,3 +1713,38 @@ describe("ADR-0024 consolidation", () => {
     expect(all).not.toMatch(/paperclip_issue_(checkout|comment|update)/);
   });
 });
+
+describe("failed gates never advance", () => {
+  it("full_dev step 3 refuses skepticPassed false", () => {
+    const r = getWorkflowStep("full_dev", 3, {
+      plan: "p",
+      skepticPassed: false,
+      skepticVerdict: "must_fix items open",
+    });
+    expect("error" in r && r.error).toMatch(/skepticPassed is false/);
+  });
+
+  it("full_dev step 6 refuses reviewComplete false", () => {
+    const r = getWorkflowStep("full_dev", 6, {
+      reviewComplete: false,
+      skepticOutputPassed: true,
+      skepticOutputVerdict: "ok",
+    });
+    expect("error" in r && r.error).toMatch(/reviewComplete is false/);
+  });
+
+  it("full_dev step 6 refuses skepticOutputPassed false (no loop-back defined there)", () => {
+    const r = getWorkflowStep("full_dev", 6, { reviewComplete: true, skepticOutputPassed: false });
+    expect("error" in r && r.error).toMatch(/skepticOutputPassed is false/);
+  });
+
+  it("design step 4 still loops back on skepticOutputPassed false", () => {
+    const r = getWorkflowStep("design", 4, {
+      buildComplete: true,
+      skepticOutputPassed: false,
+      skepticOutputVerdict: "regressions",
+      iterationCount: 0,
+    });
+    expect("error" in r).toBe(false);
+  });
+});

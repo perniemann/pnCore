@@ -4,6 +4,25 @@ All notable changes to pnCore are documented in this file.
 
 ## [Unreleased]
 
+## [0.23.0] - 2026-11-22
+
+Engine integrity. Each fix closes a path, found by an adversarial review on 2026-11-21, that let a model pass a gate through pn-core tools alone. `SECURITY.md` now states the trust boundary.
+
+### Fixed
+
+- **Content ids never reach the filesystem as paths.** `get_rule` and `get_agent` (and the internal-agent fallback) accept only flat slugs (`^[A-Za-z0-9][A-Za-z0-9_-]*$`); `../` and separators return not found instead of reading any `.md`/`.mdc` on disk.
+- **State saves cannot write trails.** `workflow_state_save` and `workflow_state_load` accept only `.json` paths. A state save could previously write one line into `.pncore/run-events.jsonl` or the human-gate ticket log that the readers accepted as a verify attestation or an issued ticket.
+- **A failed gate never advances.** `skepticPassed`, `skepticOutputPassed` or `reviewComplete` set to `false` now blocks the step, except where the workflow defines a loop-back (design step 4, engine_feature step 3, standalone tournament handoff at full_dev step 5).
+- **`no_go` needs a real ticket.** With strict gate records (`intent: "involved"` or `PNCORE_STRICT_SKEPTIC_GATES`), a `no_go` verdict advances only when `workflow_step` validates and consumes a ticket that `approval_checkpoint` issued for that run and step. Any non-empty string passed before.
+- **Path containment resolves symlinks.** `resolveInside` checks the deepest existing ancestor's real path, so a symlinked `.pncore` (or any directory) pointing outside the workspace is rejected.
+- **Verify jail.** bubblewrap adds `--unshare-pid`, `--unshare-ipc`, `--unshare-uts` and `--new-session`, and binds `.git` and `.pncore` read-only over the writable worktree: a candidate cannot plant a git hook or a trail line. Free-form argv refuses `npm exec`, `npm x`, `pnpm dlx`, `yarn dlx` and `bun x`.
+- **Tournament attestations bind to the run.** With `state.run_id` set, an attestation from another run is refused. A candidate survives only if every report for it passed, so a red run outranks a green retry. Step 2 acceptance no longer claims `humanEarned`.
+- **Checkpoint protocol (ADR-0022).** A plain save over a commit-mode checkpoint is refused (`RUN_MISMATCH`) instead of silently dropping its revision envelope. A handoff line at the committed revision with a different `stateHash` (an orphan from a crashed save) counts as uncommitted.
+
+### Changed
+
+- `SECURITY.md`: a Trust boundary section names what the engine guards (the MCP surface) and what it does not (a model with shell write access to `.pncore/`, or read access to `PNCORE_APPROVAL_TOKEN`). `docs/refs/README.md` no longer claims the model cannot pass `approval_checkpoint`.
+
 ## [0.22.0] - 2026-11-21
 
 Catalog consolidation (ADR-0024): skills 171 → 142, tools 29 → 25, workflow types 16 → 15, commands 49 → 47. Nothing is aliased; every removal is listed below with its replacement.

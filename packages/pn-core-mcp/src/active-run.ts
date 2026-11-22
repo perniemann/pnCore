@@ -133,6 +133,7 @@ type LogPoint = {
   ts: string;
   workflowType: string | null;
   revision: number | null;
+  stateHash: string | null;
 };
 
 function newestPoint(points: LogPoint[]): LogPoint | null {
@@ -166,6 +167,7 @@ function scanRunLog(
       ts: typeof o.ts === "string" ? o.ts : "",
       workflowType: typeof o.workflowType === "string" ? o.workflowType : null,
       revision: typeof o.revision === "number" ? o.revision : null,
+      stateHash: typeof o.stateHash === "string" ? o.stateHash : null,
     });
   }
   return { points };
@@ -260,14 +262,24 @@ export function computeActiveRun(opts: {
   let handoffPoints = handoffScan.points;
   const committedRevision = stateMeta && stateMeta.run_id === target ? stateMeta.revision : null;
   if (committedRevision != null) {
+    // Above the state's revision: an interrupted save. At the same revision with another hash:
+    // an orphan from a crashed save whose retry wrote different state (ADR-0022).
+    const committedHash = stateMeta?.stateHash ?? null;
     const uncommitted = handoffPoints.filter(
-      (p) => p.run_id === target && p.revision != null && p.revision > committedRevision
+      (p) =>
+        p.run_id === target &&
+        p.revision != null &&
+        (p.revision > committedRevision ||
+          (p.revision === committedRevision &&
+            committedHash != null &&
+            p.stateHash != null &&
+            p.stateHash !== committedHash))
     );
     if (uncommitted.length > 0) {
       mismatches.push({
         code: "handoff_revision_ahead",
         severity: "warn",
-        detail: `${uncommitted.length} handoff line(s) for run ${target} carry a revision above the state file's revision ${committedRevision} (interrupted save); they are ignored as uncommitted.`,
+        detail: `${uncommitted.length} handoff line(s) for run ${target} carry a revision above the state file's revision ${committedRevision}, or that revision with a different stateHash (interrupted or orphaned save); they are ignored as uncommitted.`,
       });
       handoffPoints = handoffPoints.filter((p) => !uncommitted.includes(p));
     }

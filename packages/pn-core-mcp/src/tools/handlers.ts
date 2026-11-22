@@ -1,5 +1,6 @@
 import { appendFileSync, mkdirSync, existsSync, readFileSync } from "fs";
 import { dirname, join } from "path";
+import { noGoTicketRequired } from "../skeptic-gate-state.js";
 import {
   listSkills,
   getSkill,
@@ -425,10 +426,10 @@ export async function handleWorkflowStep(args: ShapeArgs<typeof workflowStepSche
   const result = getWorkflowStep(workflowType, step, st);
   if ("error" in result) return mcpError("INVALID_STATE", result.error, { workflowType, step });
 
-  if (
+  const humanGateEnforced =
     result.gate === "human" &&
-    workflowRequiresHumanGateApproval(requiredHumanGateWorkflows, workflowType)
-  ) {
+    workflowRequiresHumanGateApproval(requiredHumanGateWorkflows, workflowType);
+  if (humanGateEnforced || noGoTicketRequired(st)) {
     const ticketsSafe = resolveSafePath(defaultHumanGateTicketsPath);
     if ("error" in ticketsSafe) {
       return mcpError("PATH_TRAVERSAL", ticketsSafe.error, { path: defaultHumanGateTicketsPath });

@@ -1225,6 +1225,46 @@ function partitionSpecialistsForParallel(
   return { sequentialIds, parallelIds, canParallelizeParallelIds };
 }
 
+const GATE_RESULT_KEYS = ["skepticPassed", "skepticOutputPassed", "reviewComplete"] as const;
+
+/**
+ * Steps whose definition handles a failed gate by looping back (iteration cap, approval). Every
+ * other required gate key that is `false` blocks: a failed gate never advances.
+ */
+function failedGateHasLoopBack(
+  workflowType: string,
+  step: number,
+  key: string,
+  state: Record<string, unknown>
+): boolean {
+  if (key === "skepticOutputPassed") {
+    if (workflowType === "design" && step === 4) return true;
+    if ((workflowType === "unreal_feature" || workflowType === "godot_feature") && step === 3) {
+      return true;
+    }
+  }
+  // Standalone tournament handoff: no parent skeptic; step 5 runs its own post-build skeptic.
+  if (workflowType === "full_dev" && step === 5 && key === "skepticPassed") {
+    return state.tournamentHandoff === true;
+  }
+  return false;
+}
+
+export function failedGateKey(
+  workflowType: string,
+  step: number,
+  state: Record<string, unknown>,
+  requiredFromState: string[]
+): string | undefined {
+  for (const key of GATE_RESULT_KEYS) {
+    if (!requiredFromState.includes(key)) continue;
+    if (state[key] !== false) continue;
+    if (failedGateHasLoopBack(workflowType, step, key, state)) continue;
+    return key;
+  }
+  return undefined;
+}
+
 /** Workflow types removed from the public enum, with the replacement to name in the error. */
 const RETIRED_WORKFLOW_TYPES: Record<string, string> = {
   svg_create:
@@ -1305,6 +1345,13 @@ export function getWorkflowStep(
         error: `Step ${step} requires state: ${missing.join(", ")}. Complete step ${prevStep >= 0 ? prevStep : "0"} first and call workflow_step with the required state from that step.`,
       };
     }
+  }
+
+  const failedGate = failedGateKey(workflowType, step, state, def.requiredFromState);
+  if (failedGate) {
+    return {
+      error: `Step ${step} blocked: ${failedGate} is false (the gate failed). Address the must_fix items and re-run the skeptic, or loop back, before advancing.`,
+    };
   }
 
   if (typedEnvelopesEnabled() && state.taskResults && typeof state.taskResults === "object") {

@@ -175,11 +175,31 @@ describe("spawnVerify", () => {
     );
   });
 
+  it("rejects package-runner subcommands that fetch and run arbitrary packages", () => {
+    for (const argv of [
+      ["npm", "exec", "--yes", "evil"],
+      ["npm", "x", "evil"],
+      ["pnpm", "dlx", "evil"],
+      ["yarn", "dlx", "evil"],
+      ["bun", "x", "evil"],
+    ]) {
+      expect(() => assertSafeArgv(argv, { freeform: true })).toThrow(/package runner not allowed/);
+    }
+    expect(() => assertSafeArgv(["npm", "test"], { freeform: true })).not.toThrow();
+  });
+
   it("builds a bwrap argv with no env values and tails long buffers", () => {
     const argv = buildBwrapArgv(passCwd, ["npm", "test"]);
     expect(argv[0]).toBe("bwrap");
     expect(argv).toContain("--unshare-net");
+    for (const flag of ["--unshare-pid", "--unshare-ipc", "--new-session"]) {
+      expect(argv).toContain(flag);
+    }
     expect(argv).not.toContain("--setenv");
+    const gitIdx = argv.indexOf(join(passCwd, ".git"));
+    expect(argv[gitIdx - 1]).toBe("--ro-bind-try");
+    expect(gitIdx).toBeGreaterThan(argv.indexOf("--bind"));
+    expect(argv).toContain(join(passCwd, ".pncore"));
     expect(argv.slice(-2)).toEqual(["npm", "test"]);
     expect(tailOutput("short")).toBe("short");
     expect(tailOutput("n".repeat(9000)).length).toBe(8192);

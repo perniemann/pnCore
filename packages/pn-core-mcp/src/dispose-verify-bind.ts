@@ -66,11 +66,18 @@ export function applyTournamentDisposeVerify(
     };
   }
 
+  const runId = typeof state.run_id === "string" && state.run_id !== "" ? state.run_id : undefined;
   const reports: GateReport[] = [];
   for (const id of ids) {
     const report = loadGateReport(id);
     if (!report) {
       return { error: `Unknown or unattested verifyAttestationId: ${id}` };
+    }
+    // An attestation proves one run's verify; a report from another run is not evidence here.
+    if (runId && report.run_id !== runId) {
+      return {
+        error: `verifyAttestationId ${id} belongs to run ${report.run_id}, not ${runId}. Re-run workflow_verify for this run.`,
+      };
     }
     reports.push(report);
   }
@@ -87,12 +94,19 @@ export function applyTournamentDisposeVerify(
     }
   }
 
-  const survivors = reports.filter(gatePassed).map((r) => r.candidate_id ?? r.attestationId);
+  // A candidate survives only if every report for it passed: a red run outranks a green retry.
+  const byCandidate = new Map<string, boolean>();
+  for (const r of reports) {
+    const key = r.candidate_id ?? r.attestationId;
+    byCandidate.set(key, (byCandidate.get(key) ?? true) && gatePassed(r));
+  }
+  const survivors = [...byCandidate].filter(([, passed]) => passed).map(([key]) => key);
   const verifyEarned = reports.length > 0;
   const acceptance = computeAcceptance({
     phasesPassed: true,
     verifyEarned,
-    humanEarned: true,
+    // Step 2 has no human gate; acceptance here is verify-earned only.
+    humanEarned: false,
     accepted: survivors.length > 0,
     reasons: survivors.length === 0 ? ["zero_survivors"] : [],
   });
